@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive">
+<title>DUELVANTA · Access Granted</title>
+<style>
+:root{--bg:#07090d;--panel:#101319;--line:#272b31;--gold:#c7a45d;--gold2:#efd18c;--text:#f4efe5;--muted:#989faa;--good:#a8d9b8;--bad:#e2a0a0}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 30%,#20170d 0,transparent 31%),linear-gradient(#090b10,#050609);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.stage{min-height:100vh;display:grid;place-items:center;overflow:hidden;position:relative;padding:24px}.fog{position:absolute;inset:-20%;background:radial-gradient(ellipse at center,rgba(199,164,93,.10),transparent 50%);filter:blur(30px);animation:pulse 4s ease-in-out infinite}.particles{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(239,209,140,.6) 0 1px,transparent 1.5px);background-size:78px 78px;opacity:.12;animation:drift 18s linear infinite}.content{position:relative;text-align:center;width:min(760px,100%);z-index:2}.sigil{width:88px;height:88px;margin:0 auto 24px;filter:drop-shadow(0 0 22px rgba(199,164,93,.35));opacity:0;transform:scale(.85);animation:reveal .9s .3s forwards}.kicker{letter-spacing:.25em;text-transform:uppercase;font-size:11px;color:var(--gold);opacity:0;animation:rise .7s .9s forwards}.access{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,9vw,92px);letter-spacing:.08em;margin:14px 0 8px;color:var(--gold2);text-shadow:0 0 32px rgba(199,164,93,.16);opacity:0;animation:rise .8s 1.15s forwards}.line{width:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);margin:22px auto;animation:line 1s 1.65s forwards}.founder{font-family:Georgia,"Times New Roman",serif;font-size:clamp(21px,4vw,34px);opacity:0;animation:rise .8s 2s forwards}.copy{color:var(--muted);line-height:1.65;max-width:600px;margin:16px auto 0;opacity:0;animation:rise .8s 2.35s forwards}.mantra{margin-top:28px;letter-spacing:.18em;font-size:12px;color:var(--gold);opacity:0;animation:rise .8s 2.7s forwards}.continue{margin-top:34px;border:1px solid rgba(199,164,93,.45);background:linear-gradient(180deg,rgba(199,164,93,.18),rgba(199,164,93,.07));color:var(--gold2);padding:13px 20px;border-radius:10px;cursor:pointer;opacity:0;animation:rise .8s 3s forwards}.status{margin-top:18px;font-size:12px;color:var(--muted)}.status.err{color:var(--bad)}@keyframes reveal{to{opacity:1;transform:scale(1)}}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes line{to{width:min(520px,75vw)}}@keyframes pulse{50%{opacity:.55;transform:scale(1.05)}}@keyframes drift{to{transform:translate3d(40px,30px,0)}}
+</style>
+</head><body>
+<main class="stage"><div class="fog"></div><div class="particles"></div><section class="content">
+<img class="sigil" src="v-logo.svg" alt="DUELVANTA V">
+<div class="kicker">The gates are open</div><h1 class="access">ACCESS GRANTED</h1><div class="line"></div>
+<div id="founder" class="founder">DUELVANTA BETA</div>
+<p id="copy" class="copy">Dein Zugang wird aktiviert …</p>
+<div class="mantra">COLLECT. TRADE. BATTLE.</div>
+<button id="continueBtn" class="continue" disabled>DUELVANTA BETRETEN</button><div id="status" class="status">Sicherer Account-Abgleich läuft …</div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const el=id=>document.getElementById(id);
+async function start(){
+  await new Promise(r=>setTimeout(r,450));
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){el('status').className='status err';el('status').textContent='Der Einladungslink ist ungültig oder abgelaufen.';el('copy').textContent='Bitte verwende den aktuellen DUELVANTA Beta-Link aus deiner E-Mail.';return}
+  const {data:profile,error}=await db.rpc('activate_my_beta_account');
+  if(error){el('status').className='status err';el('status').textContent='Zugang konnte nicht aktiviert werden: '+error.message;return}
+  const p=Array.isArray(profile)?profile[0]:profile;
+  if(p?.founder_number){el('founder').textContent=`FOUNDER #${String(p.founder_number).padStart(3,'0')} · GENERATION I`;el('copy').textContent='Du warst dabei, bevor sich die Arena geöffnet hat. Deine Founder-Identität bleibt dauerhaft mit deinem DUELVANTA Account verbunden.'}
+  else{el('founder').textContent='DUELVANTA BETA ACCESS';el('copy').textContent='Dein Beta-Zugang ist aktiv. Willkommen in DUELVANTA.'}
+  el('status').textContent='Account aktiviert.';el('continueBtn').disabled=false;
+  if(!p?.access_sequence_seen){await db.from('profiles').update({access_sequence_seen:true}).eq('id',session.user.id)}
+}
+el('continueBtn').addEventListener('click',()=>location.href='/app.html');start();
+</script></body></html>

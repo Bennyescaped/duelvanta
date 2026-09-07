@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>DUELVANTA · Beta Control Center</title>
+  <style>
+    :root{
+      --bg:#080a0d;--panel:#101319;--panel2:#151922;--line:#252b36;--gold:#c7a45d;--gold2:#efd18c;
+      --text:#f3eee4;--muted:#9aa2ae;--good:#8fd2a8;--warn:#d7b56d;--bad:#d88a8a;
+    }
+    *{box-sizing:border-box} html,body{margin:0;background:radial-gradient(circle at 20% 0%,#15120c 0,transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}
+    button,input,select{font:inherit}
+    .shell{min-height:100vh;display:grid;grid-template-columns:250px 1fr}
+    aside{border-right:1px solid var(--line);background:rgba(8,10,13,.88);backdrop-filter:blur(14px);padding:28px 20px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:10px;font-family:Georgia,"Times New Roman",serif;letter-spacing:.18em;color:var(--gold2);font-size:20px;font-weight:700;margin-bottom:5px}.brand img{width:34px;height:34px;display:block}.subbrand{font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+    .nav{margin-top:36px;display:grid;gap:10px}.nav a{color:#c8ccd2;text-decoration:none;padding:12px 13px;border:1px solid transparent;border-radius:10px}.nav a.active{background:linear-gradient(180deg,rgba(199,164,93,.12),rgba(199,164,93,.05));border-color:rgba(199,164,93,.28);color:var(--gold2)}
+    .ownerbox{position:absolute;left:20px;right:20px;bottom:22px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.ownerbox .tiny{font-size:11px;color:var(--muted)}.ownerbox .email{font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+    main{padding:34px;min-width:0}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}h1{font-family:Georgia,"Times New Roman",serif;font-size:32px;margin:6px 0 4px}.lead{color:var(--muted);margin:0}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}.btn:hover{border-color:#3a4351}.btn.gold{border-color:rgba(199,164,93,.48);background:linear-gradient(180deg,rgba(199,164,93,.18),rgba(199,164,93,.08));color:var(--gold2)}.btn.danger{color:#f1b3b3}.btn:disabled{opacity:.5;cursor:not-allowed}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.card{background:linear-gradient(180deg,rgba(20,24,31,.96),rgba(13,16,21,.96));border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.18)}.stat .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.stat .value{font-family:Georgia,"Times New Roman",serif;font-size:32px;margin-top:9px}.stat .note{font-size:12px;color:var(--muted);margin-top:5px}
+    .toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px}.lefttools{display:flex;gap:10px;flex-wrap:wrap;flex:1}.search,.filter{background:#0d1015;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.search{min-width:260px;flex:1;max-width:420px}.filter{min-width:150px}
+    .tablewrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:rgba(13,16,21,.94)}table{width:100%;border-collapse:collapse;min-width:900px}th,td{text-align:left;padding:14px 15px;border-bottom:1px solid #1d222c;font-size:13px}th{position:sticky;top:0;background:#11151c;color:#8f98a5;font-size:11px;letter-spacing:.08em;text-transform:uppercase;z-index:1}tr:last-child td{border-bottom:0}tbody tr:hover{background:rgba(255,255,255,.018)}
+    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:11px;white-space:nowrap;border:1px solid var(--line);color:#c8ccd2}.badge.founder{border-color:rgba(199,164,93,.36);background:rgba(199,164,93,.08);color:var(--gold2)}.badge.waitlist{color:#c8ccd2}.badge.invited{color:#dfc27b;border-color:rgba(215,181,109,.3)}.badge.activated{color:#9bd8b1;border-color:rgba(143,210,168,.3)}.badge.declined{color:#dfa1a1;border-color:rgba(216,138,138,.3)}
+    .statusSel{background:#0d1015;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:12px}.empty{padding:34px;color:var(--muted);text-align:center}.hidden{display:none!important}
+    .login{min-height:100vh;display:grid;place-items:center;padding:24px}.loginCard{width:min(460px,100%);background:linear-gradient(180deg,#141820,#0d1015);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 28px 90px rgba(0,0,0,.45)}.loginBrand{display:flex;align-items:center;gap:12px;font-family:Georgia,"Times New Roman",serif;letter-spacing:.18em;color:var(--gold2);font-size:22px}.loginBrand img{width:42px;height:42px;display:block}.loginCard h2{font-family:Georgia,"Times New Roman",serif;margin:28px 0 8px;font-size:28px}.loginCard p{color:var(--muted);line-height:1.55}.loginCard input{width:100%;background:#0a0d12;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0 10px}.loginCard .btn{width:100%;margin-top:4px}.msg{font-size:12px;margin-top:12px;color:var(--muted);line-height:1.5}.msg.ok{color:var(--good)}.msg.err{color:var(--bad)}
+    .progress{height:6px;background:#1b2028;border-radius:999px;overflow:hidden;margin-top:12px}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#8c6d32,#d8b76d);width:0}
+    @media(max-width:980px){.shell{grid-template-columns:1fr}aside{display:none}.stats{grid-template-columns:repeat(2,1fr)}main{padding:22px}.top{flex-direction:column}.actions{width:100%}.actions .btn{flex:1}.toolbar{align-items:stretch;flex-direction:column}.lefttools{display:grid;grid-template-columns:1fr 1fr}.search{max-width:none;min-width:0;grid-column:1/-1}}
+    @media(max-width:580px){.stats{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.stat .value{font-size:25px}.lefttools{grid-template-columns:1fr}.search{grid-column:auto}h1{font-size:27px}}
+    @media(max-width:700px){
+      .tablewrap{overflow:visible;border:0;background:transparent}table{min-width:0}thead{display:none}tbody{display:grid;gap:12px}tbody tr{display:block;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(20,24,31,.98),rgba(13,16,21,.98));padding:14px}tbody td{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:center;border:0!important;padding:8px 0!important;min-width:0}tbody td:before{content:attr(data-label);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#717985}tbody td:nth-child(2){word-break:break-word}tbody td:last-child{padding-top:13px!important;margin-top:5px;border-top:1px solid var(--line)!important}tbody td:last-child .btn{width:100%;min-height:44px}.statusSel{width:100%;min-width:0}.badge{white-space:normal}.empty{display:block!important;padding:20px!important}.empty:before{display:none}.toolbar{margin-top:4px}}
+
+  </style>
+</head>
+<body>
+  <section id="loginView" class="login">
+    <div class="loginCard">
+      <div class="loginBrand"><img src="v-logo.svg" alt="DUELVANTA V"><span>DUELVANTA</span></div>
+      <div class="subbrand">Beta Control Center · Owner Access</div>
+      <h2>Admin-Zugang</h2>
+      <p>Der Zugriff ist ausschließlich für den DUELVANTA Owner freigegeben. Du erhältst einen sicheren Login-Link per E-Mail.</p>
+      <input id="ownerEmail" type="email" value="info@duelvanta.de" readonly />
+      <button id="magicBtn" class="btn gold">Login-Link senden</button>
+      <div id="loginMsg" class="msg">Kein öffentliches Auslesen der Warteliste möglich. Zugriff wird serverseitig über Supabase RLS geprüft.</div>
+    </div>
+  </section>
+
+  <section id="appView" class="shell hidden">
+    <aside>
+      <div class="brand"><img src="v-logo.svg" alt="DUELVANTA V"><span>DUELVANTA</span></div>
+      <div class="subbrand">Control Center</div>
+      <nav class="nav">
+        <a class="active" href="#">Beta Dashboard</a>
+        <a href="#" aria-disabled="true">Founder Gen I</a>
+        <a href="#" aria-disabled="true">Invites</a>
+      </nav>
+      <div class="ownerbox">
+        <div class="tiny">Angemeldet als Owner</div>
+        <div id="ownerLabel" class="email">info@duelvanta.de</div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div>
+          <div class="eyebrow">DUELVANTA · Internal</div>
+          <h1>Beta Control Center</h1>
+          <p class="lead">Warteliste, Founder Generation I und Beta-Status zentral verwalten.</p>
+        </div>
+        <div class="actions">
+          <button id="refreshBtn" class="btn">Aktualisieren</button>
+          <button id="logoutBtn" class="btn danger">Abmelden</button>
+        </div>
+      </div>
+
+      <section class="stats">
+        <article class="card stat"><div class="label">Registrierungen</div><div id="totalStat" class="value">—</div><div class="note">Gesamt auf der Warteliste</div></article>
+        <article class="card stat"><div class="label">Founder Gen I</div><div id="founderStat" class="value">— / 250</div><div class="progress"><span id="founderProgress"></span></div></article>
+        <article class="card stat"><div class="label">Eingeladen</div><div id="invitedStat" class="value">—</div><div class="note">Beta-Einladung verschickt</div></article>
+        <article class="card stat"><div class="label">Aktiviert</div><div id="activeStat" class="value">—</div><div class="note">Beta-Account aktiviert</div></article>
+      </section>
+
+      <section class="card" style="padding:14px">
+        <div class="toolbar">
+          <div class="lefttools">
+            <input id="searchInput" class="search" type="search" placeholder="E-Mail durchsuchen …" />
+            <select id="statusFilter" class="filter"><option value="all">Alle Status</option><option value="waitlist">Warteliste</option><option value="invited">Eingeladen</option><option value="activated">Aktiviert</option><option value="declined">Abgelehnt</option></select>
+            <select id="founderFilter" class="filter"><option value="all">Alle Nutzer</option><option value="founder">Nur Founder</option><option value="nonfounder">Ohne Founder</option></select>
+          </div>
+          <div id="syncText" class="msg" style="margin:0">Noch nicht geladen</div>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Founder</th><th>E-Mail</th><th>Registriert</th><th>Status</th><th>Einladung</th><th>Aktiviert</th><th>Aktion</th></tr></thead>
+            <tbody id="waitlistBody"><tr><td colspan="7" class="empty">Daten werden geladen …</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
+    const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+    const OWNER_EMAIL='info@duelvanta.de';
+    const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+    const el=id=>document.getElementById(id);
+    let rows=[];
+
+    function fmtDate(value){if(!value)return '—';return new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value))}
+    function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+    function statusLabel(s){return ({waitlist:'Warteliste',invited:'Eingeladen',activated:'Aktiviert',declined:'Abgelehnt'})[s]||s}
+
+    async function sendMagicLink(){
+      const btn=el('magicBtn'),msg=el('loginMsg'); btn.disabled=true; msg.className='msg'; msg.textContent='Login-Link wird angefordert …';
+      const redirectTo=window.location.origin+window.location.pathname;
+      const {error}=await db.auth.signInWithOtp({email:OWNER_EMAIL,options:{emailRedirectTo:redirectTo,shouldCreateUser:false}});
+      if(error){msg.className='msg err';msg.textContent='Login-Link konnte nicht gesendet werden: '+error.message}
+      else{msg.className='msg ok';msg.textContent='Login-Link wurde an info@duelvanta.de gesendet. Öffne die E-Mail und tippe auf den Link.'}
+      btn.disabled=false;
+    }
+
+    async function loadData(){
+      el('syncText').textContent='Synchronisiere …'; el('refreshBtn').disabled=true;
+      const {data,error}=await db.from('beta_waitlist').select('id,email,created_at,beta_status,founder_eligible,founder_number,founder_generation,invited_at,activated_at').order('created_at',{ascending:true});
+      if(error){el('syncText').textContent='Fehler beim Laden';el('waitlistBody').innerHTML='<tr><td colspan="7" class="empty">Kein Zugriff auf die Daten. Prüfe den Owner-Login.</td></tr>';el('refreshBtn').disabled=false;return}
+      rows=data||[]; updateStats(); renderRows(); el('syncText').textContent='Aktuell · '+new Intl.DateTimeFormat('de-DE',{timeStyle:'short'}).format(new Date());el('refreshBtn').disabled=false;
+    }
+
+    function updateStats(){
+      const founder=rows.filter(r=>r.founder_eligible).length;
+      const invited=rows.filter(r=>r.beta_status==='invited').length;
+      const active=rows.filter(r=>r.beta_status==='activated').length;
+      el('totalStat').textContent=rows.length; el('founderStat').textContent=founder+' / 250'; el('invitedStat').textContent=invited; el('activeStat').textContent=active; el('founderProgress').style.width=Math.min(founder/250*100,100)+'%';
+    }
+
+    function renderRows(){
+      const q=el('searchInput').value.trim().toLowerCase(), status=el('statusFilter').value, founder=el('founderFilter').value;
+      const filtered=rows.filter(r=>(!q||r.email.toLowerCase().includes(q))&&(status==='all'||r.beta_status===status)&&(founder==='all'||(founder==='founder'?r.founder_eligible:!r.founder_eligible)));
+      if(!filtered.length){el('waitlistBody').innerHTML='<tr><td colspan="7" class="empty">Keine Einträge für diesen Filter.</td></tr>';return}
+      el('waitlistBody').innerHTML=filtered.map(r=>`<tr>
+        <td data-label="Founder">${r.founder_eligible?`<span class="badge founder">FOUNDER #${String(r.founder_number).padStart(3,'0')} · GEN I</span>`:'<span class="badge">—</span>'}</td>
+        <td data-label="E-Mail">${esc(r.email)}</td>
+        <td data-label="Registriert">${fmtDate(r.created_at)}</td>
+        <td data-label="Status"><select class="statusSel" data-id="${r.id}">
+          ${['waitlist','invited','activated','declined'].map(s=>`<option value="${s}" ${r.beta_status===s?'selected':''}>${statusLabel(s)}</option>`).join('')}
+        </select></td>
+        <td data-label="Einladung">${fmtDate(r.invited_at)}</td>
+        <td data-label="Aktiviert">${fmtDate(r.activated_at)}</td>
+        <td data-label="Aktion">${r.beta_status==='waitlist'?`<button class="btn gold inviteBtn" data-id="${r.id}">Beta einladen</button>`:r.beta_status==='invited'?'<span class="badge invited">Einladung gesendet</span>':r.beta_status==='activated'?'<span class="badge activated">Account aktiv</span>':'—'}</td>
+      </tr>`).join('');
+      document.querySelectorAll('.statusSel').forEach(sel=>sel.addEventListener('change',()=>changeStatus(Number(sel.dataset.id),sel.value,sel)));
+      document.querySelectorAll('.inviteBtn').forEach(btn=>btn.addEventListener('click',()=>inviteBetaUser(Number(btn.dataset.id),btn)));
+    }
+
+
+    async function inviteBetaUser(id,btn){
+      const row=rows.find(r=>r.id===id); if(!row)return;
+      if(!confirm(`Beta-Einladung an ${row.email} senden?${row.founder_eligible?`\n\nFounder #${String(row.founder_number).padStart(3,'0')} · Generation I`:''}`))return;
+      btn.disabled=true; const old=btn.textContent; btn.textContent='Wird gesendet …';
+      try{
+        const {data:{session}}=await db.auth.getSession();
+        if(!session)throw new Error('Owner-Session abgelaufen. Bitte neu anmelden.');
+        const res=await fetch(`${SB_URL}/functions/v1/invite-beta-user`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`,'apikey':SB_KEY},
+          body:JSON.stringify({waitlistId:id})
+        });
+        const out=await res.json().catch(()=>({}));
+        if(!res.ok)throw new Error(out.error||'Einladung konnte nicht gesendet werden.');
+        alert(`Beta-Einladung wurde an ${row.email} gesendet.`);
+        await loadData();
+      }catch(err){alert('Beta-Einladung fehlgeschlagen: '+err.message);btn.disabled=false;btn.textContent=old}
+    }
+
+    async function changeStatus(id,status,selectEl){
+      const old=rows.find(r=>r.id===id); if(!old)return; selectEl.disabled=true;
+      const patch={beta_status:status};
+      if(status==='invited'&&!old.invited_at)patch.invited_at=new Date().toISOString();
+      if(status==='activated'&&!old.activated_at)patch.activated_at=new Date().toISOString();
+      if(status==='waitlist'){patch.invited_at=null;patch.activated_at=null}
+      const {error}=await db.from('beta_waitlist').update(patch).eq('id',id);
+      if(error){alert('Status konnte nicht gespeichert werden: '+error.message);selectEl.value=old.beta_status}
+      await loadData();
+    }
+
+    async function boot(){
+      const {data:{session}}=await db.auth.getSession();
+      const user=session?.user;
+      if(user?.email?.toLowerCase()===OWNER_EMAIL){el('loginView').classList.add('hidden');el('appView').classList.remove('hidden');el('ownerLabel').textContent=user.email;await loadData()}
+      else{if(user)await db.auth.signOut();el('appView').classList.add('hidden');el('loginView').classList.remove('hidden')}
+    }
+
+    el('magicBtn').addEventListener('click',sendMagicLink);
+    el('refreshBtn').addEventListener('click',loadData);
+    el('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
+    el('searchInput').addEventListener('input',renderRows);el('statusFilter').addEventListener('change',renderRows);el('founderFilter').addEventListener('change',renderRows);
+    db.auth.onAuthStateChange((_event,session)=>{if(session?.user?.email?.toLowerCase()===OWNER_EMAIL)boot()});
+    boot();
+  </script>
+</body>
+</html>

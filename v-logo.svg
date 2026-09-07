@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 56" width="1160" height="1120">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff0bf"/>
+    <stop offset="0.28" stop-color="#d5a458"/>
+    <stop offset="0.58" stop-color="#f0c978"/>
+    <stop offset="1" stop-color="#8f632d"/>
+  </linearGradient>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.45" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="M 43,11 L 41,13 L 40,13 L 39,14 L 39,15 L 36,18 L 36,20 L 34,22 L 34,23 L 32,25 L 32,26 L 30,29 L 28,26 L 28,23 L 27,23 L 27,28 L 26,29 L 27,30 L 27,40 L 28,39 L 28,37 L 29,36 L 29,35 L 30,34 L 31,34 L 31,33 L 32,32 L 33,29 L 35,27 L 38,20 L 40,18 Z M 8,8 L 11,11 L 14,18 L 18,23 L 19,26 L 21,28 L 21,29 L 23,32 L 23,28 L 24,27 L 25,22 L 27,19 L 27,17 L 31,13 L 30,12 L 30,10 L 32,8 L 37,8 L 31,8 L 25,16 L 23,14 L 23,13 L 20,13 L 21,14 L 21,15 L 23,18 L 23,20 L 24,21 L 24,24 L 23,25 L 21,23 L 19,18 L 17,16 L 16,13 L 14,11 L 15,10 L 21,10 L 22,11 L 22,9 L 23,8 Z" fill="url(#g)" fill-rule="evenodd" filter="url(#glow)"/>
+</svg>
