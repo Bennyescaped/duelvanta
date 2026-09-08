@@ -1,1 +1,1 @@
-(()=>{const add=(src,onload)=>{const s=document.createElement('script');s.src=src;s.defer=true;if(onload)s.onload=onload;document.body.appendChild(s)};add('scanner-v15.js?v=15.4',()=>add('scanner-v15-hotfix.js?v=15.5'))})();
+(()=>{const add=(src,onload)=>{const s=document.createElement('script');s.src=src;s.defer=true;if(onload)s.onload=onload;document.body.appendChild(s)};add('scanner-v15.js?v=15.4',()=>add('scanner-v15-hotfix.js?v=15.5',()=>add('scanner-v15-crop.js?v=15.6')))})();
