@@ -1,0 +1,1 @@
+(()=>{const add=(src,onload)=>{const s=document.createElement('script');s.src=src;s.defer=true;if(onload)s.onload=onload;document.body.appendChild(s)};add('scanner-v15.js?v=15.4',()=>add('scanner-v15-hotfix.js?v=15.5'))})();
