@@ -7,11 +7,13 @@
     'scanner-v16-quality.js?v=16.3.0',
     'scanner-v16-geometry.js?v=16.1.0',
     'scanner-v16-vision.js?v=16.1.0',
+    'scanner-v16-resilience.js?v=16.5.0',
     'scanner-v16-binder.js?v=16.1.0',
     'scanner-v16-market.js?v=16.1.0',
-    'scanner-v16-benchmark.js?v=16.1.0',
+    'scanner-v16-benchmark.js?v=16.5.0',
     'scanner-v16-ui.js?v=16.1.0',
     'scanner-v16-explain.js?v=16.4.0',
+    'scanner-v16-guidance.js?v=16.5.0',
     'scanner-v16-overlay.js?v=16.1.0',
     'scanner-v16-freeform-ui.js?v=16.1.0'
   ];

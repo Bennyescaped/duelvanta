@@ -9,6 +9,7 @@ on:
       - 'tests/scanner-v16-tcg-test.mjs'
       - 'tests/scanner-v16-quality-test.mjs'
       - 'tests/scanner-v16-explain-test.mjs'
+      - 'tests/scanner-v16-resilience-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -24,7 +25,9 @@ jobs:
           node --check scanner-v16-tcg.js
           node --check scanner-v16-core.js
           node --check scanner-v16-quality.js
+          node --check scanner-v16-resilience.js
           node --check scanner-v16-explain.js
+          node --check scanner-v16-guidance.js
           node --check scanner-v16-ui.js
           node --check scanner-v16-binder.js
           node --check scanner-v16-market.js
@@ -42,3 +45,5 @@ jobs:
         run: node tests/scanner-v16-quality-test.mjs
       - name: Explainable confidence UI
         run: node tests/scanner-v16-explain-test.mjs
+      - name: Resilience and capture guidance
+        run: node tests/scanner-v16-resilience-test.mjs
