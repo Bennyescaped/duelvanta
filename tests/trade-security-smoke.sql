@@ -18,7 +18,15 @@ begin
     'public.delete_my_default_shipping_address()',
     'public.get_my_market_shipping_profiles()',
     'public.upsert_my_market_shipping_profile(uuid,text,text,text,text,text,boolean,jsonb)',
-    'public.delete_my_market_shipping_profile(uuid)'
+    'public.delete_my_market_shipping_profile(uuid)',
+    'public.get_my_market_order_cases()',
+    'public.request_market_order_cancellation(uuid,text)',
+    'public.respond_market_order_cancellation(uuid,boolean,text)',
+    'public.withdraw_market_order_cancellation(uuid)',
+    'public.open_market_order_problem_v2(uuid,text,text)',
+    'public.respond_market_order_problem(uuid,text)',
+    'public.withdraw_market_order_problem(uuid,text)',
+    'public.open_market_order_dispute(uuid,text)'
   ] loop
     if has_function_privilege('anon',f,'execute') or not has_function_privilege('authenticated',f,'execute') then raise exception 'Unexpected API privileges: %',f; end if;
   end loop;
@@ -27,16 +35,16 @@ begin
     'public.emit_market_offer_notification()','public.emit_market_purchase_notification()','public.emit_market_order_status_notification()',
     'public.link_offer_notification_to_order()','public.seed_market_order_default_shipping_address()',
     'public.sync_market_order_address_to_default()','public.recalc_market_order_after_address_change()',
-    'public.validate_market_shipping_profile_rule()'
+    'public.validate_market_shipping_profile_rule()','public.finalize_market_order_cancellation(uuid,uuid,text)'
   ] loop
     if has_function_privilege('anon',f,'execute') or has_function_privilege('authenticated',f,'execute') then raise exception 'Internal helper exposed: %',f; end if;
   end loop;
   if exists(select 1 from pg_class where oid in (
     'public.market_listings'::regclass,'public.market_offers'::regclass,'public.market_deals'::regclass,'public.market_orders'::regclass,
     'public.market_order_items'::regclass,'public.market_notifications'::regclass,'public.market_default_shipping_addresses'::regclass,
-    'public.market_shipping_profiles'::regclass,'public.market_shipping_profile_rules'::regclass
+    'public.market_shipping_profiles'::regclass,'public.market_shipping_profile_rules'::regclass,'public.market_order_cases'::regclass
   ) and not relrowsecurity) then raise exception 'Marketplace RLS disabled'; end if;
-  foreach f in array array['public.market_notifications','public.market_default_shipping_addresses','public.market_shipping_profiles','public.market_shipping_profile_rules'] loop
+  foreach f in array array['public.market_notifications','public.market_default_shipping_addresses','public.market_shipping_profiles','public.market_shipping_profile_rules','public.market_order_cases'] loop
     if has_table_privilege('anon',f,'select') or has_table_privilege('anon',f,'insert') or has_table_privilege('anon',f,'update') or has_table_privilege('anon',f,'delete')
        or has_table_privilege('authenticated',f,'select') or has_table_privilege('authenticated',f,'insert') or has_table_privilege('authenticated',f,'update') or has_table_privilege('authenticated',f,'delete') then raise exception 'Sensitive table must remain RPC-only: %',f; end if;
   end loop;
@@ -49,7 +57,10 @@ begin
     'select public.get_my_market_notifications(5)','select public.get_my_trade_actions()','select public.mark_market_notification_read(null)',
     'select public.mark_all_market_notifications_read()','select public.get_my_default_shipping_address()',
     'select public.delete_my_default_shipping_address()','select public.get_my_market_shipping_profiles()',
-    'select public.delete_my_market_shipping_profile(null)'
+    'select public.delete_my_market_shipping_profile(null)','select public.get_my_market_order_cases()',
+    'select public.request_market_order_cancellation(null,null)','select public.respond_market_order_cancellation(null,false,null)',
+    'select public.withdraw_market_order_cancellation(null)','select public.open_market_order_problem_v2(null,null,null)',
+    'select public.respond_market_order_problem(null,null)','select public.withdraw_market_order_problem(null,null)'
   ] loop
     blocked:=false;
     begin execute call_sql; exception when raise_exception then if sqlerrm='Nicht angemeldet' then blocked:=true; else raise; end if; end;
@@ -59,10 +70,10 @@ begin
   if exists(select 1 from public.market_listings where quantity_available<0 or quantity_available>stock_quantity) then raise exception 'Invalid inventory'; end if;
   if exists(select 1 from public.market_deals where checkout_request_id is not null group by buyer_id,checkout_request_id having count(*)>1) then raise exception 'Duplicate checkout request'; end if;
   if exists(select 1 from public.market_shipping_profile_rules where max_units is null and max_weight_grams is null) then raise exception 'Unsafe empty shipping rule'; end if;
-  if exists(
-    select 1 from public.market_shipping_profile_rules r join public.market_shipping_profiles p on p.id=r.profile_id
-    where p.product_scope in ('all','sealed') and (r.max_units is null or r.max_weight_grams is null)
-  ) then raise exception 'Unsafe Sealed/All shipping rule'; end if;
+  if exists(select 1 from public.market_shipping_profile_rules r join public.market_shipping_profiles p on p.id=r.profile_id where p.product_scope in ('all','sealed') and (r.max_units is null or r.max_weight_grams is null)) then raise exception 'Unsafe Sealed/All shipping rule'; end if;
+  if exists(select 1 from public.market_order_cases c join public.market_orders o on o.id=c.order_id where c.case_type='cancellation' and c.status='open' and o.shipped_at is not null) then raise exception 'Open cancellation exists after shipment'; end if;
+  if exists(select 1 from public.market_orders o join public.market_deals d on d.order_id=o.id where o.status='cancelled' and d.status not in ('cancelled','completed')) then raise exception 'Cancelled order still has active deals'; end if;
+  if exists(select 1 from public.market_orders o join public.market_deals d on d.order_id=o.id join public.market_offers mo on mo.id=d.offer_id where o.status='cancelled' and mo.status='accepted') then raise exception 'Cancelled order still has accepted offer'; end if;
 end $$;
 rollback;
-select 'PASS: checkout, automation, private addresses, shipping profiles, sealed rule safety, RLS, auth guards and inventory invariants' as smoke_result;
+select 'PASS: checkout, automation, private addresses, shipping profiles, order cases, cancellation/problem guards, RLS and inventory invariants' as smoke_result;
