@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.0.0-lab';
+  const VERSION='16.2.0-lab';
   const CARD_RATIO=63/88;
   const MODES=new Set(['single','continuous','multi','binder']);
 
@@ -33,40 +33,54 @@
 
   function quality(card){
     try{
-      const W=220,H=Math.max(280,Math.round(W*card.height/card.width)),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(card,0,0,W,H);const d=x.getImageData(0,0,W,H).data,g=new Float32Array(W*H);let mean=0,glare=0,dark=0;
-      for(let i=0,j=0;i<d.length;i+=4,j++){const v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g[j]=v;mean+=v;if(v>246)glare++;if(v<18)dark++}mean/=g.length;
+      const W=220,H=Math.max(280,Math.round(W*card.height/card.width)),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(card,0,0,W,H);const d=x.getImageData(0,0,W,H).data,g=new Float32Array(W*H);let mean=0,glare=0,dark=0,centerGlare=0,centerN=0;
+      for(let y=0;y<H;y++)for(let xx=0;xx<W;xx++){
+        const j=y*W+xx,i=j*4,v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g[j]=v;mean+=v;if(v>246)glare++;if(v<18)dark++;
+        if(xx>W*.18&&xx<W*.82&&y>H*.12&&y<H*.76){centerN++;if(v>246)centerGlare++}
+      }
+      mean/=g.length;
       let lap=0,lap2=0,n=0;for(let y=1;y<H-1;y++)for(let xx=1;xx<W-1;xx++){const i=y*W+xx,v=4*g[i]-g[i-1]-g[i+1]-g[i-W]-g[i+W];lap+=v;lap2+=v*v;n++}
-      const variance=Math.max(0,lap2/n-(lap/n)**2),sharp=clamp(variance/900,0,1),light=clamp(1-Math.abs(mean-138)/125,0,1),glarePenalty=clamp(1-(glare/g.length)/.12,0,1),darkPenalty=clamp(1-(dark/g.length)/.18,0,1),score=Math.round(100*(sharp*.52+light*.20+glarePenalty*.18+darkPenalty*.10));
-      return{score,sharpness:Math.round(sharp*100),brightness:Math.round(mean),glare:Math.round(glare/g.length*1000)/10};
-    }catch{return{score:0,sharpness:0,brightness:0,glare:0}}
+      const variance=Math.max(0,lap2/n-(lap/n)**2),sharp=clamp(variance/900,0,1),light=clamp(1-Math.abs(mean-138)/125,0,1),glareRatio=glare/g.length,centerGlareRatio=centerN?centerGlare/centerN:0,glarePenalty=clamp(1-glareRatio/.12,0,1),darkPenalty=clamp(1-(dark/g.length)/.18,0,1),score=Math.round(100*(sharp*.52+light*.20+glarePenalty*.18+darkPenalty*.10)),reflectionRisk=glareRatio>.055||centerGlareRatio>.075;
+      return{score,sharpness:Math.round(sharp*100),brightness:Math.round(mean),glare:Math.round(glareRatio*1000)/10,centerGlare:Math.round(centerGlareRatio*1000)/10,reflectionRisk};
+    }catch{return{score:0,sharpness:0,brightness:0,glare:0,centerGlare:0,reflectionRisk:false}}
   }
   function prepRect(source,x0,y0,x1,y1,contrast=1.85){const out=document.createElement('canvas'),W=1800;out.width=W;out.height=Math.max(190,Math.round(W*(source.height*(y1-y0))/(source.width*(x1-x0))));const x=out.getContext('2d');x.filter=`grayscale(1) contrast(${contrast}) brightness(1.08)`;x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,out.width,out.height);return out}
-  const cleanOcr=s=>String(s||'').normalize('NFKC').replace(/[Oo]/g,'0').replace(/[Il|]/g,'1').replace(/[\\]/g,'/').toUpperCase();
-  function pokemonIds(text){const out=[];for(const m of cleanOcr(text).matchAll(/(?:^|\D)(\d{1,3})\s*[\/／]\s*(\d{2,3})(?:\D|$)/g)){const a=Number(m[1]),b=Number(m[2]);if(a>=1&&b>=10&&a<=b&&b<=999)out.push({local:m[1],den:m[2],code:`${m[1]}/${m[2]}`})}return out}
-  function onePieceIds(text){const s=cleanOcr(text).replace(/\s+/g,' '),out=[];for(const m of s.matchAll(/\b((?:OP|ST|EB|PRB|P)\s*[- ]?\s*\d{1,2})\s*[- ]\s*(\d{2,3})\b/g)){const set=m[1].replace(/\s/g,'').replace('-','');out.push({code:`${set}-${m[2]}`})}return out}
+  const fallbackPokemonText=s=>String(s||'').normalize('NFKC').replace(/[Oo]/g,'0').replace(/[Il|!]/g,'1').replace(/[\\／]/g,'/').toUpperCase();
+  function pokemonIds(text){if(window.DV_SCAN_V16_TCG?.pokemonIds)return window.DV_SCAN_V16_TCG.pokemonIds(text);const out=[];for(const m of fallbackPokemonText(text).matchAll(/(?:^|\D)(\d{1,3})\s*[\/|]\s*(\d{2,3})(?:\D|$)/g)){const a=Number(m[1]),b=Number(m[2]);if(a>=1&&b>=10&&a<=b&&b<=999)out.push({local:m[1],den:m[2],code:`${m[1]}/${m[2]}`})}return out}
+  function onePieceIds(text){if(window.DV_SCAN_V16_TCG?.onePieceIds)return window.DV_SCAN_V16_TCG.onePieceIds(text);const s=String(text||'').normalize('NFKC').toUpperCase().replace(/[—–−]/g,'-'),out=[];for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*(\d{1,2})\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`${m[1]}${m[2].padStart(2,'0')}-${m[3].padStart(3,'0')}`});for(const m of s.matchAll(/\bP\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`P-${m[1].padStart(3,'0')}`});return out}
   async function ocr(c,psm='6'){try{const r=await Tesseract.recognize(c,'eng',{tessedit_pageseg_mode:psm,preserve_interword_spaces:'1'});return String(r?.data?.text||'')}catch{return''}}
+  function pickFrequent(hits,tcg){if(!hits.length)return null;const key=h=>tcg==='one_piece'?String(h.code||''): `${Number(h.local)}/${Number(h.den)}`,freq=new Map();for(const h of hits){const k=key(h);freq.set(k,(freq.get(k)||0)+1)}hits.sort((a,b)=>(freq.get(key(b))||0)-(freq.get(key(a))||0));return hits[0]}
   async function identify(card,tcg){
     if(!window.Tesseract)return null;
     if(tcg==='pokemon'){
-      const crops=[prepRect(card,0,.68,.82,1,2.0),prepRect(card,0,.56,1,1,1.75),prepRect(card,0,.76,1,1,2.1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'7')]),hits=texts.flatMap(pokemonIds);if(!hits.length)return null;const freq=new Map();for(const h of hits){const k=`${Number(h.local)}/${Number(h.den)}`;freq.set(k,(freq.get(k)||0)+1)}hits.sort((a,b)=>(freq.get(`${Number(b.local)}/${Number(b.den)}`)||0)-(freq.get(`${Number(a.local)}/${Number(a.den)}`)||0));return hits[0];
+      const crops=[prepRect(card,0,.68,.82,1,2.0),prepRect(card,0,.56,1,1,1.75),prepRect(card,0,.76,1,1,2.1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'7')]),hits=texts.flatMap(pokemonIds);hits.push(...pokemonIds(texts.join('\n')));return pickFrequent(hits,'pokemon');
     }
-    const crops=[prepRect(card,0,.52,1,1,1.8),prepRect(card,0,.68,1,1,2.05)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'7')]),hits=texts.flatMap(onePieceIds);return hits[0]||null;
+    const crops=[prepRect(card,0,.48,1,1,1.72),prepRect(card,0,.62,1,1,1.95),prepRect(card,0,.76,1,1,2.12)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'7')]),hits=texts.flatMap(onePieceIds);hits.push(...onePieceIds(texts.join('\n')));return pickFrequent(hits,'one_piece');
   }
-  function hashRegion(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=22;c.height=22;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,22,22);const d=x.getImageData(0,0,22,22).data,g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g.push(v);sum+=v}const mean=sum/g.length;return g.map(v=>v>=mean?1:0)}catch{return null}}
+  function hashRegion(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,24,24);const d=x.getImageData(0,0,24,24).data,g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g.push(v);sum+=v}const mean=sum/g.length;return g.map(v=>v>=mean?1:0)}catch{return null}}
   const hashSim=(a,b)=>{if(!a||!b||a.length!==b.length)return null;let n=0;for(let i=0;i<a.length;i++)if(a[i]===b[i])n++;return n/a.length};
+  function colorGrid(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=32;c.height=32;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,32,32);const d=x.getImageData(0,0,32,32).data,out=[];for(let gy=0;gy<4;gy++)for(let gx=0;gx<4;gx++){let r=0,g=0,b=0,n=0;for(let y=gy*8;y<(gy+1)*8;y++)for(let xx=gx*8;xx<(gx+1)*8;xx++){const i=(y*32+xx)*4;r+=d[i];g+=d[i+1];b+=d[i+2];n++}out.push([r/n,g/n,b/n])}return out}catch{return null}}
+  function colorSim(a,b){if(!a||!b||a.length!==b.length)return null;let dist=0;for(let i=0;i<a.length;i++){const dr=a[i][0]-b[i][0],dg=a[i][1]-b[i][1],db=a[i][2]-b[i][2];dist+=Math.sqrt(dr*dr+dg*dg+db*db)/(441.7)}return clamp(1-dist/a.length,0,1)}
   const loadImage=url=>new Promise((resolve,reject)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>resolve(i);i.onerror=reject;i.src=url});
-  async function visualScore(card,url){try{if(!url)return null;const ref=await loadImage(url),a=hashRegion(card),b=hashRegion(ref);const s=hashSim(a,b);return s==null?null:Math.round(s*100)}catch{return null}}
+  async function visualScore(card,url,tcg='pokemon'){
+    try{
+      if(!url)return null;const ref=await loadImage(url),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
+      for(const [x0,y0,x1,y1,w] of regions){const hs=hashSim(hashRegion(card,x0,y0,x1,y1),hashRegion(ref,x0,y0,x1,y1)),cs=colorSim(colorGrid(card,x0,y0,x1,y1),colorGrid(ref,x0,y0,x1,y1));if(hs!=null||cs!=null){const s=(hs??cs)*.68+(cs??hs)*.32;total+=s*w;weight+=w}}
+      return weight?Math.round(total/weight*100):null;
+    }catch{return null}
+  }
   async function recognizeRegion(card,tcg){
-    const q=quality(card),id=await identify(card,tcg);if(!id)return{quality:q,id:null,candidates:[],best:null,confidence:0,status:'review'};
+    const q=quality(card),id=await identify(card,tcg);if(!id)return{quality:q,id:null,candidates:[],best:null,confidence:0,status:'review',variantConfidence:0,candidateGap:0};
     let cands=[],priorTcg=null,hasPrior=false;
     try{
       if(typeof selectedScanTcg!=='undefined'){priorTcg=selectedScanTcg;selectedScanTcg=tcg;hasPrior=true}
       if(typeof catalogLookup==='function')cands=await catalogLookup(id)||[];
     }catch{}finally{if(hasPrior)selectedScanTcg=priorTcg}
-    const top=(cands||[]).slice(0,6);await Promise.all(top.slice(0,4).map(async c=>{const vs=await visualScore(card,c.image);if(vs!=null)c.v16Visual=vs}));
-    top.sort((a,b)=>{const sa=Number(a.confidence||a.catalogConfidence||0)+(Number(a.v16Visual||0)>=68?8:0),sb=Number(b.confidence||b.catalogConfidence||0)+(Number(b.v16Visual||0)>=68?8:0);return sb-sa});
-    const best=top[0]||null,base=Number(best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(base*.80+q.score*.12+visual*.08),0,99):0,status=best&&confidence>=84&&q.score>=45?'ready':'review';
-    return{quality:q,id,candidates:top,best,confidence,status};
+    const top=(cands||[]).slice(0,8);await Promise.all(top.slice(0,6).map(async c=>{const vs=await visualScore(card,c.image,tcg);if(vs!=null)c.v16Visual=vs}));
+    let ranked=top,gap=0,variantConfidence=0;
+    if(window.DV_SCAN_V16_TCG?.rankCandidates){const r=window.DV_SCAN_V16_TCG.rankCandidates(top,{tcg,id,qualityScore:q.score,visualReliable:!q.reflectionRisk});ranked=r.rows;gap=r.gap;variantConfidence=r.variantConfidence}else ranked.sort((a,b)=>(Number(b.confidence||0)+Number(b.v16Visual||0)*.12)-(Number(a.confidence||0)+Number(a.v16Visual||0)*.12));
+    const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(Math.min(99,base)*.90+q.score*.10),0,99):0,ambiguousVariant=tcg==='one_piece'&&ranked.length>1&&gap<5&&variantConfidence<62,status=best&&confidence>=84&&q.score>=42&&!ambiguousVariant?'ready':'review';
+    return{quality:q,id,candidates:ranked,best,confidence,status,variantConfidence,candidateGap:gap,recognitionReasons:best?.v16Reasons||[],visualConfidence:visual};
   }
   async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress}={}){
     if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
@@ -77,5 +91,5 @@
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }
   async function blob(card,quality=.94){return await new Promise(resolve=>card.toBlob(resolve,'image/jpeg',quality))}
-  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,identify,recognizeRegion,analyze,blob};
+  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,identify,visualScore,recognizeRegion,analyze,blob};
 })();
