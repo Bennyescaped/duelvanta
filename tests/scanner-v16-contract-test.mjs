@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [core,ui,binder,market,loader,lab,slots,hardening]=await Promise.all([
-  read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
+const [core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
+  read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
+  read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
+  read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
 const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
 for(const mode of ['single','continuous','multi','binder'])must(core,`'${mode}'`,'V16 mode missing');
@@ -20,12 +22,22 @@ for(const field of ['avg1','avg7','avg30','low','trend'])must(market,field,'TCGd
 must(market,'api.tcgdex.net/v2/','TCGdex market source missing');
 must(market,'eBay LAST SOLD','eBay placeholder must stay explicit');
 must(market,'NOCH NICHT VERBUNDEN','must not invent eBay sold values');
+must(geometry,'detectCardRects','freeform card detection missing');
+must(geometry,'detectBinderQuad','binder-page quad detection missing');
+must(geometry,'warpQuad','binder perspective correction missing');
+must(geometry,"opts.layout==='auto'",'freeform auto pipeline missing');
+must(vision,'enabled:false','paid vision fallback must stay disabled by default');
+must(vision,'provider_not_configured','vision fallback must fail closed');
+assert.ok(!vision.includes('fetch('),'disabled vision interface must not call a provider');
+must(benchmark,'duelvanta_scanner_v16_benchmark_v1','local benchmark storage missing');
+must(benchmark,'elapsed_ms','benchmark timing missing');
+must(freeform,'AUTO · freie Anordnung','freeform UI option missing');
 must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
-must(loader,'scanner-v16-market.js?v=16.0.0','V16 market module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.0.0','isolated lab loader missing');
+for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-benchmark.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
+must(lab,'scanner-v16-loader.js?v=16.1.0','isolated V16.1 lab loader missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [core,ui,binder,market,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16 lab architecture, binder slots, batch modes, TCGdex market intelligence, market honesty and client isolation');
+console.log('PASS: Scanner V16.1 lab, freeform multi, binder perspective, disabled vision fallback, local benchmarks, market honesty and client isolation');
