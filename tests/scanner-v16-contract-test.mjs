@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
+const [core,ui,binder,loader,lab,slots,hardening]=await Promise.all([
+  read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
+]);
+const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
+for(const mode of ['single','continuous','multi','binder'])must(core,`'${mode}'`,'V16 mode missing');
+must(core,'gridRegions(source,3,3','binder 3x3 split missing');
+must(core,"catalogLookup(id)",'catalog bridge missing');
+must(core,'visualScore(card,c.image)','visual candidate check missing');
+must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
+must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
+must(ui,"v16_${mode}",'scan provenance missing');
+must(ui,'binder_page:mode===\'binder\'','binder page import missing');
+must(ui,'binder_slot:mode===\'binder\'','binder slot import missing');
+must(binder,'feste Binderplätze','position-aware binder rendering missing');
+must(binder,'unplaced','legacy/unpositioned cards must remain visible');
+must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
+must(lab,'scanner-v16-loader.js?v=16.0.0','isolated lab loader missing');
+for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
+must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
+must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
+for(const source of [core,ui,binder,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
+console.log('PASS: Scanner V16 lab architecture, binder slots, batch modes, market honesty and client isolation');
