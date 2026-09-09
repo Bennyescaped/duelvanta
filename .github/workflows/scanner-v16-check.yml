@@ -6,6 +6,7 @@ on:
       - 'scanner-v16-lab.html'
       - 'database/collect-scanner-v16-*.sql'
       - 'tests/scanner-v16-contract-test.mjs'
+      - 'tests/scanner-v16-tcg-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -18,6 +19,7 @@ jobs:
           node-version: '22'
       - name: JavaScript syntax
         run: |
+          node --check scanner-v16-tcg.js
           node --check scanner-v16-core.js
           node --check scanner-v16-ui.js
           node --check scanner-v16-binder.js
@@ -30,3 +32,5 @@ jobs:
           node --check scanner-v16-loader.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
+      - name: Pokemon and One Piece recognition
+        run: node tests/scanner-v16-tcg-test.mjs
