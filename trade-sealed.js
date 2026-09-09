@@ -276,8 +276,8 @@
     };
     e.photos.addEventListener('click',async ev=>{const b=ev.target.closest('[data-remove-sealed-photo]');if(!b)return;const row=editManifest.find(x=>x.image_id===b.dataset.removeSealedPhoto);if(!row)return;if(!confirm('Dieses Produktfoto entfernen?'))return;b.disabled=true;const {data:path,error}=await db.rpc('remove_my_market_listing_image',{p_image_id:row.image_id});if(error){alert(error.message);b.disabled=false;return}if(path)await db.storage.from(BUCKET).remove([path]);await renderEditPhotos();scheduleDecorate()});
     grid.addEventListener('click',ev=>{const b=ev.target.closest('[data-edit]');if(!b)return;const l=listings.find(x=>x.id===b.dataset.edit);if(!l||l.product_kind!=='sealed')return;ev.preventDefault();ev.stopImmediatePropagation();openEdit(l)},true);
-    const obs=new MutationObserver(scheduleDecorate);obs.observe(grid,{childList:true,subtree:true});const daily=document.getElementById('dailyContent');if(daily)new MutationObserver(scheduleDecorate).observe(daily,{childList:true,subtree:true});
-    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.1',refresh:scheduleDecorate,openCreate};return true;
+    const obs=new MutationObserver(scheduleDecorate);obs.observe(grid,{childList:true});const daily=document.getElementById('dailyContent');if(daily)new MutationObserver(scheduleDecorate).observe(daily,{childList:true});
+    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.1.1',refresh:scheduleDecorate,openCreate};return true;
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>140)clearInterval(t)},100);
 })();
