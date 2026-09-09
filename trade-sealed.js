@@ -15,6 +15,7 @@
   function htmlEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function numberOrNull(v){const x=String(v??'').trim();if(!x)return null;const n=Number(x);return Number.isFinite(n)?n:null}
   function productKindLabel(k){return k==='sealed'?'SEALED':k==='graded'?'GRADED':'SINGLE'}
+  function unitPriceFor(l,qty){let price=Number(l.asking_price||0);const tiers=Array.isArray(l.quantity_pricing)?l.quantity_pricing:[];for(const t of tiers)if(qty>=Number(t.min_quantity||0))price=Number(t.unit_price||price);return price}
   function sealedLine(l){
     if(l.product_kind!=='sealed')return '';
     const q=Number(l.bundle_quantity||1);
@@ -65,30 +66,36 @@
           <div class="field"><label>Set / Produktcode</label><input id="dvSSet" maxlength="120" placeholder="z. B. OP-13"></div>
           <div class="field"><label>Sprache</label><select id="dvSLang"><option value="Deutsch">Deutsch</option><option value="Englisch">Englisch</option><option value="Japanisch">Japanisch</option><option value="Koreanisch">Koreanisch</option><option value="Chinesisch">Chinesisch</option><option value="">Andere / keine</option></select></div>
           <div class="field full"><label>Versiegelungszustand</label><select id="dvSCondition"><option value="factory_sealed">Factory Sealed</option><option value="sealed_minor_wear">Sealed · leichte Lagerspuren</option><option value="sealed_damage">Sealed · Verpackung beschädigt</option><option value="opened_case_sealed_units">Case geöffnet · enthaltene Einheiten sealed</option></select><div id="dvSConditionHint" class="dvCaseAlert"></div></div>
-          <div class="field"><label>Anzahl im Angebot</label><input id="dvSQty" type="number" min="1" max="1000" step="1" value="1"></div>
+          <div class="field"><label>Verfügbare Menge</label><input id="dvSQty" type="number" min="1" max="1000" step="1" value="1"></div>
           <div class="field"><label id="dvSUnitsLabel">Einheiten pro Container optional</label><input id="dvSUnits" type="number" min="1" max="1000" step="1" placeholder="z. B. 12"></div>
           <div class="field full"><label>Inhalt / Konfiguration optional</label><input id="dvSContents" maxlength="240" placeholder="z. B. 24 Booster pro Display"></div>
           <div class="field"><label>Gewicht pro Angebot (g) optional</label><input id="dvSWeight" type="number" min="1" max="50000" step="1"></div>
           <div class="field"><label>Maße L × B × H (mm) optional</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><input id="dvSL" type="number" min="1" max="2000" placeholder="L"><input id="dvSW" type="number" min="1" max="2000" placeholder="B"><input id="dvSH" type="number" min="1" max="2000" placeholder="H"></div></div>
           <div class="field"><label>Angebotsart</label><select id="dvSListingType"><option value="sale">Verkauf</option><option value="sale_or_trade">Verkauf oder Tausch</option><option value="trade">Nur Tausch</option></select></div>
-          <div class="field"><label>Preis für das gesamte Angebot €</label><input id="dvSPrice" type="number" min="0" step="0.01"></div>
+          <div class="field"><label>Preis pro Stück €</label><input id="dvSPrice" type="number" min="0" step="0.01"></div>
+          <div class="field"><label>Mindestabnahme</label><input id="dvSMinQty" type="number" min="1" max="1000" step="1" value="1"></div>
+          <div class="field full"><label>Mengenpreise optional</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="dvSTier1Qty" type="number" min="2" max="1000" placeholder="ab Menge, z. B. 3"><input id="dvSTier1Price" type="number" min="0.01" step="0.01" placeholder="Preis/Stück, z. B. 139"><input id="dvSTier2Qty" type="number" min="2" max="1000" placeholder="ab Menge, z. B. 6"><input id="dvSTier2Price" type="number" min="0.01" step="0.01" placeholder="Preis/Stück, z. B. 135"></div></div>
           <div class="field"><label>Versandart</label><select id="dvSShipping"><option value="parcel">Paket mit Tracking</option><option value="tracked_letter">Brief mit Tracking</option><option value="standard_letter">Standardbrief</option><option value="pickup">Abholung</option><option value="custom">Individuell / nach Absprache</option></select></div>
           <div class="field"><label>Versandkosten €</label><input id="dvSShippingCost" type="number" min="0" max="500" step="0.01"></div>
           <div class="field full"><label>Versandhinweis optional</label><input id="dvSShippingNote" maxlength="240" placeholder="z. B. DHL Paket / versichert"></div>
           <div class="field full"><label>Hinweis zum Produkt optional</label><textarea id="dvSNote" rows="3" maxlength="800" placeholder="Zustand der Folie, Druckstellen, Case-Tape usw."></textarea></div>
           <div class="full dvPhotoDrop"><b>Echte Produktfotos</b><div id="dvSPhotoRule" class="dvPhotoRule">Mindestens 1 Foto · maximal 6 · JPG, PNG oder WebP · max. 8 MB je Foto.</div><input id="dvSFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="dvSPhotos" class="dvPhotoGrid"></div></div>
-          <div class="full dvSealedHint">Der Preis gilt für die komplette angegebene Menge dieses Angebots. Mehrere getrennte Käufe aus einem Lagerbestand bauen wir anschließend über DUELVANTA ORDERS + Combined Shipping.</div>
+          <div class="full dvSealedHint">Käufer wählen die gewünschte Stückzahl aus dem Lagerbestand. Mengenpreise werden automatisch berücksichtigt; mehrere Käufe beim selben Verkäufer laufen anschließend in einer DUELVANTA Order zusammen.</div>
         </div>
         <button id="dvSSave" class="btn gold" type="button" style="width:100%;margin-top:14px">SEALED ANGEBOT VERÖFFENTLICHEN</button><div id="dvSMsg" class="msg"></div>
       </div>`;
       document.body.appendChild(d);
       d.querySelector('[data-dv-sealed-close]').onclick=()=>d.close();
     }
+    if(!document.getElementById('dvOfferQuantity')){
+      const amount=document.getElementById('offerAmount')?.closest('.field');
+      if(amount){const q=document.createElement('div');q.className='field';q.id='dvOfferQuantity';q.style.display='none';q.innerHTML='<label>Menge</label><input id="dvOfferQty" type="number" min="1" step="1" value="1"><div id="dvOfferQtyHint" class="msg"></div>';amount.parentNode.insertBefore(q,amount)}
+    }
   }
 
   function formEls(){
     return {
-      dlg:document.getElementById('dvSealedDialog'),tcg:document.getElementById('dvSTcg'),cat:document.getElementById('dvSCat'),name:document.getElementById('dvSName'),set:document.getElementById('dvSSet'),lang:document.getElementById('dvSLang'),cond:document.getElementById('dvSCondition'),qty:document.getElementById('dvSQty'),units:document.getElementById('dvSUnits'),contents:document.getElementById('dvSContents'),weight:document.getElementById('dvSWeight'),l:document.getElementById('dvSL'),w:document.getElementById('dvSW'),h:document.getElementById('dvSH'),listingType:document.getElementById('dvSListingType'),price:document.getElementById('dvSPrice'),shipping:document.getElementById('dvSShipping'),shippingCost:document.getElementById('dvSShippingCost'),shippingNote:document.getElementById('dvSShippingNote'),note:document.getElementById('dvSNote'),files:document.getElementById('dvSFiles'),photos:document.getElementById('dvSPhotos'),msg:document.getElementById('dvSMsg'),save:document.getElementById('dvSSave')
+      dlg:document.getElementById('dvSealedDialog'),tcg:document.getElementById('dvSTcg'),cat:document.getElementById('dvSCat'),name:document.getElementById('dvSName'),set:document.getElementById('dvSSet'),lang:document.getElementById('dvSLang'),cond:document.getElementById('dvSCondition'),qty:document.getElementById('dvSQty'),minQty:document.getElementById('dvSMinQty'),tier1Qty:document.getElementById('dvSTier1Qty'),tier1Price:document.getElementById('dvSTier1Price'),tier2Qty:document.getElementById('dvSTier2Qty'),tier2Price:document.getElementById('dvSTier2Price'),units:document.getElementById('dvSUnits'),contents:document.getElementById('dvSContents'),weight:document.getElementById('dvSWeight'),l:document.getElementById('dvSL'),w:document.getElementById('dvSW'),h:document.getElementById('dvSH'),listingType:document.getElementById('dvSListingType'),price:document.getElementById('dvSPrice'),shipping:document.getElementById('dvSShipping'),shippingCost:document.getElementById('dvSShippingCost'),shippingNote:document.getElementById('dvSShippingNote'),note:document.getElementById('dvSNote'),files:document.getElementById('dvSFiles'),photos:document.getElementById('dvSPhotos'),msg:document.getElementById('dvSMsg'),save:document.getElementById('dvSSave')
     };
   }
   function refreshFormRules(){
@@ -100,18 +107,19 @@
   }
   function resetForm(){
     const e=formEls();
-    e.tcg.value='pokemon';e.cat.value='display';e.name.value='';e.set.value='';e.lang.value='Deutsch';e.cond.value='factory_sealed';e.qty.value='1';e.units.value='';e.contents.value='';e.weight.value='';e.l.value='';e.w.value='';e.h.value='';e.listingType.value='sale';e.price.value='';e.shipping.value='parcel';e.shippingCost.value='';e.shippingNote.value='';e.note.value='';e.files.value='';e.photos.innerHTML='';e.msg.textContent='';
+    e.tcg.value='pokemon';e.cat.value='display';e.name.value='';e.set.value='';e.lang.value='Deutsch';e.cond.value='factory_sealed';e.qty.value='1';e.minQty.value='1';e.tier1Qty.value='';e.tier1Price.value='';e.tier2Qty.value='';e.tier2Price.value='';e.units.value='';e.contents.value='';e.weight.value='';e.l.value='';e.w.value='';e.h.value='';e.listingType.value='sale';e.price.value='';e.shipping.value='parcel';e.shippingCost.value='';e.shippingNote.value='';e.note.value='';e.files.value='';e.photos.innerHTML='';e.msg.textContent='';
     refreshFormRules();
   }
   function fillForm(l){
     const e=formEls();
-    e.tcg.value=l.tcg||'pokemon';e.cat.value=l.sealed_category||'display';e.name.value=l.card_name||'';e.set.value=l.set_name||'';e.lang.value=l.language||'';e.cond.value=l.sealed_condition||'factory_sealed';e.qty.value=l.bundle_quantity||1;e.units.value=l.units_per_container||'';e.contents.value=l.package_contents||'';e.weight.value=l.weight_grams||'';e.l.value=l.length_mm||'';e.w.value=l.width_mm||'';e.h.value=l.height_mm||'';e.listingType.value=l.listing_type||'sale';e.price.value=l.asking_price??'';e.shipping.value=l.shipping_method||'parcel';e.shippingCost.value=l.shipping_cost??'';e.shippingNote.value=l.shipping_note||'';e.note.value=l.seller_note||'';e.files.value='';e.msg.textContent='';
+    const tiers=Array.isArray(l.quantity_pricing)?l.quantity_pricing:[];e.tcg.value=l.tcg||'pokemon';e.cat.value=l.sealed_category||'display';e.name.value=l.card_name||'';e.set.value=l.set_name||'';e.lang.value=l.language||'';e.cond.value=l.sealed_condition||'factory_sealed';e.qty.value=l.quantity_available??l.stock_quantity??l.bundle_quantity??1;e.minQty.value=l.minimum_purchase_quantity||1;e.tier1Qty.value=tiers[0]?.min_quantity||'';e.tier1Price.value=tiers[0]?.unit_price||'';e.tier2Qty.value=tiers[1]?.min_quantity||'';e.tier2Price.value=tiers[1]?.unit_price||'';e.units.value=l.units_per_container||'';e.contents.value=l.package_contents||'';e.weight.value=l.weight_grams||'';e.l.value=l.length_mm||'';e.w.value=l.width_mm||'';e.h.value=l.height_mm||'';e.listingType.value=l.listing_type||'sale';e.price.value=l.asking_price??'';e.shipping.value=l.shipping_method||'parcel';e.shippingCost.value=l.shipping_cost??'';e.shippingNote.value=l.shipping_note||'';e.note.value=l.seller_note||'';e.files.value='';e.msg.textContent='';
     refreshFormRules();
   }
   function validateForm(existingCount=0){
-    const e=formEls(),name=e.name.value.trim(),qty=Number(e.qty.value),price=numberOrNull(e.price.value),ship=numberOrNull(e.shippingCost.value),files=[...e.files.files];
+    const e=formEls(),name=e.name.value.trim(),qty=Number(e.qty.value),minQty=Number(e.minQty.value),price=numberOrNull(e.price.value),ship=numberOrNull(e.shippingCost.value),files=[...e.files.files];
     if(!name)throw new Error('Bitte Produktname angeben.');
     if(!Number.isInteger(qty)||qty<1||qty>1000)throw new Error('Bitte gültige Anzahl angeben.');
+    if(!Number.isInteger(minQty)||minQty<1||minQty>qty)throw new Error('Die Mindestabnahme muss zwischen 1 und dem Lagerbestand liegen.');
     if(e.listingType.value==='sale'&&(!price||price<=0))throw new Error('Für Verkauf bitte einen positiven Preis angeben.');
     if(e.shipping.value!=='pickup'&&(ship===null||ship<0||ship>500))throw new Error('Bitte gültige Versandkosten angeben. 0 € ist für kostenlosen Versand möglich.');
     if(e.shipping.value==='custom'&&!e.shippingNote.value.trim())throw new Error('Bitte individuelle Versandart kurz beschreiben.');
@@ -123,13 +131,16 @@
       if(!['image/jpeg','image/png','image/webp'].includes(f.type))throw new Error('Fotos bitte als JPG, PNG oder WebP hochladen.');
       if(f.size>MAX_BYTES)throw new Error(`${f.name}: maximal 8 MB pro Foto.`);
     }
-    return {files,name,qty,price,ship:e.shipping.value==='pickup'?0:(ship??0)};
+    const tiers=[[e.tier1Qty,e.tier1Price],[e.tier2Qty,e.tier2Price]].map(([q,p])=>({min_quantity:numberOrNull(q.value),unit_price:numberOrNull(p.value)})).filter(x=>x.min_quantity!==null||x.unit_price!==null);
+    for(const t of tiers)if(!Number.isInteger(t.min_quantity)||t.min_quantity<=minQty||t.min_quantity>qty||!t.unit_price||t.unit_price<=0||t.unit_price>=price)throw new Error('Mengenpreise brauchen eine gültige Menge und einen Stückpreis unter dem Basispreis.');
+    tiers.sort((a,b)=>a.min_quantity-b.min_quantity);if(new Set(tiers.map(t=>t.min_quantity)).size!==tiers.length)throw new Error('Mengenpreis-Mengen dürfen nicht identisch sein.');
+    return {files,name,qty,minQty,tiers,price,ship:e.shipping.value==='pickup'?0:(ship??0)};
   }
   function rpcPayload(v){
     const e=formEls();
     return {
       p_tcg:e.tcg.value,p_product_name:v.name,p_set_code:e.set.value.trim()||null,p_language:e.lang.value||null,p_sealed_category:e.cat.value,p_sealed_condition:e.cond.value,
-      p_bundle_quantity:v.qty,p_package_contents:e.contents.value.trim()||null,p_units_per_container:numberOrNull(e.units.value),p_weight_grams:numberOrNull(e.weight.value),p_length_mm:numberOrNull(e.l.value),p_width_mm:numberOrNull(e.w.value),p_height_mm:numberOrNull(e.h.value),
+      p_stock_quantity:v.qty,p_minimum_purchase_quantity:v.minQty,p_quantity_pricing:v.tiers,p_package_contents:e.contents.value.trim()||null,p_units_per_container:numberOrNull(e.units.value),p_weight_grams:numberOrNull(e.weight.value),p_length_mm:numberOrNull(e.l.value),p_width_mm:numberOrNull(e.w.value),p_height_mm:numberOrNull(e.h.value),
       p_listing_type:e.listingType.value,p_asking_price:v.price,p_seller_note:e.note.value.trim()||null,p_shipping_method:e.shipping.value,p_shipping_cost:v.ship,p_shipping_note:e.shippingNote.value.trim()||null
     };
   }
@@ -169,13 +180,13 @@
     try{
       const v=validateForm(editManifest.length),payload=rpcPayload(v);
       if(mode==='create'){
-        const {data,error}=await db.rpc('create_sealed_market_listing_draft',payload);if(error)throw error;draftId=data;
+        const {data,error}=await db.rpc('create_sealed_market_listing_draft_v2',payload);if(error)throw error;draftId=data;
         uploaded=await uploadFiles(draftId,v.files,[]);
         const {error:pubErr}=await db.rpc('publish_my_sealed_market_listing',{p_listing_id:draftId});if(pubErr)throw pubErr;
         e.msg.textContent='Sealed-Angebot veröffentlicht.';
       }else{
-        const editPayload={p_listing_id:editListing.id,p_product_name:payload.p_product_name,p_set_code:payload.p_set_code,p_language:payload.p_language,p_sealed_category:payload.p_sealed_category,p_sealed_condition:payload.p_sealed_condition,p_bundle_quantity:payload.p_bundle_quantity,p_package_contents:payload.p_package_contents,p_units_per_container:payload.p_units_per_container,p_weight_grams:payload.p_weight_grams,p_length_mm:payload.p_length_mm,p_width_mm:payload.p_width_mm,p_height_mm:payload.p_height_mm,p_listing_type:payload.p_listing_type,p_asking_price:payload.p_asking_price,p_seller_note:payload.p_seller_note,p_shipping_method:payload.p_shipping_method,p_shipping_cost:payload.p_shipping_cost,p_shipping_note:payload.p_shipping_note};
-        const {error}=await db.rpc('edit_my_sealed_market_listing',editPayload);if(error)throw error;
+        const editPayload={p_listing_id:editListing.id,...payload};
+        const {error}=await db.rpc('edit_my_sealed_market_listing_v2',editPayload);if(error)throw error;
         if(v.files.length)await uploadFiles(editListing.id,v.files,editManifest.map(x=>Number(x.sort_order)));
         e.msg.textContent='Änderungen gespeichert.';
       }
@@ -218,9 +229,10 @@
       card.querySelector('.dvSealedMeta')?.remove();
       if(l.product_kind==='sealed'){
         const meta=card.querySelector('.meta');
-        if(meta)meta.insertAdjacentHTML('afterend',`<div class="dvSealedMeta"><span class="dvProductKindBadge">SEALED</span><br><b>${htmlEscape(CATS[l.sealed_category]||'SEALED')}</b> · ${htmlEscape(CONDITIONS[l.sealed_condition]||'')}${Number(l.bundle_quantity||1)>1?` · ${Number(l.bundle_quantity)}× IM ANGEBOT`:''}${l.package_contents?`<br>${htmlEscape(l.package_contents)}`:''}<div class="dvSealedPhotoCount">Echte Produktfotos · ${byListing.get(id)?.length||0}/6</div></div>`);
+        if(meta)meta.insertAdjacentHTML('afterend',`<div class="dvSealedMeta"><span class="dvProductKindBadge">SEALED</span><br><b>${htmlEscape(CATS[l.sealed_category]||'SEALED')}</b> · ${htmlEscape(CONDITIONS[l.sealed_condition]||'')} · ${Number(l.quantity_available??l.stock_quantity??l.bundle_quantity??1)} VERFÜGBAR${l.package_contents?`<br>${htmlEscape(l.package_contents)}`:''}<div class="dvSealedPhotoCount">Echte Produktfotos · ${byListing.get(id)?.length||0}/6</div></div>`);
         const first=byListing.get(id)?.[0];
         if(first){try{const url=await signed(first.storage_path);const photo=card.querySelector('.photo');if(photo){let img=photo.querySelector('img');if(!img){img=document.createElement('img');photo.prepend(img)}img.classList.remove('v');img.src=url;img.style.objectFit='contain';}}catch{}}
+        const tiers=Array.isArray(l.quantity_pricing)?l.quantity_pricing:[];if(tiers.length)card.querySelector('.dvSealedMeta')?.insertAdjacentHTML('beforeend',`<br>Mengenpreis: ${tiers.map(t=>`ab ${Number(t.min_quantity)} × ${Number(t.unit_price).toLocaleString('de-DE',{style:'currency',currency:'EUR'})}`).join(' · ')}`);
       }
     }));
   }
@@ -253,6 +265,11 @@
     sell.onclick=e=>{e?.preventDefault();typeDlg.showModal()};
     typeDlg.addEventListener('click',async e=>{const b=e.target.closest('[data-dv-kind]');if(!b)return;const kind=b.dataset.dvKind;if(kind==='sealed'){typeDlg.close();await openCreate();return}await chooseCollection(kind,originalSell,typeDlg)});
     const e=formEls();e.cat.onchange=refreshFormRules;e.shipping.onchange=refreshFormRules;e.save.onclick=saveSealed;
+    const offerQtyBox=document.getElementById('dvOfferQuantity'),offerQty=document.getElementById('dvOfferQty'),offerHint=document.getElementById('dvOfferQtyHint'),sendOffer=document.getElementById('sendOffer'),originalSendOffer=sendOffer?.onclick;
+    function refreshOfferQuantity(){const l=typeof offerTarget!=='undefined'?offerTarget:null,isSealed=l?.product_kind==='sealed';if(!offerQtyBox)return;offerQtyBox.style.display=isSealed?'':'none';if(!isSealed)return;const available=Number(l.quantity_available??l.stock_quantity??l.bundle_quantity??1),min=Number(l.minimum_purchase_quantity||1),qty=Math.max(min,Math.min(available,Number(offerQty.value)||min));offerQty.min=String(min);offerQty.max=String(available);offerQty.value=String(qty);const unit=unitPriceFor(l,qty),total=unit*qty;offerHint.textContent=`${available} verfügbar · Richtpreis ${total.toLocaleString('de-DE',{style:'currency',currency:'EUR'})} (${unit.toLocaleString('de-DE',{style:'currency',currency:'EUR'})}/Stück)`;document.getElementById('offerAmount').value=total.toFixed(2)}
+    offerQty?.addEventListener('input',refreshOfferQuantity);
+    grid.addEventListener('click',ev=>{const b=ev.target.closest('[data-offer]');if(!b)return;setTimeout(refreshOfferQuantity,0)},true);
+    if(sendOffer)sendOffer.onclick=async()=>{const l=typeof offerTarget!=='undefined'?offerTarget:null;if(!l)return originalSendOffer?.call(sendOffer);const sealed=l.product_kind==='sealed',qty=sealed?Number(offerQty.value):1,amount=Number(document.getElementById('offerAmount').value),available=sealed?Number(l.quantity_available??l.stock_quantity??l.bundle_quantity??1):1,min=sealed?Number(l.minimum_purchase_quantity||1):1;if(!Number.isInteger(qty)||qty<min||qty>available||!amount||amount<=0){document.getElementById('offerMsg').textContent='Bitte gültige Menge und Angebotssumme eingeben.';return}const {error}=await db.rpc('create_market_offer_v2',{p_listing_id:l.id,p_requested_quantity:qty,p_amount:amount,p_message:document.getElementById('offerMessage').value.trim()||null});document.getElementById('offerMsg').textContent=error?error.message:'Angebot gesendet.';if(!error){setTimeout(()=>document.getElementById('offerDialog').close(),700);await loadListings()}};
     e.files.onchange=()=>{
       if(mode==='edit'){const newFiles=[...e.files.files];const placeholders=newFiles.map(f=>`<div class="dvPhoto"><img src="${URL.createObjectURL(f)}" alt="Neues Produktfoto"></div>`).join('');renderEditPhotos().then(()=>{e.photos.insertAdjacentHTML('beforeend',placeholders)});return}
       e.photos.innerHTML=[...e.files.files].slice(0,MAX_FILES).map(f=>`<div class="dvPhoto"><img src="${URL.createObjectURL(f)}" alt="Produktfoto"></div>`).join('');
@@ -260,7 +277,7 @@
     e.photos.addEventListener('click',async ev=>{const b=ev.target.closest('[data-remove-sealed-photo]');if(!b)return;const row=editManifest.find(x=>x.image_id===b.dataset.removeSealedPhoto);if(!row)return;if(!confirm('Dieses Produktfoto entfernen?'))return;b.disabled=true;const {data:path,error}=await db.rpc('remove_my_market_listing_image',{p_image_id:row.image_id});if(error){alert(error.message);b.disabled=false;return}if(path)await db.storage.from(BUCKET).remove([path]);await renderEditPhotos();scheduleDecorate()});
     grid.addEventListener('click',ev=>{const b=ev.target.closest('[data-edit]');if(!b)return;const l=listings.find(x=>x.id===b.dataset.edit);if(!l||l.product_kind!=='sealed')return;ev.preventDefault();ev.stopImmediatePropagation();openEdit(l)},true);
     const obs=new MutationObserver(scheduleDecorate);obs.observe(grid,{childList:true,subtree:true});const daily=document.getElementById('dailyContent');if(daily)new MutationObserver(scheduleDecorate).observe(daily,{childList:true,subtree:true});
-    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.0',refresh:scheduleDecorate,openCreate};return true;
+    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.1',refresh:scheduleDecorate,openCreate};return true;
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>140)clearInterval(t)},100);
 })();
