@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
-  read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
+const [tcg,core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
+  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
   read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
   read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
@@ -10,7 +10,14 @@ const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
 for(const mode of ['single','continuous','multi','binder'])must(core,`'${mode}'`,'V16 mode missing');
 must(core,'gridRegions(source,3,3','binder 3x3 split missing');
 must(core,"catalogLookup(id)",'catalog bridge missing');
-must(core,'visualScore(card,c.image)','visual candidate check missing');
+must(core,'visualScore(card,c.image,tcg)','TCG-aware visual candidate check missing');
+must(core,'reflectionRisk','foil/reflection quality guard missing');
+must(core,'colorGrid','color-aware artwork comparison missing');
+must(core,'ambiguousVariant','parallel/variant ambiguity guard missing');
+must(tcg,'canonicalOnePiece','One Piece canonical ID logic missing');
+must(tcg,"prefix==='P'",'One Piece promo P code support missing');
+must(tcg,"replace(/\\b0P",'One Piece OCR 0P correction missing');
+must(tcg,'rankCandidates','TCG-specific candidate ranking missing');
 must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
 must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
 must(ui,"v16_${mode}",'scan provenance missing');
@@ -33,11 +40,13 @@ must(benchmark,'duelvanta_scanner_v16_benchmark_v1','local benchmark storage mis
 must(benchmark,'elapsed_ms','benchmark timing missing');
 must(freeform,'AUTO · freie Anordnung','freeform UI option missing');
 must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
+must(loader,'scanner-v16-tcg.js?v=16.2.0','TCG-specific V16.2 module not loaded');
+must(loader,'scanner-v16-core.js?v=16.2.0','V16.2 core not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-benchmark.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.1.0','isolated V16.1 lab loader missing');
+must(lab,'scanner-v16-loader.js?v=16.2.0','isolated V16.2 lab loader missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [tcg,core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16.1 lab, freeform multi, binder perspective, disabled vision fallback, local benchmarks, market honesty and client isolation');
+console.log('PASS: Scanner V16.2 Pokemon/One Piece recognition, freeform multi, binder perspective, disabled vision fallback, local benchmarks and client isolation');
