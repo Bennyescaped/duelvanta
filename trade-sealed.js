@@ -72,6 +72,7 @@
           <div class="field"><label>Gewicht pro Angebot (g) optional</label><input id="dvSWeight" type="number" min="1" max="50000" step="1"></div>
           <div class="field"><label>Maße L × B × H (mm) optional</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><input id="dvSL" type="number" min="1" max="2000" placeholder="L"><input id="dvSW" type="number" min="1" max="2000" placeholder="B"><input id="dvSH" type="number" min="1" max="2000" placeholder="H"></div></div>
           <div class="field"><label>Angebotsart</label><select id="dvSListingType"><option value="sale">Verkauf</option><option value="sale_or_trade">Verkauf oder Tausch</option><option value="trade">Nur Tausch</option></select></div>
+          <div class="field"><label>Preisart</label><select id="dvSPricingMode"><option value="fixed">Festpreis · sofort kaufen</option><option value="negotiable">Verhandlungsbasis · Angebote</option></select></div>
           <div class="field"><label>Preis pro Stück €</label><input id="dvSPrice" type="number" min="0" step="0.01"></div>
           <div class="field"><label>Mindestabnahme</label><input id="dvSMinQty" type="number" min="1" max="1000" step="1" value="1"></div>
           <div class="field full"><label>Mengenpreise optional</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="dvSTier1Qty" type="number" min="2" max="1000" placeholder="ab Menge, z. B. 3"><input id="dvSTier1Price" type="number" min="0.01" step="0.01" placeholder="Preis/Stück, z. B. 139"><input id="dvSTier2Qty" type="number" min="2" max="1000" placeholder="ab Menge, z. B. 6"><input id="dvSTier2Price" type="number" min="0.01" step="0.01" placeholder="Preis/Stück, z. B. 135"></div></div>
@@ -95,24 +96,25 @@
 
   function formEls(){
     return {
-      dlg:document.getElementById('dvSealedDialog'),tcg:document.getElementById('dvSTcg'),cat:document.getElementById('dvSCat'),name:document.getElementById('dvSName'),set:document.getElementById('dvSSet'),lang:document.getElementById('dvSLang'),cond:document.getElementById('dvSCondition'),qty:document.getElementById('dvSQty'),minQty:document.getElementById('dvSMinQty'),tier1Qty:document.getElementById('dvSTier1Qty'),tier1Price:document.getElementById('dvSTier1Price'),tier2Qty:document.getElementById('dvSTier2Qty'),tier2Price:document.getElementById('dvSTier2Price'),units:document.getElementById('dvSUnits'),contents:document.getElementById('dvSContents'),weight:document.getElementById('dvSWeight'),l:document.getElementById('dvSL'),w:document.getElementById('dvSW'),h:document.getElementById('dvSH'),listingType:document.getElementById('dvSListingType'),price:document.getElementById('dvSPrice'),shipping:document.getElementById('dvSShipping'),shippingCost:document.getElementById('dvSShippingCost'),shippingNote:document.getElementById('dvSShippingNote'),note:document.getElementById('dvSNote'),files:document.getElementById('dvSFiles'),photos:document.getElementById('dvSPhotos'),msg:document.getElementById('dvSMsg'),save:document.getElementById('dvSSave')
+      dlg:document.getElementById('dvSealedDialog'),tcg:document.getElementById('dvSTcg'),cat:document.getElementById('dvSCat'),name:document.getElementById('dvSName'),set:document.getElementById('dvSSet'),lang:document.getElementById('dvSLang'),cond:document.getElementById('dvSCondition'),qty:document.getElementById('dvSQty'),minQty:document.getElementById('dvSMinQty'),tier1Qty:document.getElementById('dvSTier1Qty'),tier1Price:document.getElementById('dvSTier1Price'),tier2Qty:document.getElementById('dvSTier2Qty'),tier2Price:document.getElementById('dvSTier2Price'),units:document.getElementById('dvSUnits'),contents:document.getElementById('dvSContents'),weight:document.getElementById('dvSWeight'),l:document.getElementById('dvSL'),w:document.getElementById('dvSW'),h:document.getElementById('dvSH'),listingType:document.getElementById('dvSListingType'),pricingMode:document.getElementById('dvSPricingMode'),price:document.getElementById('dvSPrice'),shipping:document.getElementById('dvSShipping'),shippingCost:document.getElementById('dvSShippingCost'),shippingNote:document.getElementById('dvSShippingNote'),note:document.getElementById('dvSNote'),files:document.getElementById('dvSFiles'),photos:document.getElementById('dvSPhotos'),msg:document.getElementById('dvSMsg'),save:document.getElementById('dvSSave')
     };
   }
   function refreshFormRules(){
-    const e=formEls(),isCase=e.cat.value==='case',pickup=e.shipping.value==='pickup';
+    const e=formEls(),isCase=e.cat.value==='case',pickup=e.shipping.value==='pickup',tradeOnly=e.listingType.value==='trade';
     document.getElementById('dvSPhotoRule').textContent=`Mindestens ${isCase?3:1} echte Produktfoto${isCase?'s':''} · maximal 6 · JPG, PNG oder WebP · max. 8 MB je Foto.`;
     document.getElementById('dvSUnitsLabel').textContent=isCase?'Displays / Einheiten pro Case':'Einheiten pro Container optional';
     document.getElementById('dvSConditionHint').textContent=isCase?'Ein original verschlossenes Case bitte als „Factory Sealed“ angeben. Für ein geöffnetes Case mit sealed Displays die eigene Option wählen.':'';
     if(pickup){e.shippingCost.value='0';e.shippingCost.disabled=true}else e.shippingCost.disabled=false;
+    if(tradeOnly){e.pricingMode.value='negotiable';e.pricingMode.disabled=true}else e.pricingMode.disabled=false;
   }
   function resetForm(){
     const e=formEls();
-    e.tcg.value='pokemon';e.cat.value='display';e.name.value='';e.set.value='';e.lang.value='Deutsch';e.cond.value='factory_sealed';e.qty.value='1';e.minQty.value='1';e.tier1Qty.value='';e.tier1Price.value='';e.tier2Qty.value='';e.tier2Price.value='';e.units.value='';e.contents.value='';e.weight.value='';e.l.value='';e.w.value='';e.h.value='';e.listingType.value='sale';e.price.value='';e.shipping.value='parcel';e.shippingCost.value='';e.shippingNote.value='';e.note.value='';e.files.value='';e.photos.innerHTML='';e.msg.textContent='';
+    e.tcg.value='pokemon';e.cat.value='display';e.name.value='';e.set.value='';e.lang.value='Deutsch';e.cond.value='factory_sealed';e.qty.value='1';e.minQty.value='1';e.tier1Qty.value='';e.tier1Price.value='';e.tier2Qty.value='';e.tier2Price.value='';e.units.value='';e.contents.value='';e.weight.value='';e.l.value='';e.w.value='';e.h.value='';e.listingType.value='sale';e.pricingMode.value='fixed';e.price.value='';e.shipping.value='parcel';e.shippingCost.value='';e.shippingNote.value='';e.note.value='';e.files.value='';e.photos.innerHTML='';e.msg.textContent='';
     refreshFormRules();
   }
   function fillForm(l){
     const e=formEls();
-    const tiers=Array.isArray(l.quantity_pricing)?l.quantity_pricing:[];e.tcg.value=l.tcg||'pokemon';e.cat.value=l.sealed_category||'display';e.name.value=l.card_name||'';e.set.value=l.set_name||'';e.lang.value=l.language||'';e.cond.value=l.sealed_condition||'factory_sealed';e.qty.value=l.quantity_available??l.stock_quantity??l.bundle_quantity??1;e.minQty.value=l.minimum_purchase_quantity||1;e.tier1Qty.value=tiers[0]?.min_quantity||'';e.tier1Price.value=tiers[0]?.unit_price||'';e.tier2Qty.value=tiers[1]?.min_quantity||'';e.tier2Price.value=tiers[1]?.unit_price||'';e.units.value=l.units_per_container||'';e.contents.value=l.package_contents||'';e.weight.value=l.weight_grams||'';e.l.value=l.length_mm||'';e.w.value=l.width_mm||'';e.h.value=l.height_mm||'';e.listingType.value=l.listing_type||'sale';e.price.value=l.asking_price??'';e.shipping.value=l.shipping_method||'parcel';e.shippingCost.value=l.shipping_cost??'';e.shippingNote.value=l.shipping_note||'';e.note.value=l.seller_note||'';e.files.value='';e.msg.textContent='';
+    const tiers=Array.isArray(l.quantity_pricing)?l.quantity_pricing:[];e.tcg.value=l.tcg||'pokemon';e.cat.value=l.sealed_category||'display';e.name.value=l.card_name||'';e.set.value=l.set_name||'';e.lang.value=l.language||'';e.cond.value=l.sealed_condition||'factory_sealed';e.qty.value=l.quantity_available??l.stock_quantity??l.bundle_quantity??1;e.minQty.value=l.minimum_purchase_quantity||1;e.tier1Qty.value=tiers[0]?.min_quantity||'';e.tier1Price.value=tiers[0]?.unit_price||'';e.tier2Qty.value=tiers[1]?.min_quantity||'';e.tier2Price.value=tiers[1]?.unit_price||'';e.units.value=l.units_per_container||'';e.contents.value=l.package_contents||'';e.weight.value=l.weight_grams||'';e.l.value=l.length_mm||'';e.w.value=l.width_mm||'';e.h.value=l.height_mm||'';e.listingType.value=l.listing_type||'sale';e.pricingMode.value=l.pricing_mode||'negotiable';e.price.value=l.asking_price??'';e.shipping.value=l.shipping_method||'parcel';e.shippingCost.value=l.shipping_cost??'';e.shippingNote.value=l.shipping_note||'';e.note.value=l.seller_note||'';e.files.value='';e.msg.textContent='';
     refreshFormRules();
   }
   function validateForm(existingCount=0){
@@ -120,7 +122,7 @@
     if(!name)throw new Error('Bitte Produktname angeben.');
     if(!Number.isInteger(qty)||qty<1||qty>1000)throw new Error('Bitte gültige Anzahl angeben.');
     if(!Number.isInteger(minQty)||minQty<1||minQty>qty)throw new Error('Die Mindestabnahme muss zwischen 1 und dem Lagerbestand liegen.');
-    if(e.listingType.value==='sale'&&(!price||price<=0))throw new Error('Für Verkauf bitte einen positiven Preis angeben.');
+    if(['sale','sale_or_trade'].includes(e.listingType.value)&&(!price||price<=0))throw new Error('Für Verkauf bitte einen positiven Preis angeben.');
     if(e.shipping.value!=='pickup'&&(ship===null||ship<0||ship>500))throw new Error('Bitte gültige Versandkosten angeben. 0 € ist für kostenlosen Versand möglich.');
     if(e.shipping.value==='custom'&&!e.shippingNote.value.trim())throw new Error('Bitte individuelle Versandart kurz beschreiben.');
     const min=e.cat.value==='case'?3:1;
@@ -132,7 +134,7 @@
       if(f.size>MAX_BYTES)throw new Error(`${f.name}: maximal 8 MB pro Foto.`);
     }
     const tiers=[[e.tier1Qty,e.tier1Price],[e.tier2Qty,e.tier2Price]].map(([q,p])=>({min_quantity:numberOrNull(q.value),unit_price:numberOrNull(p.value)})).filter(x=>x.min_quantity!==null||x.unit_price!==null);
-    for(const t of tiers)if(!Number.isInteger(t.min_quantity)||t.min_quantity<=minQty||t.min_quantity>qty||!t.unit_price||t.unit_price<=0||t.unit_price>=price)throw new Error('Mengenpreise brauchen eine gültige Menge und einen Stückpreis unter dem Basispreis.');
+    for(const t of tiers)if(!Number.isInteger(t.min_quantity)||t.min_quantity<=minQty||t.min_quantity>(qty+(mode==='edit'?Number(editListing.stock_quantity)-Number(editListing.quantity_available):0))||!t.unit_price||t.unit_price<=0||t.unit_price>=price)throw new Error('Mengenpreise brauchen eine gültige Menge und einen Stückpreis unter dem Basispreis.');
     tiers.sort((a,b)=>a.min_quantity-b.min_quantity);if(new Set(tiers.map(t=>t.min_quantity)).size!==tiers.length)throw new Error('Mengenpreis-Mengen dürfen nicht identisch sein.');
     return {files,name,qty,minQty,tiers,price,ship:e.shipping.value==='pickup'?0:(ship??0)};
   }
@@ -140,8 +142,8 @@
     const e=formEls();
     return {
       p_tcg:e.tcg.value,p_product_name:v.name,p_set_code:e.set.value.trim()||null,p_language:e.lang.value||null,p_sealed_category:e.cat.value,p_sealed_condition:e.cond.value,
-      p_stock_quantity:v.qty,p_minimum_purchase_quantity:v.minQty,p_quantity_pricing:v.tiers,p_package_contents:e.contents.value.trim()||null,p_units_per_container:numberOrNull(e.units.value),p_weight_grams:numberOrNull(e.weight.value),p_length_mm:numberOrNull(e.l.value),p_width_mm:numberOrNull(e.w.value),p_height_mm:numberOrNull(e.h.value),
-      p_listing_type:e.listingType.value,p_asking_price:v.price,p_seller_note:e.note.value.trim()||null,p_shipping_method:e.shipping.value,p_shipping_cost:v.ship,p_shipping_note:e.shippingNote.value.trim()||null
+      p_stock_quantity:v.qty+(mode==='edit'?Number(editListing.stock_quantity)-Number(editListing.quantity_available):0),p_minimum_purchase_quantity:v.minQty,p_quantity_pricing:v.tiers,p_package_contents:e.contents.value.trim()||null,p_units_per_container:numberOrNull(e.units.value),p_weight_grams:numberOrNull(e.weight.value),p_length_mm:numberOrNull(e.l.value),p_width_mm:numberOrNull(e.w.value),p_height_mm:numberOrNull(e.h.value),
+      p_listing_type:e.listingType.value,p_pricing_mode:e.pricingMode.value,p_asking_price:v.price,p_seller_note:e.note.value.trim()||null,p_shipping_method:e.shipping.value,p_shipping_cost:v.ship,p_shipping_note:e.shippingNote.value.trim()||null
     };
   }
   function fileExt(f){return f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg'}
@@ -180,13 +182,13 @@
     try{
       const v=validateForm(editManifest.length),payload=rpcPayload(v);
       if(mode==='create'){
-        const {data,error}=await db.rpc('create_sealed_market_listing_draft_v2',payload);if(error)throw error;draftId=data;
+        const {data,error}=await db.rpc('create_sealed_market_listing_draft_v3',payload);if(error)throw error;draftId=data;
         uploaded=await uploadFiles(draftId,v.files,[]);
         const {error:pubErr}=await db.rpc('publish_my_sealed_market_listing',{p_listing_id:draftId});if(pubErr)throw pubErr;
         e.msg.textContent='Sealed-Angebot veröffentlicht.';
       }else{
         const editPayload={p_listing_id:editListing.id,...payload};
-        const {error}=await db.rpc('edit_my_sealed_market_listing_v2',editPayload);if(error)throw error;
+        const {error}=await db.rpc('edit_my_sealed_market_listing_v3',editPayload);if(error)throw error;
         if(v.files.length)await uploadFiles(editListing.id,v.files,editManifest.map(x=>Number(x.sort_order)));
         e.msg.textContent='Änderungen gespeichert.';
       }
@@ -264,7 +266,7 @@
     const originalSell=sell.onclick,typeDlg=document.getElementById('dvProductTypeDialog');
     sell.onclick=e=>{e?.preventDefault();typeDlg.showModal()};
     typeDlg.addEventListener('click',async e=>{const b=e.target.closest('[data-dv-kind]');if(!b)return;const kind=b.dataset.dvKind;if(kind==='sealed'){typeDlg.close();await openCreate();return}await chooseCollection(kind,originalSell,typeDlg)});
-    const e=formEls();e.cat.onchange=refreshFormRules;e.shipping.onchange=refreshFormRules;e.save.onclick=saveSealed;
+    const e=formEls();e.cat.onchange=refreshFormRules;e.shipping.onchange=refreshFormRules;e.listingType.onchange=refreshFormRules;e.save.onclick=saveSealed;
     const offerQtyBox=document.getElementById('dvOfferQuantity'),offerQty=document.getElementById('dvOfferQty'),offerHint=document.getElementById('dvOfferQtyHint'),sendOffer=document.getElementById('sendOffer'),originalSendOffer=sendOffer?.onclick;
     function refreshOfferQuantity(commit=false){const l=typeof offerTarget!=='undefined'?offerTarget:null,isSealed=l?.product_kind==='sealed';if(!offerQtyBox)return;offerQtyBox.style.display=isSealed?'':'none';if(!isSealed)return;const available=Number(l.quantity_available??l.stock_quantity??l.bundle_quantity??1),min=Number(l.minimum_purchase_quantity||1),raw=offerQty.value.trim();offerQty.min=String(min);offerQty.max=String(available);if(raw===''){offerHint.textContent=`${available} verfügbar · Menge zwischen ${min} und ${available} eingeben.`;if(commit){offerQty.value=String(min);refreshOfferQuantity(false)}return}const entered=Number(raw);if(!Number.isInteger(entered)||entered<min||entered>available){offerHint.textContent=`Bitte eine Menge zwischen ${min} und ${available} eingeben.`;if(commit){offerQty.value=String(Math.max(min,Math.min(available,Number.isFinite(entered)?Math.round(entered):min)));refreshOfferQuantity(false)}return}const unit=unitPriceFor(l,entered),total=unit*entered;offerHint.textContent=`${available} verfügbar · Richtpreis ${total.toLocaleString('de-DE',{style:'currency',currency:'EUR'})} (${unit.toLocaleString('de-DE',{style:'currency',currency:'EUR'})}/Stück)`;document.getElementById('offerAmount').value=total.toFixed(2)}
     offerQty?.addEventListener('input',()=>refreshOfferQuantity(false));offerQty?.addEventListener('blur',()=>refreshOfferQuantity(true));
@@ -277,7 +279,7 @@
     e.photos.addEventListener('click',async ev=>{const b=ev.target.closest('[data-remove-sealed-photo]');if(!b)return;const row=editManifest.find(x=>x.image_id===b.dataset.removeSealedPhoto);if(!row)return;if(!confirm('Dieses Produktfoto entfernen?'))return;b.disabled=true;const {data:path,error}=await db.rpc('remove_my_market_listing_image',{p_image_id:row.image_id});if(error){alert(error.message);b.disabled=false;return}if(path)await db.storage.from(BUCKET).remove([path]);await renderEditPhotos();scheduleDecorate()});
     grid.addEventListener('click',ev=>{const b=ev.target.closest('[data-edit]');if(!b)return;const l=listings.find(x=>x.id===b.dataset.edit);if(!l||l.product_kind!=='sealed')return;ev.preventDefault();ev.stopImmediatePropagation();openEdit(l)},true);
     const obs=new MutationObserver(scheduleDecorate);obs.observe(grid,{childList:true});const daily=document.getElementById('dailyContent');if(daily)new MutationObserver(scheduleDecorate).observe(daily,{childList:true});
-    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.1.2',refresh:scheduleDecorate,openCreate};return true;
+    scheduleDecorate();window.DV_TRADE_SEALED={version:'1.2.0',refresh:scheduleDecorate,openCreate};return true;
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>140)clearInterval(t)},100);
 })();

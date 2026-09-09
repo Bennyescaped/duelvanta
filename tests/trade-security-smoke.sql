@@ -1,0 +1,49 @@
+-- Read-only production smoke checks. No test users, impersonation or purchase rows.
+begin read only;
+do $$
+declare f text; call_sql text; blocked boolean;
+begin
+  if auth.uid() is not null then raise exception 'Run without an end-user JWT'; end if;
+  foreach f in array array[
+    'public.buy_market_listing_v2(uuid,integer,uuid,timestamp with time zone)',
+    'public.get_my_market_offers_v2()',
+    'public.confirm_market_order_received(uuid)',
+    'public.create_market_offer_v2(uuid,integer,numeric,text)'
+  ] loop
+    if has_function_privilege('anon',f,'execute') or not has_function_privilege('authenticated',f,'execute') then
+      raise exception 'Unexpected API privileges: %', f;
+    end if;
+  end loop;
+  foreach f in array array['public.buy_market_listing_v1(uuid,integer)','public.recalculate_market_order(uuid)','public.attach_market_deal_to_order()'] loop
+    if has_function_privilege('anon',f,'execute') or has_function_privilege('authenticated',f,'execute') then
+      raise exception 'Internal helper exposed: %', f;
+    end if;
+  end loop;
+  if exists(select 1 from pg_class where oid in ('public.market_listings'::regclass,'public.market_offers'::regclass,'public.market_deals'::regclass,'public.market_orders'::regclass,'public.market_order_items'::regclass) and not relrowsecurity) then
+    raise exception 'Marketplace RLS disabled';
+  end if;
+  if (select count(*) from storage.buckets where id in ('collection-cards','market-listing-images') and not public)<>2 then
+    raise exception 'Expected private buckets missing or public';
+  end if;
+  foreach call_sql in array array[
+    'select public.buy_market_listing_v2(null,1,null,now())',
+    'select public.create_market_offer_v2(null,1,1,null)',
+    'select public.confirm_market_order_received(null)',
+    'select public.confirm_market_order_complete(null)',
+    'select public.begin_market_deal(null)',
+    'select public.cancel_market_deal(null,null)',
+    'select public.open_market_deal_dispute(null,null)'
+  ] loop
+    blocked:=false;
+    begin execute call_sql;
+    exception when raise_exception then
+      if sqlerrm='Nicht angemeldet' then blocked:=true; else raise; end if;
+    end;
+    if not blocked then raise exception 'Missing authentication guard: %',call_sql; end if;
+  end loop;
+  if public.get_my_market_offers_v2()<>'[]'::jsonb then raise exception 'Unauthenticated offers leaked'; end if;
+  if exists(select 1 from public.market_listings where quantity_available<0 or quantity_available>stock_quantity) then raise exception 'Invalid inventory'; end if;
+  if exists(select 1 from public.market_deals where checkout_request_id is not null group by buyer_id,checkout_request_id having count(*)>1) then raise exception 'Duplicate checkout request'; end if;
+end $$;
+rollback;
+select 'PASS: privileges, RLS, private storage, auth guards, inventory, request uniqueness' as smoke_result;
