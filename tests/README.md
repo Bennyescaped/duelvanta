@@ -1,4 +1,4 @@
-# TRADE checkout + automation + shipping verification
+# TRADE checkout + automation + shipping + resolution verification
 
 The fixtures in this directory are local in-memory responses, not Supabase users,
 listings, deals or payments. Production HTML does not load them. Do not create real
@@ -32,17 +32,23 @@ Run with plain Node.js:
 ```sh
 node tests/trade-automation-contract-test.mjs
 node tests/trade-shipping-contract-test.mjs
+node tests/trade-resolution-contract-test.mjs
 ```
 
-The automation contract checks all notification event kinds, required-action types,
+The automation contract checks notification event kinds, required-action types,
 trigger/RPC wiring, RPC-only notification storage, accepted-offer-to-order linking,
 hardened SECURITY DEFINER search paths and reuse of the existing Supabase client.
 
 The shipping contract checks private default-address isolation, seller shipping-profile
 RPCs, RLS/direct-grant closure, country/unit/weight tariff matching, automatic-vs-manual
 fallback, the Sealed/All requirement for both unit and weight capacity, the address
-snapshot wiring and reuse of the existing TRADE Supabase client. Neither test performs
-a network call.
+snapshot wiring and reuse of the existing TRADE Supabase client.
+
+The resolution contract checks order-level cancellation requests, cancellation shipping
+locks, bounded inventory restoration, preservation of paused/withdrawn listings,
+problem-vs-cancellation phase separation, participant RPC isolation, future provider
+refund preparation and truthful `manual_beta` wording. None of these static tests
+performs a network call.
 
 ## Optional real-browser local test
 
@@ -61,10 +67,10 @@ browser/layout or real iPhone transaction test.
 ## Database smoke check
 
 `trade-security-smoke.sql` performs read-only checks without an end-user JWT. It
-checks checkout and automation RPC grants, internal helper isolation, RPC-only
-notification/default-address/shipping-profile storage, RLS, private storage,
-authentication guards, inventory invariants and checkout request uniqueness. It does
-not simulate an authenticated purchase or prove concurrent checkout execution.
+checks checkout/automation/resolution RPC grants, internal helper isolation, RPC-only
+sensitive tables, RLS, private storage, authentication guards, inventory invariants,
+shipping-rule safety, cancellation phase guards and checkout request uniqueness. It
+does not simulate an authenticated purchase or prove concurrent checkout execution.
 
 ## Applied migration sequence
 
@@ -85,6 +91,11 @@ Private default address + seller shipping-profile block:
 7. `database/trade-shipping-profiles-v1-hardening.sql` — `trade_shipping_profiles_v1_hardening`
 8. `database/trade-shipping-profiles-v1-safety.sql` — `trade_shipping_profiles_v1_safety`
 
+Order cancellation/problem/refund-preparation block:
+
+9. `database/trade-order-resolution-v1.sql` — `trade_order_resolution_v1`
+10. `database/trade-order-resolution-v1-hardening.sql` — `trade_order_resolution_v1_hardening`
+
 Do not apply only an intermediate file or rerun these casually on production. Later
 files harden earlier definitions. Existing transactions are not rewritten.
 
@@ -99,12 +110,21 @@ accounts only for the human/mobile acceptance pass after a useful batch of chang
 3. Seller creates a low-value fixed-price listing; buyer purchases. Verify the new
    shipping Order already contains the protected address snapshot without retyping it.
 4. Add a second compatible item before shipping. If the seller's rule safely matches,
-   Combined Shipping should show `AUTOMATISCH`; if the limits are exceeded, it must
-   fall back to `PRÜFUNG NÖTIG` instead of guessing a tariff.
-5. Seller ships; buyer sees `ORDER VERSENDET` + `ERHALT BESTÄTIGEN`; confirm once.
-6. Verify the action disappears and seller receives `ERHALT BESTÄTIGT`.
-7. Separately make one negotiable offer; seller sees `ANGEBOT PRÜFEN`, accepts it,
-   and buyer's acceptance notification opens the resulting Order directly.
+   Combined Shipping should show `AUTOMATISCH`; if limits are exceeded, it must fall
+   back to `PRÜFUNG NÖTIG` instead of guessing a tariff.
+5. Before shipping, request a cancellation from one account. Verify seller shipping is
+   blocked, the other account sees `STORNO PRÜFEN`, and decline/withdraw lets the Order
+   continue. In a separate low-value test, accept one cancellation and verify the Order
+   becomes `STORNIERT` and available inventory is restored.
+6. Complete a separate Order through shipping. After it is marked shipped, open a
+   problem case. Verify receipt confirmation disappears, the other account can submit
+   one statement, and no UI claims that DUELVANTA refunded money.
+7. Withdraw that problem from the reporting account. The Order should return to
+   `VERSANDT` and the buyer can confirm receipt normally.
+8. Verify final receipt closes the Order and seller receives `ERHALT BESTÄTIGT`.
+9. Separately make one negotiable offer; seller sees `ANGEBOT PRÜFEN`, accepts it,
+   and buyer's acceptance notification opens the resulting Order directly. If that
+   Order is later cancelled by agreement, the offer must display `STORNIERT`.
 
 The purpose of this real pass is UX/mobile judgment, not database discovery. No
-Stripe payment, payout or automatic payment confirmation is enabled.
+Stripe payment, payout or automatic refund/payment confirmation is enabled.
