@@ -58,7 +58,11 @@
   async function visualScore(card,url){try{if(!url)return null;const ref=await loadImage(url),a=hashRegion(card),b=hashRegion(ref);const s=hashSim(a,b);return s==null?null:Math.round(s*100)}catch{return null}}
   async function recognizeRegion(card,tcg){
     const q=quality(card),id=await identify(card,tcg);if(!id)return{quality:q,id:null,candidates:[],best:null,confidence:0,status:'review'};
-    let cands=[];try{if(typeof catalogLookup==='function')cands=await catalogLookup(id)||[]}catch{}
+    let cands=[],priorTcg=null,hasPrior=false;
+    try{
+      if(typeof selectedScanTcg!=='undefined'){priorTcg=selectedScanTcg;selectedScanTcg=tcg;hasPrior=true}
+      if(typeof catalogLookup==='function')cands=await catalogLookup(id)||[];
+    }catch{}finally{if(hasPrior)selectedScanTcg=priorTcg}
     const top=(cands||[]).slice(0,6);await Promise.all(top.slice(0,4).map(async c=>{const vs=await visualScore(card,c.image);if(vs!=null)c.v16Visual=vs}));
     top.sort((a,b)=>{const sa=Number(a.confidence||a.catalogConfidence||0)+(Number(a.v16Visual||0)>=68?8:0),sb=Number(b.confidence||b.catalogConfidence||0)+(Number(b.v16Visual||0)>=68?8:0);return sb-sa});
     const best=top[0]||null,base=Number(best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(base*.80+q.score*.12+visual*.08),0,99):0,status=best&&confidence>=84&&q.score>=45?'ready':'review';
