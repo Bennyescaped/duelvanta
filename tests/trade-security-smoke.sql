@@ -8,19 +8,41 @@ begin
     'public.buy_market_listing_v2(uuid,integer,uuid,timestamp with time zone)',
     'public.get_my_market_offers_v2()',
     'public.confirm_market_order_received(uuid)',
-    'public.create_market_offer_v2(uuid,integer,numeric,text)'
+    'public.create_market_offer_v2(uuid,integer,numeric,text)',
+    'public.get_my_market_notifications(integer)',
+    'public.get_my_trade_actions()',
+    'public.mark_market_notification_read(uuid)',
+    'public.mark_all_market_notifications_read()'
   ] loop
     if has_function_privilege('anon',f,'execute') or not has_function_privilege('authenticated',f,'execute') then
       raise exception 'Unexpected API privileges: %', f;
     end if;
   end loop;
-  foreach f in array array['public.buy_market_listing_v1(uuid,integer)','public.recalculate_market_order(uuid)','public.attach_market_deal_to_order()'] loop
+  foreach f in array array[
+    'public.buy_market_listing_v1(uuid,integer)',
+    'public.recalculate_market_order(uuid)',
+    'public.attach_market_deal_to_order()',
+    'public.emit_market_offer_notification()',
+    'public.emit_market_purchase_notification()',
+    'public.emit_market_order_status_notification()',
+    'public.link_offer_notification_to_order()'
+  ] loop
     if has_function_privilege('anon',f,'execute') or has_function_privilege('authenticated',f,'execute') then
       raise exception 'Internal helper exposed: %', f;
     end if;
   end loop;
-  if exists(select 1 from pg_class where oid in ('public.market_listings'::regclass,'public.market_offers'::regclass,'public.market_deals'::regclass,'public.market_orders'::regclass,'public.market_order_items'::regclass) and not relrowsecurity) then
+  if exists(select 1 from pg_class where oid in ('public.market_listings'::regclass,'public.market_offers'::regclass,'public.market_deals'::regclass,'public.market_orders'::regclass,'public.market_order_items'::regclass,'public.market_notifications'::regclass) and not relrowsecurity) then
     raise exception 'Marketplace RLS disabled';
+  end if;
+  if has_table_privilege('anon','public.market_notifications','select')
+     or has_table_privilege('anon','public.market_notifications','insert')
+     or has_table_privilege('anon','public.market_notifications','update')
+     or has_table_privilege('anon','public.market_notifications','delete')
+     or has_table_privilege('authenticated','public.market_notifications','select')
+     or has_table_privilege('authenticated','public.market_notifications','insert')
+     or has_table_privilege('authenticated','public.market_notifications','update')
+     or has_table_privilege('authenticated','public.market_notifications','delete') then
+    raise exception 'market_notifications must remain RPC-only';
   end if;
   if (select count(*) from storage.buckets where id in ('collection-cards','market-listing-images') and not public)<>2 then
     raise exception 'Expected private buckets missing or public';
@@ -32,7 +54,11 @@ begin
     'select public.confirm_market_order_complete(null)',
     'select public.begin_market_deal(null)',
     'select public.cancel_market_deal(null,null)',
-    'select public.open_market_deal_dispute(null,null)'
+    'select public.open_market_deal_dispute(null,null)',
+    'select public.get_my_market_notifications(5)',
+    'select public.get_my_trade_actions()',
+    'select public.mark_market_notification_read(null)',
+    'select public.mark_all_market_notifications_read()'
   ] loop
     blocked:=false;
     begin execute call_sql;
@@ -46,4 +72,4 @@ begin
   if exists(select 1 from public.market_deals where checkout_request_id is not null group by buyer_id,checkout_request_id having count(*)>1) then raise exception 'Duplicate checkout request'; end if;
 end $$;
 rollback;
-select 'PASS: privileges, RLS, private storage, auth guards, inventory, request uniqueness' as smoke_result;
+select 'PASS: privileges, RPC-only notifications, RLS, private storage, auth guards, inventory, request uniqueness' as smoke_result;
