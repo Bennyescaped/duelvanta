@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
+const [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,slots,hardening]=await Promise.all([
   read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
-  read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
+  read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
   read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
 const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
@@ -59,6 +59,10 @@ must(benchmark,'duelvanta_scanner_v16_benchmark_v1','local benchmark storage mis
 must(benchmark,'elapsed_ms','benchmark timing missing');
 must(benchmark,'repeat_capture','benchmark repeat flag missing');
 must(benchmark,'recovery:r.recovery','benchmark recovery capture missing');
+must(benchmarkSession,'duelvanta_scanner_v16_eval_v1','guided benchmark ground-truth storage missing');
+must(benchmarkSession,'FALSCHE VARIANTE','guided benchmark verdict UI missing');
+must(benchmarkSession,'BERICHT KOPIEREN','guided benchmark report action missing');
+must(benchmarkSession,'Multi/Binder Slots','guided batch benchmark reporting missing');
 must(freeform,'AUTO · freie Anordnung','freeform UI option missing');
 must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
 must(loader,'scanner-v16-tcg.js?v=16.2.0','TCG-specific V16.2 module not loaded');
@@ -68,11 +72,12 @@ must(loader,'scanner-v16-resilience.js?v=16.5.0','V16.5 resilience layer not loa
 must(loader,'scanner-v16-explain.js?v=16.4.0','V16.4 explainability layer not loaded');
 must(loader,'scanner-v16-guidance.js?v=16.5.0','V16.5 guidance UI not loaded');
 must(loader,'scanner-v16-benchmark.js?v=16.5.0','V16.5 benchmark not loaded');
+must(loader,'scanner-v16-benchmark-session.js?v=16.6.0','V16.6 guided benchmark session not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.5.0','isolated V16.5 lab loader missing');
+must(lab,'scanner-v16-loader.js?v=16.6.0','isolated V16.6 lab loader missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16.5 multi-pass recovery, capture guidance, repeat guard, explainable confidence and TCG recognition');
+console.log('PASS: Scanner V16.6 guided benchmark, V16.5 resilience, explainable confidence and TCG recognition');
