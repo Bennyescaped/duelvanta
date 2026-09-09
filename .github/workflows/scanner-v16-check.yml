@@ -23,6 +23,10 @@ jobs:
           node --check scanner-v16-binder.js
           node --check scanner-v16-market.js
           node --check scanner-v16-overlay.js
+          node --check scanner-v16-geometry.js
+          node --check scanner-v16-vision.js
+          node --check scanner-v16-benchmark.js
+          node --check scanner-v16-freeform-ui.js
           node --check scanner-v16-loader.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
