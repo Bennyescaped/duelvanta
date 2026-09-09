@@ -15,7 +15,8 @@
     'scanner-v16-explain.js?v=16.4.0',
     'scanner-v16-guidance.js?v=16.5.0',
     'scanner-v16-overlay.js?v=16.1.0',
-    'scanner-v16-freeform-ui.js?v=16.1.0'
+    'scanner-v16-freeform-ui.js?v=16.1.0',
+    'scanner-v16-benchmark-session.js?v=16.6.0'
   ];
   const chain=(list,i=0)=>{if(i>=list.length)return;add(list[i],()=>chain(list,i+1))};
   const loadV16=()=>chain(modules);

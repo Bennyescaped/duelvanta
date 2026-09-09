@@ -10,6 +10,7 @@ on:
       - 'tests/scanner-v16-quality-test.mjs'
       - 'tests/scanner-v16-explain-test.mjs'
       - 'tests/scanner-v16-resilience-test.mjs'
+      - 'tests/scanner-v16-benchmark-session-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -35,6 +36,7 @@ jobs:
           node --check scanner-v16-geometry.js
           node --check scanner-v16-vision.js
           node --check scanner-v16-benchmark.js
+          node --check scanner-v16-benchmark-session.js
           node --check scanner-v16-freeform-ui.js
           node --check scanner-v16-loader.js
       - name: Scanner V16 contract
@@ -47,3 +49,5 @@ jobs:
         run: node tests/scanner-v16-explain-test.mjs
       - name: Resilience and capture guidance
         run: node tests/scanner-v16-resilience-test.mjs
+      - name: Guided benchmark session
+        run: node tests/scanner-v16-benchmark-session-test.mjs
