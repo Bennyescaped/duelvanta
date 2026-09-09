@@ -7,6 +7,7 @@ on:
       - 'database/collect-scanner-v16-*.sql'
       - 'tests/scanner-v16-contract-test.mjs'
       - 'tests/scanner-v16-tcg-test.mjs'
+      - 'tests/scanner-v16-quality-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -21,6 +22,7 @@ jobs:
         run: |
           node --check scanner-v16-tcg.js
           node --check scanner-v16-core.js
+          node --check scanner-v16-quality.js
           node --check scanner-v16-ui.js
           node --check scanner-v16-binder.js
           node --check scanner-v16-market.js
@@ -34,3 +36,5 @@ jobs:
         run: node tests/scanner-v16-contract-test.mjs
       - name: Pokemon and One Piece recognition
         run: node tests/scanner-v16-tcg-test.mjs
+      - name: Evidence quality gates
+        run: node tests/scanner-v16-quality-test.mjs

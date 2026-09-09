@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
-  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
+const [tcg,core,quality,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader,lab,slots,hardening]=await Promise.all([
+  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
   read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
   read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
@@ -18,6 +18,11 @@ must(tcg,'canonicalOnePiece','One Piece canonical ID logic missing');
 must(tcg,"prefix==='P'",'One Piece promo P code support missing');
 must(tcg,"replace(/\\b0P",'One Piece OCR 0P correction missing');
 must(tcg,'rankCandidates','TCG-specific candidate ranking missing');
+must(quality,'language_ambiguity','Pokemon language ambiguity guard missing');
+must(quality,'variant_ambiguity','variant evidence gate missing');
+must(quality,'reflection_guard','foil reflection evidence gate missing');
+must(quality,'art_leader_gap','visual leader evidence bonus missing');
+must(quality,"qualityPolicy='v16.3_evidence_gates'",'V16.3 quality policy marker missing');
 must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
 must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
 must(ui,"v16_${mode}",'scan provenance missing');
@@ -42,11 +47,12 @@ must(freeform,'AUTO · freie Anordnung','freeform UI option missing');
 must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
 must(loader,'scanner-v16-tcg.js?v=16.2.0','TCG-specific V16.2 module not loaded');
 must(loader,'scanner-v16-core.js?v=16.2.0','V16.2 core not loaded');
+must(loader,'scanner-v16-quality.js?v=16.3.0','V16.3 evidence quality layer not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-benchmark.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.2.0','isolated V16.2 lab loader missing');
+must(lab,'scanner-v16-loader.js?v=16.3.0','isolated V16.3 lab loader missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [tcg,core,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [tcg,core,quality,ui,binder,market,overlay,geometry,vision,benchmark,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16.2 Pokemon/One Piece recognition, freeform multi, binder perspective, disabled vision fallback, local benchmarks and client isolation');
+console.log('PASS: Scanner V16.3 evidence gates, Pokemon/One Piece recognition, freeform multi, binder perspective, disabled vision fallback and client isolation');
