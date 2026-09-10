@@ -9,6 +9,8 @@
   function guidanceFor(result,{geometry=null,repeat=false}={}){
     const q=result?.quality||{},actions=[];
     const failure=classifyFailure(result);
+    if(result?.providerEvidence?.identifierConflict)return{code:'identifier_failure',failureType:'identifier_failure',title:'KI-NUMMER WIDERSPRÜCHLICH',text:'Kartennummer und OCR der KI-Antwort stimmen nicht überein.',actions:['Nummer prüfen und gegebenenfalls manuell korrigieren.']};
+    if(!repeat&&failure==='provider_review')return{code:failure,failureType:failure,title:'KI-VORSCHLAG PRÜFEN',text:'Nummer und Sprache passen zum Katalog. Prüfe Artwork und Druckvariante, bevor du die Karte übernimmst.',actions:['Passenden Katalogkandidaten bestätigen.']};
     if(!repeat&&failure==='catalog_unavailable')return{code:failure,failureType:failure,title:'KATALOG GERADE NICHT ERREICHBAR',text:`Die Nummer ${result.id.code} wurde gelesen. Mindestens eine Katalogabfrage ist fehlgeschlagen; die Karte bleibt zur Prüfung erhalten.`,actions:['Katalogsuche bei stabiler Verbindung ohne neues Foto wiederholen.']};
     if(!repeat&&result?.languageConflict)return{code:'language_ambiguity',failureType:'language_ambiguity',title:'SPRACHE WIDERSPRICHT KATALOG',text:`Der Kartentext wurde als ${result.observedLanguage} erkannt. Die Katalogsprache passt nicht; der Kandidat wird nicht als Treffer angeboten.`,actions:['Gelesene Nummer prüfen und gegebenenfalls korrigieren.']};
     if(!repeat&&result?.id&&result.identifierReliable===false)return{code:'identifier_failure',failureType:'identifier_failure',title:'NUMMER NOCH NICHT BESTÄTIGT',text:'Die OCR-Durchläufe stimmen nicht ausreichend überein. Der angezeigte Katalogkandidat ist ein Vorschlag.',actions:['Gedruckte Nummer mit den OCR-Lesungen vergleichen und den passenden Kandidaten ausdrücklich bestätigen.']};
@@ -58,6 +60,7 @@
     if(result.identifierReliable===false)return'identifier_failure';
     if(!result.best&&result.lookupInfo?.errors?.length)return'catalog_unavailable';
     if(!result.best)return'catalog_no_match';
+    if(result.providerEvidence?.reviewRequired)return'provider_review';
     if(result.status==='ready')return null;
     if(result.languageAmbiguity)return'language_ambiguity';
     if(result.variantAmbiguity)return'variant_ambiguity';
@@ -193,7 +196,7 @@
       const out=await old(source,opts),tcg=out?.tcg||opts.tcg||'pokemon',mode=out?.mode||opts.mode||'single',rows=[];
       for(const initial of (out?.results||[])){
         let r=applyEvidence(initial,tcg);
-        if(!opts.identifierOverride&&shouldRetry(r))r=await recover(r,tcg,core);
+        if(!opts.identifierOverride&&!opts.providerObservation&&shouldRetry(r))r=await recover(r,tcg,core);
         if(mode==='continuous')r=repeatGuard(r,tcg);
         r.tcg=tcg;r.failureType=classifyFailure(r);r.captureGuidance=guidanceFor(r,{geometry:out?.geometry||null,repeat:!!r.repeatCapture});
         rows.push(r);

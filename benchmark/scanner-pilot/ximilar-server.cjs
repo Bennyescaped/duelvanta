@@ -75,4 +75,4 @@ const provider={model:MODEL,keyName:'XIMILAR_API_TOKEN',protocolVersion:'tcg-id-
     return {...parseResponse(raw,tcg),raw,usage:{reportedCredits:credits},elapsedMs:Math.max(0,now()-started),model:MODEL,protocolVersion:provider.protocolVersion,options:OPTIONS};
   }};
 function createXimilarHandler(options){return createPilotHandler({...options,provider})}
-module.exports={createXimilarHandler,MODEL,OPTIONS,requestBody,parseResponse,sanitize,identifiers};
+module.exports={createXimilarHandler,MODEL,OPTIONS,requestBody,parseResponse,sanitize,identifiers,provider};

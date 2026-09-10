@@ -24,6 +24,7 @@
     if(result?.manualConfirmed||candidateIndex>0)return{headline:'MANUELL AUSGEWÄHLT · BITTE PRÜFEN',tone:'review',summary:'Du hast diesen Katalogkandidaten selbst bestätigt. Die automatische Confidence ist eine getrennte Messung und keine manuelle Garantie.'};
     if(result?.identifierReliable===false)return{headline:'PRÜFEN · NUMMER NOCH NICHT BESTÄTIGT',tone:'review',summary:'Die unabhängigen OCR-Ausschnitte stimmen nicht ausreichend überein. Der Katalogkandidat bleibt ein Vorschlag.'};
     if(result?.identifierSource==='manual'&&result?.status==='ready')return{headline:'NUMMER EINGEGEBEN · KANDIDAT PRÜFEN',tone:'review',summary:'Die Kartennummer wurde manuell eingegeben. Vergleiche Artwork, Sprache und Variante und bestätige den passenden Katalogkandidaten.'};
+    if(result?.providerEvidence?.reviewRequired)return{headline:result.providerReplay?'GESPEICHERTER KI-TEST':'KI-VORSCHLAG · DRUCK PRÜFEN',tone:'review',summary:result.providerReplay?'Vorhandene Ximilar-Antwort mit dem Originalfoto durch V16 geprüft. Keine neue KI-Anfrage; kein Import.':'Ximilar-Nummer und Katalog passen. Der genaue Druck und das Finish brauchen noch Bestätigung.'};
     if(result?.status==='ready'){
       const strong=reasons.some(x=>['variant_art_separated','language_visual_separated','art_leader_gap','art_strong'].includes(x))||Number(c?.v16Visual||result?.visualConfidence||0)>=82;
       return strong?{headline:'STARKER TREFFER',tone:'ready',summary:'Mehrere unabhängige Merkmale sprechen klar für diesen Treffer.'}:{headline:'GUTER TREFFER',tone:'ready',summary:'Kartendaten und Bildabgleich sind ausreichend konsistent für einen automatischen Treffer.'};
@@ -38,7 +39,7 @@
 
   function explain(result,tcg,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),head=headlineFor(result,{candidateIndex}),reasons=reasonsOf(result),q=result?.quality||{},art=Number(c?.v16Visual||result?.visualConfidence||0),gap=Number(result?.visualGap||result?.qualityDecision?.visualGap||0),lang=languageOf(c),variant=variantOf(c,tcg),evidence=[];
-    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierSource==='manual'?'manuell eingegeben · Katalog passt':result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
+    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierSource==='ximilar'?'Ximilar · Katalog passt':result?.identifierSource==='manual'?'manuell eingegeben · Katalog passt':result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
     else if(result?.id)evidence.push({kind:'neutral',label:'Kartennummer',value:String(result.id.code||'erkannt')});
     if(art>0)evidence.push({kind:art>=78?'good':art>=62?'neutral':'warn',label:'Artwork',value:`${Math.round(art)} %`});
     if(gap>0)evidence.push({kind:gap>=9?'good':gap>=5?'neutral':'warn',label:'Abstand #1 → #2',value:`+${Math.round(gap)}`});

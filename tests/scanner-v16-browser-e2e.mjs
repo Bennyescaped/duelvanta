@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {createServer} from 'node:http';
 import {readFile,stat,mkdir} from 'node:fs/promises';
 import {dirname,extname,resolve,sep} from 'node:path';
@@ -34,7 +35,7 @@ await page.addInitScript(()=>{
   const media={getUserMedia:()=>Promise.reject(new DOMException('No camera in deterministic E2E','NotAllowedError'))};
   try{Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:media})}catch{}
 });
-const errors=[],catalogRequests=[],assetDiagnostics=[];let liveCatalogPhase=false;
+const errors=[],catalogRequests=[],assetDiagnostics=[];let liveCatalogPhase=false,expectedProviderError=false;
 await page.route('https://api.tcgdex.net/**',async route=>{
   const url=new URL(route.request().url());catalogRequests.push(url.href);
   const path=url.pathname;let data=[];
@@ -54,12 +55,13 @@ await page.route(base+'/fixtures/**',async route=>{
   const file=route.request().url().includes('pokemon')?'pokemon-074-084.svg':'onepiece-op05-119.svg';
   await route.fulfill({status:200,contentType:'image/svg+xml',body:await readFile(resolve(root,'tests/fixtures',file))});
 });
+await page.route(base+'/api/scanner-v16-recognize',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:false,remaining:0})}));
 page.on('requestfailed',request=>console.error('Failed request:',request.url(),request.failure()?.errorText));
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error'){
   const text=message.text(),url=message.location().url;
   const knownAssetFailure=liveCatalogPhase&&((text.includes('https://assets.tcgdex.net/')&&text.includes('CORS policy'))||(url.startsWith('https://assets.tcgdex.net/')&&text.includes('Failed to load resource')));
-  if(knownAssetFailure)assetDiagnostics.push({text,url});else errors.push(text);
+  if(knownAssetFailure)assetDiagnostics.push({text,url});else if(!(expectedProviderError&&url===base+'/api/scanner-v16-recognize'&&text.includes('504')))errors.push(text);
 }});
 const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 300 seconds');process.exit(1)},300000);
 
@@ -202,7 +204,11 @@ try{
   await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
   assert.equal(await page.locator('#dvV16CompleteText').innerText(),'1 Karte gespeichert.');
   assert.equal(await page.locator('#dvV16Dialog').getAttribute('open'),'');
-  assert.equal(await page.locator('#dvV16Collection').getAttribute('href'),'collect.html');
+  const receiptUrl=page.url();
+  await page.click('#dvV16ViewSaved');
+  assert.match(await page.locator('#dvV16Saved').innerText(),/Retourorden/);
+  assert.match(await page.locator('#dvV16Saved').innerText(),/074\/084/);
+  assert.equal(page.url(),receiptUrl,'viewing the saved card must stay in the scanner');
   assert.equal(await page.evaluate(()=>window.__importCalls),1);
   await page.locator('#dvV16Complete').screenshot({path:resolve(root,'test-results/v16-import-next-scan.png')});
   const selectedTcg=await page.locator('#dvV16Tcg').inputValue(),selectedBinder=await page.locator('#dvV16Folder').inputValue();
@@ -212,6 +218,55 @@ try{
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'next scan must fall back to a photo when camera permission is absent');
   assert.equal(await page.locator('#dvV16Tcg').inputValue(),selectedTcg);assert.equal(await page.locator('#dvV16Folder').inputValue(),selectedBinder);
   assert.equal(await page.evaluate(()=>window.__importCalls),1,'starting next scan must not repeat an import');
+
+  console.log('E2E: saved Ximilar evidence → correct catalog result → benchmark; replay cannot import');
+  for(const fixture of [{tcg:'pokemon',file:'pokemon-074-084.svg',code:'074/084',name:'Retourorden',language:'DE',printing:'me05-074'},{tcg:'one_piece',file:'onepiece-op05-119.svg',code:'OP05-119',name:'Monkey D. Luffy',language:'EN',printing:'OP05-119_P1'}]){
+    await page.selectOption('#dvV16Tcg',fixture.tcg);
+    await page.evaluate(async fixture=>{
+      const file=await fetch('/tests/fixtures/'+fixture.file).then(r=>r.blob());
+      const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer()),sha256=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
+      await window.DV_SCAN_V16.processProviderResult(file,{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:fixture.tcg,sha256,observed:{tcg:fixture.tcg,printed_code:fixture.code,language:fixture.language,name:fixture.name},catalogCandidate:{card_id:fixture.printing},status:'proposed',elapsedMs:2700});
+    },fixture);
+    await waitForResult(fixture.name,fixture.code);
+    assert.match(await page.locator('.dvV16Debug').innerText(),/Ximilar · gespeicherter Test/);
+    assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+    assert.match(await page.locator('.dvV16Badge').first().innerText(),/TEST · KEIN IMPORT/);
+    const saved=await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().at(-1));
+    assert.equal(saved.results[0].provider,'ximilar');assert.equal(saved.results[0].provider_replay,true);assert.equal(saved.results[0].number,fixture.code);
+    assert.equal(await page.evaluate(()=>window.__importCalls),1);
+  }
+  await page.screenshot({path:resolve(root,'test-results/v16-ximilar-replay.png'),fullPage:true});
+
+  console.log('E2E: explicit Ximilar choice → authenticated mock API → review → manual confirmation → isolated import');
+  let providerCalls=0,providerError=false;
+  await page.unroute(base+'/api/scanner-v16-recognize');
+  await page.route(base+'/api/scanner-v16-recognize',async route=>{
+    if(route.request().method()==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:true,remaining:20-providerCalls})});
+    providerCalls++;const body=route.request().postDataJSON();
+    assert.equal(route.request().headers().authorization,'Bearer test-session');assert.equal(body.tcg,'pokemon');
+    const sha256=createHash('sha256').update(Buffer.from(body.imageBase64,'base64')).digest('hex');
+    return route.fulfill({status:providerError?504:200,contentType:'application/json',body:JSON.stringify(providerError?{error:'provider_timeout_or_network'}:{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:'pokemon',sha256,observed:{tcg:'pokemon',printed_code:'074/084',language:'DE'},catalogCandidate:{card_id:'me05-074'},status:'proposed',remaining:19})});
+  });
+  await page.evaluate(()=>{window.db.auth={getSession:async()=>({data:{session:{access_token:'test-session'}}})}});
+  await page.click('#dvV16Close');await page.click('#dvV16Launch');
+  await page.locator('#dvV16EngineField:not(.dvV16Hidden)').waitFor();
+  await page.selectOption('#dvV16Tcg','pokemon');await page.selectOption('#dvV16Engine','ximilar');
+  await upload('#dvV16GalleryFile','tests/fixtures/pokemon-074-084.svg');
+  await waitForResult('Retourorden','074/084');assert.equal(providerCalls,1);
+  assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  assert.match(await page.locator('.dvV16Explain').innerText(),/KI-VORSCHLAG/);
+  await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm]').first().click();
+  assert.equal(await page.locator('[data-v16-check]').isChecked(),true);
+  await page.click('#dvV16ImportBtn');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
+  assert.equal(await page.evaluate(()=>window.__importCalls),2);
+  await page.click('#dvV16ViewSaved');assert.match(await page.locator('#dvV16Saved').innerText(),/074\/084/);
+  providerError=true;expectedProviderError=true;
+  await upload('#dvV16GalleryFile','tests/fixtures/pokemon-074-084.svg');
+  await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='error');
+  assert.equal(providerCalls,2,'one user action must make one request with no automatic retry');
+  assert.equal(await page.locator('#dvV16Choose').isEnabled(),true);
+  assert.match(await page.locator('#dvV16Status').innerText(),/Kein automatischer Wiederholungsversuch/);
+  await page.selectOption('#dvV16Engine','local');
 
   // Same real image, actual public catalogs; no mocked OCR, identifier or provider.
   if(process.env.V16_LIVE_CATALOG==='1'){

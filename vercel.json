@@ -1,5 +1,6 @@
 {
   "functions": {
+    "api/scanner-v16-recognize.js": {"maxDuration": 90},
     "api/scanner-v16-gemini.js": {
       "maxDuration": 60
     },

@@ -8,6 +8,10 @@ on:
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
       - 'api/scanner-v16-ximilar.js'
+      - 'api/scanner-v16-recognize.js'
+      - 'benchmark/scanner-pilot/recognize-server.cjs'
+      - 'tests/scanner-v16-provider-test.mjs'
+      - 'tests/scanner-v16-recognize-server-test.mjs'
       - 'benchmark/scanner-pilot/ximilar-*'
       - 'benchmark/scanner-pilot/score-ximilar.mjs'
       - 'tests/scanner-v16-ximilar-test.mjs'
@@ -83,6 +87,12 @@ jobs:
           node tests/scanner-v16-gemini-test.mjs
           node --check api/scanner-v16-ximilar.js
           node tests/scanner-v16-ximilar-test.mjs
+      - name: Ximilar integration and durable quota boundary (no paid calls)
+        run: |
+          node --check api/scanner-v16-recognize.js
+          node --check scanner-v16-provider.js
+          node tests/scanner-v16-provider-test.mjs
+          node tests/scanner-v16-recognize-server-test.mjs
       - name: Verified artwork reference cache
         run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition

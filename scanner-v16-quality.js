@@ -60,6 +60,7 @@
     const variantAmbiguity=!!(peer&&familyDiff)||(tcg==='one_piece'&&!!peer&&imageDiff&&!languageAmbiguity);
     const reflection=!!q.reflectionRisk,quality=Number(q.score||0),glare=Math.max(Number(q.glare||0),Number(q.centerGlare||0));
     let forceReview=false,cap=99;
+    if(result.providerEvidence?.reviewRequired){forceReview=true;cap=Math.min(cap,83);reasons.push('provider_review_required')}
     if(result.identifierReliable===false){forceReview=true;cap=Math.min(cap,74);reasons.push('identifier_unconfirmed')}
     if(result.observedLanguage&&topLang&&result.observedLanguage!==topLang){forceReview=true;cap=Math.min(cap,49);reasons.push('language_conflict')}
 

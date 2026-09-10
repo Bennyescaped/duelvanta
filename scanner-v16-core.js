@@ -100,10 +100,12 @@
     }catch{return null}
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
-  async function recognizeRegion(card,tcg,{identifierOverride,onProgress=()=>{}}={}){
-    const q=quality(card);let identifierEvidence=null,id=identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
-    const observedLanguage=identifierEvidence?.observedLanguage||null;
-    if(!id)return{tcg,quality:q,id:null,identifierEvidence,observedLanguage,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0};
+  async function recognizeRegion(card,tcg,{identifierOverride,providerObservation,providerReplay=false,onProgress=()=>{}}={}){
+    const provider=providerObservation?window.DV_SCAN_V16_PROVIDER.read(providerObservation,tcg):null;
+    const q=quality(card);let identifierEvidence=null,id=provider?provider.id:identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
+    const observedLanguage=provider?.language||identifierEvidence?.observedLanguage||null;
+    const sourceEvidence={providerReplay:!!providerReplay,...(provider?{identifierSource:'ximilar',providerEvidence:provider.evidence}:{})};
+    if(!id)return{tcg,quality:q,id:null,identifierEvidence,observedLanguage,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0,...sourceEvidence};
     let cands=[],lookupInfo;
     onProgress({phase:'catalog',tcg,identifier:id.code});
     try{if(typeof catalogLookup==='function')cands=await catalogLookup(id,{tcg})||[];lookupInfo=cands.lookupInfo}
@@ -120,7 +122,7 @@
         if(found.some(sameLanguage)){id={...alternative,evidence:identifierEvidence};cands=found.filter(sameLanguage);lookupInfo={...found.lookupInfo,resolution:'ocr_alternative_and_observed_language',initialIdentifier:identifierEvidence.votes[0].code};break}
       }
     }
-    const languageConflict=!cands.length&&rejectedCandidates.length>0,identifierReliable=!!identifierOverride||!!(id.passes?.length>=2&&identifierEvidence?.votes.length===1);
+    const languageConflict=!cands.length&&rejectedCandidates.length>0,identifierReliable=!!provider||!!identifierOverride||!!(id.passes?.length>=2&&identifierEvidence?.votes.length===1);
     const top=(cands||[]).filter(c=>(!c.tcg||c.tcg===tcg)&&(!api||api.candidateCode(c,tcg)===api.idCode(id,tcg))).map(c=>({...c,tcg,catalogVerified:true}));
     onProgress({phase:'artwork',tcg,identifier:id.code});
     await Promise.all(top.map(async c=>{const vs=await visualScore(card,c.image,tcg,q.reflectionRisk?ref=>{c.v16Highlights=highlightEvidence(card,ref)}:null);if(vs!=null)c.v16Visual=vs}));
@@ -132,14 +134,15 @@
     let ranked=top,gap=0,variantConfidence=0;
     if(window.DV_SCAN_V16_TCG?.rankCandidates){const r=window.DV_SCAN_V16_TCG.rankCandidates(top,{tcg,id,qualityScore:q.score,visualReliable:!q.reflectionRisk});ranked=r.rows;gap=r.gap;variantConfidence=r.variantConfidence}else ranked.sort((a,b)=>(Number(b.confidence||0)+Number(b.v16Visual||0)*.12)-(Number(a.confidence||0)+Number(a.v16Visual||0)*.12));
     const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(Math.min(99,base)*.90+q.score*.10),0,99):0,ambiguousVariant=tcg==='one_piece'&&ranked.length>1&&gap<5&&variantConfidence<62,status=best&&confidence>=84&&q.score>=42&&!ambiguousVariant?'ready':'review';
-    return{tcg,quality:q,id,identifierSource:identifierOverride?'manual':'ocr',identifierEvidence,identifierReliable,observedLanguage,languageConflict,rejectedCandidates,lookupInfo,candidates:ranked,best,confidence,status,failureType:best?null:'catalog_no_match',variantConfidence,candidateGap:gap,recognitionReasons:best?.v16Reasons||[],visualConfidence:visual};
+    return{tcg,quality:q,id,identifierSource:identifierOverride?'manual':'ocr',identifierEvidence,identifierReliable,observedLanguage,languageConflict,rejectedCandidates,lookupInfo,candidates:ranked,best,confidence,status,failureType:best?null:'catalog_no_match',variantConfidence,candidateGap:gap,recognitionReasons:best?.v16Reasons||[],visualConfidence:visual,...sourceEvidence};
   }
   function detectedRegion(source){
     if(!window.DV_SCAN_V16_LIVE)return null;
     try{const sample=canvasFrom(source,null,280),s=size(source),scale=sample.width/s.w,e=fitCenteredRect(sample),frame=window.DV_SCAN_V16_LIVE.inspect(sample.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sample.width,sample.height),e);return frame.presence&&frame.aligned?window.DV_SCAN_V16_LIVE.captureRect(frame.rect,scale,s.w,s.h):null}catch{return null}
   }
-  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,sourcePrepared=false}={}){
+  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,providerObservation,providerReplay=false,sourcePrepared=false}={}){
     if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
+    if(providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine KI-Antwort gilt für genau eine Karte.');
     const regions=sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout),results=[];
     if(!sourcePrepared&&['single','continuous'].includes(mode)){
       const s=size(source);
@@ -149,7 +152,7 @@
       else{const detected=detectedRegion(source);if(detected)Object.assign(regions[0],detected)}
     }
     for(let i=0;i<regions.length;i++){
-      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
+      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,providerObservation,providerReplay,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
     }
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }
