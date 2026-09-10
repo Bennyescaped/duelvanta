@@ -1,6 +1,16 @@
 {
-  "functions": { "api/scanner-v16-gemini.js": { "maxDuration": 60 } },
+  "functions": {
+    "api/scanner-v16-gemini.js": {
+      "maxDuration": 60
+    },
+    "api/scanner-v16-ximilar.js": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
-    { "source": "/u/:username", "destination": "/u.html?username=:username" }
+    {
+      "source": "/u/:username",
+      "destination": "/u.html?username=:username"
+    }
   ]
 }

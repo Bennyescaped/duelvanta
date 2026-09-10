@@ -1,6 +1,8 @@
 (()=>{
   'use strict';
-  const endpoint='/api/scanner-v16-gemini',key='duelvanta_gemini_pilot_v1';
+  const provider=new URLSearchParams(location.search).get('provider')==='ximilar'?'ximilar':'gemini';
+  const providerName=provider==='ximilar'?'Ximilar':'Gemini';
+  const endpoint=`/api/scanner-v16-${provider}`,key=`duelvanta_${provider}_pilot_v1`;
   const $=id=>document.getElementById(id);
   let bundle=null,running=false,stop=false,connection=null;
   let entries=[];
@@ -18,8 +20,8 @@
   function persist(){localStorage.setItem(key,JSON.stringify(entries));render()}
   async function check(){
     try{const r=await fetch(endpoint,{cache:'no-store',signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok)throw Error(d.error||`HTTP ${r.status}`);connection=d;
-      setStatus(!d.configured?'Gemini-Schlüssel fehlt in dieser V16-Vorschau.':!d.active?'Gemini-Schlüssel vorhanden · Fototest geschlossen.':`Gemini-Schlüssel vorhanden · ${d.model} · Test bereit.`)
-    }catch{connection=null;setStatus('Testverbindung nicht verfügbar. Es wurde kein Foto an Gemini gesendet.')}render();
+      setStatus(!d.configured?''+providerName+'-Schlüssel fehlt in dieser V16-Vorschau.':!d.active?''+providerName+'-Schlüssel vorhanden · Fototest geschlossen.':`${providerName}-Schlüssel vorhanden · ${d.model} · Test bereit.`)
+    }catch{connection=null;setStatus('Testverbindung nicht verfügbar. Es wurde kein Foto an den Anbieter gesendet.')}render();
   }
   $('check').addEventListener('click',check);
   $('bundle').addEventListener('change',async event=>{
@@ -27,7 +29,7 @@
     try{const file=event.target.files?.[0];if(!file)return;if(file.size>36000000)throw Error('Testpaket zu groß.');
       const value=JSON.parse(await file.text());if(value.schema!=='duelvanta.signed-photo-pilot.v1'||!Array.isArray(value.photos)||value.photos.length<1||value.photos.length>16)throw Error('Ungültiges Testpaket.');
       const hashes=new Set();
-      for(const p of value.photos){const t=JSON.parse(p.ticket);if(!p.photoId||typeof p.signature!=='string'||typeof p.imageBase64!=='string'||hashes.has(t.sha256))throw Error('Ungültige oder doppelte Fotos.');hashes.add(t.sha256)}
+      for(const p of value.photos){const t=JSON.parse(p.ticket);if(t.model!==connection?.model)throw Error('Testpaket gehört zu einem anderen Anbieter.');if(!p.photoId||typeof p.signature!=='string'||typeof p.imageBase64!=='string'||hashes.has(t.sha256))throw Error('Ungültige oder doppelte Fotos.');hashes.add(t.sha256)}
       bundle=value;$('selection').textContent=`${value.photos.length} Fotos ausgewählt. Modell: ${connection?.model||'wird geprüft'}.`;setStatus('Testpaket geladen · noch keine Fotos gesendet.');
     }catch(e){setStatus(e.message)}render();
   });
@@ -52,5 +54,5 @@
     }catch(e){setStatus(`Fototest gestoppt: ${e.message}. Kein automatischer Wiederholungsversuch.`)}
     finally{running=false;render()}
   });
-  render();check();
+  $('provider').textContent=providerName;render();check();
 })();

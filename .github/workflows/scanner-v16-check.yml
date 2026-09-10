@@ -7,6 +7,9 @@ on:
       - 'scanner-v16-*.js'
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
+      - 'api/scanner-v16-ximilar.js'
+      - 'benchmark/scanner-pilot/ximilar-*'
+      - 'tests/scanner-v16-ximilar-test.mjs'
       - 'benchmark/scanner-pilot/gemini-*'
       - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
       - 'benchmark/scanner-pilot/score-gemini.mjs'
@@ -77,6 +80,8 @@ jobs:
           node --check api/scanner-v16-gemini.js
           node --check scanner-v16-ai-pilot.js
           node tests/scanner-v16-gemini-test.mjs
+          node --check api/scanner-v16-ximilar.js
+          node tests/scanner-v16-ximilar-test.mjs
       - name: Verified artwork reference cache
         run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition

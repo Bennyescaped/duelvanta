@@ -39,8 +39,11 @@ function requestBody(image,tcg) {
   ]}],generationConfig:{temperature:0,candidateCount:1,maxOutputTokens:MAX_OUTPUT_TOKENS,
     responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingLevel:'MINIMAL'}}};
 }
-function createPilotHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,cache=new Map()}={}) {
+function createPilotHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,cache=new Map(),provider=null}={}) {
+  const activeModel=provider?.model||MODEL, keyName=provider?.keyName||'GEMINI_API_KEY';
+  const protocolVersion=provider?.protocolVersion||PROMPT_VERSION;
   async function providerCall(image,tcg) {
+    if(provider) return provider.call({image,tcg,env,fetchImpl,now});
     const started=now();
     let response;
     try {
@@ -69,13 +72,13 @@ function createPilotHandler({env=process.env,config,fetchImpl=fetch,now=Date.now
     res.setHeader('X-Content-Type-Options','nosniff');
     try {
       requireThat(env.VERCEL_ENV==='preview' && env.VERCEL_GIT_COMMIT_REF==='scanner-v16',404,'pilot_unavailable');
-      const configured=typeof env.GEMINI_API_KEY==='string' && !!env.GEMINI_API_KEY.trim();
+      const configured=typeof env[keyName]==='string' && !!env[keyName].trim();
       const active=config?.enabled===true && now()<Date.parse(config.expiresAt);
-      if(req.method==='GET') return res.status(200).json({configured,active,model:MODEL,promptVersion:PROMPT_VERSION,
+      if(req.method==='GET') return res.status(200).json({configured,active,model:activeModel,promptVersion:protocolVersion,
         maxPhotos:16,expiresAt:config.expiresAt,requiresSignedPhoto:true,automaticScannerFallback:false});
       requireThat(req.method==='POST',405,'method_not_allowed');
       requireThat(active,403,'pilot_closed');
-      requireThat(configured,503,'gemini_key_missing');
+      requireThat(configured,503,provider?'ximilar_key_missing':'gemini_key_missing');
       requireThat(String(req.headers['content-type']||'').split(';')[0]==='application/json',415,'json_required');
       requireThat(Number(req.headers['content-length']||0)<=2300000,413,'request_too_large');
       let body=req.body;
@@ -88,7 +91,7 @@ function createPilotHandler({env=process.env,config,fetchImpl=fetch,now=Date.now
       requireThat(signed,403,'invalid_ticket');
       let ticket;
       try{ticket=JSON.parse(body.ticket)}catch{throw new PilotError(403,'invalid_ticket')}
-      requireThat(ticket.dataset===config.dataset && ticket.model===MODEL && ticket.expiresAt===config.expiresAt &&
+      requireThat(ticket.dataset===config.dataset && ticket.model===activeModel && ticket.expiresAt===config.expiresAt &&
         config.photos[ticket.sha256]===ticket.tcg,403,'photo_not_authorized');
       requireThat(typeof body.imageBase64==='string' && body.imageBase64.length<=Math.ceil(MAX_BYTES/3)*4 &&
         /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(body.imageBase64),400,'invalid_image');
