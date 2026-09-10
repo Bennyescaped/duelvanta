@@ -60,6 +60,7 @@
   async function analyzeSource(source){
     const tcg=$('dvV16Tcg').value,layout=$('dvV16Layout').value,core=root.DV_SCAN_V16_CORE;
     if(!core?.analyze)throw new Error('V16 Core ist noch nicht geladen.');
+    if(root.DV_V16_DEPS_READY){$('dvV16Status').textContent='OCR und Katalog werden vorbereitet …';await root.DV_V16_DEPS_READY}
     const pack=await controller().run(source,{mode,tcg,layout,onProgress:progress=>{const ratio=progress.total?progress.index/progress.total:0;setStep(ratio<.34?'ocr':ratio<.67?'catalog':'artwork',32+Math.round(ratio*58));$('dvV16Status').textContent=`${modeLabel(mode)} · Slot ${Math.min(progress.index+1,progress.total)} / ${progress.total} · OCR, Katalog und Artwork`}});
     const rows=(pack.results||[]).map(result=>({...result,chosen:0,selected:result.status==='ready'}));if(mode==='continuous')batch.push(...rows);else batch=rows;renderResults();$('dvV16Status').textContent=`Analyse fertig · ${pack.ready} sicher · ${pack.review} prüfen · ${pack.empty} ohne Treffer`;return pack;
   }
@@ -91,9 +92,10 @@
     api.controller=runtime.createController({analyze:(source,options)=>root.DV_SCAN_V16_CORE.analyze(source,options),onState:applyState,onResult:result=>{try{document.dispatchEvent(new CustomEvent('dv:v16:analysis-complete',{detail:{result,benchmark:root.DV_SCAN_V16_BENCHMARK?.load?.().at?.(-1)||null}}))}catch{}}});
     root.DV_SCAN_V16=api;
     const bind=runtime.bindOnce;bind($('dvV16Launch'),'click','launch',open);bind($('dvV16Close'),'click','close',close);bind($('dvV16Camera'),'click','camera',startLive);bind($('dvV16Capture'),'click','capture',captureLive);bind($('dvV16Native'),'click','native',()=>openPicker('camera'));bind($('dvV16Choose'),'click','gallery',()=>openPicker('gallery'));bind($('dvV16CameraFile'),'change','cameraFile',event=>processFile(event.target.files?.[0]));bind($('dvV16GalleryFile'),'change','galleryFile',event=>processFile(event.target.files?.[0]));bind($('dvV16Retry'),'click','retry',retry);bind($('dvV16Reset'),'click','reset',resetBatch);bind($('dvV16ImportBtn'),'click','import',importSelected);
+    bind($('dvV16Tcg'),'change','tcg',event=>{root.selectedScanTcg=event.target.value;try{localStorage.setItem('duelvanta_scan_tcg',event.target.value)}catch{}});
     bind($('dvV16Dialog'),'click','delegate',event=>{const modeButton=event.target.closest('[data-v16-mode]');if(modeButton){setMode(modeButton.dataset.v16Mode);api.mode=mode}const select=event.target.closest('[data-v16-select]');if(select){const row=batch[Number(select.dataset.v16Select)];if(row){row.chosen=Number(select.value);renderResults()}}const check=event.target.closest('[data-v16-check]');if(check){const row=batch[Number(check.dataset.v16Check)];if(row)row.selected=check.checked}});
     $('dvV16Dialog').addEventListener('close',()=>{stopLive();api.controller.recover('Scanner geschlossen.')},{once:false});renderResults();
-    if(root.DV_SCAN_V16_STANDALONE){$('scanCard').classList.add('dvV16Hidden');$('dvV16Launch').classList.add('dvV16Hidden');setTimeout(open,0)}
+    if(root.DV_SCAN_V16_STANDALONE){$('scanCard').classList.add('dvV16Hidden');setTimeout(open,0)}
     return true;
   }
   let tries=0;const timer=setInterval(()=>{tries++;if(install()||tries>200)clearInterval(timer)},40);

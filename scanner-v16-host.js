@@ -6,6 +6,7 @@
   root.selectedScanTcg=localStorage.getItem('duelvanta_scan_tcg')||'pokemon';
   root.currentUser=null;root.folders=[];root.items=[];root.activeFolder='';
   const status=message=>{const el=document.getElementById('routeStatus');if(el)el.textContent=message};
+  const loadScript=src=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error(`Abhängigkeit konnte nicht geladen werden: ${src}`));document.head.appendChild(script)});
   const normalizeCode=id=>String(id?.code||'').toUpperCase().replace(/\s/g,'');
   const fixtureImage=(label,color)=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="630" height="880"><rect width="100%" height="100%" fill="${color}"/><rect x="34" y="34" width="562" height="812" rx="24" fill="#111722" stroke="#efd18c" stroke-width="8"/><text x="315" y="420" text-anchor="middle" font-family="Arial" font-size="48" fill="white">${label}</text></svg>`)}`;
   function installE2EFixtures(){
@@ -26,5 +27,8 @@
     if(!root.db)root.db=root.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     try{const {data:{session}}=await root.db.auth.getSession();if(!session){status('Scanner bereit · für Collection-Import anmelden');document.getElementById('routeLogin')?.classList.remove('hidden');return}root.currentUser=session.user;await Promise.all([loadFolders(),root.loadItems()]);status('Scanner bereit · Collection verbunden')}catch(error){console.warn('V16 host boot',error);status('Scanner bereit · Collection konnte nicht verbunden werden')}
   }
-  boot();
+  root.DV_V16_DEPS_READY=root.DV_V16_E2E?Promise.resolve().then(installE2EFixtures):Promise.all([
+    root.supabase?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'),
+    root.Tesseract?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js')
+  ]).then(boot).catch(error=>{console.warn('V16 dependencies',error);status('Scanner bereit · OCR/Collection-Abhängigkeit konnte nicht geladen werden');throw error});
 })();

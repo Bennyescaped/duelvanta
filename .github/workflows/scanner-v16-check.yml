@@ -17,6 +17,8 @@ on:
       - 'tests/scanner-v16-native-camera-test.mjs'
       - 'tests/scanner-v16-mobile-runtime-test.mjs'
       - 'tests/scanner-v16-mobile-route-test.mjs'
+      - 'tests/scanner-v16-browser-e2e.mjs'
+      - 'tests/fixtures/**'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -69,3 +71,9 @@ jobs:
         run: node tests/scanner-v16-mobile-runtime-test.mjs
       - name: Direct mobile route and benchmark integration
         run: node tests/scanner-v16-mobile-route-test.mjs
+      - name: Install Chromium browser test runtime
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Mobile browser upload E2E
+        run: node tests/scanner-v16-browser-e2e.mjs

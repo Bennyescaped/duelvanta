@@ -72,5 +72,8 @@ test images.
   sequence, error recovery and duplicate binding.
 - `tests/scanner-v16-mobile-route-test.mjs`: direct route, split file inputs,
   single Supabase client construction and benchmark event integration.
+- `tests/scanner-v16-browser-e2e.mjs`: real mobile Chromium file-chooser
+  uploads for Pokémon and One Piece, invalid-image recovery and persisted
+  Guided Benchmark results.
 - Existing V16 recognition, evidence, resilience, geometry, camera and
   benchmark tests remain required.
