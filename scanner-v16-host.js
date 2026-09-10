@@ -10,7 +10,7 @@
   const normalizeCode=id=>String(id?.code||'').toUpperCase().replace(/\s/g,'');
   const fixtureImage=(label,color)=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="630" height="880"><rect width="100%" height="100%" fill="${color}"/><rect x="34" y="34" width="562" height="812" rx="24" fill="#111722" stroke="#efd18c" stroke-width="8"/><text x="315" y="420" text-anchor="middle" font-family="Arial" font-size="48" fill="white">${label}</text></svg>`)}`;
   function installE2EFixtures(){
-    root.Tesseract={recognize:async()=>{const file=String(root.__DV_V16_E2E_FILE||'').toLowerCase();if(file.includes('pokemon'))return{data:{text:'183/196'}};if(file.includes('onepiece'))return{data:{text:'OP05-119'}};return{data:{text:''}}}};
+    root.Tesseract={recognize:async()=>({data:{text:root.selectedScanTcg==='one_piece'?'OP05-119':'183/196'}})};
     root.catalogLookup=async id=>{const tcg=root.selectedScanTcg,code=normalizeCode(id);if(tcg==='pokemon'&&/183\s*\/\s*196/.test(code))return[{tcg:'pokemon',name:'Galar-Mauzinger V',set:'Verlorener Ursprung',number:'183/196',language:'DE',variant:'Ultra Rare',image:fixtureImage('183/196','#364f76'),catalogConfidence:94,confidence:94,marketEur:null,priceSource:null}];if(tcg==='one_piece'&&code==='OP05-119')return[{tcg:'one_piece',name:'Monkey D. Luffy',set:'Awakening of the New Era',number:'OP05-119',language:'EN',variant:'Parallel',image:fixtureImage('OP05-119','#713c32'),catalogConfidence:94,confidence:94,marketEur:null,priceSource:null}];return[]};
     status('E2E Testmodus · keine Nutzerdaten und keine externen Katalogaufrufe');
   }

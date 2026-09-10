@@ -40,7 +40,7 @@ page.on('console',message=>{if(message.type()==='error')errors.push(message.text
 const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 90 seconds');process.exit(1)},90000);
 
 async function upload(input,fixture){
-  await page.locator(input).setInputFiles(resolve(testDir,'fixtures',fixture),{timeout:12000});
+  await page.locator(input).setInputFiles(resolve(root,fixture),{timeout:12000});
 }
 
 async function waitForResult(name,number){
@@ -69,7 +69,7 @@ try{
   await page.click('#dvV16Launch');
   await page.selectOption('#dvV16Tcg','pokemon');
   console.log('E2E: upload Pokemon fixture');
-  await upload('#dvV16GalleryFile','pokemon-183-196.svg');
+  await upload('#dvV16GalleryFile','avatar-clean.png');
   await waitForResult('Galar-Mauzinger V','183/196');
 
   await page.click('#dvV16Close');
@@ -82,12 +82,12 @@ try{
   await page.click('#dvV16Launch');
   await page.selectOption('#dvV16Tcg','one_piece');
   console.log('E2E: upload One Piece fixture');
-  await upload('#dvV16GalleryFile','onepiece-op05-119.svg');
+  await upload('#dvV16GalleryFile','avatar-clean.png');
   await waitForResult('Monkey D. Luffy','OP05-119');
 
   await page.click('#dvV16Retry');
   console.log('E2E: upload invalid fixture and verify recovery');
-  await upload('#dvV16GalleryFile','invalid-upload.txt');
+  await upload('#dvV16GalleryFile','tests/fixtures/invalid-upload.txt');
   await page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent?.includes('kein Bild'),null,{timeout:5000});
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'error');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'gallery button stayed locked after a decoding error');
