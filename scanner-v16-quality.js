@@ -64,6 +64,7 @@
     if(quality<36){forceReview=true;cap=Math.min(cap,74);reasons.push('low_image_quality')}
     if(reflection&&v1<86){forceReview=true;cap=Math.min(cap,79);reasons.push('reflection_guard')}
     if(glare>=14){forceReview=true;cap=Math.min(cap,76);reasons.push('heavy_glare')}
+    if(v1<55){forceReview=true;cap=Math.min(cap,79);reasons.push(v1>0?'artwork_ambiguity':'top_candidate_unverifiable')}
 
     if(tcg==='one_piece'&&variantAmbiguity){
       const ok=reflection?(v1>=88&&visualGap>=14):(v1>=78&&visualGap>=9);

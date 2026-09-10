@@ -70,6 +70,7 @@ async function waitForResult(name,number){
   assert.equal(actual.id,number);assert.equal(actual.number,number);assert.equal(actual.name,name);assert.equal(actual.verified,true);
   assert.ok(!await page.locator('#dvV16Results .dvV16ResultTitle').filter({hasText:'Kein sicherer Treffer'}).count());
   assert.equal(await page.locator('[data-v16-tcg="'+actual.tcg+'"]').count(),1);
+  assert.ok(!await page.locator('#dvV16Results').innerText().then(text=>text.includes('ein etwas besseres Bild')),'recognized high quality results must not ask for a better image');
   console.log('Recognition evidence:',JSON.stringify(actual));
 }
 
@@ -143,6 +144,27 @@ try{
   await page.click('#dvV16Retry');
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'idle');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'gallery button did not recover');
+
+  console.log('E2E: real canvas video stream, contour gate and single automatic capture');
+  await page.selectOption('#dvV16Tcg','pokemon');
+  await page.evaluate(async()=>{
+    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
+    const image=new Image();image.src='/tests/fixtures/pokemon-074-084.svg';await image.decode();
+    const video=document.getElementById('dvV16Video'),box=video.getBoundingClientRect();
+    const g=window.DV_SCAN_V16_LIVE.geometry({sourceWidth:720,sourceHeight:1280,boxWidth:box.width,boxHeight:box.height});
+    const x=canvas.getContext('2d'),draw=()=>{x.fillStyle='#303030';x.fillRect(0,0,720,1280);const r=g.source;x.drawImage(image,r.x,r.y,r.w,r.h)};
+    draw();const stream=canvas.captureStream(10);window.__liveFixtureTimer=setInterval(draw,100);
+    navigator.mediaDevices.getUserMedia=async()=>stream;
+    window.__captureCount=0;const capture=window.DV_SCAN_V16_CAMERA.capture;
+    window.DV_SCAN_V16_CAMERA.capture=(video,options)=>{window.__captureCount++;const canvas=capture(video,options);window.__capturedGeometry=canvas.__v16CaptureGeometry;return canvas};
+  });
+  await page.click('#dvV16Camera');
+  await page.waitForFunction(()=>window.__captureCount===1,null,{timeout:20000});
+  await waitForResult('Retourorden','074/084');
+  assert.equal(await page.evaluate(()=>window.__captureCount),1,'live loop must submit exactly one frame, not run OCR repeatedly');
+  assert.equal(await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().length),5);
+  await page.evaluate(()=>clearInterval(window.__liveFixtureTimer));
+  await page.screenshot({path:resolve(root,'test-results/v16-auto-capture.png'),fullPage:true});
 
   assert.deepEqual(errors,[],`browser errors: ${errors.join(' | ')}`);
   console.log('PASS: real Tesseract pixel OCR → normalized identifier → production catalog adapter → correct Pokemon/One Piece candidate → evidence/result → benchmark; manual recovery and error-state recovery');

@@ -37,6 +37,7 @@ assert.equal(resilience.classifyFailure({...noHit,id:null}),'identifier_failure'
 assert.equal(resilience.classifyFailure({...noHit,quality:{score:10}}),'image_quality_failure');
 for(const [flag,type] of [['variantAmbiguity','variant_ambiguity'],['languageAmbiguity','language_ambiguity']])assert.equal(resilience.classifyFailure({...noHit,best:cards[0],[flag]:true}),type);
 assert.equal(resilience.classifyFailure({...noHit,best:cards[0],status:'review'}),'artwork_ambiguity');
+assert.equal(resilience.guidanceFor({...noHit,best:cards[0],status:'ready'}).code,'matched');
 for(const dims of [[1920,1080,390,500],[720,1280,390,500],[1280,720,844,350],[1920,1440,707,930]])for(const objectFit of ['contain','cover']){
   const g=live.geometry({sourceWidth:dims[0],sourceHeight:dims[1],boxWidth:dims[2],boxHeight:dims[3],objectFit});
   assert.ok(Math.abs(g.overlay.w/g.overlay.h-63/88)<1e-10);

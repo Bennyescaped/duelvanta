@@ -9,6 +9,7 @@
   function guidanceFor(result,{geometry=null,repeat=false}={}){
     const q=result?.quality||{},actions=[];
     const failure=classifyFailure(result);
+    if(!repeat&&!failure&&result?.best)return{code:'matched',failureType:null,title:'KARTE ERKANNT',text:'Nummer und Katalogkandidat sind konsistent. Prüfe die Karte und erfasse den Benchmark.',actions:[]};
     if(!repeat&&failure==='catalog_no_match')return{code:'catalog_no_match',failureType:failure,title:'NUMMER ERKANNT · KATALOG PRÜFEN',text:`Die Nummer ${result.id.code} wurde gelesen. Der Katalog liefert keinen passenden Eintrag; das ist kein OCR- oder Bildqualitätsfehler.`,actions:['Nummer korrigieren oder die Katalogsuche ohne neues Foto wiederholen.','Bei korrekter Nummer kann die Karte oder Sprache im Katalog fehlen.']};
     if(!repeat&&['variant_ambiguity','language_ambiguity','artwork_ambiguity'].includes(failure))return{code:failure,failureType:failure,title:{variant_ambiguity:'VARIANTE PRÜFEN',language_ambiguity:'SPRACHE PRÜFEN',artwork_ambiguity:'ARTWORK PRÜFEN'}[failure],text:'Die Nummer ist erkannt. Vergleiche die Katalogkandidaten und bestätige die passende Karte.',actions:['Artwork, Sprache und Variante in der Kandidatenliste vergleichen.']};
     let code='review',title='ERNEUT SCANNEN',text='Für einen belastbaren Treffer braucht DUELVANTA ein etwas besseres Bild.';
