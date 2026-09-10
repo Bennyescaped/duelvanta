@@ -51,7 +51,7 @@
 
   function decision(result,tcg,tcgApi=root.DV_SCAN_V16_TCG){
     const rows=result?.candidates||[],top=rows[0]||result?.best||null,q=result?.quality||{},reasons=[];
-    if(!top)return{forceReview:true,reasons:['no_candidate'],variantAmbiguity:false,languageAmbiguity:false,visualGap:0,evidenceConfidence:0};
+    if(!top)return{forceReview:true,reasons:[result.languageConflict?'language_conflict':'no_candidate'],variantAmbiguity:false,languageAmbiguity:!!result.languageConflict,visualGap:0,evidenceConfidence:0};
     const target=idOf(result?.id,tcg,tcgApi),topCode=codeOf(top,tcg,tcgApi),peer=rows.slice(1).find(c=>codeOf(c,tcg,tcgApi)===topCode&&(!target||topCode===target))||null;
     const v1=Number(top?.v16Visual||result?.visualConfidence||0),v2=Number(peer?.v16Visual||0),visualGap=peer?Math.max(0,v1-v2):v1;
     const topLang=languageOf(top),peerLang=languageOf(peer),languageAmbiguity=!!(peer&&topLang&&peerLang&&topLang!==peerLang);
@@ -60,6 +60,8 @@
     const variantAmbiguity=!!(peer&&familyDiff)||(tcg==='one_piece'&&!!peer&&imageDiff&&!languageAmbiguity);
     const reflection=!!q.reflectionRisk,quality=Number(q.score||0),glare=Math.max(Number(q.glare||0),Number(q.centerGlare||0));
     let forceReview=false,cap=99;
+    if(result.identifierReliable===false){forceReview=true;cap=Math.min(cap,74);reasons.push('identifier_unconfirmed')}
+    if(result.observedLanguage&&topLang&&result.observedLanguage!==topLang){forceReview=true;cap=Math.min(cap,49);reasons.push('language_conflict')}
 
     if(quality<36){forceReview=true;cap=Math.min(cap,74);reasons.push('low_image_quality')}
     if(reflection&&v1<86){forceReview=true;cap=Math.min(cap,79);reasons.push('reflection_guard')}

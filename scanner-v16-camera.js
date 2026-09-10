@@ -27,9 +27,10 @@
     try{stream=await getCameraStream(timeoutMs);if(attempts.get(video)!==token)throw new Error('camera_start_cancelled');video.srcObject=stream;video.playsInline=true;video.muted=true;try{const playing=video.play();if(playing?.catch)playing.catch(()=>{})}catch{};if(!await waitForFrame(video,6500))throw new Error('camera_frame_timeout');if(attempts.get(video)!==token)throw new Error('camera_start_cancelled');return stream}
     catch(error){try{stream?.getTracks?.().forEach(track=>track.stop())}catch{};if(attempts.get(video)===token)stopVideoStream(video);throw error}
   }
-  function capture(video,{single=true,width=1600}={}){
+  function capture(video,{single=true,width=1600,detectedRect=null}={}){
     if(!frameReady(video)||!streamLive(video))throw new Error('Kamera ist noch nicht bereit.');
     const transform=geometry(video,{single});if(!transform)throw new Error('Videofläche ist noch nicht bereit.');
+    if(single&&detectedRect&&['x','y','w','h'].every(k=>Number.isFinite(detectedRect[k]))&&detectedRect.x>=0&&detectedRect.y>=0&&detectedRect.w>0&&detectedRect.h>0&&detectedRect.x+detectedRect.w<=video.videoWidth&&detectedRect.y+detectedRect.h<=video.videoHeight){transform.guide=transform.source;transform.source={...detectedRect};transform.overlay={x:transform.content.x+detectedRect.x*transform.scale,y:transform.content.y+detectedRect.y*transform.scale,w:detectedRect.w*transform.scale,h:detectedRect.h*transform.scale};transform.detected=true}
     const {x:sx,y:sy,w:sw,h:sh}=transform.source;
     const canvas=document.createElement('canvas');canvas.width=Math.min(Math.round(sw),Math.max(280,Number(width)||1600));canvas.height=Math.round(canvas.width*sh/sw);canvas.getContext('2d').drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);canvas.__v16Prepared=single;canvas.__v16CaptureGeometry=transform;return canvas;
   }

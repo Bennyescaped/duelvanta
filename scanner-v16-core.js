@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.10.0-lab';
+  const VERSION='16.11.0-lab';
   const CARD_RATIO=63/88;
   const MODES=new Set(['single','continuous','multi','binder']);
 
@@ -49,13 +49,25 @@
   function pokemonIds(text){if(window.DV_SCAN_V16_TCG?.pokemonIds)return window.DV_SCAN_V16_TCG.pokemonIds(text);const out=[];for(const m of fallbackPokemonText(text).matchAll(/(?:^|\D)(\d{1,3})\s*[\/|]\s*(\d{2,3})(?:\D|$)/g)){const a=Number(m[1]),b=Number(m[2]);if(a>=1&&b>=10&&a<=b&&b<=999)out.push({local:m[1],den:m[2],code:`${m[1]}/${m[2]}`})}return out}
   function onePieceIds(text){if(window.DV_SCAN_V16_TCG?.onePieceIds)return window.DV_SCAN_V16_TCG.onePieceIds(text);const s=String(text||'').normalize('NFKC').toUpperCase().replace(/[—–−]/g,'-'),out=[];for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*(\d{1,2})\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`${m[1]}${m[2].padStart(2,'0')}-${m[3].padStart(3,'0')}`});for(const m of s.matchAll(/\bP\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`P-${m[1].padStart(3,'0')}`});return out}
   async function ocr(c,psm='6'){try{if(window.DV_SCAN_V16_OCR)return await window.DV_SCAN_V16_OCR.read(c,psm);const r=await Tesseract.recognize(c,'eng',{tessedit_pageseg_mode:psm,preserve_interword_spaces:'1'});return String(r?.data?.text||'')}catch{return''}}
-  function pickFrequent(hits,tcg){if(!hits.length)return null;const key=h=>tcg==='one_piece'?String(h.code||''): `${Number(h.local)}/${Number(h.den)}`,freq=new Map();for(const h of hits){const k=key(h);freq.set(k,(freq.get(k)||0)+1)}hits.sort((a,b)=>(freq.get(key(b))||0)-(freq.get(key(a))||0));return hits[0]}
+  function votePasses(texts,tcg){
+    const parse=tcg==='pokemon'?pokemonIds:onePieceIds,key=id=>window.DV_SCAN_V16_TCG.idCode(id,tcg),votes=new Map();
+    // One vote per independent crop. Never count joined text as a new pass.
+    texts.forEach((text,pass)=>{for(const [code,id] of new Map(parse(text).map(id=>[key(id),id]))){const v=votes.get(code)||{...id,passes:[]};v.passes.push(pass);votes.set(code,v)}});
+    return [...votes.values()].sort((a,b)=>b.passes.length-a.passes.length);
+  }
+  function observedLanguage(texts){
+    const text=texts.join(' ').normalize('NFKC').toLowerCase();
+    const score=words=>words.filter(word=>new RegExp('\\b'+word+'\\b','i').test(text)).length;
+    const de=score(['deines','deine','deiner','dieser','dieses','karte','karten','kannst','wenn','während','wahrend','angriff','energien','gegner','pokemon-ausrustung']),en=score(['your','opponent','during','attach','attached','discard','shuffle','damage','draw','search']);
+    return de>=2&&de>en?'DE':en>=2&&en>de?'EN':null;
+  }
   async function identify(card,tcg){
     if(!window.Tesseract)return null;
     if(tcg==='pokemon'){
-      const crops=[prepRect(card,0,.68,.82,1,2.0),prepRect(card,0,.56,1,1,1.75),prepRect(card,0,.76,1,1,2.1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'7')]),hits=texts.flatMap(pokemonIds);hits.push(...pokemonIds(texts.join('\n')));return pickFrequent(hits,'pokemon');
+      const texts=await Promise.all([ocr(prepRect(card,0,.84,.67,1,1.1),'6'),ocr(prepRect(card,0,.88,1,1,1),'11'),ocr(prepRect(card,0,.58,1,1,1.3),'6')]);
+      const votes=votePasses(texts,tcg);return votes.length?{...votes[0],evidence:{votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length}}:null;
     }
-    const crops=[prepRect(card,0,.48,1,1,1.72),prepRect(card,0,.62,1,1,1.95),prepRect(card,0,.76,1,1,2.12)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'7')]),hits=texts.flatMap(onePieceIds);hits.push(...onePieceIds(texts.join('\n')));return pickFrequent(hits,'one_piece');
+    const crops=[prepRect(card,0,.48,1,1,1.3),prepRect(card,0,.74,1,1,1.1),prepRect(card,0,.88,1,1,1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'11')]),votes=votePasses(texts,tcg);return votes.length?{...votes[0],evidence:{votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length}}:null;
   }
   function hashRegion(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,24,24);const d=x.getImageData(0,0,24,24).data,g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g.push(v);sum+=v}const mean=sum/g.length;return g.map(v=>v>=mean?1:0)}catch{return null}}
   const hashSim=(a,b)=>{if(!a||!b||a.length!==b.length)return null;let n=0;for(let i=0;i<a.length;i++)if(a[i]===b[i])n++;return n/a.length};
@@ -71,28 +83,46 @@
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
   async function recognizeRegion(card,tcg,{identifierOverride,onProgress=()=>{}}={}){
-    const q=quality(card),id=identifierOverride||await identify(card,tcg);if(!id)return{tcg,quality:q,id:null,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0};
+    const q=quality(card);let id=identifierOverride||await identify(card,tcg);if(!id)return{tcg,quality:q,id:null,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0};
+    const identifierEvidence=id.evidence||null,observedLanguage=identifierEvidence?.observedLanguage||null;
     let cands=[],lookupInfo;
     onProgress({phase:'catalog',tcg,identifier:id.code});
     try{if(typeof catalogLookup==='function')cands=await catalogLookup(id,{tcg})||[];lookupInfo=cands.lookupInfo}
     catch(error){lookupInfo={tcg,identifier:id.code,errors:[{error:String(error.message)}]}}
     const api=window.DV_SCAN_V16_TCG;
+    const sameLanguage=c=>!observedLanguage||window.DV_SCAN_V16_QUALITY?.languageOf(c)===observedLanguage;
+    let rejectedCandidates=cands.filter(c=>!sameLanguage(c));
+    cands=cands.filter(sameLanguage);
+    // Resolve an OCR conflict only against codes actually read in a crop and
+    // an independently observed language. A catalog hit cannot manufacture OCR.
+    if(!cands.length&&observedLanguage&&identifierEvidence?.votes.length>1){
+      for(const alternative of identifierEvidence.votes.slice(1,3)){
+        const found=await catalogLookup(alternative,{tcg})||[];
+        if(found.some(sameLanguage)){id={...alternative,evidence:identifierEvidence};cands=found.filter(sameLanguage);lookupInfo={...found.lookupInfo,resolution:'ocr_alternative_and_observed_language',initialIdentifier:identifierEvidence.votes[0].code};break}
+      }
+    }
+    const languageConflict=!cands.length&&rejectedCandidates.length>0,identifierReliable=!!identifierOverride||!!(id.passes?.length>=2&&identifierEvidence?.votes.length===1);
     const top=(cands||[]).filter(c=>(!c.tcg||c.tcg===tcg)&&(!api||api.candidateCode(c,tcg)===api.idCode(id,tcg))).map(c=>({...c,tcg,catalogVerified:true}));
     onProgress({phase:'artwork',tcg,identifier:id.code});
     await Promise.all(top.map(async c=>{const vs=await visualScore(card,c.image,tcg);if(vs!=null)c.v16Visual=vs}));
     let ranked=top,gap=0,variantConfidence=0;
     if(window.DV_SCAN_V16_TCG?.rankCandidates){const r=window.DV_SCAN_V16_TCG.rankCandidates(top,{tcg,id,qualityScore:q.score,visualReliable:!q.reflectionRisk});ranked=r.rows;gap=r.gap;variantConfidence=r.variantConfidence}else ranked.sort((a,b)=>(Number(b.confidence||0)+Number(b.v16Visual||0)*.12)-(Number(a.confidence||0)+Number(a.v16Visual||0)*.12));
     const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(Math.min(99,base)*.90+q.score*.10),0,99):0,ambiguousVariant=tcg==='one_piece'&&ranked.length>1&&gap<5&&variantConfidence<62,status=best&&confidence>=84&&q.score>=42&&!ambiguousVariant?'ready':'review';
-    return{tcg,quality:q,id,identifierSource:identifierOverride?'manual':'ocr',lookupInfo,candidates:ranked,best,confidence,status,failureType:best?null:'catalog_no_match',variantConfidence,candidateGap:gap,recognitionReasons:best?.v16Reasons||[],visualConfidence:visual};
+    return{tcg,quality:q,id,identifierSource:identifierOverride?'manual':'ocr',identifierEvidence,identifierReliable,observedLanguage,languageConflict,rejectedCandidates,lookupInfo,candidates:ranked,best,confidence,status,failureType:best?null:'catalog_no_match',variantConfidence,candidateGap:gap,recognitionReasons:best?.v16Reasons||[],visualConfidence:visual};
+  }
+  function detectedRegion(source){
+    if(!window.DV_SCAN_V16_LIVE)return null;
+    try{const sample=canvasFrom(source,null,280),s=size(source),scale=sample.width/s.w,e=fitCenteredRect(sample),frame=window.DV_SCAN_V16_LIVE.inspect(sample.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sample.width,sample.height),e);return frame.presence&&frame.aligned?window.DV_SCAN_V16_LIVE.captureRect(frame.rect,scale,s.w,s.h):null}catch{return null}
   }
   async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,sourcePrepared=false}={}){
     if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
     const regions=sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout),results=[];
+    if(!sourcePrepared&&['single','continuous'].includes(mode)){const detected=detectedRegion(source);if(detected)Object.assign(regions[0],detected)}
     for(let i=0;i<regions.length;i++){
       onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
     }
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }
   async function blob(card,quality=.94){return await new Promise(resolve=>card.toBlob(resolve,'image/jpeg',quality))}
-  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,identify,visualScore,recognizeRegion,analyze,blob};
+  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,votePasses,observedLanguage,identify,detectedRegion,visualScore,recognizeRegion,analyze,blob};
 })();

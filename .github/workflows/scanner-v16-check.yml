@@ -86,6 +86,8 @@ jobs:
       - name: Second mobile acceptance regressions
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: Mobile browser upload E2E
+        env:
+          V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
         run: node tests/scanner-v16-browser-e2e.mjs
       - name: Read-only live catalog availability
         if: github.event_name == 'push'

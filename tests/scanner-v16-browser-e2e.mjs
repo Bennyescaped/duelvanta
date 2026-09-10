@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 
 const testDir=dirname(fileURLToPath(import.meta.url));
 const root=resolve(testDir,'..');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.css':'text/css; charset=utf-8','.txt':'text/plain; charset=utf-8','.wasm':'application/wasm','.gz':'application/gzip'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.css':'text/css; charset=utf-8','.txt':'text/plain; charset=utf-8','.wasm':'application/wasm','.gz':'application/gzip'};
 const server=createServer(async(request,response)=>{
   try{
     const pathname=decodeURIComponent(new URL(request.url,'http://127.0.0.1').pathname);
@@ -41,6 +41,9 @@ await page.route('https://api.tcgdex.net/**',async route=>{
   if(path==='/v2/de/sets')data=[...Array.from({length:25},(_,i)=>({id:'older'+i,cardCount:{official:100,total:100}})),{id:'fixture84',cardCount:{official:84,total:84}}];
   if(path==='/v2/de/sets/fixture84')data={cards:[{id:'fixture84-074',localId:'074'},{id:'wrong-174',localId:'174'}]};
   if(path==='/v2/de/cards/fixture84-074')data={id:'fixture84-074',localId:'074',name:'Retourorden',rarity:'Uncommon',set:{name:'Synthetic regression set',cardCount:{official:84,total:84}},image:base+'/fixtures/pokemon'};
+  if(path==='/v2/ja/sets')data=[{id:'wrong81',cardCount:{official:81,total:81}}];
+  if(path==='/v2/ja/sets/wrong81')data={cards:[{id:'wrong81-074',localId:'074'}]};
+  if(path==='/v2/ja/cards/wrong81-074')data={id:'wrong81-074',localId:'074',name:'リトライバッジ',set:{name:'Wrong Japanese printing',cardCount:{official:81,total:81}}};
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
 });
 await page.route('https://optcgapi.com/**',async route=>{
@@ -54,7 +57,7 @@ await page.route(base+'/fixtures/**',async route=>{
 page.on('requestfailed',request=>console.error('Failed request:',request.url(),request.failure()?.errorText));
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
-const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 180 seconds');process.exit(1)},180000);
+const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 300 seconds');process.exit(1)},300000);
 
 async function upload(input,fixture){
   await page.locator(input).setInputFiles(resolve(root,fixture),{timeout:12000});
@@ -152,7 +155,7 @@ try{
     const image=new Image();image.src='/tests/fixtures/pokemon-074-084.svg';await image.decode();
     const video=document.getElementById('dvV16Video'),box=video.getBoundingClientRect();
     const g=window.DV_SCAN_V16_LIVE.geometry({sourceWidth:720,sourceHeight:1280,boxWidth:box.width,boxHeight:box.height});
-    const x=canvas.getContext('2d'),draw=()=>{x.fillStyle='#303030';x.fillRect(0,0,720,1280);const r=g.source;x.drawImage(image,r.x,r.y,r.w,r.h)};
+    let tick=0;const x=canvas.getContext('2d'),draw=()=>{tick++;x.filter='none';x.fillStyle='#303030';x.fillRect(0,0,720,1280);const r=g.source;x.filter=`brightness(${1+Math.sin(tick)*.035})`;x.drawImage(image,r.x+r.w*.09+Math.sin(tick)*2,r.y+r.h*.09+Math.cos(tick)*2,r.w*.82,r.h*.82);x.filter='none'};
     draw();const stream=canvas.captureStream(10);window.__liveFixtureTimer=setInterval(draw,100);
     navigator.mediaDevices.getUserMedia=async()=>stream;
     window.__captureCount=0;const capture=window.DV_SCAN_V16_CAMERA.capture;
@@ -169,9 +172,34 @@ try{
   await page.waitForFunction(()=>window.__captureCount===1,null,{timeout:20000});
   await waitForResult('Retourorden','074/084');
   assert.equal(await page.evaluate(()=>window.__captureCount),1,'live loop must submit exactly one frame, not run OCR repeatedly');
+  assert.equal(await page.evaluate(()=>window.__capturedGeometry.detected),true,'green contour must determine the actual captured crop');
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().length),5);
   await page.evaluate(()=>clearInterval(window.__liveFixtureTimer));
   await page.screenshot({path:resolve(root,'test-results/v16-auto-capture.png'),fullPage:true});
+
+  console.log('E2E: real iPhone screenshot pixels, including patterned background; wrong JP distractor present');
+  await page.click('#dvV16Retry');
+  await upload('#dvV16GalleryFile','tests/fixtures/retourorden-iphone.png');
+  await waitForResult('Retourorden','074/084');
+  const real=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{language:r.best.language,observed:r.observedLanguage,evidence:r.identifierEvidence,crop:{width:r.crop.width,height:r.crop.height}}});
+  assert.equal(real.language,'DE');assert.equal(real.observed,'DE');
+  assert.equal(await page.locator('#dvV16Results').innerText().then(t=>t.includes('リトライバッジ')),false);
+  console.log('Real iPhone OCR evidence:',JSON.stringify(real));
+  await page.screenshot({path:resolve(root,'test-results/v16-real-iphone-result.png'),fullPage:true});
+  assert.equal(await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().length),6);
+
+  // Same real image, actual public catalogs; no mocked OCR, identifier or provider.
+  if(process.env.V16_LIVE_CATALOG==='1'){
+    await page.unroute('https://api.tcgdex.net/**');
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.locator('#dvV16Dialog[open]').waitFor({timeout:15000});
+    await upload('#dvV16GalleryFile','tests/fixtures/retourorden-iphone.png');
+    await waitForResult('Retourorden','074/084');
+    const live=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id.code,catalogId:r.best.catalogId,language:r.best.language,observed:r.observedLanguage,status:r.status}});
+    assert.equal(live.catalogId,'me05-074');assert.equal(live.language,'DE');
+    console.log('LIVE RECOGNITION PROOF:',JSON.stringify(live));
+    await page.screenshot({path:resolve(root,'test-results/v16-real-iphone-live-catalog.png'),fullPage:true});
+  }
 
   assert.deepEqual(errors,[],`browser errors: ${errors.join(' | ')}`);
   console.log('PASS: real Tesseract pixel OCR → normalized identifier → production catalog adapter → correct Pokemon/One Piece candidate → evidence/result → benchmark; manual recovery and error-state recovery');

@@ -5,8 +5,8 @@
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const signature=text=>{let hash=0;for(let i=0;i<text.length;i++)hash=(hash*31+text.charCodeAt(i))|0;return String(hash)};
-  const LABELS={
-    exact_id:'Kartennummer bestätigt',art_strong:'Artwork sehr stark',art_good:'Artwork passend',art_match:'Artwork ähnlich',art_weak:'Artwork schwach',art_leader_gap:'Artwork klar vorne',
+  const LABELS={identifier_unconfirmed:'OCR-Nummer noch unbestätigt',language_conflict:'Kartentext und Katalogsprache widersprechen sich',
+    exact_id:'OCR-Nummer passt zum Katalog',art_strong:'Artwork sehr stark',art_good:'Artwork passend',art_match:'Artwork ähnlich',art_weak:'Artwork schwach',art_leader_gap:'Artwork klar vorne',
     variant_art_separated:'Variante visuell getrennt',language_visual_separated:'Sprache visuell getrennt',variant_ambiguity:'Variante nicht eindeutig',language_ambiguity:'Sprache nicht eindeutig',
     reflection_guard:'Reflexion beeinflusst Artwork',heavy_glare:'Starke Spiegelung erkannt',low_image_quality:'Bildqualität zu niedrig',top_candidate_unverifiable:'Referenzbild fehlt',missing_variant_image:'Variantenbild fehlt'
   };
@@ -19,8 +19,10 @@
 
   function headlineFor(result,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),reasons=reasonsOf(result);
+    if(result?.languageConflict)return{headline:'SPRACHE WIDERSPRICHT KATALOG',tone:'review',summary:'Der gelesene Kartentext und die Katalogsprache passen nicht zusammen. Kein bestätigter Treffer.'};
     if(!c)return{headline:'KEIN SICHERER TREFFER',tone:'review',summary:'DUELVANTA konnte für diesen Ausschnitt keinen belastbaren Katalogtreffer bestätigen.'};
     if(result?.manualConfirmed||candidateIndex>0)return{headline:'MANUELL AUSGEWÄHLT · BITTE PRÜFEN',tone:'review',summary:'Du hast diesen Katalogkandidaten selbst bestätigt. Die automatische Confidence ist eine getrennte Messung und keine manuelle Garantie.'};
+    if(result?.identifierReliable===false)return{headline:'PRÜFEN · NUMMER NOCH NICHT BESTÄTIGT',tone:'review',summary:'Die unabhängigen OCR-Ausschnitte stimmen nicht ausreichend überein. Der Katalogkandidat bleibt ein Vorschlag.'};
     if(result?.status==='ready'){
       const strong=reasons.some(x=>['variant_art_separated','language_visual_separated','art_leader_gap','art_strong'].includes(x))||Number(c?.v16Visual||result?.visualConfidence||0)>=82;
       return strong?{headline:'STARKER TREFFER',tone:'ready',summary:'Mehrere unabhängige Merkmale sprechen klar für diesen Treffer.'}:{headline:'GUTER TREFFER',tone:'ready',summary:'Kartendaten und Bildabgleich sind ausreichend konsistent für einen automatischen Treffer.'};
@@ -35,7 +37,7 @@
 
   function explain(result,tcg,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),head=headlineFor(result,{candidateIndex}),reasons=reasonsOf(result),q=result?.quality||{},art=Number(c?.v16Visual||result?.visualConfidence||0),gap=Number(result?.visualGap||result?.qualityDecision?.visualGap||0),lang=languageOf(c),variant=variantOf(c,tcg),evidence=[];
-    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:'good',label:'Kartennummer',value:'bestätigt'});
+    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
     else if(result?.id)evidence.push({kind:'neutral',label:'Kartennummer',value:String(result.id.code||'erkannt')});
     if(art>0)evidence.push({kind:art>=78?'good':art>=62?'neutral':'warn',label:'Artwork',value:`${Math.round(art)} %`});
     if(gap>0)evidence.push({kind:gap>=9?'good':gap>=5?'neutral':'warn',label:'Abstand #1 → #2',value:`+${Math.round(gap)}`});

@@ -81,3 +81,36 @@ assert.equal(recovery.canConfirm(recovered,{...cards[0],tcg:'one_piece'}),false)
 await assert.rejects(()=>recovery.search(original,'banana',()=>{}),/Format/);
 assert.deepEqual(core.regionsFor({width:630,height:880,__v16Prepared:true},'single')[0],{x:0,y:0,w:630,h:880,index:0,slot:1,row:1,col:1});
 console.log('PASS: 074/084 numeric set resolution, explicit TCG core bridge, failure guidance, exact video geometry, contour/stability gate and manual candidate recovery');
+
+// Third iPhone failure: correlated duplicate text is not independent evidence.
+assert.equal(core.votePasses(['074/081 074/081 074/081','074/084','074/084'],'pokemon')[0].code,'074/084');
+assert.equal(core.votePasses(['074/081 074/081'],'pokemon')[0].passes.length,1);
+assert.equal(core.observedLanguage(['Einmal wahrend deines Zuges kannst du diese Karte anlegen.']),'DE');
+assert.equal(core.observedLanguage(['TRAINER Retourorden 074/084'] ),null,'title alone must not invent a language');
+assert.equal(core.observedLanguage(['During your turn draw a card from your deck.']),'EN');
+await import('../scanner-v16-quality.js');globalThis.DV_SCAN_V16_QUALITY.install();
+const correct={...cards[0],v16Visual:90},wrong={...correct,number:'074/081',language:'JP',sourceLang:'ja'};
+const lookupBefore=globalThis.catalogLookup;
+globalThis.catalogLookup=async id=>Number(id.den)===81?[wrong]:[correct];
+let texts=['074/081','074/081','074/084 während deines Zuges kannst du'];
+globalThis.Tesseract.recognize=async()=>({data:{text:texts.shift()||''}});
+let conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
+assert.equal(conflicted.results[0].best.language,'DE');assert.equal(conflicted.results[0].id.code,'074/084');
+assert.equal(conflicted.results[0].identifierReliable,false);assert.equal(conflicted.results[0].status,'review');
+texts=['074/081','074/081','074/081 während deines Zuges kannst du'];
+conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
+assert.equal(conflicted.results[0].best,null,'German card text must exclude the Japanese false positive even if all number passes agree');
+assert.equal(conflicted.results[0].failureType,'language_ambiguity');
+globalThis.catalogLookup=lookupBefore;
+const forgiving=live.createGate();let fired=0;
+for(let i=0;i<24;i++){
+  const offset=(i%4)*6,glitch=i===4;
+  const f={...frame,sample:frame.sample.map((v,j)=>v+offset+Math.sin(i+j)*2),rect:{...frame.rect,x:frame.rect.x+Math.sin(i)*1.5},presence:!glitch};
+  fired+=forgiving.update(f,1000+i*220).autoCapture?1:0;
+}
+assert.equal(fired,1,'exposure oscillation, hand tremor and one edge dropout must not starve capture');
+for(const bad of [{glare:.2},{sharpness:20},{presence:false},{aligned:false}]){
+  const gate=live.createGate();for(let i=0;i<25;i++)assert.equal(gate.update({...frame,...bad},1000+i*220).autoCapture,false);
+}
+const moving=live.createGate();for(let i=0;i<25;i++)assert.equal(moving.update({...frame,rect:{...frame.rect,x:frame.rect.x+i*10}},1000+i*220).autoCapture,false,'camera pan must not trigger capture');
+console.log('PASS: independent votes, 081/084 conflict, observed DE excludes JP, exposure/jitter/dropout tolerance and hard capture gates');

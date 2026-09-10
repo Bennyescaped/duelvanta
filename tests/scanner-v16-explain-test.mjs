@@ -7,7 +7,7 @@ const opA={name:'Luffy',number:'OP05-119',v16Visual:91,v16Score:108,v16Language:
 const opB={name:'Luffy',number:'OP05-119',v16Visual:72,v16Score:91,v16Language:'EN',v16VariantFamily:'standard',v16ExactId:true};
 let data=e.explain({status:'ready',confidence:95,candidates:[opA,opB],best:opA,visualGap:19,quality:{score:82,reflectionRisk:false,glare:1.2},reviewReasons:['exact_id','variant_art_separated','art_leader_gap']},'one_piece');
 assert.equal(data.headline,'STARKER TREFFER');
-assert.ok(data.evidence.some(x=>x.label==='Kartennummer'&&x.value==='bestätigt'));
+assert.ok(data.evidence.some(x=>x.label==='Kartennummer'&&x.value==='OCR/Katalog gleich · noch unbestätigt'&&x.kind==='neutral'));
 assert.equal(data.rivals.length,2);
 
 let variant=e.explain({status:'review',confidence:82,candidates:[opA,opB],best:opA,visualGap:3,quality:{score:78,reflectionRisk:false,glare:1},reviewReasons:['variant_ambiguity']},'one_piece');

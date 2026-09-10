@@ -9,6 +9,8 @@
   function guidanceFor(result,{geometry=null,repeat=false}={}){
     const q=result?.quality||{},actions=[];
     const failure=classifyFailure(result);
+    if(!repeat&&result?.languageConflict)return{code:'language_ambiguity',failureType:'language_ambiguity',title:'SPRACHE WIDERSPRICHT KATALOG',text:`Der Kartentext wurde als ${result.observedLanguage} erkannt. Die Katalogsprache passt nicht; der Kandidat wird nicht als Treffer angeboten.`,actions:['Gelesene Nummer prüfen und gegebenenfalls korrigieren.']};
+    if(!repeat&&result?.id&&result.identifierReliable===false)return{code:'identifier_failure',failureType:'identifier_failure',title:'NUMMER NOCH NICHT BESTÄTIGT',text:'Die OCR-Durchläufe stimmen nicht ausreichend überein. Der angezeigte Katalogkandidat ist ein Vorschlag.',actions:['Gedruckte Nummer mit den OCR-Lesungen vergleichen und den passenden Kandidaten ausdrücklich bestätigen.']};
     if(!repeat&&!failure&&result?.best)return{code:'matched',failureType:null,title:'KARTE ERKANNT',text:'Nummer und Katalogkandidat sind konsistent. Prüfe die Karte und erfasse den Benchmark.',actions:[]};
     if(!repeat&&failure==='catalog_no_match')return{code:'catalog_no_match',failureType:failure,title:'NUMMER ERKANNT · KATALOG PRÜFEN',text:`Die Nummer ${result.id.code} wurde gelesen. Der Katalog liefert keinen passenden Eintrag; das ist kein OCR- oder Bildqualitätsfehler.`,actions:['Nummer korrigieren oder die Katalogsuche ohne neues Foto wiederholen.','Bei korrekter Nummer kann die Karte oder Sprache im Katalog fehlen.']};
     if(!repeat&&['variant_ambiguity','language_ambiguity','artwork_ambiguity'].includes(failure))return{code:failure,failureType:failure,title:{variant_ambiguity:'VARIANTE PRÜFEN',language_ambiguity:'SPRACHE PRÜFEN',artwork_ambiguity:'ARTWORK PRÜFEN'}[failure],text:'Die Nummer ist erkannt. Vergleiche die Katalogkandidaten und bestätige die passende Karte.',actions:['Artwork, Sprache und Variante in der Kandidatenliste vergleichen.']};
@@ -51,6 +53,8 @@
     const q=result?.quality||{};
     if(q.reflectionRisk||Number(q.score||0)<42||Number(q.sharpness??100)<42)return'image_quality_failure';
     if(!result?.id)return'identifier_failure';
+    if(result.languageConflict)return'language_ambiguity';
+    if(result.identifierReliable===false)return'identifier_failure';
     if(!result.best)return'catalog_no_match';
     if(result.status==='ready')return null;
     if(result.languageAmbiguity)return'language_ambiguity';
