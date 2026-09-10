@@ -3,6 +3,7 @@ import {generateKeyPairSync,sign,createHash} from 'node:crypto';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import pilot from '../benchmark/scanner-pilot/ximilar-server.cjs';
+import {scoreXimilar} from '../benchmark/scanner-pilot/score-ximilar.mjs';
 const {createXimilarHandler,MODEL,parseResponse,sanitize}=pilot;
 const {publicKey,privateKey}=generateKeyPairSync('ed25519');
 const image=Buffer.from([255,216,255,1,2,3]),sha256=createHash('sha256').update(image).digest('hex');
@@ -36,6 +37,22 @@ const op=structuredClone(sample);const c=op.records[0]._objects[0];c._ocr.lang='
 assert.equal(parseResponse(op,'one_piece').observed.printed_code,'OP17-043');assert.equal(parseResponse(op,'one_piece').observed.language,'EN');assert.equal(parseResponse(op,'pokemon').status,'tcg_conflict');
 assert.equal(parseResponse({records:[{_objects:[]}]},'pokemon').status,'catalog_no_match');
 assert.deepEqual(sanitize({token:'secret',_base64:'photo',text:'secret'},'secret'),{text:'[redacted]'});
+// Observed provider shapes: OP uses card_id, Japanese Pokemon may omit catalog out_of.
+const splitOp=structuredClone(op);splitOp.records[0]._objects[0]._identification.best_match={name:'Ganzui',card_id:'OP17-043',card_number:'043',set_code:'OP17',subcategory:'One Piece'};
+assert.equal(parseResponse(splitOp,'one_piece').observed.printed_code,'OP17-043');
+const opTicket=JSON.stringify({...JSON.parse(ticket),tcg:'one_piece'});
+const opHandler=make({config:{...config,photos:{[sha256]:'one_piece'}},fetchImpl:async(url,options)=>{assert.equal(JSON.parse(options.body).records[0].Subcategory,'One Piece');return{ok:true,json:async()=>splitOp}}});
+const fullOp=await invoke(opHandler,{body:{...body,ticket:opTicket,signature:sign(null,Buffer.from(opTicket),privateKey).toString('base64url')}});assert.equal(fullOp.value.observed.printed_code,'OP17-043');assert.equal(fullOp.value.selectedTcg,'one_piece');assert.equal(fullOp.value.observed.language,'EN');assert.equal(fullOp.value.importable,false);
+const reprint=structuredClone(splitOp);reprint.records[0]._objects[0]._identification.best_match={name:'Sabo',card_id:'OP04-083_R2',card_number:'083',set_code:'OP04',subcategory:'One Piece'};
+assert.equal(parseResponse(reprint,'one_piece').observed.printed_code,'OP04-083');assert.equal(parseResponse(reprint,'one_piece').catalogCandidate.card_id,'OP04-083_R2');
+const jp=structuredClone(sample),j=jp.records[0]._objects[0];j._ocr={lang:'ja',full_text:'メッソン M1S 021/063'};j._identification.best_match={name:'Sobble',card_number:'21',set_code:'M1S',subcategory:'Pokemon'};
+assert.equal(parseResponse(jp,'pokemon').observed.printed_code,'021/063');assert.equal(parseResponse(jp,'pokemon').identifierSource,'ocr_with_matching_catalog_numerator');assert.equal(parseResponse(jp,'pokemon').observed.language,'JP');
+const conflicting=structuredClone(sample);conflicting.records[0]._objects[0]._ocr.full_text='074/081';assert.equal(parseResponse(conflicting,'pokemon').status,'identifier_conflict');
+j._ocr.full_text='021/063 021/081';assert.equal(parseResponse(jp,'pokemon').identifierConflict,true);assert.equal(parseResponse(jp,'pokemon').observed.printed_code,'21');
+const manifest={cards:[{id:'P01',tcg:'pokemon',split:'development',expected:{code:'074/084',language:'DE'},shots:[{id:'P01-A',sha256}]}]};
+const scored=scoreXimilar(manifest,[{photoId:'P01-A',sha256,result}]);assert.equal(scored.identifierAndLanguageCorrect,1);assert.equal(scored.exactPrintingVerified,0);assert.equal(scored.reportedCredits,10);
+const conflictScore=scoreXimilar(manifest,[{photoId:'P01-A',sha256,result:{...result,raw:conflicting}}]);assert.equal(conflictScore.identifierAndLanguageCorrect,0);assert.equal(conflictScore.ocrCatalogConflicts,1);
+assert.throws(()=>scoreXimilar(manifest,[{photoId:'P01-A',sha256:'wrong',result}]));
 // A second click, including after a reload, must not advance past an authentication failure.
 const uiSource=await readFile(new URL('../scanner-v16-ai-pilot.js',import.meta.url),'utf8');
 const storage=new Map();let posts=0;
