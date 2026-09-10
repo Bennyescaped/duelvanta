@@ -10,7 +10,7 @@ const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
 for(const mode of ['single','continuous','multi','binder'])must(core,`'${mode}'`,'V16 mode missing');
 must(core,'gridRegions(source,3,3','binder 3x3 split missing');
 must(core,"catalogLookup(id,{tcg})",'explicit TCG catalog bridge missing');
-must(core,'visualScore(card,c.image,tcg)','TCG-aware visual candidate check missing');
+must(core,'visualScore(card,c.image,tcg,','TCG-aware visual candidate check missing');
 must(core,'reflectionRisk','foil/reflection quality guard missing');
 must(core,'colorGrid','color-aware artwork comparison missing');
 must(core,'ambiguousVariant','parallel/variant ambiguity guard missing');
