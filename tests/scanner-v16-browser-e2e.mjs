@@ -266,8 +266,11 @@ try{
   assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
   await page.locator('.dvV16Details summary').click();
   assert.match(await page.locator('.dvV16Explain').innerText(),/KI-VORSCHLAG/);
-  await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm]').first().click();
+  assert.equal(await page.locator('.dvV16Recovery').getAttribute('open'),null);
+  await page.getByRole('button',{name:'KARTE BESTÄTIGEN',exact:true}).click();
+  assert.equal(await page.locator('.dvV16Recovery').getAttribute('open'),null,'confirmation must not need a submenu');
   assert.equal(await page.locator('[data-v16-check]').isChecked(),true);
+  assert.equal(await page.locator('#dvV16SaveNext').isEnabled(),true);
   await page.click('#dvV16SaveNext');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
   await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='error');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'save and next must recover when live camera is unavailable');
