@@ -46,7 +46,7 @@ async function upload(input,fixture){
 async function waitForResult(name,number){
   try{await page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent?.includes('Analyse fertig'),null,{timeout:30000})}
   catch(error){console.error('E2E state:',await page.evaluate(()=>({state:window.DV_SCAN_V16?.controller?.state,status:document.getElementById('dvV16Status')?.textContent,loadError:String(window.__DV_V16_LOAD_ERROR?.message||'')})));throw error}
-  await page.locator('#dvV16Results').getByText(name,{exact:false}).waitFor({timeout:5000});
+  await page.locator('#dvV16Results .dvV16ResultTitle').filter({hasText:name}).first().waitFor({timeout:5000});
   assert.match(await page.locator('#dvV16Results').innerText(),new RegExp(number.replace('/','\\/'),'i'));
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'result');
 }
