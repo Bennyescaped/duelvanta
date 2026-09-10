@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,slots,hardening]=await Promise.all([
-  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
+const [tcg,core,quality,resilience,explain,guidance,ui,camera,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,slots,hardening]=await Promise.all([
+  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-camera.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
   read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
   read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
@@ -37,6 +37,10 @@ must(explain,'Abstand #1 → #2','candidate gap evidence chip missing');
 must(guidance,'MÖGLICHE DOPPELAUFNAHME','repeat guidance UI missing');
 must(guidance,'MEHRPASS-OCR HAT DEN CODE GEFUNDEN','OCR recovery UI missing');
 must(guidance,'dvV16CaptureAdvice','capture advice component missing');
+must(camera,'waitForFrame','iOS camera frame readiness guard missing');
+must(camera,'streamLive','active camera stream reuse guard missing');
+must(camera,'camera_start_timeout','camera startup watchdog missing');
+must(camera,"start.textContent=p.startLabel",'camera state controls missing');
 must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
 must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
 must(ui,"v16_${mode}",'scan provenance missing');
@@ -73,11 +77,13 @@ must(loader,'scanner-v16-explain.js?v=16.4.0','V16.4 explainability layer not lo
 must(loader,'scanner-v16-guidance.js?v=16.5.0','V16.5 guidance UI not loaded');
 must(loader,'scanner-v16-benchmark.js?v=16.5.0','V16.5 benchmark not loaded');
 must(loader,'scanner-v16-benchmark-session.js?v=16.6.0','V16.6 guided benchmark session not loaded');
+must(loader,'scanner-v16-camera.js?v=16.7.0','V16.7 iOS camera safety layer not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.6.0','isolated V16.6 lab loader missing');
+must(lab,'scanner-v16-loader.js?v=16.7.0','isolated V16.7 lab loader missing');
+must(lab,'allow="camera"','V16.7 lab iframe camera permission missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [tcg,core,quality,resilience,explain,guidance,ui,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [tcg,core,quality,resilience,explain,guidance,ui,camera,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16.6 guided benchmark, V16.5 resilience, explainable confidence and TCG recognition');
+console.log('PASS: Scanner V16.7 iOS camera recovery, guided benchmark, resilience and TCG recognition');

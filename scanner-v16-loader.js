@@ -12,6 +12,7 @@
     'scanner-v16-market.js?v=16.1.0',
     'scanner-v16-benchmark.js?v=16.5.0',
     'scanner-v16-ui.js?v=16.1.0',
+    'scanner-v16-camera.js?v=16.7.0',
     'scanner-v16-explain.js?v=16.4.0',
     'scanner-v16-guidance.js?v=16.5.0',
     'scanner-v16-overlay.js?v=16.1.0',
