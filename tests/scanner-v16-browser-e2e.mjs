@@ -37,6 +37,7 @@ await page.addInitScript(()=>{
 const errors=[];
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
+const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 180 seconds');process.exit(1)},180000);
 
 async function upload(button,fixture){
   const chooser=page.waitForEvent('filechooser');
@@ -51,6 +52,7 @@ async function waitForResult(name,number){
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'result');
 }
 
+let failure=null;
 try{
   console.log('E2E: open direct mobile route');
   await page.goto(`${base}/scanner-v16.html?e2e=1`,{waitUntil:'domcontentloaded'});
@@ -96,8 +98,13 @@ try{
 
   assert.deepEqual(errors,[],`browser errors: ${errors.join(' | ')}`);
   console.log('PASS: mobile Chromium photo upload, Pokemon, One Piece, recovery and benchmark E2E');
+}catch(error){
+  failure=error;
 }finally{
-  await browser.close();
+  await Promise.race([browser.close(),new Promise(resolveTimeout=>setTimeout(resolveTimeout,5000))]);
   server.closeAllConnections();
   server.close();
 }
+clearTimeout(watchdog);
+if(failure)console.error(failure);
+process.exit(failure?1:0);
