@@ -28,10 +28,15 @@ entry was returned or that identifier voting was independently reliable.
    a safe code.” Result and default advice also assumed bad OCR/image. These
    are now separate identifier, catalog and image-quality states.
 
-This establishes the rejection bug without claiming that the live provider
-currently contains this particular 2026 printing. Public TCGdex availability
-could not be independently verified in this session. A missing provider
-record is now a visible catalog miss, never a fabricated match.
+The separate read-only live-provider check in
+[Run 65](https://github.com/Bennyescaped/duelvanta/actions/runs/34460528483)
+confirmed the actual entry `me05-074`, **Retourorden, 074/084, DE**, plus the
+English Backtrack Badge and a different Japanese 074/084 card. No provider
+errors occurred. This verifies that the repaired set/identifier bridge finds
+the real card, not just a synthetic response. Language and artwork gates
+still distinguish alternatives; this does not imply every photo is an
+automatic language/variant match. Live OPTCG returned nine OP05-119 artwork
+variants with no provider errors.
 
 For One Piece the screenshot does not expose the active TCG or a readable
 printed code, so a single historic cause cannot honestly be proven. Two

@@ -20,7 +20,7 @@
   function headlineFor(result,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),reasons=reasonsOf(result);
     if(!c)return{headline:'KEIN SICHERER TREFFER',tone:'review',summary:'DUELVANTA konnte für diesen Ausschnitt keinen belastbaren Katalogtreffer bestätigen.'};
-    if(result?.manualConfirmed||candidateIndex>0)return{headline:'MANUELL AUSGEWÄHLT · BITTE PRÜFEN',tone:'review',summary:'Du hast einen anderen Kandidaten als den automatischen Top-Treffer gewählt. Die ursprüngliche Confidence gilt dafür nicht unverändert.'};
+    if(result?.manualConfirmed||candidateIndex>0)return{headline:'MANUELL AUSGEWÄHLT · BITTE PRÜFEN',tone:'review',summary:'Du hast diesen Katalogkandidaten selbst bestätigt. Die automatische Confidence ist eine getrennte Messung und keine manuelle Garantie.'};
     if(result?.status==='ready'){
       const strong=reasons.some(x=>['variant_art_separated','language_visual_separated','art_leader_gap','art_strong'].includes(x))||Number(c?.v16Visual||result?.visualConfidence||0)>=82;
       return strong?{headline:'STARKER TREFFER',tone:'ready',summary:'Mehrere unabhängige Merkmale sprechen klar für diesen Treffer.'}:{headline:'GUTER TREFFER',tone:'ready',summary:'Kartendaten und Bildabgleich sind ausreichend konsistent für einen automatischen Treffer.'};

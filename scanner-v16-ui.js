@@ -44,6 +44,9 @@
   }
   function applyState({state,message,source,error}){
     const busy=['decoding','analyzing'].includes(state),cameraStarting=state==='camera-starting';
+    $('dvV16Camera').textContent=root.DV_SCAN_V16_CAMERA?.statePolicy(state).startLabel||'LIVE-KAMERA STARTEN';
+    if(['preview','analyzing'].includes(state))$('dvV16StageHint').textContent='Bild übernommen · Analyse läuft …';
+    if(state==='result')$('dvV16StageHint').textContent='Analyse abgeschlossen · für die nächste Karte Live-Kamera starten.';
     $('dvV16Tcg').disabled=busy;document.querySelectorAll('[data-v16-mode]').forEach(button=>button.disabled=busy);$('dvV16Reset').disabled=busy;
     $('dvV16Camera').disabled=busy||cameraStarting;$('dvV16Capture').disabled=busy||state!=='camera-ready';$('dvV16Native').disabled=busy;$('dvV16Choose').disabled=busy;$('dvV16Retry').disabled=busy;
     if(message)$('dvV16Status').textContent=message;if(error)$('dvV16Status').innerHTML=`<span class="dvV16Danger">${esc(error.message)} · Du kannst sofort neu aufnehmen oder ein anderes Foto wählen.</span>`;
