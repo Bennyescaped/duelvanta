@@ -98,5 +98,6 @@ try{
   console.log('PASS: mobile Chromium photo upload, Pokemon, One Piece, recovery and benchmark E2E');
 }finally{
   await browser.close();
-  await new Promise(resolveClose=>server.close(resolveClose));
+  server.closeAllConnections();
+  server.close();
 }
