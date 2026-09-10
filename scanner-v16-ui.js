@@ -68,7 +68,7 @@
     if(!camera?.frameReady(video)||video.classList.contains('dvV16Hidden'))return;
     const single=mode==='single'||mode==='continuous',g=camera.geometry(video,{single});if(!g)return;
     const vr=video.getBoundingClientRect(),sr=video.parentElement.getBoundingClientRect(),r=g.overlay;
-    Object.assign(overlay.style,{inset:'auto',left:(vr.left-sr.left+r.x)+'px',top:(vr.top-sr.top+r.y)+'px',width:r.w+'px',height:r.h+'px',display:'block',border:single?'1px solid #efd18c':'0'});
+    Object.assign(overlay.style,{inset:'auto',left:(vr.left-sr.left-video.parentElement.clientLeft+r.x)+'px',top:(vr.top-sr.top-video.parentElement.clientTop+r.y)+'px',width:r.w+'px',height:r.h+'px',display:'block',border:single?'1px solid #efd18c':'0'});
     overlay.classList.remove('dvV16Hidden');overlay.innerHTML='';
     if(!single&&!(mode==='multi'&&$('dvV16Layout').value==='auto')){
       const regions=root.DV_SCAN_V16_CORE.regionsFor({width:g.source.w,height:g.source.h},mode,$('dvV16Layout').value);
@@ -92,7 +92,7 @@
         $('dvV16StageHint').textContent=`${status.status}${status.progress?' · '+Math.round(status.progress*100)+'%':''} · Auto-Aufnahme bei stabiler Karte`;
         const contour=$('dvV16Contour'),vr=video.getBoundingClientRect(),sr=video.parentElement.getBoundingClientRect();
         contour.classList.toggle('dvV16Hidden',!frame.presence);
-        Object.assign(contour.style,{left:(vr.left-sr.left+g.content.x+frame.rect.x/scale*g.scale)+'px',top:(vr.top-sr.top+g.content.y+frame.rect.y/scale*g.scale)+'px',width:frame.rect.w/scale*g.scale+'px',height:frame.rect.h/scale*g.scale+'px'});
+        Object.assign(contour.style,{left:(vr.left-sr.left-video.parentElement.clientLeft+g.content.x+frame.rect.x/scale*g.scale)+'px',top:(vr.top-sr.top-video.parentElement.clientTop+g.content.y+frame.rect.y/scale*g.scale)+'px',width:frame.rect.w/scale*g.scale+'px',height:frame.rect.h/scale*g.scale+'px'});
         if(status.autoCapture)void captureLive();
       }catch(error){$('dvV16StageHint').textContent='Live-Prüfung nicht verfügbar · manuell aufnehmen'}
     },220);

@@ -159,6 +159,13 @@ try{
     window.DV_SCAN_V16_CAMERA.capture=(video,options)=>{window.__captureCount++;const canvas=capture(video,options);window.__capturedGeometry=canvas.__v16CaptureGeometry;return canvas};
   });
   await page.click('#dvV16Camera');
+  await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='camera-ready');
+  const overlayError=await page.evaluate(()=>{
+    const video=document.getElementById('dvV16Video'),v=video.getBoundingClientRect(),o=document.getElementById('dvV16Overlay').getBoundingClientRect(),g=window.DV_SCAN_V16_CAMERA.geometry(video);
+    return Math.max(Math.abs(o.x-v.x-g.overlay.x),Math.abs(o.y-v.y-g.overlay.y),Math.abs(o.width-g.overlay.w),Math.abs(o.height-g.overlay.h));
+  });
+  assert.ok(overlayError<.1,'rendered overlay and capture transform must agree, including parent borders');
+  await page.locator('.dvV16Stage').screenshot({path:resolve(root,'test-results/v16-live-guide.png')});
   await page.waitForFunction(()=>window.__captureCount===1,null,{timeout:20000});
   await waitForResult('Retourorden','074/084');
   assert.equal(await page.evaluate(()=>window.__captureCount),1,'live loop must submit exactly one frame, not run OCR repeatedly');
