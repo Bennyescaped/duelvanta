@@ -34,7 +34,7 @@
       const r=root.DV_SCAN_V16?.batch?.[i]||rows[i];if(!r)return;
       let old=card.querySelector('.dvV16CaptureAdvice');const html=panelHtml(r),stamp=signature(html);
       if(!html){old?.remove();return}
-      if(!old){card.insertAdjacentHTML('beforeend',html);old=card.querySelector('.dvV16CaptureAdvice')}
+      if(!old){(card.querySelector('.dvV16DetailsBody')||card).insertAdjacentHTML('beforeend',html);old=card.querySelector('.dvV16CaptureAdvice')}
       else if(old.dataset.v16Signature!==stamp){old.outerHTML=html;old=card.querySelector('.dvV16CaptureAdvice')}
       if(old)old.dataset.v16Signature=stamp;
     });

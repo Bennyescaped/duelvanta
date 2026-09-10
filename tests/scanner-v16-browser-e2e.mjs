@@ -79,6 +79,9 @@ async function waitForResult(name,number){
   assert.equal(actual.id,number);assert.equal(actual.number,number);assert.equal(actual.name,name);assert.equal(actual.verified,true);
   assert.ok(!await page.locator('#dvV16Results .dvV16ResultTitle').filter({hasText:'Kein sicherer Treffer'}).count());
   assert.equal(await page.locator('[data-v16-tcg="'+actual.tcg+'"]').count(),1);
+  assert.equal(await page.locator('.dvV16Details').getAttribute('open'),null,'technical details start collapsed');
+  assert.equal(await page.locator('.dvV16ResultTitle').first().isVisible(),true);
+  assert.equal(await page.locator('.dvV16ResultMessage').first().isVisible(),true);
   assert.ok(!await page.locator('#dvV16Results').innerText().then(text=>text.includes('ein etwas besseres Bild')),'recognized high quality results must not ask for a better image');
   console.log('Recognition evidence:',JSON.stringify(actual));
 }
@@ -90,6 +93,10 @@ try{
   await page.locator('#dvV16Dialog[open]').waitFor({timeout:15000});
   assert.equal(await page.locator('iframe').count(),0,'direct mobile route must not contain an iframe');
   assert.equal(await page.locator('input[type=file]').count(),2,'camera and gallery must have separate inputs');
+  assert.equal(await page.locator('#dvV16Capture').isVisible(),false,'unavailable shutter should not compete with camera-start');
+  await page.locator('.dvV16Alternative summary').click();
+  assert.equal(await page.locator('#dvV16Native').isVisible(),true,'native camera fallback stays reachable');
+  await page.locator('.dvV16Alternative summary').click();
 
   await page.click('#dvV16Close');
   await page.click('#dvV16BenchLaunch');
@@ -129,6 +136,7 @@ try{
   await page.locator('[name=code]').fill('OP05-118');await page.locator('[data-v16-recover] button[type=submit]').click();
   await page.waitForFunction(()=>document.getElementById('dvV16Status').textContent.includes('kein passender Katalogeintrag'));
   assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  await page.locator('.dvV16Details summary').click();
   assert.match(await page.locator('.dvV16Debug').innerText(),/OP05-118/);
   await page.locator('[name=code]').fill('OP05-119');await page.locator('[data-v16-recover] button[type=submit]').click();
   await page.waitForFunction(()=>document.getElementById('dvV16Status').textContent.includes('passenden Kandidaten bestätigen'));
@@ -228,6 +236,7 @@ try{
       await window.DV_SCAN_V16.processProviderResult(file,{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:fixture.tcg,sha256,observed:{tcg:fixture.tcg,printed_code:fixture.code,language:fixture.language,name:fixture.name},catalogCandidate:{card_id:fixture.printing},status:'proposed',elapsedMs:2700});
     },fixture);
     await waitForResult(fixture.name,fixture.code);
+    await page.locator('.dvV16Details summary').click();
     assert.match(await page.locator('.dvV16Debug').innerText(),/Ximilar · gespeicherter Test/);
     assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
     assert.match(await page.locator('.dvV16Badge').first().innerText(),/TEST · KEIN IMPORT/);
@@ -254,10 +263,13 @@ try{
   await upload('#dvV16GalleryFile','tests/fixtures/pokemon-074-084.svg');
   await waitForResult('Retourorden','074/084');assert.equal(providerCalls,1);
   assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  await page.locator('.dvV16Details summary').click();
   assert.match(await page.locator('.dvV16Explain').innerText(),/KI-VORSCHLAG/);
   await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm]').first().click();
   assert.equal(await page.locator('[data-v16-check]').isChecked(),true);
-  await page.click('#dvV16ImportBtn');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
+  await page.click('#dvV16SaveNext');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
+  await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='error');
+  assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'save and next must recover when live camera is unavailable');
   assert.equal(await page.evaluate(()=>window.__importCalls),2);
   await page.click('#dvV16ViewSaved');assert.match(await page.locator('#dvV16Saved').innerText(),/074\/084/);
   providerError=true;expectedProviderError=true;
@@ -282,6 +294,7 @@ try{
       assert.equal(live.status,'review','blocked reference artwork must never auto-confirm the result');
       assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
       assert.equal(await page.locator('.dvV16Market').count(),0);
+      await page.locator('.dvV16Details summary').click();
       assert.match(await page.locator('.dvV16Explain').innerText(),/REFERENZBILD NICHT PRÜFBAR/);
       console.log('PUBLIC ASSET LIMITATION (fail-closed review verified):',JSON.stringify(assetDiagnostics));
     }
