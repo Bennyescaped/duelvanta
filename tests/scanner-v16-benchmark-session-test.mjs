@@ -29,6 +29,6 @@ assert.ok(b.report(session).includes('Multi/Binder Slots: 7/9 korrekt'));
 const loader=await readFile(new URL('../scanner-v16-loader.js',import.meta.url),'utf8');
 const lab=await readFile(new URL('../scanner-v16-lab.html',import.meta.url),'utf8');
 assert.ok(loader.includes('scanner-v16-benchmark-session.js?v=16.6.0'),'V16.6 benchmark session not loaded');
-assert.ok(lab.includes('scanner-v16-loader.js?v=16.6.0'),'V16.6 lab cache version missing');
+assert.ok(lab.includes('scanner-v16-loader.js?v=16.7.0'),'V16.7 lab cache version missing');
 assert.ok(!loader.includes('service_role'),'benchmark loader must not expose service_role');
-console.log('PASS: Scanner V16.6 benchmark session ground truth, verdicts, metrics and lab wiring');
+console.log('PASS: Scanner V16.6 benchmark session ground truth, verdicts, metrics and V16.7 lab wiring');
