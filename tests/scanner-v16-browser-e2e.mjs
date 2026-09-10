@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {readFile,stat} from 'node:fs/promises';
+import {readFile,stat,mkdir} from 'node:fs/promises';
 import {dirname,extname,resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 
 const testDir=dirname(fileURLToPath(import.meta.url));
 const root=resolve(testDir,'..');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.css':'text/css; charset=utf-8','.txt':'text/plain; charset=utf-8'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.css':'text/css; charset=utf-8','.txt':'text/plain; charset=utf-8','.wasm':'application/wasm','.gz':'application/gzip'};
 const server=createServer(async(request,response)=>{
   try{
     const pathname=decodeURIComponent(new URL(request.url,'http://127.0.0.1').pathname);
@@ -34,21 +34,42 @@ await page.addInitScript(()=>{
   const media={getUserMedia:()=>Promise.reject(new DOMException('No camera in deterministic E2E','NotAllowedError'))};
   try{Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:media})}catch{}
 });
-const errors=[];
+const errors=[],catalogRequests=[];
+await page.route('https://api.tcgdex.net/**',async route=>{
+  const url=new URL(route.request().url());catalogRequests.push(url.href);
+  const path=url.pathname;let data=[];
+  if(path==='/v2/de/sets')data=[...Array.from({length:25},(_,i)=>({id:'older'+i,cardCount:{official:100,total:100}})),{id:'fixture84',cardCount:{official:84,total:84}}];
+  if(path==='/v2/de/sets/fixture84')data={cards:[{id:'fixture84-074',localId:'074'},{id:'wrong-174',localId:'174'}]};
+  if(path==='/v2/de/cards/fixture84-074')data={id:'fixture84-074',localId:'074',name:'Retourorden',rarity:'Uncommon',set:{name:'Synthetic regression set',cardCount:{official:84,total:84}},image:base+'/fixtures/pokemon'};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
+});
+await page.route('https://optcgapi.com/**',async route=>{
+  const url=route.request().url();catalogRequests.push(url);
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(url.includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Synthetic regression set',rarity:'SEC',card_image:base+'/fixtures/onepiece/high.webp'}]:[])});
+});
+await page.route(base+'/fixtures/**',async route=>{
+  const file=route.request().url().includes('pokemon')?'pokemon-074-084.svg':'onepiece-op05-119.svg';
+  await route.fulfill({status:200,contentType:'image/svg+xml',body:await readFile(resolve(root,'tests/fixtures',file))});
+});
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
-const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 90 seconds');process.exit(1)},90000);
+const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 180 seconds');process.exit(1)},180000);
 
 async function upload(input,fixture){
   await page.locator(input).setInputFiles(resolve(root,fixture),{timeout:12000});
 }
 
 async function waitForResult(name,number){
-  try{await page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent?.includes('Analyse fertig'),null,{timeout:30000})}
+  try{await page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent?.includes('Analyse fertig'),null,{timeout:90000})}
   catch(error){console.error('E2E state:',await page.evaluate(()=>({state:window.DV_SCAN_V16?.controller?.state,status:document.getElementById('dvV16Status')?.textContent,loadError:String(window.__DV_V16_LOAD_ERROR?.message||'')})));throw error}
   await page.locator('#dvV16Results .dvV16ResultTitle').filter({hasText:name}).first().waitFor({timeout:5000});
   assert.match(await page.locator('#dvV16Results').innerText(),new RegExp(number.replace('/','\\/'),'i'));
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'result');
+  const actual=await page.evaluate(()=>{const row=window.DV_SCAN_V16.batch[0];return{id:row.id?.code,name:row.best?.name,number:row.best?.number,tcg:row.tcg,verified:row.best?.catalogVerified}});
+  assert.equal(actual.id,number);assert.equal(actual.number,number);assert.equal(actual.name,name);assert.equal(actual.verified,true);
+  assert.ok(!await page.locator('#dvV16Results .dvV16ResultTitle').filter({hasText:'Kein sicherer Treffer'}).count());
+  assert.equal(await page.locator('[data-v16-tcg="'+actual.tcg+'"]').count(),1);
+  console.log('Recognition evidence:',JSON.stringify(actual));
 }
 
 let failure=null;
@@ -62,29 +83,56 @@ try{
   await page.click('#dvV16Close');
   await page.click('#dvV16BenchLaunch');
   await page.selectOption('#dvV16BenchScenario','pokemon_standard');
-  await page.fill('#dvV16BenchCode','183/196');
+  await page.fill('#dvV16BenchCode','074/084');
   await page.selectOption('#dvV16BenchLang','DE');
   await page.click('#dvV16BenchArm');
   await page.click('#dvV16BenchClose');
   await page.click('#dvV16Launch');
   await page.selectOption('#dvV16Tcg','pokemon');
   console.log('E2E: upload Pokemon fixture');
-  await upload('#dvV16GalleryFile','avatar-clean.png');
-  await waitForResult('Galar-Mauzinger V','183/196');
+  await upload('#dvV16GalleryFile','tests/fixtures/pokemon-074-084.svg');
+  await waitForResult('Retourorden','074/084');
 
   await page.click('#dvV16Close');
   await page.click('#dvV16BenchLaunch');
-  await page.waitForFunction(()=>document.getElementById('dvV16BenchObserved')?.textContent?.includes('Galar-Mauzinger V'),null,{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('dvV16BenchObserved')?.textContent?.includes('Retourorden'),null,{timeout:5000});
   await page.click('[data-v16-verdict="correct"]');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('duelvanta_scanner_v16_eval_v1')).entries.length),1,'benchmark result was not persisted');
   await page.click('#dvV16BenchClose');
 
   await page.click('#dvV16Launch');
-  await page.selectOption('#dvV16Tcg','one_piece');
+  await page.click('#dvV16Close');
+  await page.click('#dvV16BenchLaunch');
+  await page.selectOption('#dvV16BenchScenario','onepiece_standard');
+  await page.fill('#dvV16BenchCode','OP05-119');await page.selectOption('#dvV16BenchLang','EN');
+  await page.click('#dvV16BenchArm');await page.click('#dvV16BenchClose');await page.click('#dvV16Launch');
+  assert.equal(await page.locator('#dvV16Tcg').inputValue(),'one_piece','benchmark-selected TCG must survive scanner reopen');
   console.log('E2E: upload One Piece fixture');
-  await upload('#dvV16GalleryFile','avatar-clean.png');
+  await upload('#dvV16CameraFile','tests/fixtures/onepiece-op05-119.svg');
   await waitForResult('Monkey D. Luffy','OP05-119');
 
+  const observed=await page.evaluate(()=>window.DV_SCAN_V16_BENCH_SESSION.state.captured.observed);
+  assert.equal(observed.tcg,'one_piece');assert.equal(observed.results[0].number,'OP05-119');assert.equal(observed.results[0].catalog_matched,true);
+  console.log('E2E: code-only recovery without a new photo');
+  await page.locator('.dvV16Recovery summary').click();
+  await page.locator('[name=code]').fill('OP05-118');await page.locator('[data-v16-recover] button[type=submit]').click();
+  await page.waitForFunction(()=>document.getElementById('dvV16Status').textContent.includes('kein passender Katalogeintrag'));
+  assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  assert.match(await page.locator('.dvV16Debug').innerText(),/OP05-118/);
+  await page.locator('[name=code]').fill('OP05-119');await page.locator('[data-v16-recover] button[type=submit]').click();
+  await page.waitForFunction(()=>document.getElementById('dvV16Status').textContent.includes('passenden Kandidaten bestätigen'));
+  await page.locator('.dvV16Recovery summary').click();
+  assert.equal(await page.locator('[data-v16-check]').isChecked(),false);
+  await page.locator('[data-v16-confirm]').first().click();
+  assert.equal(await page.locator('[data-v16-check]').isChecked(),true);
+  assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.batch[0].manualConfirmed),true);
+  assert.equal(await page.evaluate(()=>document.getElementById('dvV16Dialog').scrollWidth<=document.getElementById('dvV16Dialog').clientWidth+1),true,'mobile results must not overflow horizontally');
+  await mkdir(resolve(root,'test-results'),{recursive:true});
+  await page.screenshot({path:resolve(root,'test-results/v16-recognition-mobile.png'),fullPage:true});
+  const runs=await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load());
+  assert.equal(runs.length,4,'each upload / correction must run and record exactly once');
+  assert.ok(catalogRequests.some(url=>url.includes('/sets/fixture84')));
+  assert.ok(!catalogRequests.some(url=>url.includes('wrong-174')));
   await page.click('#dvV16Retry');
   console.log('E2E: upload invalid fixture and verify recovery');
   await upload('#dvV16GalleryFile','tests/fixtures/invalid-upload.txt');
@@ -96,9 +144,12 @@ try{
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'gallery button did not recover');
 
   assert.deepEqual(errors,[],`browser errors: ${errors.join(' | ')}`);
-  console.log('PASS: mobile Chromium photo upload, Pokemon, One Piece, recovery and benchmark E2E');
+  console.log('PASS: real Tesseract pixel OCR → normalized identifier → production catalog adapter → correct Pokemon/One Piece candidate → evidence/result → benchmark; manual recovery and error-state recovery');
 }catch(error){
   failure=error;
+  await mkdir(resolve(root,'test-results'),{recursive:true});
+  await page.screenshot({path:resolve(root,'test-results/v16-failure.png'),fullPage:true}).catch(()=>{});
+  console.error('Failure state:',await page.evaluate(()=>({status:document.getElementById('dvV16Status')?.textContent,rows:window.DV_SCAN_V16?.batch?.map(r=>({id:r.id,best:r.best?.name,quality:r.quality,failureType:r.failureType,lookup:r.lookupInfo})),errors:String(window.__DV_V16_LOAD_ERROR||'')})).catch(()=>null));
 }finally{
   await Promise.race([browser.close(),new Promise(resolveTimeout=>setTimeout(resolveTimeout,5000))]);
   server.closeAllConnections();

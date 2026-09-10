@@ -6,7 +6,7 @@
   const signature=text=>{let hash=0;for(let i=0;i<text.length;i++)hash=(hash*31+text.charCodeAt(i))|0;return String(hash)};
   function panelHtml(result){
     const g=result?.captureGuidance;if(!g)return'';
-    const recovered=result?.recovery?.attempted?`<span class="${result.recovery.success?'good':'neutral'}">${result.recovery.success?'MEHRPASS-OCR HAT DEN CODE GEFUNDEN':'MEHRPASS-OCR OHNE SICHEREN CODE'}</span>`:'';
+    const recovered=result?.recovery?.attempted?`<span class="${result.id?'good':'neutral'}">${result.id?'MEHRPASS-OCR · NUMMER ERKANNT':'MEHRPASS-OCR OHNE SICHEREN CODE'}</span>`:'';
     const repeat=result?.repeatCapture?'<span class="warn">MÖGLICHE DOPPELAUFNAHME</span>':'';
     const actions=(g.actions||[]).map(x=>`<div>→ ${esc(x)}</div>`).join('');
     return `<section class="dvV16CaptureAdvice ${result?.repeatCapture?'warn':''}"><div class="dvV16CaptureTitle">${esc(g.title)}</div><div class="dvV16CaptureText">${esc(g.text)}</div><div class="dvV16CaptureTags">${recovered}${repeat}</div>${actions?`<div class="dvV16CaptureActions">${actions}</div>`:''}</section>`;
@@ -31,7 +31,7 @@
     if(!cards.length){if(host.textContent?.includes('Noch keine V16-Ergebnisse'))root.DV_SCAN_V16_RESILIENCE?.resetSession?.();return}
     const rows=state?.results||[];
     cards.forEach((card,i)=>{
-      const r=rows[i];if(!r)return;
+      const r=root.DV_SCAN_V16?.batch?.[i]||rows[i];if(!r)return;
       let old=card.querySelector('.dvV16CaptureAdvice');const html=panelHtml(r),stamp=signature(html);
       if(!html){old?.remove();return}
       if(!old){card.insertAdjacentHTML('beforeend',html);old=card.querySelector('.dvV16CaptureAdvice')}

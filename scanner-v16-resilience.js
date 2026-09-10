@@ -8,6 +8,9 @@
 
   function guidanceFor(result,{geometry=null,repeat=false}={}){
     const q=result?.quality||{},actions=[];
+    const failure=classifyFailure(result);
+    if(!repeat&&failure==='catalog_no_match')return{code:'catalog_no_match',failureType:failure,title:'NUMMER ERKANNT · KATALOG PRÜFEN',text:`Die Nummer ${result.id.code} wurde gelesen. Der Katalog liefert keinen passenden Eintrag; das ist kein OCR- oder Bildqualitätsfehler.`,actions:['Nummer korrigieren oder die Katalogsuche ohne neues Foto wiederholen.','Bei korrekter Nummer kann die Karte oder Sprache im Katalog fehlen.']};
+    if(!repeat&&['variant_ambiguity','language_ambiguity','artwork_ambiguity'].includes(failure))return{code:failure,failureType:failure,title:{variant_ambiguity:'VARIANTE PRÜFEN',language_ambiguity:'SPRACHE PRÜFEN',artwork_ambiguity:'ARTWORK PRÜFEN'}[failure],text:'Die Nummer ist erkannt. Vergleiche die Katalogkandidaten und bestätige die passende Karte.',actions:['Artwork, Sprache und Variante in der Kandidatenliste vergleichen.']};
     let code='review',title='ERNEUT SCANNEN',text='Für einen belastbaren Treffer braucht DUELVANTA ein etwas besseres Bild.';
     if(repeat){
       return{code:'repeat_capture',title:'MÖGLICHE DOPPELAUFNAHME',text:'Diese Aufnahme ist einem unmittelbar zuvor gescannten Frame sehr ähnlich. Prüfe, ob es wirklich eine neue physische Karte ist.',actions:['Wenn es dieselbe Karte ist: diesen Treffer nicht importieren.','Wenn es eine zweite identische Karte ist: kurz neu ausrichten und erneut aufnehmen.']};
@@ -40,14 +43,25 @@
       if(code==='review'){code='multi_spacing';title='KARTEN KLARER TRENNEN';text='Die freie Mehrkartenerkennung musste auf ein festes Raster zurückfallen.'}
       actions.push('Zwischen den Karten etwas mehr Abstand lassen und einen ruhigen, kontrastreichen Untergrund verwenden.');
     }
-    return{code,title,text,actions:unique(actions).slice(0,4)};
+    return{code,failureType:failure,title,text,actions:unique(actions).slice(0,4)};
+  }
+
+  function classifyFailure(result){
+    const q=result?.quality||{};
+    if(q.reflectionRisk||Number(q.score||0)<42||Number(q.sharpness??100)<42)return'image_quality_failure';
+    if(!result?.id)return'identifier_failure';
+    if(!result.best)return'catalog_no_match';
+    if(result.languageAmbiguity)return'language_ambiguity';
+    if(result.variantAmbiguity)return'variant_ambiguity';
+    if(result.status!=='ready')return'artwork_ambiguity';
+    return null;
   }
 
   function shouldRetry(result){
     if(!result)return false;
     const q=Number(result?.quality?.score||0);
     if(q<24)return false;
-    if(!result.id||!result.best)return true;
+    if(!result.id)return true;
     return false;
   }
 
@@ -101,6 +115,7 @@
 
   async function readText(canvas,psm='6'){
     try{
+      if(root.DV_SCAN_V16_OCR)return await root.DV_SCAN_V16_OCR.read(canvas,psm);
       const r=await root.Tesseract.recognize(canvas,'eng',{tessedit_pageseg_mode:psm,preserve_interword_spaces:'1'});
       return String(r?.data?.text||'');
     }catch{return''}
@@ -111,12 +126,9 @@
   }
   async function lookup(id,tcg){
     if(typeof catalogLookup!=='function')return[];
-    let prior=null,has=false;
     try{
-      if(typeof selectedScanTcg!=='undefined'){prior=selectedScanTcg;selectedScanTcg=tcg;has=true}
-      return await catalogLookup(id)||[];
+      return await catalogLookup(id,{tcg})||[];
     }catch{return[]}
-    finally{if(has)selectedScanTcg=prior}
   }
 
   function applyEvidence(result,tcg){
@@ -133,9 +145,10 @@
       :[[.53,'contrast','6'],[.70,'binary','7']];
     const texts=await Promise.all(specs.map(async([y,style,psm])=>readText(prep(result.crop,y,style),psm)));
     const hits=texts.flatMap(t=>parseText(t,tcg)),vote=voteIdentifiers(hits,tcg);
-    if(!vote?.id)return{...result,recovery:{attempted:true,success:false,passes:specs.length,votes:0}};
-    const cands=(await lookup(vote.id,tcg)).slice(0,8);
-    await Promise.all(cands.slice(0,6).map(async c=>{const v=await core.visualScore?.(result.crop,c.image,tcg);if(v!=null)c.v16Visual=v}));
+    if(!vote?.id)return{...result,recovery:{attempted:true,success:false,identifierSuccess:!!result.id,catalogMatched:!!result.best,passes:specs.length,votes:0}};
+    const found=await lookup(vote.id,tcg),api=root.DV_SCAN_V16_TCG;
+    const cands=found.filter(c=>(!c.tcg||c.tcg===tcg)&&api.candidateCode(c,tcg)===api.idCode(vote.id,tcg)).map(c=>({...c,tcg,catalogVerified:true}));
+    await Promise.all(cands.map(async c=>{const v=await core.visualScore?.(result.crop,c.image,tcg);if(v!=null)c.v16Visual=v}));
     let ranked=cands,gap=0,variantConfidence=0;
     if(root.DV_SCAN_V16_TCG?.rankCandidates){
       const rr=root.DV_SCAN_V16_TCG.rankCandidates(cands,{tcg,id:vote.id,qualityScore:Number(result?.quality?.score||0),visualReliable:!result?.quality?.reflectionRisk});
@@ -144,6 +157,7 @@
     const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),q=Number(result?.quality?.score||0);
     const confidence=best?clamp(Math.round(Math.min(96,base)*.86+q*.14),0,96):0;
     let out={...result,id:vote.id,candidates:ranked,best,confidence,status:best&&confidence>=84&&q>=42?'ready':'review',variantConfidence,candidateGap:gap,visualConfidence:Number(best?.v16Visual||0),recognitionReasons:unique([...(best?.v16Reasons||[]),'multi_pass_ocr']),recovery:{attempted:true,success:!!best,passes:specs.length,votes:vote.votes,identifier:vote.key}};
+    out={...out,tcg,lookupInfo:found.lookupInfo,recovery:{...out.recovery,identifierSuccess:true,catalogMatched:!!best}};
     out=applyEvidence(out,tcg);
     return out;
   }
@@ -170,9 +184,9 @@
       const out=await old(source,opts),tcg=out?.tcg||opts.tcg||'pokemon',mode=out?.mode||opts.mode||'single',rows=[];
       for(const initial of (out?.results||[])){
         let r=applyEvidence(initial,tcg);
-        if(shouldRetry(r))r=await recover(r,tcg,core);
+        if(!opts.identifierOverride&&shouldRetry(r))r=await recover(r,tcg,core);
         if(mode==='continuous')r=repeatGuard(r,tcg);
-        r.captureGuidance=guidanceFor(r,{geometry:out?.geometry||null,repeat:!!r.repeatCapture});
+        r.tcg=tcg;r.failureType=classifyFailure(r);r.captureGuidance=guidanceFor(r,{geometry:out?.geometry||null,repeat:!!r.repeatCapture});
         rows.push(r);
       }
       out.results=rows;out.ready=rows.filter(r=>r.status==='ready'&&r.best).length;out.review=rows.filter(r=>r.status!=='ready'&&r.best).length;out.empty=rows.filter(r=>!r.best).length;out.resiliencePolicy='v16.5_multi_pass_and_capture_guidance';
@@ -184,6 +198,6 @@
     return true;
   }
 
-  root.DV_SCAN_V16_RESILIENCE={version:VERSION,guidanceFor,shouldRetry,voteIdentifiers,bitSimilarity,isLikelyRepeat,applyEvidence,install,session,resetSession,installed:false};
+  root.DV_SCAN_V16_RESILIENCE={version:VERSION,guidanceFor,classifyFailure,shouldRetry,voteIdentifiers,bitSimilarity,isLikelyRepeat,applyEvidence,install,session,resetSession,installed:false};
   if(typeof document!=='undefined'){let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>140)clearInterval(t)},50)}
 })();

@@ -4,6 +4,7 @@
     const layout=document.getElementById('dvV16Layout'),overlay=document.getElementById('dvV16Overlay');
     if(!layout||!overlay||!window.DV_SCAN_V16)return false;
     function paint(){
+      if(window.DV_SCAN_V16?.syncOverlay){window.DV_SCAN_V16.syncOverlay();return}
       const mode=window.DV_SCAN_V16.mode;
       if(mode==='binder'){
         overlay.style.gridTemplateColumns='repeat(3,1fr)';

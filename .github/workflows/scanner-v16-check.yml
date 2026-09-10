@@ -8,6 +8,7 @@ on:
       - 'scanner-v16-host.js'
       - 'database/collect-scanner-v16-*.sql'
       - 'tests/scanner-v16-contract-test.mjs'
+      - 'tests/scanner-v16-acceptance-regression-test.mjs'
       - 'tests/scanner-v16-tcg-test.mjs'
       - 'tests/scanner-v16-quality-test.mjs'
       - 'tests/scanner-v16-explain-test.mjs'
@@ -52,6 +53,10 @@ jobs:
           node --check scanner-v16-loader.js
           node --check scanner-v16-runtime.js
           node --check scanner-v16-host.js
+          node --check scanner-v16-catalog.js
+          node --check scanner-v16-recovery.js
+          node --check scanner-v16-live.js
+          node --check scanner-v16-ocr.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
       - name: Pokemon and One Piece recognition
@@ -74,7 +79,16 @@ jobs:
         run: node tests/scanner-v16-mobile-route-test.mjs
       - name: Install Chromium browser test runtime
         run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
+          npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0
           npx playwright install chromium
+      - name: Second mobile acceptance regressions
+        run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: Mobile browser upload E2E
         run: node tests/scanner-v16-browser-e2e.mjs
+      - name: Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v16-mobile-recognition
+          path: test-results/
+          if-no-files-found: ignore
