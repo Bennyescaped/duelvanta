@@ -1,5 +1,7 @@
 # Gemini Flash-Lite: echter 16-Foto-Erstlauf
 
+**Nachtrag:** Ximilar wurde inzwischen mit denselben 16 Fotos getestet. Der [abgeschlossene Vergleich](XIMILAR-GEMINI-COMPARISON-2026-09-10.md) ersetzt den unten beschriebenen damaligen nächsten Schritt. Die Gemini-Messdaten bleiben unverändert.
+
 Durchgeführt am 10.09.2026 im Browser über die V16-Preview, Code `5a5269962ec6e635c46d9e7df18c4c6c148c3e4f`. Modell `gemini-3.5-flash-lite`, Prompt `tcg-photo-v1`, vor dem Lauf eingefroren. Die sechzehn unveränderten Originalfotos und freigegebenen TCGs wurden übertragen; Sollnummern, Namen, Sprache, Katalogkandidaten und Varianten nicht. Keine Wiederholungen oder Auswahl des besten Versuchs. Ximilar wurde noch nicht getestet.
 
 ## Ergebnis

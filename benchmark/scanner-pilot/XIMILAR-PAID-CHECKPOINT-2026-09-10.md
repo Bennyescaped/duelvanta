@@ -1,4 +1,6 @@
-# Ximilar Business 100K — recognition works, final export pending
+# Ximilar Business 100K — historical checkpoint, export recovered
+
+**Resolved:** after explicit owner approval, the page was reopened and all 16 complete responses recovered without another provider request. Identifiers and languages match on 16/16; median 2,753 ms. Both Nico Robin results retain `ST29-009_P1`. The pilot is closed. See the [completed comparison](XIMILAR-GEMINI-COMPARISON-2026-09-10.md). The checkpoint below records what was known before recovery.
 
 The owner purchased Business 100K and replaced the API token. A fresh Preview at `06ca141d38d50314e6c4cbe2871c4f5f040254a3` successfully authenticated and recognized real original photographs starting 17:39:37 UTC. The earlier invalid-token failures remain historical evidence, not the current access status.
 
