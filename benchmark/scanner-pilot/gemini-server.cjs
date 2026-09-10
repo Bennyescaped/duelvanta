@@ -103,12 +103,12 @@ function createPilotHandler({env=process.env,config,fetchImpl=fetch,now=Date.now
       const cached=cache.has(ticket.sha256);
       if(!cached) {
         requireThat(cache.size<16,429,'pilot_instance_limit');
-        cache.set(ticket.sha256,providerCall(image,ticket.tcg).then(result=>({result}),error=>({error:{status:error.status||502,code:error.code||'provider_failed'}})));
+        cache.set(ticket.sha256,providerCall(image,ticket.tcg).then(result=>({result}),error=>({error:{status:error.status||502,code:error.code||'provider_failed',reason:error.reason||null}})));
       }
       const stored=await cache.get(ticket.sha256);
-      if(stored.error) throw new PilotError(stored.error.status,stored.error.code);
+      if(stored.error) throw Object.assign(new PilotError(stored.error.status,stored.error.code),{reason:stored.error.reason});
       return res.status(200).json({...stored.result,sha256:ticket.sha256,selectedTcg:ticket.tcg,cached});
-    } catch(error) { return res.status(error.status||500).json({error:error.code||'pilot_failed',retryAutomatically:false}); }
+    } catch(error) { return res.status(error.status||500).json({error:error.code||'pilot_failed',retryAutomatically:false,...(error.reason?{providerReason:error.reason}:{})}); }
   };
 }
 module.exports={createPilotHandler,MODEL,PROMPT_VERSION,MAX_BYTES,MAX_OUTPUT_TOKENS,PROMPT,SCHEMA,requestBody,validateObservation,sha256};

@@ -2,7 +2,7 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 import {generateKeyPairSync,sign,createHash} from 'node:crypto';
-const [manifestFile,photosDir,bundleFile,configFile,provider='gemini']=process.argv.slice(2);
+const [manifestFile,photosDir,bundleFile,configFile,provider='gemini',runSuffix='']=process.argv.slice(2);
 if(!configFile)throw Error('Usage: node prepare-gemini-pilot.mjs PRIVATE_MANIFEST PHOTOS_DIR PRIVATE_BUNDLE PUBLIC_CONFIG');
 const manifest=JSON.parse(await readFile(manifestFile,'utf8'));
 const source=[];
@@ -14,7 +14,8 @@ for(const card of manifest.cards)for(const shot of card.shots){
 }
 if(source.length!==16||new Set(source.map(s=>s.sha256)).size!==16)throw Error('Exactly 16 distinct authorized originals required.');
 if(!['gemini','ximilar'].includes(provider))throw Error('Unknown provider');
-const model=provider==='ximilar'?'ximilar-collectibles-v2-tcg-id':'gemini-3.5-flash-lite',dataset='duelvanta-16-photos-20260910-v1';
+if(!/^[a-z0-9-]{0,40}$/.test(runSuffix))throw Error('Invalid run suffix');
+const model=provider==='ximilar'?'ximilar-collectibles-v2-tcg-id':'gemini-3.5-flash-lite',dataset='duelvanta-16-photos-20260910-v1'+(runSuffix?'-'+runSuffix:'');
 const expiresAt=new Date(Date.now()+2*60*60*1000).toISOString();
 const {publicKey,privateKey}=generateKeyPairSync('ed25519');
 const photos=source.map(p=>{

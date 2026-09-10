@@ -28,6 +28,8 @@ const handler=make(),results=await Promise.all([invoke(handler),invoke(handler)]
 assert.equal(result.observed.printed_code,'074/084');assert.equal(result.observed.language,'DE');assert.equal(result.importable,false);assert.equal(result.observed.confidence,null);assert.equal(result.usage.reportedCredits,10);assert.ok(!JSON.stringify(result.raw).includes('base64'));
 let denied=0;const access=make({fetchImpl:async()=>{denied++;return{ok:false,status:403}}});assert.equal((await invoke(access)).value.error,'provider_http_403');await invoke(access);assert.equal(denied,1);
 let unauthorized=0;const auth=make({fetchImpl:async()=>{unauthorized++;return{ok:false,status:401}}});assert.equal((await invoke(auth)).value.error,'provider_http_401');await invoke(auth);assert.equal(unauthorized,1);
+const invalid=await invoke(make({fetchImpl:async()=>({ok:false,status:401,json:async()=>({detail:`Invalid token. ${env.XIMILAR_API_TOKEN}`})})}));assert.equal(invalid.value.providerReason,'invalid_token');assert.ok(!JSON.stringify(invalid).includes(env.XIMILAR_API_TOKEN));
+const entitlement=await invoke(make({fetchImpl:async()=>({ok:false,status:403,json:async()=>({detail:'Your subscription does not include this service.'})})}));assert.equal(entitlement.value.providerReason,'account_or_service_access');
 assert.equal((await invoke(make({fetchImpl:async()=>({ok:true,json:async()=>({status:{code:402}})})}))).value.error,'provider_status_402');
 assert.equal((await invoke(make({fetchImpl:async()=>{throw Error(env.XIMILAR_API_TOKEN)}}))).value.error,'provider_timeout_or_network');
 const op=structuredClone(sample);const c=op.records[0]._objects[0];c._ocr.lang='en';c._identification.best_match={name:'Ganzui',card_number:'OP17-043',subcategory:'One Piece'};

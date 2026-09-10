@@ -42,7 +42,11 @@ const provider={model:MODEL,keyName:'XIMILAR_API_TOKEN',protocolVersion:'tcg-id-
     try{response=await fetchImpl('https://api.ximilar.com/collectibles/v2/tcg_id',{method:'POST',redirect:'error',
       headers:{'Content-Type':'application/json',Authorization:`Token ${secret}`},body:JSON.stringify(requestBody(image,tcg)),signal:AbortSignal.timeout(45000)});
     }catch{throw fail(504,'provider_timeout_or_network')}
-    if(!response.ok)throw fail(response.status===429?429:502,`provider_http_${response.status}`);
+    if(!response.ok){
+      let detail='';try{const error=await response.json();detail=[error.detail,error.message,error.error?.message,error.status?.text].filter(v=>typeof v==='string').join(' ')}catch{}
+      const reason=/invalid.{0,20}token|token.{0,20}invalid/i.test(detail)?'invalid_token':/credentials.{0,40}(not provided|missing)/i.test(detail)?'credentials_missing':/credit|subscription|plan|trial|upgrade/i.test(detail)?'account_or_service_access':/permission|not allowed|access denied/i.test(detail)?'permission_denied':'unspecified';
+      throw Object.assign(fail(response.status===429?429:502,`provider_http_${response.status}`),{reason});
+    }
     let data;try{data=await response.json()}catch{throw fail(502,'invalid_provider_json')}
     for(const status of [data.status,data.records?.[0]?._status])if(status?.code>=400)throw fail(502,`provider_status_${Number(status.code)}`);
     const raw=sanitize(data,secret);

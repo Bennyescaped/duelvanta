@@ -28,3 +28,5 @@ Prepare private grants with the existing tool's final `ximilar` argument:
 Close `ximilar-pilot-public.json` (`enabled:false`) after the run or an access failure. Preserve existing benchmark sessions and Gemini evidence.
 
 Official protocol and account-access requirements: https://docs.ximilar.com/collectibles/recognition
+
+After the owner explicitly confirmed checking the token, a fresh `token-check-2` run was authorized. The prepare command now accepts an optional final run suffix; it preserves the original dataset and failed attempt. Recognition settings remain frozen. Error responses expose only a fixed diagnostic category (invalid token, missing credentials, account/service access, permission denied, unspecified), never provider error text or the token.

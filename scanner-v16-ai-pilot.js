@@ -50,7 +50,7 @@
         const entry={runKey,photoId:photo.photoId,sha256:ticket.sha256,at:new Date().toISOString(),error:'attempt_started'};entries.push(entry);persist();
         setStatus(`Foto ${++sent}/${bundle.photos.length} wird analysiert …`);
         try{const response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticket:photo.ticket,signature:photo.signature,imageBase64:photo.imageBase64}),signal:AbortSignal.timeout(60000)});
-          const result=await response.json();if(!response.ok)throw Error(result.error||`HTTP ${response.status}`);entry.result=result;delete entry.error;persist();
+          const result=await response.json();if(!response.ok){entry.providerReason=result.providerReason||null;throw Error(result.error||`HTTP ${response.status}`);}entry.result=result;delete entry.error;persist();
         }catch(e){entry.error=e.message;persist();throw e}
         if(!stop && bundle.photos.some(p=>!entries.some(e=>e.sha256===JSON.parse(p.ticket).sha256)))await new Promise(r=>setTimeout(r,15000));
       }
