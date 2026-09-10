@@ -52,3 +52,14 @@ assert.ok(ranked.rows[0].v16Reasons.includes('art_leader_gap'),'clear visual lea
 assert.ok(ranked.gap>0);
 
 console.log('PASS: Scanner V16.3 evidence gates for One Piece variants, Pokemon language ambiguity and foil reflection');
+
+// Near-identical Winner printings must retain their ordering without turning a
+// sub-point artwork gap into a confident variant decision.
+const nearWinner=[
+ {number:'P-001',language:'EN',name:'Luffy Online Winner',image:'online.jpg',confidence:88,v16Visual:99.63},
+ {number:'P-001',language:'EN',name:'Luffy Offline Winner',image:'offline.jpg',confidence:88,v16Visual:100}
+];
+const precise=globalThis.DV_SCAN_V16_TCG.rankCandidates(nearWinner,{tcg:'one_piece',id:{code:'P-001'},qualityScore:95});
+assert.equal(precise.rows[0].image,'offline.jpg');
+const narrow=globalThis.DV_SCAN_V16_QUALITY.decision({id:{code:'P-001'},identifierReliable:true,candidates:precise.rows,best:precise.rows[0],confidence:99,quality:{score:95}},'one_piece');
+assert.equal(narrow.forceReview,true);assert.ok(narrow.reasons.includes('variant_ambiguity'));

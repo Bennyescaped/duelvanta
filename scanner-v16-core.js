@@ -96,7 +96,7 @@
     try{
       if(!url)return null;const ref=canvasFrom(await loadImage(url),null,card.width),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
       for(const [x0,y0,x1,y1,w] of regions){const hs=hashSim(hashRegion(card,x0,y0,x1,y1),hashRegion(ref,x0,y0,x1,y1)),cs=colorSim(colorGrid(card,x0,y0,x1,y1),colorGrid(ref,x0,y0,x1,y1));if(hs!=null||cs!=null){const s=(hs??cs)*.68+(cs??hs)*.32;total+=s*w;weight+=w}}
-      if(onReference)onReference(ref);return weight?Math.round(total/weight*100):null;
+      if(onReference)onReference(ref);return weight?Math.round(total/weight*10000)/100:null;
     }catch{return null}
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
