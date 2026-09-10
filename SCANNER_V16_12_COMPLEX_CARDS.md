@@ -34,3 +34,23 @@ Zusätzlich werden helle Druckflächen nur dann vom Reflexionswert ausgenommen, 
 Artwork-Werte behalten intern zwei Nachkommastellen. Frühes Runden hatte auch nach gemeinsamer Skalierung zwei verschiedene Winner-Drucke zu „100“ zusammengefasst. Der passende Druck darf mit 100 vor einem sehr ähnlichen Druck mit 99,63 stehen; der winzige Abstand reicht **weiterhin nicht** für automatische Variantenbestätigung.
 
 Ein Live-Kataloglauf scheiterte zudem trotz gelesener Nummer an der Abfrage. Transport-/Serverfehler erhalten jetzt genau einen weiteren Versuch; 404 wird nicht wiederholt. Bleibt die Abfrage erfolglos, zeigt V16 `catalog_unavailable` mit erneutem Katalogaufruf ohne neues Foto statt einen vermeintlichen OCR-Fehler. Die kontrollierte Kartenmatrix läuft unabhängig von einem Fehler des separaten Live-Katalogtests weiter, ohne dessen Fehlschlag zu überspringen oder als Erfolg zu zählen.
+
+## Nachgewiesener Stand (10.09.2026)
+
+| Fall | Browsernachweis | Ergebnis |
+|---|---|---|
+| Retourorden 074/084 DE, Nutzerfoto | Run 75 Live-Katalog; Run 85 kontrollierter Katalog | richtige Karte; Importabschluss/Folgescan bestanden |
+| Glurak-ex 223/197 DE | Run 75, echte Referenz und Katalogdaten | richtige Karte; Nummernkonflikt verlangt Bestätigung |
+| Umbreon VMAX 215/203 EN | Run 75 | automatische Nummer falsch; kein automatischer Import; manuelle Nummernkorrektur liefert richtigen EN-Kandidaten |
+| OP05-119 Standard | Run 85 | richtige Druck-ID; `ready` |
+| OP05-119 Parallel | Run 85 | richtige Druck-ID; nur eine sichere Code-Lesung, daher `review` |
+| OP05-119 Manga | Run 85 | richtige Druck-ID; OCR-Konflikt und ähnlicher Reprint, daher `review` |
+| P-001 Offline Regional Winner | Run 85 | richtige Druck-ID statt Finalist; sehr ähnlicher Online-Winner bleibt `review` |
+| Neue weiße Verdeckung | Run 85 | trotz lesbarer Nummer `image_quality_failure`, Importsperre |
+
+- [Run 85 mit vollständiger One-Piece-Evidenz](https://github.com/Bennyescaped/duelvanta/actions/runs/34469743523): fehlgeschlagen **wegen TCGdex-Ausfall**, nicht grün dargestellt. Die vier One-Piece-Erkennungsprüfungen und der Verdeckungsfall sind bestanden; die beiden Pokémon-Quellen waren nicht abrufbar.
+- [Run 86, PR-Regressionen](https://github.com/Bennyescaped/duelvanta/actions/runs/34469747728): grün, einschließlich echtem Tesseract, Nutzerfoto mit kontrolliertem Katalog, Auto-Capture, Benchmark, Import und Folgescan.
+- Vercel-Build für `53258cc` erfolgreich. PR #1 bleibt Draft, Main bleibt `1cf9c1173a0bbae1679da887006ae20143efa1d4`.
+- TCGdex verweigerte aus GitHub CI die HTTPS-Verbindung (`ECONNREFUSED`); auch direkte unabhängige Requests liefen in Timeouts. Der endgültige komplette grüne Lauf ist dadurch derzeit blockiert. Tests werden nicht abgeschwächt oder No-Hits als Erkennungserfolg ausgegeben.
+
+**Keine Abschlussfreigabe:** Echte iPhone-Full-Arts, Hüllen, physische Foils und die Live-Autoaufnahme solcher Karten sind damit noch nicht breit abgenommen. Sehr weiße Full-Arts können vor dem Referenzvergleich weiterhin manuelles Auslösen brauchen. Die bisherigen Referenzbilder belegen die reparierten Datenwege, keine allgemeine Erkennungsquote.
