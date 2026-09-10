@@ -3,6 +3,7 @@
   const root=globalThis;
   const VERSION='16.5.0-lab';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const signature=text=>{let hash=0;for(let i=0;i<text.length;i++)hash=(hash*31+text.charCodeAt(i))|0;return String(hash)};
   function panelHtml(result){
     const g=result?.captureGuidance;if(!g)return'';
     const recovered=result?.recovery?.attempted?`<span class="${result.recovery.success?'good':'neutral'}">${result.recovery.success?'MEHRPASS-OCR HAT DEN CODE GEFUNDEN':'MEHRPASS-OCR OHNE SICHEREN CODE'}</span>`:'';
@@ -31,9 +32,11 @@
     const rows=state?.results||[];
     cards.forEach((card,i)=>{
       const r=rows[i];if(!r)return;
-      const old=card.querySelector('.dvV16CaptureAdvice'),html=panelHtml(r);
+      let old=card.querySelector('.dvV16CaptureAdvice');const html=panelHtml(r),stamp=signature(html);
       if(!html){old?.remove();return}
-      if(old)old.outerHTML=html;else card.insertAdjacentHTML('beforeend',html);
+      if(!old){card.insertAdjacentHTML('beforeend',html);old=card.querySelector('.dvV16CaptureAdvice')}
+      else if(old.dataset.v16Signature!==stamp){old.outerHTML=html;old=card.querySelector('.dvV16CaptureAdvice')}
+      if(old)old.dataset.v16Signature=stamp;
     });
   }
   function install(){

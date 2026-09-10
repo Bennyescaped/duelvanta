@@ -45,6 +45,8 @@ timing-dependent.
 - `scanner-v16-native-camera.js` is a small input service and no longer
   intercepts or replaces UI event handlers.
 - Event listeners are installed once via a binding guard.
+- Explain, capture-guidance and market decorators are idempotent and no longer
+  retrigger their own `MutationObserver` indefinitely after result rendering.
 - Camera capture and selected/uploaded photos enter the same
   `controller.run()` pipeline.
 - A completed analysis emits `dv:v16:analysis-complete`; Guided Benchmark
