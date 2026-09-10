@@ -103,6 +103,20 @@ suite executes numeric 074/084 resolution through the core, One Piece mode
 propagation, no-catalog guidance, inverse geometry, contour/stability gating,
 single-capture latching, no-photo manual recovery and import rejection.
 
+GitHub [Run 64](https://github.com/Bennyescaped/duelvanta/actions/runs/34460313406)
+passed the complete suite, including real pixel OCR for both fixture codes
+and a real canvas video stream → contour/stability gate → one automatic
+capture → Retourorden 074/084 result. Its screenshots are retained as a
+workflow artifact. The earlier preview-resource failures were traced to
+reusing an HTMLImageElement's already-revoked blob URL; the UI now renders
+the decoded pixels instead. Success advice no longer asks for a better image.
+
+The unrelated repository-wide trade automation contract still reports
+`hardening missing function: alter function public.link_offer_notification_to_order`.
+Its SQL and test are unchanged from the starting branch; no trade or SQL fix
+is included in this scanner-only task. The trade DOM harness requires its
+separate DOM runtime argument and is not a standalone Node test command.
+
 The browser suite now uses **real Tesseract pixel OCR** and uploaded SVG
 fixtures, not the old avatar plus hardcoded OCR/catalog answers. Only public
 catalog HTTP responses are isolated with recorded-shape synthetic fixtures;

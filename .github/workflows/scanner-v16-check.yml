@@ -87,6 +87,9 @@ jobs:
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: Mobile browser upload E2E
         run: node tests/scanner-v16-browser-e2e.mjs
+      - name: Read-only live catalog availability
+        if: github.event_name == 'push'
+        run: node tests/scanner-v16-catalog-live-smoke.mjs
       - name: Browser evidence
         if: always()
         uses: actions/upload-artifact@v4
