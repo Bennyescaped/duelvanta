@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,quality,resilience,explain,guidance,ui,camera,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,slots,hardening]=await Promise.all([
-  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-camera.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
-  read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),
+const [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host,slots,hardening]=await Promise.all([
+  read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-camera.js'),read('scanner-v16-native-camera.js'),read('scanner-v16-runtime.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
+  read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),read('scanner-v16.html'),read('scanner-v16-host.js'),
   read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
 ]);
 const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
@@ -40,7 +40,13 @@ must(guidance,'dvV16CaptureAdvice','capture advice component missing');
 must(camera,'waitForFrame','iOS camera frame readiness guard missing');
 must(camera,'streamLive','active camera stream reuse guard missing');
 must(camera,'camera_start_timeout','camera startup watchdog missing');
-must(camera,"start.textContent=p.startLabel",'camera state controls missing');
+must(camera,'statePolicy','camera state controls missing');
+must(nativeCamera,"capture:'environment'",'native iPhone capture input missing');
+must(runtime,'createController','unified capture pipeline missing');
+must(runtime,"transition('decoding'",'photo decode state missing');
+must(runtime,"transition('analyzing'",'analysis state missing');
+must(runtime,"transition('error'",'error recovery state missing');
+must(runtime,'bindOnce','duplicate event binding guard missing');
 must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
 must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
 must(ui,"v16_${mode}",'scan provenance missing');
@@ -76,14 +82,19 @@ must(loader,'scanner-v16-resilience.js?v=16.5.0','V16.5 resilience layer not loa
 must(loader,'scanner-v16-explain.js?v=16.4.0','V16.4 explainability layer not loaded');
 must(loader,'scanner-v16-guidance.js?v=16.5.0','V16.5 guidance UI not loaded');
 must(loader,'scanner-v16-benchmark.js?v=16.5.0','V16.5 benchmark not loaded');
-must(loader,'scanner-v16-benchmark-session.js?v=16.6.0','V16.6 guided benchmark session not loaded');
-must(loader,'scanner-v16-camera.js?v=16.7.0','V16.7 iOS camera safety layer not loaded');
+must(loader,'scanner-v16-benchmark-session.js?v=16.9.0','V16.9 guided benchmark session not loaded');
+must(loader,'scanner-v16-runtime.js?v=16.9.0','V16.9 state machine not loaded');
+must(loader,'scanner-v16-camera.js?v=16.9.0','V16.9 live camera service not loaded');
+must(loader,'scanner-v16-native-camera.js?v=16.9.0','V16.9 native fallback not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.1.0','scanner-v16-vision.js?v=16.1.0','scanner-v16-freeform-ui.js?v=16.1.0'])must(loader,module,'V16.1 module not loaded');
-must(lab,'scanner-v16-loader.js?v=16.7.0','isolated V16.7 lab loader missing');
-must(lab,'allow="camera"','V16.7 lab iframe camera permission missing');
+must(lab,"location.replace('scanner-v16.html'",'legacy lab must route to direct V16 page');
+assert.ok(!lab.includes('<iframe'),'V16 Lab must not use an iframe');
+must(route,'scanner-v16-loader.js?v=16.9.0','direct V16 route loader missing');
+must(route,'viewport-fit=cover','mobile safe-area viewport missing');
+must(host,'DV_SCAN_V16_STANDALONE=true','standalone host bridge missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
-for(const source of [tcg,core,quality,resilience,explain,guidance,ui,camera,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
+for(const source of [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
-console.log('PASS: Scanner V16.7 iOS camera recovery, guided benchmark, resilience and TCG recognition');
+console.log('PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition');

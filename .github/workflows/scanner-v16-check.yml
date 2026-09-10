@@ -4,6 +4,8 @@ on:
     paths:
       - 'scanner-v16-*.js'
       - 'scanner-v16-lab.html'
+      - 'scanner-v16.html'
+      - 'scanner-v16-host.js'
       - 'database/collect-scanner-v16-*.sql'
       - 'tests/scanner-v16-contract-test.mjs'
       - 'tests/scanner-v16-tcg-test.mjs'
@@ -13,6 +15,8 @@ on:
       - 'tests/scanner-v16-benchmark-session-test.mjs'
       - 'tests/scanner-v16-camera-test.mjs'
       - 'tests/scanner-v16-native-camera-test.mjs'
+      - 'tests/scanner-v16-mobile-runtime-test.mjs'
+      - 'tests/scanner-v16-mobile-route-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -43,6 +47,8 @@ jobs:
           node --check scanner-v16-benchmark-session.js
           node --check scanner-v16-freeform-ui.js
           node --check scanner-v16-loader.js
+          node --check scanner-v16-runtime.js
+          node --check scanner-v16-host.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
       - name: Pokemon and One Piece recognition
@@ -59,3 +65,7 @@ jobs:
         run: node tests/scanner-v16-camera-test.mjs
       - name: Native iOS photo capture
         run: node tests/scanner-v16-native-camera-test.mjs
+      - name: Mobile photo pipeline and state recovery
+        run: node tests/scanner-v16-mobile-runtime-test.mjs
+      - name: Direct mobile route and benchmark integration
+        run: node tests/scanner-v16-mobile-route-test.mjs
