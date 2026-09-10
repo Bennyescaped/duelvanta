@@ -62,7 +62,7 @@
       const info={tcg,identifier:id.code,errors:[],strategy:tcg==='pokemon'?'denominator_sets_exact_local':'exact_one_piece_code'};
       let result=tcg==='pokemon'?await pokemon(id,info):await onePiece(id,info);
       const references=root.DV_SCAN_V16_REFERENCES;
-      if(references){await references.ready;result=result.map(card=>references.resolve(card,tcg))}
+      if(references){await references.ready;result=references.resolveCandidates(result,tcg)}
       result.lookupInfo={...info,candidates:result.length,localReferenceImages:result.filter(card=>card.referenceImageSource).length};return result;
     }
     return{lookup};

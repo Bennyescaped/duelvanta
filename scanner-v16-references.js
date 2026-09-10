@@ -10,12 +10,18 @@
       if(!new RegExp(`^scanner-v16-assets/references/${row.sha256}\\.(jpg|png|webp)$`).test(row.path||''))continue;
       bySource.set(`${row.tcg}\n${row.sourceUrl}`,row);
     }
-    return{
-      count:bySource.size,
-      resolve(card,tcg){
+    const resolve=(card,tcg)=>{
         const row=bySource.get(`${tcg}\n${card.image}`);
         if(!row||card.tcg&&card.tcg!==tcg)return card;
         return{...card,image:`./${row.path}`,referenceImageSource:card.image,referenceImageSha256:row.sha256};
+    };
+    return{
+      count:bySource.size,resolve,
+      resolveCandidates(cards,tcg){
+        const local=cards.map(card=>resolve(card,tcg));
+        // A pinned subset mixed with live variants changed Winner/Participant
+        // ordering in the real-card CI. Use one delivery cohort per lookup.
+        return local.every(card=>card.referenceImageSource)?local:cards;
       }
     };
   }
@@ -32,5 +38,5 @@
     finally{clearTimeout(timer)}
     return state;
   }
-  root.DV_SCAN_V16_REFERENCES={createResolver,resolve:(card,tcg)=>resolver.resolve(card,tcg),state:()=>({...state}),ready:typeof document==='undefined'?Promise.resolve(state):load()};
+  root.DV_SCAN_V16_REFERENCES={createResolver,resolve:(card,tcg)=>resolver.resolve(card,tcg),resolveCandidates:(cards,tcg)=>resolver.resolveCandidates(cards,tcg),state:()=>({...state}),ready:typeof document==='undefined'?Promise.resolve(state):load()};
 })();

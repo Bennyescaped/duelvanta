@@ -25,6 +25,9 @@ assert.ok(foil.evidence.some(x=>x.label==='Reflexion'));
 
 let manual=e.explain({status:'ready',confidence:95,candidates:[opA,opB],best:opA,quality:{score:82}},'one_piece',{candidateIndex:1});
 assert.equal(manual.headline,'MANUELL AUSGEWÄHLT · BITTE PRÜFEN');
+const manualCode=e.explain({status:'ready',identifierSource:'manual',identifierReliable:true,confidence:98,candidates:[opA],best:opA,quality:{score:92}},'one_piece');
+assert.equal(manualCode.headline,'NUMMER EINGEGEBEN · KANDIDAT PRÜFEN');
+assert.doesNotMatch(manualCode.summary,/automatischen Treffer/,'manual code recovery is not an automatic OCR success');
 assert.ok(e.panelHtml(data).includes('TOP-KANDIDATEN · ARTWORK-VERGLEICH'));
 
 console.log('PASS: Scanner V16.4 explainable confidence headlines, evidence chips and rival comparison');

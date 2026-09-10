@@ -27,9 +27,12 @@ assert.notEqual(resolver.resolve({...card,image:reprint.sourceUrl},'one_piece').
 assert.equal(resolver.resolve(card,'pokemon'),card,'TCG context must match');
 const unknown={...card,image:'https://example.invalid/unknown.jpg'};
 assert.equal(resolver.resolve(unknown,'one_piece'),unknown,'unknown references retain the normal provider path');
+const mixed=[card,unknown];
+assert.equal(resolver.resolveCandidates(mixed,'one_piece'),mixed,'do not mix pinned and live variant images in one ranking');
+assert.equal(resolver.resolveCandidates([card,{...card,image:reprint.sourceUrl}],'one_piece').filter(c=>c.referenceImageSource).length,2,'use the cache only when the whole candidate group is covered');
 assert.equal(references.createResolver([{...original,path:'../collect.html'}]).count,0,'reject arbitrary local paths');
 
-references.resolve=resolver.resolve;
+references.resolveCandidates=resolver.resolveCandidates;
 const client=globalThis.DV_SCAN_V16_CATALOG.createClient({fetch:async url=>({ok:true,status:200,json:async()=>url.includes('/sets/card/')?[{card_set_id:'OP04-083',card_image_id:original.id,card_name:'Sabo',card_image:original.sourceUrl}]:[]})});
 const candidates=await client.lookup({code:'OP04-083'},{tcg:'one_piece'});
 assert.equal(candidates.length,1);
