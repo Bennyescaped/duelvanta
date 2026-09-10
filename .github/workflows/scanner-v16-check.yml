@@ -12,6 +12,7 @@ on:
       - 'tests/scanner-v16-resilience-test.mjs'
       - 'tests/scanner-v16-benchmark-session-test.mjs'
       - 'tests/scanner-v16-camera-test.mjs'
+      - 'tests/scanner-v16-native-camera-test.mjs'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -32,6 +33,7 @@ jobs:
           node --check scanner-v16-guidance.js
           node --check scanner-v16-ui.js
           node --check scanner-v16-camera.js
+          node --check scanner-v16-native-camera.js
           node --check scanner-v16-binder.js
           node --check scanner-v16-market.js
           node --check scanner-v16-overlay.js
@@ -53,5 +55,7 @@ jobs:
         run: node tests/scanner-v16-resilience-test.mjs
       - name: Guided benchmark session
         run: node tests/scanner-v16-benchmark-session-test.mjs
-      - name: iOS camera readiness
+      - name: Web camera readiness
         run: node tests/scanner-v16-camera-test.mjs
+      - name: Native iOS photo capture
+        run: node tests/scanner-v16-native-camera-test.mjs

@@ -1,6 +1,8 @@
 (()=>{
   'use strict';
   const add=(src,onload)=>{const s=document.createElement('script');s.src=src;s.defer=true;if(onload)s.onload=onload;document.body.appendChild(s)};
+  const appleMobile=()=>{try{return /iPad|iPhone|iPod/i.test(String(navigator.userAgent||''))||(String(navigator.platform||'')==='MacIntel'&&Number(navigator.maxTouchPoints||0)>1)}catch{return false}};
+  const cameraModule=appleMobile()?'scanner-v16-native-camera.js?v=16.8.0':'scanner-v16-camera.js?v=16.7.0';
   const modules=[
     'scanner-v16-tcg.js?v=16.2.0',
     'scanner-v16-core.js?v=16.2.0',
@@ -12,7 +14,7 @@
     'scanner-v16-market.js?v=16.1.0',
     'scanner-v16-benchmark.js?v=16.5.0',
     'scanner-v16-ui.js?v=16.1.0',
-    'scanner-v16-camera.js?v=16.7.0',
+    cameraModule,
     'scanner-v16-explain.js?v=16.4.0',
     'scanner-v16-guidance.js?v=16.5.0',
     'scanner-v16-overlay.js?v=16.1.0',
