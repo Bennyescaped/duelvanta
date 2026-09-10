@@ -8,13 +8,17 @@
   let entries=[];
   try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(saved))entries=saved}catch{}
   const setStatus=text=>{$('status').textContent=text};
+  const bundleHasFailure=()=>!!bundle?.photos.some(photo=>{
+    const t=JSON.parse(photo.ticket),runKey=`${t.dataset}:${t.model}:${t.sha256}`;
+    return entries.some(entry=>entry.runKey===runKey&&entry.error);
+  });
   function render(){
     $('report').textContent=JSON.stringify(entries,null,2);$('results').replaceChildren();
     for(const entry of entries){const article=document.createElement('article'),title=document.createElement('strong'),info=document.createElement('p');
       title.textContent=`${entry.photoId} · ${entry.result?.observed?.name||entry.error||'Kein Ergebnis'}`;
       info.textContent=entry.result?`${entry.result.observed.printed_code||'Nummer nicht erkannt'} · ${entry.result.observed.language||'Sprache offen'} · ${entry.result.observed.variant||'Variante offen'} · ${entry.result.elapsedMs} ms · Katalog noch ungeprüft`:'Kein erfolgreicher Erkennungsnachweis.';
       article.append(title,info);$('results').append(article)}
-    $('start').disabled=running||!connection?.active||!connection?.configured||!bundle;
+    $('start').disabled=running||!connection?.active||!connection?.configured||!bundle||bundleHasFailure();
     $('bundle').disabled=running;$('check').disabled=running;$('stop').disabled=!running;
   }
   function persist(){localStorage.setItem(key,JSON.stringify(entries));render()}
@@ -35,7 +39,7 @@
   });
   $('stop').addEventListener('click',()=>{stop=true;setStatus('Stoppt nach dem laufenden Foto.')});
   $('start').addEventListener('click',async()=>{
-    if(running||!bundle||!connection?.active||!connection?.configured)return;
+    if(running||!bundle||!connection?.active||!connection?.configured||bundleHasFailure())return;
     running=true;stop=false;render();let sent=0;
     try{
       for(const photo of bundle.photos){
@@ -51,7 +55,7 @@
         if(!stop && bundle.photos.some(p=>!entries.some(e=>e.sha256===JSON.parse(p.ticket).sha256)))await new Promise(r=>setTimeout(r,15000));
       }
       setStatus(stop?'Fototest gestoppt · bisherige Ergebnisse gespeichert.':'Fototest abgeschlossen · Ergebnisse gespeichert.');
-    }catch(e){setStatus(`Fototest gestoppt: ${e.message}. Kein automatischer Wiederholungsversuch.`)}
+    }catch(e){const reason=e.message==='provider_http_401'?'Der Anbieter akzeptiert den API-Zugang nicht (HTTP 401)':e.message;setStatus(`Fototest gestoppt: ${reason}. Der Lauf bleibt gesperrt; keine weiteren Fotos werden gesendet.`)}
     finally{running=false;render()}
   });
   $('provider').textContent=providerName;render();check();

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import {generateKeyPairSync,sign,createHash} from 'node:crypto';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
 import pilot from '../benchmark/scanner-pilot/ximilar-server.cjs';
 const {createXimilarHandler,MODEL,parseResponse,sanitize}=pilot;
 const {publicKey,privateKey}=generateKeyPairSync('ed25519');
@@ -25,10 +27,26 @@ const other=ticket.replace(MODEL,'gemini-3.5-flash-lite');assert.equal((await in
 const handler=make(),results=await Promise.all([invoke(handler),invoke(handler)]);assert.equal(calls,1);const result=results[0].value;
 assert.equal(result.observed.printed_code,'074/084');assert.equal(result.observed.language,'DE');assert.equal(result.importable,false);assert.equal(result.observed.confidence,null);assert.equal(result.usage.reportedCredits,10);assert.ok(!JSON.stringify(result.raw).includes('base64'));
 let denied=0;const access=make({fetchImpl:async()=>{denied++;return{ok:false,status:403}}});assert.equal((await invoke(access)).value.error,'provider_http_403');await invoke(access);assert.equal(denied,1);
+let unauthorized=0;const auth=make({fetchImpl:async()=>{unauthorized++;return{ok:false,status:401}}});assert.equal((await invoke(auth)).value.error,'provider_http_401');await invoke(auth);assert.equal(unauthorized,1);
 assert.equal((await invoke(make({fetchImpl:async()=>({ok:true,json:async()=>({status:{code:402}})})}))).value.error,'provider_status_402');
 assert.equal((await invoke(make({fetchImpl:async()=>{throw Error(env.XIMILAR_API_TOKEN)}}))).value.error,'provider_timeout_or_network');
 const op=structuredClone(sample);const c=op.records[0]._objects[0];c._ocr.lang='en';c._identification.best_match={name:'Ganzui',card_number:'OP17-043',subcategory:'One Piece'};
 assert.equal(parseResponse(op,'one_piece').observed.printed_code,'OP17-043');assert.equal(parseResponse(op,'one_piece').observed.language,'EN');assert.equal(parseResponse(op,'pokemon').status,'tcg_conflict');
 assert.equal(parseResponse({records:[{_objects:[]}]},'pokemon').status,'catalog_no_match');
 assert.deepEqual(sanitize({token:'secret',_base64:'photo',text:'secret'},'secret'),{text:'[redacted]'});
+// A second click, including after a reload, must not advance past an authentication failure.
+const uiSource=await readFile(new URL('../scanner-v16-ai-pilot.js',import.meta.url),'utf8');
+const storage=new Map();let posts=0;
+async function page(){
+  const nodes=new Map(),element=()=>({textContent:'',handlers:{},addEventListener(k,f){this.handlers[k]=f},append(){},replaceChildren(){}});
+  const $=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)};
+  vm.runInNewContext(uiSource,{URLSearchParams,location:{search:'?provider=ximilar'},document:{getElementById:$,createElement:element},AbortSignal,
+    localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},fetch:async(_,options={})=>options.method==='POST'?(posts++,{ok:false,json:async()=>({error:'provider_http_401'})}):{ok:true,json:async()=>({model:MODEL,configured:true,active:true})}});
+  await new Promise(resolve=>setImmediate(resolve));
+  const photos=[{photoId:'first',...body},{photoId:'second',...body,ticket:ticket.replace(sha256,'other')}];
+  await $('bundle').handlers.change({target:{files:[{size:100,text:async()=>JSON.stringify({schema:'duelvanta.signed-photo-pilot.v1',photos})}]}});
+  return $;
+}
+const ui=await page();await ui('start').handlers.click();assert.equal(posts,1);assert.equal(ui('start').disabled,true);await ui('start').handlers.click();assert.equal(posts,1);
+const reloaded=await page();assert.equal(reloaded('start').disabled,true);await reloaded('start').handlers.click();assert.equal(posts,1);assert.equal(storage.has('duelvanta_gemini_pilot_v1'),false);
 console.log('Ximilar pilot: signed provider isolation, safe options, exact originals, candidates, language, credit metadata and no-repeat errors verified.');
