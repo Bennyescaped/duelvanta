@@ -7,7 +7,7 @@
   function pokemonText(text){return plain(text).replace(/[Oo]/g,'0').replace(/[Il|!]/g,'1')}
   function pokemonIds(text){
     const out=[];for(const m of pokemonText(text).matchAll(/(?:^|\D)(\d{1,3})\s*[\/|]\s*(\d{2,3})(?:\D|$)/g)){
-      const a=Number(m[1]),b=Number(m[2]);if(a>=1&&b>=10&&a<=b&&b<=999)out.push({local:m[1],den:m[2],code:`${m[1]}/${m[2]}`});
+      const a=Number(m[1]),b=Number(m[2]);if(a>=1&&a<=999&&b>=10&&b<=999)out.push({local:m[1],den:m[2],code:`${m[1]}/${m[2]}`});
     }return out;
   }
   function onePieceText(text){
@@ -27,13 +27,13 @@
   function onePieceIds(text){
     const s=onePieceText(text),out=[],seen=new Set();
     const add=code=>{if(code&&!seen.has(code)){seen.add(code);out.push({code})}};
-    for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*([0-9OIl|]{1,2})\s*[- ]\s*([0-9OIl|]{2,3})\b/g)){
-      const setNo=m[2].replace(/[Oo]/g,'0').replace(/[Il|]/g,'1'),card=m[3].replace(/[Oo]/g,'0').replace(/[Il|]/g,'1');add(canonicalOnePiece(m[1],setNo,card));
+    for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*([0-9OSIl|]{1,2})\s*[- ]\s*([0-9OSIl|]{2,3})\b/g)){
+      const setNo=m[2].replace(/[Oo]/g,'0').replace(/S/g,'5').replace(/[Il|]/g,'1'),card=m[3].replace(/[Oo]/g,'0').replace(/S/g,'5').replace(/[Il|]/g,'1');add(canonicalOnePiece(m[1],setNo,card));
     }
-    for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*([0-9OIl|]{1,2})\s+([0-9OIl|]{2,3})\b/g)){
-      const setNo=m[2].replace(/[Oo]/g,'0').replace(/[Il|]/g,'1'),card=m[3].replace(/[Oo]/g,'0').replace(/[Il|]/g,'1');add(canonicalOnePiece(m[1],setNo,card));
+    for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*([0-9OSIl|]{1,2})\s+([0-9OSIl|]{2,3})\b/g)){
+      const setNo=m[2].replace(/[Oo]/g,'0').replace(/S/g,'5').replace(/[Il|]/g,'1'),card=m[3].replace(/[Oo]/g,'0').replace(/S/g,'5').replace(/[Il|]/g,'1');add(canonicalOnePiece(m[1],setNo,card));
     }
-    for(const m of s.matchAll(/\bP\s*[- ]\s*([0-9OIl|]{2,3})\b/g))add(canonicalOnePiece('P',null,m[1].replace(/[Oo]/g,'0').replace(/[Il|]/g,'1')));
+    for(const m of s.matchAll(/\bP\s*[- ]\s*([0-9OSIl|]{2,3})\b/g))add(canonicalOnePiece('P',null,m[1].replace(/[Oo]/g,'0').replace(/S/g,'5').replace(/[Il|]/g,'1')));
     return out;
   }
   function normalizePokemonCode(code){const m=String(code||'').match(/(\d{1,3})\s*\/\s*(\d{2,3})/);return m?`${Number(m[1])}/${Number(m[2])}`:String(code||'').trim().toUpperCase()}

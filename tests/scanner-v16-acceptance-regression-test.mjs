@@ -58,7 +58,7 @@ assert.equal(live.inspect({data:new Uint8ClampedArray(width*height*4),width,heig
 // Run the actual core bridge and recovery with deterministic OCR at the unit
 // boundary. The browser suite separately runs real Tesseract on pixels.
 globalThis.window=globalThis;
-globalThis.document={createElement:()=>({width:820,height:1145,getContext:()=>({drawImage(){},putImageData(){},getImageData(_x,_y,w,h){const data=new Uint8ClampedArray(w*h*4);for(let i=0;i<data.length;i+=4){const v=(i/4)%2?190:70;data.set([v,v,v,255],i)}return{data}}})})};
+globalThis.document={createElement:()=>({width:820,height:1145,getContext:()=>({drawImage(){},fillRect(){},putImageData(){},getImageData(_x,_y,w,h){const data=new Uint8ClampedArray(w*h*4);for(let i=0;i<data.length;i+=4){const v=(i/4)%2?190:70;data.set([v,v,v,255],i)}return{data}}})})};
 let activeCode='074/084',ocrCalls=0;
 globalThis.Tesseract={recognize:async()=>{ocrCalls++;return{data:{text:activeCode}}}};
 const contexts=[];
@@ -101,7 +101,7 @@ texts=['074/081','074/081','074/081 während deines Zuges kannst du'];
 conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
 assert.equal(conflicted.results[0].best,null,'German card text must exclude the Japanese false positive even if all number passes agree');
 assert.equal(conflicted.results[0].failureType,'language_ambiguity');
-texts=['während deines Zuges kannst du','','','074/081','074/081'];
+texts=['während deines Zuges kannst du','','','','','074/081','074/081'];
 conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
 assert.equal(conflicted.results[0].recovery.attempted,true);
 assert.equal(conflicted.results[0].observedLanguage,'DE','language evidence must survive a failed initial identifier pass');
@@ -120,3 +120,6 @@ for(const bad of [{glare:.2},{sharpness:20},{presence:false},{aligned:false}]){
 }
 const moving=live.createGate();for(let i=0;i<25;i++)assert.equal(moving.update({...frame,rect:{...frame.rect,x:frame.rect.x+i*10}},1000+i*220).autoCapture,false,'camera pan must not trigger capture');
 console.log('PASS: independent votes, 081/084 conflict, observed DE excludes JP, exposure/jitter/dropout tolerance and hard capture gates');
+
+const promoCalls=[];const promoClient=catalog.createClient({fetch:async url=>{promoCalls.push(url);return{ok:true,status:200,json:async()=>[{card_set_id:'P-001',card_image_id:'P-001',card_name:'Luffy Winner'},{card_set_id:'P-001',card_image_id:'P-001_pr1',card_name:'Luffy Online Winner'}]}}});
+assert.equal((await promoClient.lookup({code:'P-001'},{tcg:'one_piece'})).length,2);assert.deepEqual(promoCalls,['https://optcgapi.com/api/promos/card/P-001/']);

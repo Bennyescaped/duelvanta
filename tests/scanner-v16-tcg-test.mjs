@@ -4,10 +4,13 @@ const t=globalThis.DV_SCAN_V16_TCG;
 assert.ok(t,'TCG recognition module missing');
 
 assert.equal(t.normalizePokemonCode('062 / 063'),'62/63');
+for(const code of ['215/203','223/197','198/165'])assert.equal(t.pokemonIds(code)[0]?.code,code,'secret rares can exceed the printed set count');
+for(const text of ['0/100','215/0','1234/203'])assert.equal(t.pokemonIds(text).length,0);
 assert.deepEqual(t.pokemonIds('Karte 062/063 DE').map(x=>x.code),['062/063']);
 
 for(const [raw,expected] of [
   ['OP05-119','OP05-119'],
+  ['OPOS-119','OP05-119'],
   ['0P05-119','OP05-119'],
   ['OP5 119','OP05-119'],
   ['ST1-012','ST01-012'],

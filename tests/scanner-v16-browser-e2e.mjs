@@ -149,7 +149,7 @@ try{
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'error');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'gallery button stayed locked after a decoding error');
   await page.click('#dvV16Retry');
-  assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'idle');
+  await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='error');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'gallery button did not recover');
 
   console.log('E2E: real canvas video stream, contour gate and single automatic capture');
@@ -191,6 +191,27 @@ try{
   console.log('Real iPhone OCR evidence:',JSON.stringify(real));
   await page.screenshot({path:resolve(root,'test-results/v16-real-iphone-result.png'),fullPage:true});
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().length),6);
+
+  console.log('E2E: import completion → one-tap next capture; isolated in-memory collection');
+  await page.evaluate(()=>{
+    window.currentUser={id:'v16-test-user'};window.__importCalls=0;
+    window.db={from:()=>({insert:()=>{window.__importCalls++;return{select:()=>({single:async()=>({data:{id:'test-card-1'},error:null})})}},update:()=>({eq:()=>({eq:async()=>({error:null})})})}),storage:{from:()=>({upload:async()=>({error:null})})}};
+    window.loadItems=async()=>[];
+  });
+  await page.click('#dvV16ImportBtn');
+  await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
+  assert.equal(await page.locator('#dvV16CompleteText').innerText(),'1 Karte gespeichert.');
+  assert.equal(await page.locator('#dvV16Dialog').getAttribute('open'),'');
+  assert.equal(await page.locator('#dvV16Collection').getAttribute('href'),'collect.html');
+  assert.equal(await page.evaluate(()=>window.__importCalls),1);
+  await page.locator('#dvV16Complete').screenshot({path:resolve(root,'test-results/v16-import-next-scan.png')});
+  const selectedTcg=await page.locator('#dvV16Tcg').inputValue(),selectedBinder=await page.locator('#dvV16Folder').inputValue();
+  await page.evaluate(()=>{navigator.mediaDevices.getUserMedia=()=>Promise.reject(new DOMException('No camera','NotAllowedError'))});
+  await page.click('#dvV16Next');
+  await page.waitForFunction(()=>window.DV_SCAN_V16.controller.state==='error');
+  assert.equal(await page.locator('#dvV16Choose').isEnabled(),true,'next scan must fall back to a photo when camera permission is absent');
+  assert.equal(await page.locator('#dvV16Tcg').inputValue(),selectedTcg);assert.equal(await page.locator('#dvV16Folder').inputValue(),selectedBinder);
+  assert.equal(await page.evaluate(()=>window.__importCalls),1,'starting next scan must not repeat an import');
 
   // Same real image, actual public catalogs; no mocked OCR, identifier or provider.
   if(process.env.V16_LIVE_CATALOG==='1'){

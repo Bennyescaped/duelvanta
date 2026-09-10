@@ -45,15 +45,15 @@
     }
     async function onePiece(id,diagnostic){
       const code=root.DV_SCAN_V16_TCG.normalizeOnePieceCode(id.code);
-      const paths=code.startsWith('ST')?['decks','sets']:['sets','decks'];
+      const paths=code.startsWith('P-')?['promos']:code.startsWith('ST')?['decks','sets','promos']:['sets','decks','promos'],all=[];
       for(const path of paths){
         const data=await json(`https://optcgapi.com/api/${path}/card/${encodeURIComponent(code)}/`,diagnostic);
         const candidates=(Array.isArray(data)?data:data?[data]:[]).filter(card=>root.DV_SCAN_V16_TCG.normalizeOnePieceCode(card.card_set_id||card.card_id||card.card_number||'')===code).map(card=>({
           catalogId:card.card_image_id||card.card_set_id||card.card_id,tcg:'one_piece',name:card.card_name||card.name,
-          set:card.set_name||'',number:code,language:'EN',variant:card.rarity||card.card_rarity||'',
+          set:card.set_name||'',number:code,language:'EN',rarity:card.rarity||card.card_rarity||'',variant:/manga/i.test(card.card_name||'')?'Manga':/alternate art|parallel/i.test(card.card_name||'')?'Parallel / Alt Art':/wanted poster/i.test(card.card_name||'')?'Wanted Poster':/\(SP\)/i.test(card.card_name||'')?'Special':/reprint/i.test(card.card_name||'')?'Reprint':card.rarity||card.card_rarity||'',
           image:card.card_image||card.image||null,catalogConfidence:88,confidence:88,catalogVerified:true,marketEur:null,priceSource:null
-        }));if(candidates.length)return candidates;
-      }return[];
+        }));all.push(...candidates);
+      }return [...new Map(all.map(card=>[[card.catalogId,card.image,card.name].join('|'),card])).values()];
     }
     async function lookup(id,{tcg}={}){
       if(!['pokemon','one_piece'].includes(tcg))throw new Error('Katalogsuche benötigt einen expliziten TCG-Modus.');

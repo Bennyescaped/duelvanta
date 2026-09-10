@@ -21,13 +21,14 @@ on:
       - 'tests/scanner-v16-mobile-runtime-test.mjs'
       - 'tests/scanner-v16-mobile-route-test.mjs'
       - 'tests/scanner-v16-browser-e2e.mjs'
+      - 'tests/scanner-v16-real-card-matrix.mjs'
       - 'tests/fixtures/**'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -89,6 +90,9 @@ jobs:
         env:
           V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
         run: node tests/scanner-v16-browser-e2e.mjs
+      - name: Real complex-card reference recognition and recovery
+        if: github.event_name == 'push'
+        run: node tests/scanner-v16-real-card-matrix.mjs
       - name: Read-only live catalog availability
         if: github.event_name == 'push'
         run: node tests/scanner-v16-catalog-live-smoke.mjs
