@@ -23,4 +23,10 @@ Die Matrix prüft Glurak-ex 223/197 DE, Umbreon VMAX 215/203 EN, OP05-119 Standa
 
 Bekannte harte Probe: Der weiße Umrissdruck von Umbreon kann `215/203` als `15/203` oder ohne Schrägstrich liefern. Die Matrix prüft hier ausdrücklich die Sperre gegen automatische Bestätigung und anschließende manuelle Nummernkorrektur mit richtiger Artwork-Auswahl ohne neues Foto. Ein bestandener Recovery-Test wird nicht als bestandene automatische Erkennung gezählt.
 
-Unverändert konservativ: Große weiße Druckflächen können den Reflexionsschutz auslösen; sehr ähnliche Reprints, fehlende Referenzbilder und unbestätigte Nummern bleiben prüfpflichtig. Eine breite Zusage für schwierige echte Karten oder einen fertigen Scanner lässt sich daraus noch nicht ableiten. Ergebnisse und Screenshots jeder Matrix liegen im CI-Artefakt `v16-mobile-recognition/real-cards`.
+Konservativ bleiben sehr ähnliche Reprints, fehlende Referenzbilder und unbestätigte Nummern prüfpflichtig. Ohne stark passenden Referenzvergleich können große weiße Druckflächen weiterhin den Reflexionsschutz auslösen. Eine breite Zusage für schwierige echte Karten oder einen fertigen Scanner lässt sich daraus noch nicht ableiten. Ergebnisse und Screenshots jeder Matrix liegen im CI-Artefakt `v16-mobile-recognition/real-cards`.
+
+## Weitere Erkenntnis aus dem ersten Matrixlauf
+
+Die echte P-001-Winner-Karte wurde zunächst als Finalist vorgeschlagen: Beim Artwork-Hash wurden die Aufnahme (bereits auf 820 Pixel skaliert) und die native Referenz mit unterschiedlichen Resampling-Schritten verkleinert. Selbst identische Bilddateien lagen nur bei 80–91 Punkten; kleine Druckunterschiede gingen dabei unter. Referenzen erhalten jetzt dieselbe Zwischenauflösung wie die Aufnahme. Der Test verlangt nahezu vollständige Übereinstimmung bei identischen Pixelquellen und weiterhin die richtige Druck-ID.
+
+Zusätzlich werden helle Druckflächen nur dann vom Reflexionswert ausgenommen, wenn ein stark passendes Referenzbild die weißen Stellen auch räumlich erklärt. Neue weiße Flächen behalten den Reflexionsschutz. Ein extra Browserfall mit großem weißem Hindernis prüft die Importsperre. Diese Prüfung ersetzt keine physische Foil-Erkennung; eine sehr ähnliche Druckvariante bleibt weiter prüfpflichtig.

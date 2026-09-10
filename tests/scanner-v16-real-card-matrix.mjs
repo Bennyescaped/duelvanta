@@ -56,7 +56,8 @@ try{
     entry.recovered=await snapshot();assert.equal(entry.recovered.best.id,c.catalog,'manual code must retrieve and rank the right artwork');
     if(await page.locator('.dvV16Recovery').getAttribute('open')===null)await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm]').first().click();assert.equal(await page.locator('[data-v16-check]').isChecked(),true);assert.equal((await snapshot()).manualConfirmed,true);
    }else{
-    assert.equal(automatic.id,c.code,'correct printed identifier is required');assert.equal(automatic.best?.id,c.catalog,'correct printing/artwork is required, not just same OP code');assert.equal(automatic.best?.name,c.name);assert.ok(automatic.best.artwork>=80,'actual reference artwork must be compared');
+    assert.equal(automatic.id,c.code,'correct printed identifier is required');assert.equal(automatic.best?.id,c.catalog,'correct printing/artwork is required, not just same OP code');assert.equal(automatic.best?.name,c.name);assert.ok(automatic.best.artwork>=98,'identical reference pixels must survive common-resolution artwork comparison');
+    if(c.key.startsWith('op-')&&c.key!=='op-promo')assert.equal(automatic.quality.reflectionRisk,false,'printed white areas matched to reference are not photographic glare');
     assert.match(await page.locator('#dvV16Results').innerText(),new RegExp(c.code));
     entry.automaticRecognition=automatic.status==='ready'?'correct, ready':'correct candidate, review required';
    }
@@ -64,6 +65,10 @@ try{
   }catch(e){failed=true;console.error('REAL CARD FAILURE',c.key,e);report.push({case:c.key,error:e.message,actual:await snapshot().catch(()=>null)})}
   await page.click('#dvV16Reset');
  }
+ // A new white obstruction must still fail the glare/evidence gates.
+ const standard=cases.find(c=>c.key==='op-standard');await page.selectOption('#dvV16Tcg','one_piece');
+ const blocked=await page.evaluate(async url=>{const i=new Image();i.crossOrigin='anonymous';i.src=url;await i.decode();const c=document.createElement('canvas');c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);x.fillStyle='white';x.fillRect(c.width*.25,c.height*.18,c.width*.5,c.height*.48);return c.toDataURL('image/png').split(',')[1]},standard.image);
+ await page.locator('#dvV16GalleryFile').setInputFiles({name:'obstructed.png',mimeType:'image/png',buffer:Buffer.from(blocked,'base64')});await waitResult();const obstruction=await snapshot();report.push({case:'new-white-obstruction',automatic:obstruction});assert.notEqual(obstruction.status,'ready');assert.equal(obstruction.quality.reflectionRisk,true);assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
  assert.deepEqual(errors,[],'unexpected browser errors');assert.deepEqual(providerErrors,[],'provider delivery failure is not recognition evidence');
 } catch(e){failed=true;console.error(e)}finally{
  await writeFile(resolve(out,'matrix.json'),JSON.stringify({scope:'Unmodified public reference pixels/catalogs with controlled delivery; no physical foil/iPhone claim',report,errors,providerErrors},null,2));

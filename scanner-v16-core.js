@@ -81,11 +81,22 @@
   function colorGrid(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=32;c.height=32;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,32,32);const d=x.getImageData(0,0,32,32).data,out=[];for(let gy=0;gy<4;gy++)for(let gx=0;gx<4;gx++){let r=0,g=0,b=0,n=0;for(let y=gy*8;y<(gy+1)*8;y++)for(let xx=gx*8;xx<(gx+1)*8;xx++){const i=(y*32+xx)*4;r+=d[i];g+=d[i+1];b+=d[i+2];n++}out.push([r/n,g/n,b/n])}return out}catch{return null}}
   function colorSim(a,b){if(!a||!b||a.length!==b.length)return null;let dist=0;for(let i=0;i<a.length;i++){const dr=a[i][0]-b[i][0],dg=a[i][1]-b[i][1],db=a[i][2]-b[i][2];dist+=Math.sqrt(dr*dr+dg*dg+db*db)/(441.7)}return clamp(1-dist/a.length,0,1)}
   const loadImage=(url,timeoutMs=8000)=>new Promise((resolve,reject)=>{const i=new Image();let settled=false;const done=(error)=>{if(settled)return;settled=true;clearTimeout(timer);i.onload=null;i.onerror=null;error?reject(error):resolve(i)},timer=setTimeout(()=>done(new Error('artwork_image_timeout')),Math.max(1000,Number(timeoutMs)||8000));i.crossOrigin='anonymous';i.onload=()=>done();i.onerror=()=>done(new Error('artwork_image_failed'));i.src=url});
-  async function visualScore(card,url,tcg='pokemon'){
+  function highlightEvidence(card,ref){
+    const W=110,H=154,read=source=>{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,0,0,W,H);return x.getImageData(0,0,W,H).data},a=read(card),b=read(ref),bright=(d,i)=>d[i]*.299+d[i+1]*.587+d[i+2]*.114>246;
+    let white=0,extra=0,center=0,centerExtra=0;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const inCenter=x>W*.18&&x<W*.82&&y>H*.12&&y<H*.76;if(inCenter)center++;
+      if(!bright(a,(y*W+x)*4))continue;white++;let printed=false;
+      for(let yy=Math.max(0,y-1);yy<=Math.min(H-1,y+1)&&!printed;yy++)for(let xx=Math.max(0,x-1);xx<=Math.min(W-1,x+1);xx++)if(bright(b,(yy*W+xx)*4)){printed=true;break}
+      if(!printed){extra++;if(inCenter)centerExtra++}
+    }
+    return{shared:white?(white-extra)/white:0,extraGlare:100*extra/(W*H),extraCenterGlare:100*centerExtra/Math.max(1,center)};
+  }
+  async function visualScore(card,url,tcg='pokemon',onReference=null){
     try{
-      if(!url)return null;const ref=await loadImage(url),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
+      if(!url)return null;const ref=canvasFrom(await loadImage(url),null,card.width),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
       for(const [x0,y0,x1,y1,w] of regions){const hs=hashSim(hashRegion(card,x0,y0,x1,y1),hashRegion(ref,x0,y0,x1,y1)),cs=colorSim(colorGrid(card,x0,y0,x1,y1),colorGrid(ref,x0,y0,x1,y1));if(hs!=null||cs!=null){const s=(hs??cs)*.68+(cs??hs)*.32;total+=s*w;weight+=w}}
-      return weight?Math.round(total/weight*100):null;
+      if(onReference)onReference(ref);return weight?Math.round(total/weight*100):null;
     }catch{return null}
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
@@ -112,7 +123,12 @@
     const languageConflict=!cands.length&&rejectedCandidates.length>0,identifierReliable=!!identifierOverride||!!(id.passes?.length>=2&&identifierEvidence?.votes.length===1);
     const top=(cands||[]).filter(c=>(!c.tcg||c.tcg===tcg)&&(!api||api.candidateCode(c,tcg)===api.idCode(id,tcg))).map(c=>({...c,tcg,catalogVerified:true}));
     onProgress({phase:'artwork',tcg,identifier:id.code});
-    await Promise.all(top.map(async c=>{const vs=await visualScore(card,c.image,tcg);if(vs!=null)c.v16Visual=vs}));
+    await Promise.all(top.map(async c=>{const vs=await visualScore(card,c.image,tcg,q.reflectionRisk?ref=>{c.v16Highlights=highlightEvidence(card,ref)}:null);if(vs!=null)c.v16Visual=vs}));
+    const nearest=top.reduce((best,c)=>Number(c.v16Visual||0)>Number(best?.v16Visual||0)?c:best,null),h=nearest?.v16Highlights;
+    // Printed white artwork is not photographic glare. Only discount highlights
+    // with strong visual agreement and spatial agreement to the actual reference.
+    // Novel white patches and unavailable reference images retain all guards.
+    if(q.reflectionRisk&&nearest?.v16Visual>=90&&h?.shared>=.85&&h.extraGlare<1.5&&h.extraCenterGlare<2){q.printedHighlights={glare:q.glare,centerGlare:q.centerGlare};q.glare=Math.round(h.extraGlare*10)/10;q.centerGlare=Math.round(h.extraCenterGlare*10)/10;q.reflectionRisk=false}
     let ranked=top,gap=0,variantConfidence=0;
     if(window.DV_SCAN_V16_TCG?.rankCandidates){const r=window.DV_SCAN_V16_TCG.rankCandidates(top,{tcg,id,qualityScore:q.score,visualReliable:!q.reflectionRisk});ranked=r.rows;gap=r.gap;variantConfidence=r.variantConfidence}else ranked.sort((a,b)=>(Number(b.confidence||0)+Number(b.v16Visual||0)*.12)-(Number(a.confidence||0)+Number(a.v16Visual||0)*.12));
     const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),visual=Number(best?.v16Visual||0),confidence=best?clamp(Math.round(Math.min(99,base)*.90+q.score*.10),0,99):0,ambiguousVariant=tcg==='one_piece'&&ranked.length>1&&gap<5&&variantConfidence<62,status=best&&confidence>=84&&q.score>=42&&!ambiguousVariant?'ready':'review';
@@ -138,5 +154,5 @@
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }
   async function blob(card,quality=.94){return await new Promise(resolve=>card.toBlob(resolve,'image/jpeg',quality))}
-  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,footerCrop,votePasses,observedLanguage,identify,detectedRegion,visualScore,recognizeRegion,analyze,blob};
+  window.DV_SCAN_V16_CORE={version:VERSION,CARD_RATIO,modes:[...MODES],canvasFrom,fitCenteredRect,gridRegions,regionsFor,quality,footerCrop,votePasses,observedLanguage,identify,detectedRegion,highlightEvidence,visualScore,recognizeRegion,analyze,blob};
 })();
