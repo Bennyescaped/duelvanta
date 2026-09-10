@@ -9,6 +9,7 @@ on:
       - 'api/scanner-v16-gemini.js'
       - 'benchmark/scanner-pilot/gemini-*'
       - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
+      - 'benchmark/scanner-pilot/score-gemini.mjs'
       - 'tests/scanner-v16-gemini-test.mjs'
       - 'vercel.json'
       - 'scanner-v16-assets/**'

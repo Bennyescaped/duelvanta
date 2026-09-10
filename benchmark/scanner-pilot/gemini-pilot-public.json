@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "dataset": "duelvanta-16-photos-20260910-v1",
   "expiresAt": "2026-09-10T18:15:58.307Z",
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAgKZ40yp6yWc+Unq+W9zuYC8X9zFFS9jffcMzG8pP/C0=\n-----END PUBLIC KEY-----\n",

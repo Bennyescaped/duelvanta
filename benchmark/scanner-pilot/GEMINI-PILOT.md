@@ -2,6 +2,8 @@
 
 Prepared on 2026-09-10, on top of scanner-v16 `8481172`. The user authorized a Gemini comparison after creating an AI Studio test key. Ximilar trial access is still pending. This supersedes the earlier pilot's prohibition on an external comparison; it does not enable the normal scanner fallback or a paid public product.
 
+The real sixteen-photo run is complete: [results, costs and limitations](GEMINI-RESULTS-2026-09-10.md). The temporary signed pilot is closed again. No further requests are authorized by its public configuration.
+
 The separate `scanner-v16-ai-pilot.html` page calls `/api/scanner-v16-gemini`. `scanner-v16-vision.js`, capture, recognition, collection imports, existing local benchmark sessions and V15.8 remain unchanged. No new Supabase client, database table, Auth/RLS change or service-role credential is used.
 
 ## Scope and access
