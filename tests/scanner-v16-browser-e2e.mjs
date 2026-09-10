@@ -240,7 +240,7 @@ try{
   failure=error;
   await mkdir(resolve(root,'test-results'),{recursive:true});
   await page.screenshot({path:resolve(root,'test-results/v16-failure.png'),fullPage:true}).catch(()=>{});
-  console.error('Failure state:',await page.evaluate(()=>({status:document.getElementById('dvV16Status')?.textContent,rows:window.DV_SCAN_V16?.batch?.map(r=>({id:r.id,best:r.best?.name,quality:r.quality,failureType:r.failureType,lookup:r.lookupInfo})),errors:String(window.__DV_V16_LOAD_ERROR||'')})).catch(()=>null));
+  console.error('Failure state:',JSON.stringify(await page.evaluate(()=>({status:document.getElementById('dvV16Status')?.textContent,rows:window.DV_SCAN_V16?.batch?.map(r=>({id:r.id,best:r.best?.name,quality:r.quality,failureType:r.failureType,lookup:r.lookupInfo})),errors:String(window.__DV_V16_LOAD_ERROR||'')})).catch(()=>null)));
 }finally{
   await Promise.race([browser.close(),new Promise(resolveTimeout=>setTimeout(resolveTimeout,5000))]);
   server.closeAllConnections();

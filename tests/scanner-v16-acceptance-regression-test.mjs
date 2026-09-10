@@ -123,3 +123,10 @@ console.log('PASS: independent votes, 081/084 conflict, observed DE excludes JP,
 
 const promoCalls=[];const promoClient=catalog.createClient({fetch:async url=>{promoCalls.push(url);return{ok:true,status:200,json:async()=>[{card_set_id:'P-001',card_image_id:'P-001',card_name:'Luffy Winner'},{card_set_id:'P-001',card_image_id:'P-001_pr1',card_name:'Luffy Online Winner'}]}}});
 assert.equal((await promoClient.lookup({code:'P-001'},{tcg:'one_piece'})).length,2);assert.deepEqual(promoCalls,['https://optcgapi.com/api/promos/card/P-001/']);
+
+let transient=0;const recoveringCatalog=catalog.createClient({fetch:async()=>{if(!transient++)throw new DOMException('timeout','AbortError');return{ok:true,status:200,json:async()=>[{card_set_id:'P-001',card_image_id:'P-001',card_name:'Luffy'}]}}});
+const retried=await recoveringCatalog.lookup({code:'P-001'},{tcg:'one_piece'});assert.equal(transient,2);assert.equal(retried.length,1);assert.deepEqual(retried.lookupInfo.errors,[]);
+let failures=0;const unavailable=catalog.createClient({fetch:async()=>{failures++;return{ok:false,status:503}}});
+const absent=await unavailable.lookup({code:'P-001'},{tcg:'one_piece'});assert.equal(failures,2);assert.equal(absent.lookupInfo.errors[0].attempts,2);
+assert.equal(resilience.guidanceFor({...noHit,lookupInfo:absent.lookupInfo}).failureType,'catalog_unavailable');
+assert.ok(!resilience.guidanceFor({...noHit,lookupInfo:absent.lookupInfo}).text.includes('besseres Bild'));

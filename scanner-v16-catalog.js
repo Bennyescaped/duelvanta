@@ -12,10 +12,12 @@
     const cache=new Map();
     async function json(url,diagnostic){
       if(cache.has(url))return cache.get(url);
-      const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),timeoutMs);
-      try{const response=await request(url,{signal:abort.signal});if(response.status===404)return null;if(!response.ok)throw new Error(`HTTP ${response.status}`);const value=await response.json();cache.set(url,value);return value}
-      catch(error){diagnostic.errors.push({url,error:error.name==='AbortError'?'timeout':String(error.message)});return null}
-      finally{clearTimeout(timer)}
+      for(let attempt=1;attempt<=2;attempt++){
+        const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),timeoutMs);let retryable=true;
+        try{const response=await request(url,{signal:abort.signal});if(response.status===404)return null;if(!response.ok){retryable=response.status===429||response.status>=500;throw new Error(`HTTP ${response.status}`)}const value=await response.json();cache.set(url,value);return value}
+        catch(error){if(!retryable||attempt===2){diagnostic.errors.push({url,error:error.name==='AbortError'?'timeout':String(error.message),attempts:attempt});return null}}
+        finally{clearTimeout(timer)}
+      }
     }
     async function pokemon(id,diagnostic){
       const local=numeric(id.local||String(id.code).split('/')[0]),den=numeric(id.den||String(id.code).split('/')[1]);

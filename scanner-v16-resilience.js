@@ -9,6 +9,7 @@
   function guidanceFor(result,{geometry=null,repeat=false}={}){
     const q=result?.quality||{},actions=[];
     const failure=classifyFailure(result);
+    if(!repeat&&failure==='catalog_unavailable')return{code:failure,failureType:failure,title:'KATALOG GERADE NICHT ERREICHBAR',text:`Die Nummer ${result.id.code} wurde gelesen. Mindestens eine Katalogabfrage ist fehlgeschlagen; die Karte bleibt zur Prüfung erhalten.`,actions:['Katalogsuche bei stabiler Verbindung ohne neues Foto wiederholen.']};
     if(!repeat&&result?.languageConflict)return{code:'language_ambiguity',failureType:'language_ambiguity',title:'SPRACHE WIDERSPRICHT KATALOG',text:`Der Kartentext wurde als ${result.observedLanguage} erkannt. Die Katalogsprache passt nicht; der Kandidat wird nicht als Treffer angeboten.`,actions:['Gelesene Nummer prüfen und gegebenenfalls korrigieren.']};
     if(!repeat&&result?.id&&result.identifierReliable===false)return{code:'identifier_failure',failureType:'identifier_failure',title:'NUMMER NOCH NICHT BESTÄTIGT',text:'Die OCR-Durchläufe stimmen nicht ausreichend überein. Der angezeigte Katalogkandidat ist ein Vorschlag.',actions:['Gedruckte Nummer mit den OCR-Lesungen vergleichen und den passenden Kandidaten ausdrücklich bestätigen.']};
     if(!repeat&&!failure&&result?.best)return{code:'matched',failureType:null,title:'KARTE ERKANNT',text:'Nummer und Katalogkandidat sind konsistent. Prüfe die Karte und erfasse den Benchmark.',actions:[]};
@@ -55,6 +56,7 @@
     if(!result?.id)return'identifier_failure';
     if(result.languageConflict)return'language_ambiguity';
     if(result.identifierReliable===false)return'identifier_failure';
+    if(!result.best&&result.lookupInfo?.errors?.length)return'catalog_unavailable';
     if(!result.best)return'catalog_no_match';
     if(result.status==='ready')return null;
     if(result.languageAmbiguity)return'language_ambiguity';

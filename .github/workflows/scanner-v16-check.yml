@@ -81,6 +81,7 @@ jobs:
       - name: Direct mobile route and benchmark integration
         run: node tests/scanner-v16-mobile-route-test.mjs
       - name: Install Chromium browser test runtime
+        id: browser_runtime
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0
           npx playwright install chromium
@@ -91,7 +92,7 @@ jobs:
           V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
         run: node tests/scanner-v16-browser-e2e.mjs
       - name: Real complex-card reference recognition and recovery
-        if: github.event_name == 'push'
+        if: always() && steps.browser_runtime.outcome == 'success' && github.event_name == 'push'
         run: node tests/scanner-v16-real-card-matrix.mjs
       - name: Read-only live catalog availability
         if: github.event_name == 'push'
