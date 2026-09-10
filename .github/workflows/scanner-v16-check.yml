@@ -5,6 +5,12 @@ on:
   pull_request:
     paths:
       - 'scanner-v16-*.js'
+      - 'scanner-v16-ai-pilot.html'
+      - 'api/scanner-v16-gemini.js'
+      - 'benchmark/scanner-pilot/gemini-*'
+      - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
+      - 'tests/scanner-v16-gemini-test.mjs'
+      - 'vercel.json'
       - 'scanner-v16-assets/**'
       - 'tests/scanner-v16-references-test.mjs'
       - 'scanner-v16-lab.html'
@@ -65,6 +71,11 @@ jobs:
           node --check scanner-v16-ocr.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
+      - name: Gemini private pilot (no provider calls)
+        run: |
+          node --check api/scanner-v16-gemini.js
+          node --check scanner-v16-ai-pilot.js
+          node tests/scanner-v16-gemini-test.mjs
       - name: Verified artwork reference cache
         run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition
