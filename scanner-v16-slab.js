@@ -6,7 +6,7 @@
     if(!/^[A-Z][A-Z0-9 .&-]{1,39}$/.test(company)||company==='OTHER'||!Number.isFinite(grade)||grade<1||grade>10||!/^\d+(?:\.\d+)?$/.test(rawGrade)||!/^[A-Za-z0-9-]{3,60}$/.test(cert))return null;
     return{grading_company:company==='BECKETT'?'BGS':['PSA','BGS','CGC','ACE'].includes(company)?company:'OTHER',grade,cert_number:cert};
   }
-  function canSave(row){return !row.slab||(row.slabConfirmed===true&&!!fields(row.slab))}
+  function canSave(row){return !row.slab||(row.slabConfirmed===true&&row.manualConfirmed===true&&!!fields(row.slab))}
   function confirm(row,value){const parsed=fields(value);if(!row?.slab||!parsed)throw new Error('Grading-Firma, Grade (1–10) und Zertifikatsnummer vollständig prüfen.');row.slab={...row.slab,company:String(value.company).trim().toUpperCase(),grade:String(parsed.grade),certificateNumber:parsed.cert_number};row.slabConfirmed=true;return parsed}
   function rect(source,proposal){
     const r=proposal.cardRect,w=source.videoWidth||source.naturalWidth||source.width,h=source.videoHeight||source.naturalHeight||source.height;

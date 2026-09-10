@@ -18,7 +18,7 @@ assert.equal(slab.fields({company:'PSA',grade:'11',certificateNumber:'00123456'}
 assert.equal(slab.fields({company:'PSA',grade:'9',certificateNumber:'<script>'}),null);
 assert.equal(slab.fields({company:'BECKETT',grade:'9.5',certificateNumber:'00123456'}).grading_company,'BGS');
 assert.equal(slab.fields({company:'TAG',grade:'10',certificateNumber:'00123456'}).grading_company,'OTHER');
-let row={slab:parsed.slab};assert.equal(slab.canSave(row),false);slab.confirm(row,parsed.slab);assert.equal(slab.canSave(row),true);assert.equal(row.slab.certificateNumber,'00123456');
+let row={slab:parsed.slab};assert.equal(slab.canSave(row),false);slab.confirm(row,parsed.slab);assert.equal(slab.canSave(row),false,'label confirmation alone cannot approve card');row.manualConfirmed=true;assert.equal(slab.canSave(row),true);assert.equal(row.slab.certificateNumber,'00123456');
 assert.throws(()=>slab.rect({width:400,height:700},{cardRect:{x:0,y:0,w:2,h:1}}));
 const photos=[];globalThis.DV_SCAN_V16_CORE={canvasFrom:(source,rect,width)=>{const photo={source,rect,width};photos.push(photo);return photo}};
 const pack=await slab.analyze({width:400,height:700},{slabObservation:response,tcg:'pokemon',mode:'single'},async(crop,opts)=>{assert.equal(opts.sourcePrepared,true);assert.equal(opts.providerObservation,undefined,'use real local card pipeline');return{ready:1,results:[{best:{name:'Fixture'},id:{code:'074/084'},status:'ready',selected:true,crop}]}});
