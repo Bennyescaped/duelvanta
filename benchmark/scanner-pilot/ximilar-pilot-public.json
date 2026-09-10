@@ -1,8 +1,8 @@
 {
-  "enabled": false,
-  "dataset": "duelvanta-16-photos-20260910-v1-token-check-2",
-  "expiresAt": "2026-09-10T19:21:09.418Z",
-  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA+eBfy9/6vCwPCZZz7Ta8o6Bo2lmqz/rUaaKEeDqxgiI=\n-----END PUBLIC KEY-----\n",
+  "enabled": true,
+  "dataset": "duelvanta-16-photos-20260910-v1-business100k-new-token",
+  "expiresAt": "2026-09-10T19:38:12.329Z",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEASf06EFaxCYWjq7+3V0at6o0XQArIvuQ0hwwHNzZLw9U=\n-----END PUBLIC KEY-----\n",
   "photos": {
     "d7f9a711821aeb8ea9a6e8be6f9c1ec050f63f2559df6c39d6628ff7587ca5b9": "pokemon",
     "9c08b2df28fba80178c7d7ea2a6051e397459855c67ea58490fc2febde371ac1": "pokemon",
