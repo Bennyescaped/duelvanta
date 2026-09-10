@@ -43,6 +43,32 @@ on:
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
+  quota_database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Real SQL quota regression in disposable database
+        run: |
+          psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f database/collect-scanner-v16-weekly-quota.sql
+          psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-database.sql
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -91,6 +117,7 @@ jobs:
         run: |
           node --check api/scanner-v16-recognize.js
           node --check scanner-v16-provider.js
+          node tests/scanner-v16-slab-test.mjs
           node tests/scanner-v16-provider-test.mjs
           node tests/scanner-v16-recognize-server-test.mjs
       - name: Verified artwork reference cache

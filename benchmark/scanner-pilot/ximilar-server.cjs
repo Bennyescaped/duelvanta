@@ -55,11 +55,30 @@ function parseResponse(data,selectedTcg){
     catalogCandidate:best||null,alternatives:identification?.alternatives||[],distances:identification?.distances||[],
     detectedFinish:tag(card,'Foil/Holo'),detectedObjects:record._objects.length};
 }
+const SLAB_MODEL='ximilar-collectibles-v2-slab-id';
+function parseSlabResponse(data,selectedTcg){
+  const record=data.records?.[0];if(!record||!Array.isArray(record._objects))throw fail(502,'invalid_provider_output');
+  const labels=record._objects.filter(o=>o.name==='Slab Label'),label=labels.length===1?labels[0]:null;
+  const best=label?._identification?.best_match;
+  const cards=record._objects.filter(o=>o.name==='Card').sort((a,b)=>(b.area||0)-(a.area||0));
+  const box=cards[0]?.bound_box,w=record._width,h=record._height;
+  const cardRect=Array.isArray(box)&&box.length===4&&box.every(Number.isFinite)&&w>0&&h>0&&box[0]>=0&&box[1]>=0&&box[2]>box[0]&&box[3]>box[1]&&box[2]<=w&&box[3]<=h?{x:box[0]/w,y:box[1]/h,w:(box[2]-box[0])/w,h:(box[3]-box[1])/h}:null;
+  // Label language is NOT the language printed on the card. A slab label is
+  // not a catalog match either; V16 verifies the card crop separately.
+  const observedTcg=tcgName(best?.brand);
+  return {kind:'slab',selectedTcg,status:!label?'slab_label_missing':observedTcg!=='unknown'&&observedTcg!==selectedTcg?'tcg_conflict':'slab_review',
+    slab:{company:string(tag(label,'Company')),grade:string(best?.grade),certificateNumber:string(best?.certificate_number),name:string(best?.name),printedCode:string(best?.card_no),set:string(best?.set),reviewRequired:true,certificateVerified:false},cardRect,
+    catalogVerified:false,importable:false};
+}
 const provider={model:MODEL,keyName:'XIMILAR_API_TOKEN',protocolVersion:'tcg-id-lang-rotate-v1',
   async call({image,tcg,env,fetchImpl,now}){
+    return callRecognition({image,tcg,env,fetchImpl,now,slab:false});
+  }};
+const slabProvider={async call(args){return callRecognition({...args,slab:true})}};
+async function callRecognition({image,tcg,env,fetchImpl,now,slab}){
     const started=now(),secret=env.XIMILAR_API_TOKEN.trim();let response;
-    try{response=await fetchImpl('https://api.ximilar.com/collectibles/v2/tcg_id',{method:'POST',redirect:'error',
-      headers:{'Content-Type':'application/json',Authorization:`Token ${secret}`},body:JSON.stringify(requestBody(image,tcg)),signal:AbortSignal.timeout(45000)});
+    try{response=await fetchImpl('https://api.ximilar.com/collectibles/v2/'+(slab?'slab_id':'tcg_id'),{method:'POST',redirect:'error',
+      headers:{'Content-Type':'application/json',Authorization:`Token ${secret}`},body:JSON.stringify(slab?{records:[{_base64:image.toString('base64')}]}:requestBody(image,tcg)),signal:AbortSignal.timeout(45000)});
     }catch{throw fail(504,'provider_timeout_or_network')}
     if(!response.ok){
       let detail='';try{const error=await response.json();detail=[error.detail,error.message,error.error?.message,error.status?.text].filter(v=>typeof v==='string').join(' ')}catch{}
@@ -72,7 +91,7 @@ const provider={model:MODEL,keyName:'XIMILAR_API_TOKEN',protocolVersion:'tcg-id-
     if(JSON.stringify(raw).length>250000)throw fail(502,'provider_output_too_large');
     // Report only explicitly numeric credit metadata; absence must never be represented as zero.
     const credits=[data.statistics?.credits,data.statistics?.['credits used'],data.usage?.credits,data.credits].find(Number.isFinite)??null;
-    return {...parseResponse(raw,tcg),raw,usage:{reportedCredits:credits},elapsedMs:Math.max(0,now()-started),model:MODEL,protocolVersion:provider.protocolVersion,options:OPTIONS};
-  }};
+    return {...(slab?parseSlabResponse(raw,tcg):parseResponse(raw,tcg)),raw,usage:{reportedCredits:credits},elapsedMs:Math.max(0,now()-started),model:slab?SLAB_MODEL:MODEL,protocolVersion:slab?'slab-label-v1':provider.protocolVersion,options:slab?{}:OPTIONS};
+  }
 function createXimilarHandler(options){return createPilotHandler({...options,provider})}
-module.exports={createXimilarHandler,MODEL,OPTIONS,requestBody,parseResponse,sanitize,identifiers,provider};
+module.exports={slabProvider,parseSlabResponse,SLAB_MODEL,createXimilarHandler,MODEL,OPTIONS,requestBody,parseResponse,sanitize,identifiers,provider};

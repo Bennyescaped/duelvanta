@@ -16,7 +16,7 @@
     if(!row.crop)throw new Error('Das ursprüngliche Foto ist nicht mehr verfügbar.');
     const pack=await analyze(row.crop,{mode:'single',tcg:row.tcg,identifierOverride:id,sourcePrepared:true,manualRecovery:true,providerReplay:!!row.providerReplay});
     const result=pack.results?.[0];if(!result)throw new Error('Die Katalogsuche hat kein Ergebnis zurückgegeben.');
-    return{...result,index:row.index,slot:row.slot,row:row.row,col:row.col,chosen:0,selected:false,manualRecovery:true,manualConfirmed:false,providerReplay:!!row.providerReplay};
+    return{...result,...(row.slab?{slab:row.slab,slabConfirmed:row.slabConfirmed,capturePhoto:row.capturePhoto,captureKind:'slab',providerEvidence:row.providerEvidence}:{}),index:row.index,slot:row.slot,row:row.row,col:row.col,chosen:0,selected:false,manualRecovery:true,manualConfirmed:false,providerReplay:!!row.providerReplay};
   }
   function confirm(row,index){
     const card=row.candidates?.[index];if(!canConfirm(row,card))throw new Error('Nur ein passender, verifizierter Katalogkandidat kann bestätigt werden.');

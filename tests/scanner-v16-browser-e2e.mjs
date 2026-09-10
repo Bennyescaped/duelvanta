@@ -205,7 +205,7 @@ try{
   console.log('E2E: import completion → one-tap next capture; isolated in-memory collection');
   await page.evaluate(()=>{
     window.currentUser={id:'v16-test-user'};window.__importCalls=0;
-    window.db={from:()=>({insert:()=>{window.__importCalls++;return{select:()=>({single:async()=>({data:{id:'test-card-1'},error:null})})}},update:()=>({eq:()=>({eq:async()=>({error:null})})})}),storage:{from:()=>({upload:async()=>({error:null})})}};
+    window.db={from:()=>({insert:payload=>{window.__lastImportPayload=payload;window.__importCalls++;return{select:()=>({single:async()=>({data:{id:'test-card-1'},error:null})})}},update:()=>({eq:()=>({eq:async()=>({error:null})})})}),storage:{from:()=>({upload:async()=>({error:null})})}};
     window.loadItems=async()=>[];
   });
   await page.click('#dvV16ImportBtn');
@@ -250,10 +250,11 @@ try{
   let providerCalls=0,providerError=false;
   await page.unroute(base+'/api/scanner-v16-recognize');
   await page.route(base+'/api/scanner-v16-recognize',async route=>{
-    if(route.request().method()==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:true,remaining:20-providerCalls})});
+    if(route.request().method()==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:true,remaining:20-providerCalls,slabRemaining:5})});
     providerCalls++;const body=route.request().postDataJSON();
     assert.equal(route.request().headers().authorization,'Bearer test-session');assert.equal(body.tcg,'pokemon');
     const sha256=createHash('sha256').update(Buffer.from(body.imageBase64,'base64')).digest('hex');
+    if(body.kind==='slab')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'ximilar-collectibles-v2-slab-id',selectedTcg:'pokemon',kind:'slab',sha256,status:'slab_review',slab:{company:'PSA',grade:'9',certificateNumber:'00123456',printedCode:'#74',reviewRequired:true,certificateVerified:false},cardRect:{x:50/730,y:230/1180,w:630/730,h:880/1180}})});
     return route.fulfill({status:providerError?504:200,contentType:'application/json',body:JSON.stringify(providerError?{error:'provider_timeout_or_network'}:{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:'pokemon',sha256,observed:{tcg:'pokemon',printed_code:'074/084',language:'DE'},catalogCandidate:{card_id:'me05-074'},status:'proposed',remaining:19})});
   });
   await page.evaluate(()=>{window.db.auth={getSession:async()=>({data:{session:{access_token:'test-session'}}})}});
@@ -278,6 +279,29 @@ try{
   assert.equal(providerCalls,2,'one user action must make one request with no automatic retry');
   assert.equal(await page.locator('#dvV16Choose').isEnabled(),true);
   assert.match(await page.locator('#dvV16Status').innerText(),/Kein automatischer Wiederholungsversuch/);
+  await page.selectOption('#dvV16Engine','local');
+
+  console.log('E2E: whole slab upload → one mock label API → real card OCR → separate card/label confirmation → isolated graded import');
+  providerError=false;expectedProviderError=false;
+  await page.selectOption('#dvV16Kind','slab');
+  assert.equal(await page.locator('#dvV16Engine').inputValue(),'ximilar');
+  await upload('#dvV16GalleryFile','tests/fixtures/slab-pokemon-074-084.svg');
+  await waitForResult('Retourorden','074/084');
+  assert.equal(providerCalls,3);assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm]').first().click();
+  assert.equal(await page.locator('[data-v16-check]').isDisabled(),true,'card confirmation does not confirm slab label');
+  await page.locator('[data-v16-slab] [name=certificateNumber]').fill('00123457');
+  await page.locator('[data-v16-slab] button').click();
+  assert.equal(await page.locator('[data-v16-check]').isEnabled(),true);
+  await page.locator('[data-v16-check]').check();
+  assert.equal(await page.locator('.dvV16Market').count(),0,'no raw price presented as graded value');
+  const slabEvidence=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id.code,language:r.best.language,ratio:r.capturePhoto.width/r.capturePhoto.height,slab:r.slab,benchmark:window.DV_SCAN_V16_BENCHMARK.load().at(-1)}});
+  assert.equal(slabEvidence.id,'074/084');assert.equal(slabEvidence.language,'DE');assert.ok(Math.abs(slabEvidence.ratio-730/1180)<.005);
+  assert.equal(slabEvidence.benchmark.results[0].capture_kind,'slab');
+  await page.screenshot({path:resolve(root,'test-results/v16-slab-review.png'),fullPage:true});
+  await page.click('#dvV16ImportBtn');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
+  const graded=await page.evaluate(()=>window.__lastImportPayload);
+  assert.equal(graded.grading_company,'PSA');assert.equal(graded.grade,9);assert.equal(graded.cert_number,'00123457');assert.equal(graded.market_price,null);assert.equal(graded.card_number,'074/084');
   await page.selectOption('#dvV16Engine','local');
 
   // Same real image, actual public catalogs; no mocked OCR, identifier or provider.

@@ -15,7 +15,7 @@ const fetchImpl=async(url,options)=>{
   if(!rpcAvailable)throw new Error('private connection details must not escape');
   if(url.endsWith('/dv_v16_scan_budget'))return{ok:true,json:async()=>({enabled:true,remaining})};
   assert.ok(url.endsWith('/dv_v16_reserve_scan'));
-  const b=JSON.parse(options.body);assert.deepEqual(Object.keys(b).sort(),['p_image_sha256','p_request_id','p_tcg']);assert.equal(b.p_tcg,'one_piece');assert.match(b.p_image_sha256,/^[a-f0-9]{64}$/);
+  const b=JSON.parse(options.body);assert.deepEqual(Object.keys(b).sort(),['p_image_sha256','p_kind','p_request_id','p_tcg']);assert.equal(b.p_tcg,'one_piece');assert.ok(['raw','slab'].includes(b.p_kind));assert.match(b.p_image_sha256,/^[a-f0-9]{64}$/);
   // Models the database's committed, shared atomic reservation, including different function instances.
   let result;if(reservations.has(b.p_image_sha256)||reservations.has(b.p_request_id))result={allowed:false,reason:'duplicate'};
   else if(!remaining)result={allowed:false,reason:'limit'};
@@ -42,3 +42,10 @@ assert.equal((await invoke(make(),req('POST',other))).statusCode,409);assert.equ
 const exhausted=await invoke(make(),req('POST',{...other,requestId:'00000000-0000-4000-8000-000000000005',imageBase64:Buffer.from([255,216,255,3,4,5]).toString('base64')}));assert.equal(exhausted.statusCode,429);assert.equal(paid,2);
 assert.equal((await invoke(make(),req('GET'))).body.remaining,0);
 console.log('PASS: verified existing Auth, closed preview gate, validation, committed quota before provider, concurrent/cold-start duplicate prevention, exhausted/missing ledger and provider failure; zero real API calls');
+
+// Route slab requests only to the dedicated, reserved 15-credit endpoint.
+let slabCalls=0;remaining=1;providerFails=false;
+const slabHandler=make({callSlabProvider:async()=>{slabCalls++;return{model:'ximilar-collectibles-v2-slab-id',slab:{company:'PSA'}}}});
+const slabResult=await invoke(slabHandler,req('POST',{...body,kind:'slab',requestId:'00000000-0000-4000-8000-000000000006',imageBase64:Buffer.from([255,216,255,6,7,8]).toString('base64')}));
+assert.equal(slabResult.statusCode,200);assert.equal(slabResult.body.kind,'slab');assert.equal(slabCalls,1);assert.equal(paid,2);
+assert.equal((await invoke(slabHandler,req('POST',{...body,kind:'grade'}))).statusCode,400);assert.equal(slabCalls,1);

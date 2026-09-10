@@ -32,10 +32,10 @@
     try{response=await fetch('/api/scanner-v16-recognize',{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(95000)})}
     catch{throw new Error('KI-Antwort nicht angekommen. Es wird kein automatischer zweiter Scan gestartet. Bitte den Verbrauch prüfen.');}
     const result=await response.json();
-    if(!response.ok)throw new Error(({scanner_closed:'KI-Scans sind noch nicht freigeschaltet.',scan_limit_reached:'Dein KI-Scan-Kontingent ist aufgebraucht.',scan_already_reserved:'Dieses Foto wurde bereits eingereicht. Kein weiterer KI-Aufruf.',sign_in_required:'Bitte erneut bei DUELVANTA anmelden.',accounting_unavailable:'Das Scan-Kontingent kann gerade nicht geprüft werden.'})[result.error]||'KI-Scan fehlgeschlagen. Kein automatischer Wiederholungsversuch.');
+    if(!response.ok)throw new Error(({scanner_closed:'KI-Scans sind noch nicht freigeschaltet.',scan_global_limit_reached:'Das gemeinsame Beta-Kontingent ist aufgebraucht. Der lokale Scan bleibt verfügbar.',scan_limit_reached:'Dein wöchentliches KI-Scan-Kontingent ist aufgebraucht.',scan_already_reserved:'Dieses Foto wurde bereits eingereicht. Kein weiterer KI-Aufruf.',sign_in_required:'Bitte erneut bei DUELVANTA anmelden.',accounting_unavailable:'Das Scan-Kontingent kann gerade nicht geprüft werden.'})[result.error]||'KI-Scan fehlgeschlagen. Kein automatischer Wiederholungsversuch.');
     return result;
   }
-  async function recognize(source,tcg,database){
+  async function recognize(source,tcg,database,kind='raw'){
     const w=source.videoWidth||source.naturalWidth||source.width,h=source.videoHeight||source.naturalHeight||source.height;
     if(!w||!h)throw new Error('Bildquelle ist nicht bereit.');
     const scale=Math.min(1,1600/Math.max(w,h)),canvas=document.createElement('canvas');
@@ -43,8 +43,8 @@
     const file=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.9));
     if(!file||file.size>1600000)throw new Error('Das Foto ist für den KI-Scan zu groß.');
     const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);
-    const proposal=await request(database,{imageBase64:btoa(binary),tcg,requestId:crypto.randomUUID()});
-    await verifyPhoto(file,proposal);read(proposal,tcg);return proposal;
+    const proposal=await request(database,{imageBase64:btoa(binary),tcg,kind,requestId:crypto.randomUUID()});
+    await verifyPhoto(file,proposal);if(kind==='raw')read(proposal,tcg);else if(proposal.model!=='ximilar-collectibles-v2-slab-id'||proposal.selectedTcg!==tcg)throw new Error('Ungültige Slab-Antwort.');return proposal;
   }
   root.DV_SCAN_V16_PROVIDER={read,verifyPhoto,recognize,budget:database=>request(database),model:MODEL};
 })();
