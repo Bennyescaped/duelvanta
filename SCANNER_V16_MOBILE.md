@@ -35,6 +35,8 @@ timing-dependent.
 - `scanner-v16-runtime.js` owns one explicit state machine:
   `idle → decoding → preview → analyzing → result/error`.
 - One analysis watchdog prevents silent indefinite hangs.
+- Artwork reference loading has its own watchdog, so a stalled catalog image
+  cannot block OCR/catalog completion or control recovery.
 - Every error path releases the busy lock and restores capture/file controls.
 - Live `getUserMedia` is the preferred route and preserves the DUELVANTA
   frame, live quality/reflection feedback and capture UI.

@@ -48,6 +48,7 @@ must(runtime,"transition('analyzing'",'analysis state missing');
 must(runtime,"transition('error'",'error recovery state missing');
 must(runtime,'bindOnce','duplicate event binding guard missing');
 must(ui,'eBay LAST SOLD','market-intelligence placeholder missing');
+must(core,'artwork_image_timeout','artwork reference loading watchdog missing');
 must(ui,'NOCH NICHT VERBUNDEN','must not invent eBay sales');
 must(ui,"v16_${mode}",'scan provenance missing');
 must(ui,'binder_page:mode===\'binder\'','binder page import missing');
