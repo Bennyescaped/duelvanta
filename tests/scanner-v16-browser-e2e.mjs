@@ -34,7 +34,7 @@ await page.addInitScript(()=>{
   const media={getUserMedia:()=>Promise.reject(new DOMException('No camera in deterministic E2E','NotAllowedError'))};
   try{Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:media})}catch{}
 });
-const errors=[],catalogRequests=[];
+const errors=[],catalogRequests=[],assetDiagnostics=[];let liveCatalogPhase=false;
 await page.route('https://api.tcgdex.net/**',async route=>{
   const url=new URL(route.request().url());catalogRequests.push(url.href);
   const path=url.pathname;let data=[];
@@ -56,7 +56,11 @@ await page.route(base+'/fixtures/**',async route=>{
 });
 page.on('requestfailed',request=>console.error('Failed request:',request.url(),request.failure()?.errorText));
 page.on('pageerror',error=>errors.push(error.message));
-page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
+page.on('console',message=>{if(message.type()==='error'){
+  const text=message.text(),url=message.location().url;
+  const knownAssetFailure=liveCatalogPhase&&((text.includes('https://assets.tcgdex.net/')&&text.includes('CORS policy'))||(url.startsWith('https://assets.tcgdex.net/')&&text.includes('Failed to load resource')));
+  if(knownAssetFailure)assetDiagnostics.push({text,url});else errors.push(text);
+}});
 const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 300 seconds');process.exit(1)},300000);
 
 async function upload(input,fixture){
@@ -190,6 +194,7 @@ try{
 
   // Same real image, actual public catalogs; no mocked OCR, identifier or provider.
   if(process.env.V16_LIVE_CATALOG==='1'){
+    assert.deepEqual(errors,[],'hermetic browser tests must have no console errors');liveCatalogPhase=true;
     await page.unroute('https://api.tcgdex.net/**');
     await page.reload({waitUntil:'domcontentloaded'});
     await page.locator('#dvV16Dialog[open]').waitFor({timeout:15000});
@@ -197,6 +202,13 @@ try{
     await waitForResult('Retourorden','074/084');
     const live=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id.code,catalogId:r.best.catalogId,language:r.best.language,observed:r.observedLanguage,status:r.status}});
     assert.equal(live.catalogId,'me05-074');assert.equal(live.language,'DE');
+    if(assetDiagnostics.length){
+      assert.equal(live.status,'review','blocked reference artwork must never auto-confirm the result');
+      assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+      assert.equal(await page.locator('.dvV16Market').count(),0);
+      assert.match(await page.locator('.dvV16Explain').innerText(),/REFERENZBILD NICHT PRÜFBAR/);
+      console.log('PUBLIC ASSET LIMITATION (fail-closed review verified):',JSON.stringify(assetDiagnostics));
+    }
     console.log('LIVE RECOGNITION PROOF:',JSON.stringify(live));
     await page.screenshot({path:resolve(root,'test-results/v16-real-iphone-live-catalog.png'),fullPage:true});
   }

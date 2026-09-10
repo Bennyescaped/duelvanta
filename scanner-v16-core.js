@@ -61,13 +61,13 @@
     const de=score(['deines','deine','deiner','dieser','dieses','karte','karten','kannst','wenn','während','wahrend','angriff','energien','gegner','pokemon-ausrustung']),en=score(['your','opponent','during','attach','attached','discard','shuffle','damage','draw','search']);
     return de>=2&&de>en?'DE':en>=2&&en>de?'EN':null;
   }
-  async function identify(card,tcg){
+  async function identify(card,tcg,onEvidence=()=>{}){
     if(!window.Tesseract)return null;
     if(tcg==='pokemon'){
       const texts=await Promise.all([ocr(prepRect(card,0,.84,.67,1,1.1),'6'),ocr(prepRect(card,0,.88,1,1,1),'11'),ocr(prepRect(card,0,.58,1,1,1.3),'6')]);
-      const votes=votePasses(texts,tcg);return votes.length?{...votes[0],evidence:{votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length}}:null;
+      const votes=votePasses(texts,tcg),evidence={votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length};onEvidence(evidence);return votes.length?{...votes[0],evidence}:null;
     }
-    const crops=[prepRect(card,0,.48,1,1,1.3),prepRect(card,0,.74,1,1,1.1),prepRect(card,0,.88,1,1,1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'11')]),votes=votePasses(texts,tcg);return votes.length?{...votes[0],evidence:{votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length}}:null;
+    const crops=[prepRect(card,0,.48,1,1,1.3),prepRect(card,0,.74,1,1,1.1),prepRect(card,0,.88,1,1,1)],texts=await Promise.all([ocr(crops[0],'6'),ocr(crops[1],'6'),ocr(crops[2],'11')]),votes=votePasses(texts,tcg),evidence={votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length};onEvidence(evidence);return votes.length?{...votes[0],evidence}:null;
   }
   function hashRegion(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,24,24);const d=x.getImageData(0,0,24,24).data,g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*.299+d[i+1]*.587+d[i+2]*.114;g.push(v);sum+=v}const mean=sum/g.length;return g.map(v=>v>=mean?1:0)}catch{return null}}
   const hashSim=(a,b)=>{if(!a||!b||a.length!==b.length)return null;let n=0;for(let i=0;i<a.length;i++)if(a[i]===b[i])n++;return n/a.length};
@@ -83,8 +83,9 @@
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
   async function recognizeRegion(card,tcg,{identifierOverride,onProgress=()=>{}}={}){
-    const q=quality(card);let id=identifierOverride||await identify(card,tcg);if(!id)return{tcg,quality:q,id:null,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0};
-    const identifierEvidence=id.evidence||null,observedLanguage=identifierEvidence?.observedLanguage||null;
+    const q=quality(card);let identifierEvidence=null,id=identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
+    const observedLanguage=identifierEvidence?.observedLanguage||null;
+    if(!id)return{tcg,quality:q,id:null,identifierEvidence,observedLanguage,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0};
     let cands=[],lookupInfo;
     onProgress({phase:'catalog',tcg,identifier:id.code});
     try{if(typeof catalogLookup==='function')cands=await catalogLookup(id,{tcg})||[];lookupInfo=cands.lookupInfo}

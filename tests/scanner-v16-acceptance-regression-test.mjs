@@ -58,7 +58,7 @@ assert.equal(live.inspect({data:new Uint8ClampedArray(width*height*4),width,heig
 // Run the actual core bridge and recovery with deterministic OCR at the unit
 // boundary. The browser suite separately runs real Tesseract on pixels.
 globalThis.window=globalThis;
-globalThis.document={createElement:()=>({width:820,height:1145,getContext:()=>({drawImage(){},getImageData(_x,_y,w,h){const data=new Uint8ClampedArray(w*h*4);for(let i=0;i<data.length;i+=4){const v=(i/4)%2?190:70;data.set([v,v,v,255],i)}return{data}}})})};
+globalThis.document={createElement:()=>({width:820,height:1145,getContext:()=>({drawImage(){},putImageData(){},getImageData(_x,_y,w,h){const data=new Uint8ClampedArray(w*h*4);for(let i=0;i<data.length;i+=4){const v=(i/4)%2?190:70;data.set([v,v,v,255],i)}return{data}}})})};
 let activeCode='074/084',ocrCalls=0;
 globalThis.Tesseract={recognize:async()=>{ocrCalls++;return{data:{text:activeCode}}}};
 const contexts=[];
@@ -100,6 +100,12 @@ assert.equal(conflicted.results[0].identifierReliable,false);assert.equal(confli
 texts=['074/081','074/081','074/081 während deines Zuges kannst du'];
 conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
 assert.equal(conflicted.results[0].best,null,'German card text must exclude the Japanese false positive even if all number passes agree');
+assert.equal(conflicted.results[0].failureType,'language_ambiguity');
+texts=['während deines Zuges kannst du','','','074/081','074/081'];
+conflicted=await core.analyze({width:630,height:880},{tcg:'pokemon'});
+assert.equal(conflicted.results[0].recovery.attempted,true);
+assert.equal(conflicted.results[0].observedLanguage,'DE','language evidence must survive a failed initial identifier pass');
+assert.equal(conflicted.results[0].best,null,'multipass recovery must apply the same language rejection');
 assert.equal(conflicted.results[0].failureType,'language_ambiguity');
 globalThis.catalogLookup=lookupBefore;
 const forgiving=live.createGate();let fired=0;

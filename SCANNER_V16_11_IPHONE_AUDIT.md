@@ -26,3 +26,11 @@ Push CI additionally removes catalog mocks and recognizes the real iPhone fixtur
 Local native Tesseract verification of the production crop preparation read 074/084 in all three independent crops and detected DE. CI browser evidence is authoritative for the browser engine. Physical iPhone autofocus, frame timing and hand motion still require the final short acceptance test.
 
 The preview has Vercel login protection in the interactive cloud browser; this audit does not change or bypass it. Browser CI exercises the same direct route, modules and actual public catalog without changing user collections or authentication.
+
+## Browser findings on 2026-09-10
+
+Run 72 passed synthetic Pokémon, One Piece, the real iPhone fixture and exactly one automatic capture with a smaller, moving/exposure-varying video card. Browser Tesseract read 074/084 independently in passes 0 and 2 and detected DE. Push run 71 also resolved the real public catalog to `me05-074`, Retourorden, 074/084, DE. Its initial strict console assertion exposed an external artwork error: `https://assets.tcgdex.net/de/me/me05/074/high.webp` returned duplicate `Access-Control-Allow-Origin: *, *` values, which Chromium rejects. The candidate therefore correctly remained review-only.
+
+The live-provider test records that specific external asset diagnostic and verifies the reference-unavailable warning, disabled import and absent valuation. All other browser errors remain test failures. No CORS protection, provider response, auth setting or security header is modified. This external condition must not be misreported as a wrong number or a missing catalog card. Multi-pass recovery now preserves observed language even when the first identifier pass fails, and applies the same independent-vote and language gates as the initial recognition.
+
+Asset format reference: [TCGdex asset documentation](https://tcgdex.dev/assets).

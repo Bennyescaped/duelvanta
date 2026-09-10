@@ -150,10 +150,11 @@
       ?[[.43,'contrast','6'],[.66,'binary','7']]
       :[[.53,'contrast','6'],[.70,'binary','7']];
     const texts=await Promise.all(specs.map(async([y,style,psm])=>readText(prep(result.crop,y,style),psm)));
-    const hits=texts.flatMap(t=>parseText(t,tcg)),vote=voteIdentifiers(hits,tcg);
+    const votes=core.votePasses(texts,tcg),vote=votes.length?{id:votes[0],votes:votes[0].passes.length,key:votes[0].code}:null;
     if(!vote?.id)return{...result,recovery:{attempted:true,success:false,identifierSuccess:!!result.id,catalogMatched:!!result.best,passes:specs.length,votes:0}};
     const found=await lookup(vote.id,tcg),api=root.DV_SCAN_V16_TCG;
-    const cands=found.filter(c=>(!c.tcg||c.tcg===tcg)&&api.candidateCode(c,tcg)===api.idCode(vote.id,tcg)).map(c=>({...c,tcg,catalogVerified:true}));
+    const observedLanguage=result.observedLanguage||core.observedLanguage(texts),sameLanguage=c=>!observedLanguage||root.DV_SCAN_V16_QUALITY?.languageOf(c)===observedLanguage;
+    const cands=found.filter(c=>sameLanguage(c)&&(!c.tcg||c.tcg===tcg)&&api.candidateCode(c,tcg)===api.idCode(vote.id,tcg)).map(c=>({...c,tcg,catalogVerified:true}));
     await Promise.all(cands.map(async c=>{const v=await core.visualScore?.(result.crop,c.image,tcg);if(v!=null)c.v16Visual=v}));
     let ranked=cands,gap=0,variantConfidence=0;
     if(root.DV_SCAN_V16_TCG?.rankCandidates){
@@ -163,7 +164,7 @@
     const best=ranked[0]||null,base=Number(best?.v16Score||best?.confidence||best?.catalogConfidence||0),q=Number(result?.quality?.score||0);
     const confidence=best?clamp(Math.round(Math.min(96,base)*.86+q*.14),0,96):0;
     let out={...result,id:vote.id,candidates:ranked,best,confidence,status:best&&confidence>=84&&q>=42?'ready':'review',variantConfidence,candidateGap:gap,visualConfidence:Number(best?.v16Visual||0),recognitionReasons:unique([...(best?.v16Reasons||[]),'multi_pass_ocr']),recovery:{attempted:true,success:!!best,passes:specs.length,votes:vote.votes,identifier:vote.key}};
-    out={...out,tcg,lookupInfo:found.lookupInfo,recovery:{...out.recovery,identifierSuccess:true,catalogMatched:!!best}};
+    out={...out,tcg,observedLanguage,languageConflict:!cands.length&&found.some(c=>!sameLanguage(c)),identifierReliable:votes.length===1&&vote.votes>=2,identifierEvidence:{votes,observedLanguage,independentPasses:specs.length},lookupInfo:found.lookupInfo,recovery:{...out.recovery,identifierSuccess:true,catalogMatched:!!best}};
     out=applyEvidence(out,tcg);
     return out;
   }

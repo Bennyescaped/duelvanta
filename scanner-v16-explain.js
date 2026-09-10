@@ -8,7 +8,7 @@
   const LABELS={identifier_unconfirmed:'OCR-Nummer noch unbestätigt',language_conflict:'Kartentext und Katalogsprache widersprechen sich',
     exact_id:'OCR-Nummer passt zum Katalog',art_strong:'Artwork sehr stark',art_good:'Artwork passend',art_match:'Artwork ähnlich',art_weak:'Artwork schwach',art_leader_gap:'Artwork klar vorne',
     variant_art_separated:'Variante visuell getrennt',language_visual_separated:'Sprache visuell getrennt',variant_ambiguity:'Variante nicht eindeutig',language_ambiguity:'Sprache nicht eindeutig',
-    reflection_guard:'Reflexion beeinflusst Artwork',heavy_glare:'Starke Spiegelung erkannt',low_image_quality:'Bildqualität zu niedrig',top_candidate_unverifiable:'Referenzbild fehlt',missing_variant_image:'Variantenbild fehlt'
+    reflection_guard:'Reflexion beeinflusst Artwork',heavy_glare:'Starke Spiegelung erkannt',low_image_quality:'Bildqualität zu niedrig',top_candidate_unverifiable:'Referenzbild nicht prüfbar',missing_variant_image:'Variantenbild fehlt'
   };
   const variantLabel=v=>({standard:'Standard',parallel:'Parallel / Alt Art',manga:'Manga',special:'Special',treasure:'Treasure Rare',signed:'Signed',tournament:'Tournament / Winner',promo:'Promo',special_illustration:'Special Illustration Rare',illustration:'Illustration Rare',shiny_ultra:'Shiny Ultra Rare',shiny:'Shiny Rare',hyper:'Hyper / Gold Rare',secret:'Secret Rare',rainbow:'Rainbow',reverse_holo:'Reverse Holo',holo:'Holo'}[v]||v||'—');
 
@@ -31,13 +31,13 @@
     if(reasons.includes('language_ambiguity'))return{headline:'PRÜFEN · SPRACHE NICHT EINDEUTIG',tone:'review',summary:'Die Kartennummer passt, aber die Sprache kann visuell noch nicht zuverlässig getrennt werden.'};
     if(reasons.includes('heavy_glare')||reasons.includes('reflection_guard'))return{headline:'PRÜFEN · REFLEXION ERKANNT',tone:'review',summary:'Foil- oder Folienreflexionen schwächen den Artwork-Vergleich. DUELVANTA reduziert deshalb bewusst die Confidence.'};
     if(reasons.includes('low_image_quality'))return{headline:'PRÜFEN · BILDQUALITÄT ZU NIEDRIG',tone:'review',summary:'Für eine sichere Variantenentscheidung fehlen Schärfe oder verwertbare Bilddetails.'};
-    if(reasons.includes('top_candidate_unverifiable')||reasons.includes('missing_variant_image'))return{headline:'PRÜFEN · REFERENZBILD FEHLT',tone:'review',summary:'Der Katalogtreffer ist plausibel, kann aber visuell nicht ausreichend gegen Alternativen geprüft werden.'};
+    if(reasons.includes('top_candidate_unverifiable')||reasons.includes('missing_variant_image'))return{headline:'PRÜFEN · REFERENZBILD NICHT PRÜFBAR',tone:'review',summary:'Der Katalogtreffer ist plausibel, kann aber visuell nicht ausreichend gegen Alternativen geprüft werden.'};
     return{headline:'PRÜFEN · MEHR BEWEISE NÖTIG',tone:'review',summary:'Der Treffer ist plausibel, aber noch nicht eindeutig genug für eine automatische Bestätigung.'};
   }
 
   function explain(result,tcg,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),head=headlineFor(result,{candidateIndex}),reasons=reasonsOf(result),q=result?.quality||{},art=Number(c?.v16Visual||result?.visualConfidence||0),gap=Number(result?.visualGap||result?.qualityDecision?.visualGap||0),lang=languageOf(c),variant=variantOf(c,tcg),evidence=[];
-    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
+    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierSource==='manual'?'manuell eingegeben · Katalog passt':result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
     else if(result?.id)evidence.push({kind:'neutral',label:'Kartennummer',value:String(result.id.code||'erkannt')});
     if(art>0)evidence.push({kind:art>=78?'good':art>=62?'neutral':'warn',label:'Artwork',value:`${Math.round(art)} %`});
     if(gap>0)evidence.push({kind:gap>=9?'good':gap>=5?'neutral':'warn',label:'Abstand #1 → #2',value:`+${Math.round(gap)}`});
