@@ -2,6 +2,8 @@
 
 Stand: 10.09.2026. Ausgangscode: `666e2ac6efb19a40d3e91538d51fb6ccd833e98f` (V16.12). Dieser Ordner bereitet die Technologieentscheidung vor. Er wird von keiner Scanner-Route geladen, enthält keine neuen Nutzerdaten und aktiviert keinen Dienst.
 
+Aktueller Zwischenstand: [16 Originalfotos, native Baseline und eine begrenzte Bildvergleichsprobe](RESULTS-2026-09-10.md). Die Fotos sind vollständig vorhanden; Browsernachweis und Referenzabdeckung bleiben offen. Keine Scanneränderung aus der verworfenen Crop-Probe übernommen.
+
 ## Ziel und Reihenfolge
 
 Zuerst die Erkennungsstrategie entscheiden, dann den normalen Scannerablauf gestalten, danach die Binder erweitern. COLLECT, V15.8, bestehende Sammlungen, Auth/RLS und Original-Logo bleiben erhalten. Die neue Methode wird separat erprobt, bevor sie in V16 eingebaut wird.
