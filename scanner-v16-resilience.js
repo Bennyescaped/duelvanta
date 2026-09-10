@@ -51,6 +51,7 @@
     if(q.reflectionRisk||Number(q.score||0)<42||Number(q.sharpness??100)<42)return'image_quality_failure';
     if(!result?.id)return'identifier_failure';
     if(!result.best)return'catalog_no_match';
+    if(result.status==='ready')return null;
     if(result.languageAmbiguity)return'language_ambiguity';
     if(result.variantAmbiguity)return'variant_ambiguity';
     if(result.status!=='ready')return'artwork_ambiguity';

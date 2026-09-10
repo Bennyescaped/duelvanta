@@ -64,11 +64,13 @@ evidence-gate and benchmark pipeline.
 
 ## Test mode
 
-`/scanner-v16.html?e2e=1` is a branch-only deterministic browser harness. It
-uses local OCR/catalog fixtures, never signs in, never writes Supabase data and
-never calls external card catalogs. It exists to regress the complete browser
-interaction for Pokémon, One Piece and invalid-image recovery with uploaded
-test images.
+V16.10 supersedes the former hardcoded OCR/catalog harness. The CI-only
+`/scanner-v16.html?e2e=1` route uses installed local Tesseract assets and real
+pixel OCR; browser tests intercept public catalog HTTP responses while the
+production adapter and recognition pipeline run. It does not sign in or write
+Supabase data. This development harness is not an iPhone acceptance URL.
+See [the second acceptance audit](SCANNER_V16_10_ACCEPTANCE_AUDIT.md) for exact
+coverage, limitations and the 074/084 repair.
 
 ## Automated coverage
 

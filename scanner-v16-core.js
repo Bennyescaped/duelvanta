@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.2.0-lab';
+  const VERSION='16.10.0-lab';
   const CARD_RATIO=63/88;
   const MODES=new Set(['single','continuous','multi','binder']);
 

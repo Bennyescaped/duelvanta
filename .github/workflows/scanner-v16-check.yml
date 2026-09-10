@@ -1,5 +1,7 @@
 name: Scanner V16 Check
 on:
+  push:
+    branches: [scanner-v16]
   pull_request:
     paths:
       - 'scanner-v16-*.js'
