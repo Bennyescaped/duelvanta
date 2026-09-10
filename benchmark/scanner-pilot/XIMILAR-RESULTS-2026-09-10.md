@@ -21,3 +21,15 @@ The temporary Ximilar pilot is closed again (`enabled:false`). The runner also b
 Next owner action: check that the value of `XIMILAR_API_TOKEN` is the original API token for the intended Ximilar account, with no `Token ` prefix or surrounding quotation marks, scoped to Preview / `scanner-v16`. After correction, issue a fresh bounded test grant and verify Collectibles access once. A generic API token does not by itself establish Collectibles trial access; [Ximilar documents the access requirement](https://docs.ximilar.com/collectibles/recognition).
 
 Gemini's already measured 16/16 identifiers and languages remain unchanged. Do not claim Ximilar is better or worse based on this authentication failure.
+
+
+## Authorized token recheck — 17:23 UTC
+
+The owner confirmed checking the token. A fresh Preview deployment (`62a26862fded0a51ddc9f4360b24d68e3c830072`) inherited the current project environment and a distinct signed run preserved the earlier failed attempt.
+
+- One request, P01-A, at 17:23:38 UTC; again HTTP 401.
+- The provider error now explicitly classified as **`invalid_token`** from its invalid-token message. Only this fixed category was retained, never the error body or token value.
+- Zero recognition results; no remaining photos sent. Two access attempts total across the two explicitly authorized runs, not 16 recognition attempts.
+- Authentication is the current blocker. This response does not establish whether a valid token would also have Collectibles entitlement.
+- Tested commit: PR CI Run 106 and Vercel successful. Failed-run button disabled in the actual browser.
+- Pilot closed again. Next: owner generates/copies a valid API token for the intended Ximilar account and replaces the branch Preview value. A further access test requires that correction; no retry loop.
