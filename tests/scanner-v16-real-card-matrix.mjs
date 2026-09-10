@@ -24,10 +24,12 @@ async function remote(url){
  })());return cache.get(url);
 }
 for(const c of cases){
+ try{
  c.url??=`https://optcgapi.com/api/${c.code.startsWith('P-')?'promos':'sets'}/card/${c.code}/`;
  const r=await remote(c.url);assert.equal(r.status,200);const data=JSON.parse(r.body),row=c.tcg==='pokemon'?data:data.find(r=>r.card_image_id===c.catalog);assert.ok(row,`source ${c.catalog} exists`);
  c.name=row.name||row.card_name;c.image=c.tcg==='pokemon'?row.image+'/high.webp':row.card_image;
  const img=await remote(c.image);assert.equal(img.status,200);c.file=resolve(out,c.key+(c.tcg==='pokemon'?'.webp':'.jpg'));await writeFile(c.file,img.body);
+ }catch(error){c.sourceError=error.message;providerErrors.push({case:c.key,url:c.url,error:error.message})}
 }
 const server=createServer(async(req,res)=>{try{const target=resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!target.startsWith(root+sep))throw Error('path');const data=await readFile(target);res.writeHead(200,{'content-type':({'.html':'text/html','.js':'application/javascript','.css':'text/css','.wasm':'application/wasm','.gz':'application/gzip'})[extname(target)]||'application/octet-stream'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -41,6 +43,7 @@ const waitResult=()=>page.waitForFunction(()=>document.getElementById('dvV16Stat
 try{
  await page.goto(base+'/scanner-v16.html?e2e=1',{waitUntil:'domcontentloaded'});await page.locator('#dvV16Dialog[open]').waitFor();assert.equal(await page.locator('iframe').count(),0);
  for(const c of cases){
+  if(c.sourceError){failed=true;report.push({case:c.key,providerUnavailable:c.sourceError});console.error('SOURCE UNAVAILABLE:',c.key,c.sourceError);continue}
   console.log('REAL CARD:',c.key,c.name,c.code,c.catalog);
   try{
    await page.selectOption('#dvV16Tcg',c.tcg);const before=await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().length);
@@ -66,9 +69,9 @@ try{
   await page.click('#dvV16Reset');
  }
  // A new white obstruction must still fail the glare/evidence gates.
- const standard=cases.find(c=>c.key==='op-standard');await page.selectOption('#dvV16Tcg','one_piece');
+ const standard=cases.find(c=>c.key==='op-standard');if(!standard.sourceError){await page.selectOption('#dvV16Tcg','one_piece');
  const blocked=await page.evaluate(async url=>{const i=new Image();i.crossOrigin='anonymous';i.src=url;await i.decode();const c=document.createElement('canvas');c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);x.fillStyle='white';x.fillRect(c.width*.25,c.height*.18,c.width*.5,c.height*.48);return c.toDataURL('image/png').split(',')[1]},standard.image);
- await page.locator('#dvV16GalleryFile').setInputFiles({name:'obstructed.png',mimeType:'image/png',buffer:Buffer.from(blocked,'base64')});await waitResult();const obstruction=await snapshot();report.push({case:'new-white-obstruction',automatic:obstruction});assert.notEqual(obstruction.status,'ready');assert.equal(obstruction.quality.reflectionRisk,true);assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+ await page.locator('#dvV16GalleryFile').setInputFiles({name:'obstructed.png',mimeType:'image/png',buffer:Buffer.from(blocked,'base64')});await waitResult();const obstruction=await snapshot();report.push({case:'new-white-obstruction',automatic:obstruction});assert.notEqual(obstruction.status,'ready');assert.equal(obstruction.quality.reflectionRisk,true);assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);}
  assert.deepEqual(errors,[],'unexpected browser errors');assert.deepEqual(providerErrors,[],'provider delivery failure is not recognition evidence');
 } catch(e){failed=true;console.error(e)}finally{
  await writeFile(resolve(out,'matrix.json'),JSON.stringify({scope:'Unmodified public reference pixels/catalogs with controlled delivery; no physical foil/iPhone claim',report,errors,providerErrors},null,2));
