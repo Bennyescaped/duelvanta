@@ -51,6 +51,7 @@ await page.route(base+'/fixtures/**',async route=>{
   const file=route.request().url().includes('pokemon')?'pokemon-074-084.svg':'onepiece-op05-119.svg';
   await route.fulfill({status:200,contentType:'image/svg+xml',body:await readFile(resolve(root,'tests/fixtures',file))});
 });
+page.on('requestfailed',request=>console.error('Failed request:',request.url(),request.failure()?.errorText));
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
 const watchdog=setTimeout(()=>{console.error('FAIL: browser E2E exceeded 180 seconds');process.exit(1)},180000);

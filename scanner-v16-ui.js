@@ -103,7 +103,7 @@
     const rows=(pack.results||[]).map(result=>({...result,chosen:0,selected:result.status==='ready'}));if(mode==='continuous')batch.push(...rows);else batch=rows;renderResults();$('dvV16Status').textContent=`Analyse fertig · ${pack.ready} sicher · ${pack.review} prüfen · ${pack.empty} ohne Treffer`;return pack;
   }
   async function processFile(file){
-    if(!file||controller().busy)return;stopLive();showSource(file);if(root.DV_V16_E2E)root.__DV_V16_E2E_FILE=file.name||'';
+    if(!file||controller().busy)return;stopLive();if(root.DV_V16_E2E)root.__DV_V16_E2E_FILE=file.name||'';
     try{return await analyzeSource(file)}catch(error){controller().transition('error',{error});return null}finally{$('dvV16CameraFile').value='';$('dvV16GalleryFile').value=''}
   }
   async function captureLive(){if(controller().busy)return;try{const canvas=root.DV_SCAN_V16_CAMERA.capture($('dvV16Video'),{single:mode==='single'||mode==='continuous'});stopLive();showSource(canvas);await analyzeSource(canvas,{sourcePrepared:!!canvas.__v16Prepared})}catch(error){controller().transition('error',{error})}}
