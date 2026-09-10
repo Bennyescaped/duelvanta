@@ -29,6 +29,11 @@ const base=`http://127.0.0.1:${address.port}`;
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const page=await context.newPage();
+page.setDefaultTimeout(12000);
+await page.addInitScript(()=>{
+  const media={getUserMedia:()=>Promise.reject(new DOMException('No camera in deterministic E2E','NotAllowedError'))};
+  try{Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:media})}catch{}
+});
 const errors=[];
 page.on('pageerror',error=>errors.push(error.message));
 page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
@@ -47,6 +52,7 @@ async function waitForResult(name,number){
 }
 
 try{
+  console.log('E2E: open direct mobile route');
   await page.goto(`${base}/scanner-v16.html?e2e=1`,{waitUntil:'domcontentloaded'});
   await page.locator('#dvV16Dialog[open]').waitFor({timeout:15000});
   assert.equal(await page.locator('iframe').count(),0,'direct mobile route must not contain an iframe');
@@ -61,6 +67,7 @@ try{
   await page.click('#dvV16BenchClose');
   await page.click('#dvV16Launch');
   await page.selectOption('#dvV16Tcg','pokemon');
+  console.log('E2E: upload Pokemon fixture');
   await upload('#dvV16Choose','pokemon-183-196.svg');
   await waitForResult('Galar-Mauzinger V','183/196');
 
@@ -73,10 +80,12 @@ try{
 
   await page.click('#dvV16Launch');
   await page.selectOption('#dvV16Tcg','one_piece');
+  console.log('E2E: upload One Piece fixture');
   await upload('#dvV16Choose','onepiece-op05-119.svg');
   await waitForResult('Monkey D. Luffy','OP05-119');
 
   await page.click('#dvV16Retry');
+  console.log('E2E: upload invalid fixture and verify recovery');
   await upload('#dvV16Choose','invalid-upload.txt');
   await page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent?.includes('kein Bild'),null,{timeout:5000});
   assert.equal(await page.evaluate(()=>window.DV_SCAN_V16.controller.state),'error');
