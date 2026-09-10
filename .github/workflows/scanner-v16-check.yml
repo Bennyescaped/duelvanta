@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'scanner-v16-*.js'
+      - 'scanner-v16-assets/**'
+      - 'tests/scanner-v16-references-test.mjs'
       - 'scanner-v16-lab.html'
       - 'scanner-v16.html'
       - 'scanner-v16-host.js'
@@ -56,12 +58,15 @@ jobs:
           node --check scanner-v16-loader.js
           node --check scanner-v16-runtime.js
           node --check scanner-v16-host.js
+          node --check scanner-v16-references.js
           node --check scanner-v16-catalog.js
           node --check scanner-v16-recovery.js
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
       - name: Scanner V16 contract
         run: node tests/scanner-v16-contract-test.mjs
+      - name: Verified artwork reference cache
+        run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition
         run: node tests/scanner-v16-tcg-test.mjs
       - name: Evidence quality gates

@@ -60,8 +60,10 @@
     async function lookup(id,{tcg}={}){
       if(!['pokemon','one_piece'].includes(tcg))throw new Error('Katalogsuche benötigt einen expliziten TCG-Modus.');
       const info={tcg,identifier:id.code,errors:[],strategy:tcg==='pokemon'?'denominator_sets_exact_local':'exact_one_piece_code'};
-      const result=tcg==='pokemon'?await pokemon(id,info):await onePiece(id,info);
-      result.lookupInfo={...info,candidates:result.length};return result;
+      let result=tcg==='pokemon'?await pokemon(id,info):await onePiece(id,info);
+      const references=root.DV_SCAN_V16_REFERENCES;
+      if(references){await references.ready;result=result.map(card=>references.resolve(card,tcg))}
+      result.lookupInfo={...info,candidates:result.length,localReferenceImages:result.filter(card=>card.referenceImageSource).length};return result;
     }
     return{lookup};
   }
