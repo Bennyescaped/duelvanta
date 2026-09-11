@@ -20,7 +20,7 @@
       const listing = listings.find(l => l.id === (button?.dataset.offer || button?.dataset.edit));
       if (!listing || card.querySelector('.dvPriceMode') || listing.listing_type === 'trade') return;
       card.querySelector('.priceRow')?.insertAdjacentHTML('afterend', `<div class="dvPriceMode">${fixed(listing)?'FESTPREIS':'VERHANDLUNGSBASIS'}</div>`);
-      if (button.dataset.offer) button.textContent = fixed(listing) ? 'JETZT KAUFEN' : 'ANGEBOT MACHEN';
+      if (button.dataset.offer) button.textContent = fixed(listing) ? 'JETZT KAUFEN' : 'PREIS VORSCHLAGEN';
     });
   }
   function selectedQuantity() {
@@ -30,21 +30,32 @@
     const quantity = selectedQuantity(), min = current.product_kind === 'sealed' ? current.minimum_purchase_quantity : 1;
     const valid = Number.isInteger(quantity) && quantity >= min && quantity <= current.quantity_available;
     byId('dvBuyNow').disabled = busy || !valid;
+    if (byId('dvBuyMinus')) byId('dvBuyMinus').disabled = busy || !valid || quantity <= min;
+    if (byId('dvBuyPlus')) byId('dvBuyPlus').disabled = busy || !valid || quantity >= current.quantity_available;
     byId('dvBuyQtyHint').textContent = valid ? `${current.quantity_available} verfügbar` : `Bitte eine ganze Menge zwischen ${min} und ${current.quantity_available} eingeben.`;
     if (!valid) { byId('dvBuyTotals').textContent = 'Bitte Menge eingeben.'; return; }
     const unit = priceFor(current,quantity), amount = Math.round(unit*quantity*100)/100, shipping = Number(current.shipping_cost);
-    byId('dvBuyTotals').innerHTML = `<div><span>Stückpreis</span><strong>${cash(unit)}</strong></div><div><span>Produkte · ${quantity} Stück</span><strong>${cash(amount)}</strong></div><div><span>Versand laut Anzeige</span><strong>${cash(shipping)}</strong></div><div class="grand"><span>Summe laut Anzeige</span><strong>${cash(amount+shipping)}</strong></div>`;
+    byId('dvBuyTotals').innerHTML = `<div><span>${quantity} × Stückpreis</span><strong>${cash(unit)}</strong></div><div><span>Artikel</span><strong>${cash(amount)}</strong></div><div><span>Versand laut Inserat</span><strong>${cash(shipping)}</strong></div><div class="grand"><span>SUMME VORLÄUFIG</span><strong>${cash(amount+shipping)}</strong></div>`;
   }
   function open(listing) {
     if (busy) return;
     current = {...listing};
     retry = null;
     byId('dvBuyMsg').textContent = '';
-    byId('dvBuyBody').innerHTML = `<div class="summary"><b>${esc(listing.card_name)}</b><div class="msg">${esc([listing.set_name,listing.language,methods[listing.shipping_method]].filter(Boolean).join(' · '))}</div></div><div class="field" ${listing.product_kind==='sealed'?'':'hidden'}><label for="dvBuyQty">Menge</label><input id="dvBuyQty" type="number" inputmode="numeric" min="${listing.minimum_purchase_quantity}" max="${listing.quantity_available}" step="1" value="${listing.product_kind==='sealed'?listing.minimum_purchase_quantity:1}"></div><div id="dvBuyQtyHint" class="msg"></div><div id="dvBuyTotals" class="dvBuyTotals"></div><div class="dvCheckoutNote">Deine Produkte werden sofort bestellt, ohne zusätzliche Verkäuferfreigabe. Versand wird in der Order gebündelt; bei unklarer Paketgröße oder Versandart steht der endgültige Versandbetrag noch aus. Er kann höher oder niedriger ausfallen.<br><br>BETA: Keine integrierte Zahlung. Dieser Klick löst keine Abbuchung aus.</div><button id="dvBuyNow" class="btn gold" type="button">PRODUKTE VERBINDLICH BESTELLEN</button>`;
+    byId('dvBuyBody').innerHTML = `<div class="summary"><b>${esc(listing.card_name)}</b><div class="msg">${esc([listing.set_name,listing.language,methods[listing.shipping_method]].filter(Boolean).join(' · '))}</div></div><div class="field" ${listing.product_kind==='sealed'?'':'hidden'}><label for="dvBuyQty">Menge</label><div class="dvQuantityPicker"><button id="dvBuyMinus" class="btn ghost" type="button" aria-label="Menge verringern">−</button><input id="dvBuyQty" type="number" inputmode="numeric" min="${listing.minimum_purchase_quantity}" max="${listing.quantity_available}" step="1" value="${listing.product_kind==='sealed'?listing.minimum_purchase_quantity:1}" aria-label="Gewünschte Menge"><button id="dvBuyPlus" class="btn ghost" type="button" aria-label="Menge erhöhen">+</button></div></div><div id="dvBuyQtyHint" class="msg"></div><div id="dvBuyTotals" class="dvBuyTotals"></div><div class="dvCheckoutBeta"><strong>BETA</strong><span>Die Bestellung wird sofort angelegt. Noch keine Onlinezahlung. Der Versand kann sich durch Combined Shipping anschließend ändern.</span></div><button id="dvBuyNow" class="btn gold" type="button">JETZT BESTELLEN</button>`;
     byId('dvBuyQty').addEventListener('input', refresh); // Empty is a valid editing state on iOS.
+    byId('dvBuyMinus').onclick = () => changeQuantity(-1);
+    byId('dvBuyPlus').onclick = () => changeQuantity(1);
     byId('dvBuyNow').onclick = buy;
     refresh();
     byId('dvBuyDialog').showModal();
+  }
+  function changeQuantity(delta) {
+    if (busy || !current || current.product_kind !== 'sealed') return;
+    const input = byId('dvBuyQty'), min = Number(current.minimum_purchase_quantity || 1), max = Number(current.quantity_available || min);
+    const value = Number.isInteger(Number(input.value)) ? Number(input.value) : min;
+    input.value = String(Math.max(min,Math.min(max,value+delta)));
+    input.dispatchEvent(new Event('input',{bubbles:true}));
   }
   function purchaseRequest(quantity) {
     const key = `dv-checkout:${user.id}:${current.id}`;
@@ -62,6 +73,8 @@
     const listing = current, quantity = selectedQuantity(), request = purchaseRequest(quantity);
     busy = true;
     byId('dvBuyNow').disabled = true;
+    byId('dvBuyMinus').disabled = true;
+    byId('dvBuyPlus').disabled = true;
     byId('dvBuyMsg').textContent = 'Bestellung wird angelegt …';
     byId('dvBuyQty').disabled = true;
     let result;
@@ -80,7 +93,7 @@
     try { sessionStorage.removeItem(request.key); } catch (_) {}
     retry = null;
     byId('dvBuyMsg').textContent = '';
-    byId('dvBuyBody').innerHTML = `<div class="summary"><b>BESTELLUNG ANGELEGT ✓</b><p>${quantity} × ${esc(listing.card_name)}</p><p>Produkte: ${cash(result.item_total)}</p><div class="msg">Lieferadresse und den nächsten Schritt findest du in deiner Order. Es wurde keine Zahlung ausgeführt.</div></div><div class="actions"><button id="dvBuyGoOrder" class="btn gold">ORDER ÖFFNEN</button><button id="dvBuyContinue" class="btn ghost">WEITER EINKAUFEN</button></div>`;
+    byId('dvBuyBody').innerHTML = `<div class="dvCheckoutSuccess"><div class="dvCheckoutSuccessMark">✓</div><b>BESTELLUNG ANGELEGT</b><p>${quantity} × ${esc(listing.card_name)}</p><p>Artikel: ${cash(result.item_total)}</p><div class="msg">Adresse, Versand und den nächsten Schritt findest du jetzt unter Bestellungen. Es wurde keine Zahlung ausgeführt.</div></div><div class="actions"><button id="dvBuyGoOrder" class="btn gold">BESTELLUNG ÖFFNEN</button><button id="dvBuyContinue" class="btn ghost">WEITER EINKAUFEN</button></div>`;
     byId('dvBuyContinue').onclick = () => byId('dvBuyDialog').close();
     byId('dvBuyGoOrder').onclick = () => { byId('dvBuyDialog').close(); window.DV_TRADE_ORDERS.open(result.order_id); };
     // A refresh failure must not present an already successful purchase as failed.
@@ -95,7 +108,7 @@
     document.head.appendChild(style);
     const dialog = document.createElement('dialog');
     dialog.id = 'dvBuyDialog';
-    dialog.innerHTML = '<div class="modal"><div class="modalHead"><h2>Produkt kaufen</h2><button id="dvBuyClose" type="button" class="close">✕</button></div><div id="dvBuyBody"></div><div id="dvBuyMsg" class="msg" aria-live="polite"></div></div>';
+    dialog.innerHTML = '<div class="modal"><div class="modalHead"><h2>Kauf prüfen</h2><button id="dvBuyClose" type="button" class="close" aria-label="Kaufdialog schließen">✕</button></div><div id="dvBuyBody"></div><div id="dvBuyMsg" class="msg" aria-live="polite"></div></div>';
     document.body.appendChild(dialog);
     byId('dvBuyClose').onclick = () => { if (!busy) dialog.close(); };
     dialog.addEventListener('cancel',e => { if (busy) e.preventDefault(); });
@@ -108,7 +121,7 @@
     },true);
     new MutationObserver(decorate).observe(byId('grid'),{childList:true});
     decorate();
-    window.DV_TRADE_CHECKOUT = {version:'1.0',priceFor};
+    window.DV_TRADE_CHECKOUT = {version:'1.1',priceFor};
     return true;
   }
   const timer = setInterval(() => { if (install()) clearInterval(timer); },100);

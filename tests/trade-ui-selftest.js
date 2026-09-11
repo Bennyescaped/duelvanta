@@ -6,7 +6,10 @@
   const assert=(test,message)=>{if(!test)throw Error(message);output.textContent+='PASS '+message+'\n'};
   const amountInput=value=>{const q=document.getElementById('dvBuyQty');q.value=value;q.dispatchEvent(new Event('input',{bubbles:true}))};
   try{
-    await wait(()=>window.DV_TRADE_CHECKOUT&&window.DV_TRADE_AUTOMATION&&document.querySelector('[data-offer="ui-fixed"]'));
+    await wait(()=>window.DV_TRADE_CHECKOUT&&window.DV_TRADE_AUTOMATION&&window.DV_TRADE_MARKETPLACE_UX&&document.querySelector('[data-offer="ui-fixed"]'));
+    assert(!!document.querySelector('.dvTradePrimary [data-tab="market"]')&&!!document.querySelector('.dvTradePrimary #dvOrdersTab')&&!!document.querySelector('.dvTradePrimary #sell'),'Hauptnavigation zeigt Markt, Bestellungen und Verkaufen');
+    assert(document.querySelector('[data-tab="mine"]').textContent==='MEINE INSERATE'&&document.getElementById('dvDealsTab').textContent==='BEWERTUNGEN','Nebenbereiche sind eindeutig benannt');
+    assert(document.querySelector('.hero h1').textContent.includes('direkt handeln'),'Startansicht erklärt den direkten Handelsweg');
     await wait(()=>document.getElementById('dvActionCount')?.textContent==='1');
     assert(document.getElementById('dvActionList').textContent.includes('LIEFERADRESSE HINTERLEGEN'),'AKTION ERFORDERLICH zeigt offene Lieferadresse');
     assert(!document.getElementById('dvNotifyBadge').hidden&&document.getElementById('dvNotifyBadge').textContent==='1','Ungelesene Benachrichtigung erscheint als Badge');
@@ -20,6 +23,8 @@
     assert(document.getElementById('dvBuyDialog').open,'Festpreis öffnet eigenen Kaufdialog');
     amountInput('');assert(document.getElementById('dvBuyQty').value==='','Menge darf zum Bearbeiten leer sein');assert(document.getElementById('dvBuyNow').disabled,'Leere Menge kann nicht bestellt werden');
     amountInput('3');assert(document.getElementById('dvBuyTotals').textContent.includes('660,00'),'3 Stück verwenden Staffelpreis 220 €');
+    document.getElementById('dvBuyPlus').click();assert(document.getElementById('dvBuyQty').value==='4','Plus-Schaltfläche erhöht die Menge auf dem Handy');
+    document.getElementById('dvBuyMinus').click();assert(document.getElementById('dvBuyQty').value==='3','Minus-Schaltfläche verringert die Menge auf dem Handy');
     amountInput('5');assert(document.getElementById('dvBuyTotals').textContent.includes('1.075,00'),'5 Stück verwenden Staffelpreis 215 €');
     amountInput('11');assert(document.getElementById('dvBuyNow').disabled,'Menge über Bestand gesperrt');
     amountInput('1.5');assert(document.getElementById('dvBuyNow').disabled,'Bruchmenge gesperrt');
@@ -33,6 +38,9 @@
     assert(attempts[1].args.p_quantity===3&&attempts[1].args.p_expected_updated_at,'Menge und Angebotsversion werden gesendet');
     assert(TRADE_UI_FIXTURE.purchases===1,'Nur ein erfolgreicher lokaler Kauf');
     document.getElementById('dvBuyGoOrder').click();await wait(()=>document.querySelector('.dvOrderItemTitle'));
+    await wait(()=>document.getElementById('app').dataset.tradeView==='orders');
+    assert(getComputedStyle(document.getElementById('daily')).display==='none','Daily Deal verschwindet außerhalb des Marktplatzes');
+    assert(document.querySelector('.hero h1').textContent.includes('Käufe und Verkäufe'),'Bestellansicht erklärt Käufer- und Verkäuferrolle');
     assert(document.querySelector('.dvOrderItemTitle').textContent.includes('3 ×'),'Order zeigt Stückzahl');
     assert(document.querySelector('.dvOrderItemMeta').textContent.includes('220,00'),'Order zeigt Stückpreis');
     assert(document.querySelector('.dvOrderSummary').textContent.includes('VORLÄUFIGE SUMME'),'Ungeprüfter Versand als vorläufig gekennzeichnet');
@@ -63,6 +71,7 @@
     document.querySelector('[data-tab="market"]').click();await wait(()=>document.querySelector('[data-offer="ui-vb"]'));
     document.querySelector('[data-offer="ui-vb"]').click();await wait(()=>document.getElementById('offerDialog').open);
     assert(!document.getElementById('dvBuyDialog').open,'Verhandlungsbasis verwendet weiterhin Angebotsdialog');
+    assert(document.getElementById('sendOffer').textContent==='PREISANGEBOT SENDEN'&&document.getElementById('dvOfferFlowNote').textContent.includes('automatisch eine Bestellung'),'Preisangebot erklärt den nächsten Schritt');
     document.getElementById('offerDialog').close();
     output.textContent+='\nALL UI TESTS PASSED — mocks only, no live transaction.\n';
   }catch(error){output.textContent+='\nFAIL '+error.message;console.error(error)}

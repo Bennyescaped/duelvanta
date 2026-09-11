@@ -42,7 +42,7 @@ const sandbox={document,console,URL,URLSearchParams,Intl,Date,JSON,Math,Number,S
   setInterval:(fn,ms)=>{const t=setInterval(fn,ms);timers.add(t);return t},clearInterval,
   requestAnimationFrame:fn=>setTimeout(fn,0),cancelAnimationFrame:clearTimeout,
   addEventListener:()=>{},confirm:()=>true,alert:message=>{throw Error(String(message))},prompt:()=>null,
-  CSS:{escape:s=>s},getComputedStyle:()=>({}),fetch:()=>{throw Error('Remote requests forbidden in local tests')}
+  CSS:{escape:s=>s},getComputedStyle:node=>({display:node.id==='daily'&&document.getElementById('app')?.dataset.tradeView!=='market'?'none':''}),fetch:()=>{throw Error('Remote requests forbidden in local tests')}
 };
 sandbox.window=sandbox;sandbox.globalThis=sandbox;
 const context=vm.createContext(sandbox);
