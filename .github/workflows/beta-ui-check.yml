@@ -8,6 +8,9 @@ on:
       - 'beta-trade.css'
       - 'beta-battle.css'
       - 'beta-profile.css'
+      - 'beta-shell.css'
+      - 'beta-shell.js'
+      - 'beta-product-visuals.css'
       - 'beta-design-system.html'
       - 'index.html'
       - 'app.html'
@@ -31,6 +34,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Shared beta app shell syntax
+        run: node --check beta-shell.js
       - name: Design system contract
         run: node tests/beta-design-system-test.mjs
       - name: Beta homepage contract
