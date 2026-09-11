@@ -330,6 +330,7 @@ try{
     await page.unroute('https://api.tcgdex.net/**');
     await page.reload({waitUntil:'domcontentloaded'});
     await page.locator('#dvV16Dialog[open]').waitFor({timeout:15000});
+    await page.selectOption('#dvV16Tcg','pokemon');
     await upload('#dvV16GalleryFile','tests/fixtures/retourorden-iphone.png');
     await waitForResult('Retourorden','074/084');
     const live=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id.code,catalogId:r.best.catalogId,language:r.best.language,observed:r.observedLanguage,status:r.status}});

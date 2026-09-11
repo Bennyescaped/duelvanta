@@ -3,7 +3,7 @@
 function allowed(value){
   try{const u=new URL(value);if(u.origin!=='https://optcgapi.com'||u.search||u.hash||u.username||u.password)return null;
     const catalog=/^\/api\/(sets|decks|promos)\/card\/(?:(?:OP|ST|EB|PRB)\d{2}-\d{3}|P-\d{3})\/$/.test(u.pathname);
-    const image=/^\/media\/static\/Card_Images\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)$/i.test(u.pathname);
+    const image=/^\/media\/static\/Card_Images\/[A-Za-z0-9_.-]+\.(jpg|jpeg|png|webp)$/i.test(u.pathname);
     return catalog||image?{url:u.href,image}:null;
   }catch{return null}
 }
