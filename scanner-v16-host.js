@@ -1,8 +1,14 @@
 (()=>{
   'use strict';
   const root=globalThis;
-  root.DV_SCAN_V16_STANDALONE=true;
   root.DV_V16_E2E=new URLSearchParams(location.search).get('e2e')==='1';
+  if(!root.DV_V16_E2E){
+    root.DV_SCAN_V16_REDIRECT=true;
+    const target=new URL('collect.html',location.href),folder=new URLSearchParams(location.search).get('folder');
+    target.searchParams.set('scan','1');if(folder)target.searchParams.set('binder',folder);
+    location.replace(target.href);return;
+  }
+  root.DV_SCAN_V16_STANDALONE=true;
   root.selectedScanTcg=localStorage.getItem('duelvanta_scan_tcg')||'pokemon';
   root.currentUser=null;root.folders=[];root.items=[];root.activeFolder='';
   const status=message=>{const el=document.getElementById('routeStatus');if(el)el.textContent=message};

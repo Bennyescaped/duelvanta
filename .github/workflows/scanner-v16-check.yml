@@ -5,6 +5,9 @@ on:
   pull_request:
     paths:
       - 'scanner-v16-*.js'
+      - 'collect.html'
+      - 'site-nav.js'
+      - 'tests/scanner-v16-collect-e2e.mjs'
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
       - 'api/scanner-v16-ximilar.js'
@@ -160,6 +163,8 @@ jobs:
           npx playwright install chromium
       - name: Second mobile acceptance regressions
         run: node tests/scanner-v16-acceptance-regression-test.mjs
+      - name: Integrated COLLECT scanner and binder E2E
+        run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E
         env:
           V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
