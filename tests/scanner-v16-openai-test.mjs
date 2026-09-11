@@ -30,5 +30,5 @@ const rgs={...observed,tcg:'pokemon',printed_code:'022/187',name:'ブースタ�
 assert.equal(validateObservation(rgs,'pokemon').status,'proposal');
 const unauthorized=await invoke(make(),{body:{...body,signature:'x'.repeat(86)}});assert.equal(unauthorized.code,403);assert.equal(calls,1);
 const denied=await invoke(createOpenAIHandler({env,config,now:()=>now,fetchImpl:async()=>({ok:false,status:403,json:async()=>({error:{code:'permission_denied'}})})}));assert.equal(denied.value.providerReason,'permission_denied');assert.ok(!JSON.stringify(denied).includes(env.OPENAI_API_KEY));
-const request=requestBody(image,'pokemon');assert.match(request.instructions,/grading company/);assert.match(request.input[0].content[0].text,/pokemon/);
+const request=requestBody(image,'pokemon');assert.match(request.instructions,/grading company/);assert.match(request.instructions,/card_corners are required whenever all four physical card corners/);assert.match(request.instructions,/Rotation or perspective alone is not a reason/);assert.match(request.input[0].content[0].text,/pokemon/);
 console.log('OpenAI pilot: exact signed photos, image detail, structured card/slab output, measured tokens/cost, deduplication and secret isolation verified.');

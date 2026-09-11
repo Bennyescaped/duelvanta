@@ -11,7 +11,7 @@
     }
     const card=(x,p,s)=>x?`<div class="cardSlot hasCard${pickedId===x.id?' moveSelected':''}" draggable="true" data-edit="${x.id}" data-card-id="${x.id}" data-page="${p}" data-slot="${s}">${x.image_path?`<img data-imgpath="${esc(x.image_path)}" alt="${esc(x.card_name)}">`:''}${x.market_price!=null?`<span class="slotPrice">≈ ${money.format(n(x.market_price))}</span>`:''}<button class="slotMove" type="button" data-move="${x.id}" aria-label="${esc(x.card_name)} verschieben">↔</button><div class="slotMeta"><strong>${esc(x.card_name)}</strong>${esc(x.card_number||'')}</div></div>`:`<div class="cardSlot emptySlot" data-page="${p}" data-slot="${s}"></div>`;
     renderBinder=function(){
-      const m=model();if(!m){pickedId=null;return oldRender()}page=Math.max(0,Math.min(page,m.pages-1));let visible=[],targetPage=page+1;
+      const m=model();if(!m){pickedId=null;oldRender();announce(activeFolder==='__graded__'?'Die Graded Collection ist eine Übersicht. Feste Plätze verwaltest du in einem eigenen Binder.':hasFilters()?'Für feste Plätze zuerst Suche und Filter zurücksetzen.':'Zum Verschieben oben einen eigenen Binder öffnen. Karten ohne Binder liegen in der Master Collection.');return}page=Math.max(0,Math.min(page,m.pages-1));let visible=[],targetPage=page+1;
       if(page<m.physical){targetPage=page+1;visible=Array.from({length:9},(_,i)=>m.placed.find(x=>Number(x.binder_page)===targetPage&&Number(x.binder_slot)===i+1)||null);document.getElementById('pageDots').textContent=`Seite ${targetPage} / ${m.pages} · feste Binderplätze · verschiebbar`}
       else{const offset=(page-m.physical)*9;visible=m.unplaced.slice(offset,offset+9);while(visible.length<9)visible.push(null);document.getElementById('pageDots').textContent=`Unsortiert · Seite ${targetPage} / ${m.pages}`}
       slotsHost.innerHTML=visible.map((x,i)=>card(x,targetPage,i+1)).join('');prev.disabled=page===0;next.disabled=page>=m.pages-1;const bp=document.getElementById('binderPage');bp.classList.remove('turning');requestAnimationFrame(()=>bp.classList.add('turning'));loadPrivateImages();announce(pickedId?'Zielplatz antippen. Belegte Plätze werden getauscht.':'↔ unten wählen · Karte antippen zum Bearbeiten · Desktop: ziehen.');
@@ -29,7 +29,7 @@
     slotsHost.addEventListener('dragend',()=>{dragId=null});
     const style=document.createElement('style');style.textContent='.binderMoveStatus{padding:0 2px 12px;color:#9ba2ad;font-size:12px}.slotMove{position:absolute;left:50%;bottom:7px;top:auto;right:auto;transform:translateX(-50%);z-index:3;width:34px;height:34px;border:1px solid rgba(239,209,140,.6);border-radius:999px;background:rgba(7,9,12,.9);color:#efd18c;font-size:17px}.cardSlot.moveSelected{outline:2px solid #efd18c;outline-offset:2px}.cardSlot[draggable=true]{touch-action:pan-y}@media(pointer:fine){.cardSlot[draggable=true]{cursor:grab}.cardSlot[draggable=true]:active{cursor:grabbing}}';document.head.appendChild(style);
     prev.onclick=()=>{if(page>0){page--;renderBinder()}};next.onclick=()=>{const m=model(),pages=m?.pages||Math.max(1,Math.ceil(filtered().length/9));if(page<pages-1){page++;renderBinder()}};
-    window.DV_SCAN_V16_BINDER={version:'16.21.0-lab',positionAware:true,interactive:true,model,move};
+    window.DV_SCAN_V16_BINDER={version:'16.22.0-lab',positionAware:true,interactive:true,model,move};
     return true;
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>160)clearInterval(t)},100);
