@@ -34,6 +34,11 @@ on:
       - 'database/collect-scanner-v16-*.sql'
       - 'database/collect-binder-*.sql'
       - 'admin.html'
+      - 'trade.html'
+      - 'trade-*.js'
+      - 'tests/trade-*'
+      - 'tests/auth-boundary-database-test.mjs'
+      - 'supabase/migrations/**'
       - 'tests/scanner-v16-contract-test.mjs'
       - 'tests/scanner-v16-acceptance-regression-test.mjs'
       - 'tests/scanner-v16-tcg-test.mjs'
@@ -159,8 +164,17 @@ jobs:
       - name: Install Chromium browser test runtime
         id: browser_runtime
         run: |
-          npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0
+          npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0 @electric-sql/pglite@0.5.8
           npx playwright install chromium
+      - name: Battle and profile database access boundaries
+        run: node tests/auth-boundary-database-test.mjs
+      - name: Trade contracts and mobile order flow
+        run: |
+          node tests/trade-automation-contract-test.mjs
+          node tests/trade-resolution-contract-test.mjs
+          node tests/trade-shipping-contract-test.mjs
+          node tests/trade-shipping-null-fallback-contract-test.mjs
+          node tests/trade-browser-e2e.mjs
       - name: Second mobile acceptance regressions
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
