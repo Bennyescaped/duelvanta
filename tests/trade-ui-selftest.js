@@ -10,6 +10,18 @@
     assert(!!document.querySelector('.dvTradePrimary [data-tab="market"]')&&!!document.querySelector('.dvTradePrimary #dvOrdersTab')&&!!document.querySelector('.dvTradePrimary #sell'),'Hauptnavigation zeigt Markt, Bestellungen und Verkaufen');
     assert(document.querySelector('[data-tab="mine"]').textContent==='MEINE INSERATE'&&document.getElementById('dvDealsTab').textContent==='BEWERTUNGEN','Nebenbereiche sind eindeutig benannt');
     assert(document.querySelector('.hero h1').textContent.includes('direkt handeln'),'Startansicht erklärt den direkten Handelsweg');
+    assert(!!document.getElementById('dvSingleAdvanced')&&document.getElementById('dvSingleAdvanced').contains(document.getElementById('listingType')),'Single-Sonderoptionen sind eingeklappt');
+    assert(!document.getElementById('dvSingleAdvanced').contains(document.getElementById('asking'))&&!document.getElementById('dvSingleAdvanced').contains(document.getElementById('dvShippingCost')),'Preis und Versandkosten bleiben im Single-Hauptformular');
+    assert(document.getElementById('dvSingleAutoData').textContent.includes('Collection'),'Automatisch übernommene Kartendaten werden erklärt');
+    document.getElementById('asking').value='124.50';document.getElementById('dvShippingCost').value='';document.getElementById('asking').dispatchEvent(new Event('input',{bubbles:true}));
+    assert(document.getElementById('dvShippingHint').textContent.includes('Bitte Versandkosten ergänzen')&&!document.getElementById('dvShippingHint').textContent.includes('0,00'),'Leere Versandkosten werden nicht als kostenlos dargestellt');
+    assert(!!document.getElementById('dvSealedAdvanced')&&document.getElementById('dvSealedAdvanced').contains(document.getElementById('dvSWeight'))&&document.getElementById('dvSealedAdvanced').contains(document.getElementById('dvSTier1Qty')),'Sealed-Spezialangaben sind eingeklappt');
+    assert(!document.getElementById('dvSealedAdvanced').contains(document.getElementById('dvSName'))&&!document.getElementById('dvSealedAdvanced').contains(document.getElementById('dvSPrice'))&&!document.getElementById('dvSealedAdvanced').contains(document.getElementById('dvSShippingCost')),'Sealed-Kernangaben bleiben sofort sichtbar');
+    document.getElementById('sell').click();await wait(()=>document.getElementById('dvProductTypeDialog').open);document.querySelector('[data-dv-kind="sealed"]').click();await wait(()=>document.getElementById('dvSealedDialog').open);
+    assert(!document.getElementById('dvSealedAdvanced').open,'Neues Sealed-Standardinserat startet mit geschlossenen Zusatzangaben');
+    document.getElementById('dvSShipping').value='custom';document.getElementById('dvSShipping').dispatchEvent(new Event('change',{bubbles:true}));
+    assert(document.getElementById('dvSealedAdvanced').open,'Individueller Versand öffnet den benötigten Versandhinweis');
+    document.getElementById('dvSealedDialog').close();
     await wait(()=>document.getElementById('dvActionCount')?.textContent==='1');
     assert(document.getElementById('dvActionList').textContent.includes('LIEFERADRESSE HINTERLEGEN'),'AKTION ERFORDERLICH zeigt offene Lieferadresse');
     assert(!document.getElementById('dvNotifyBadge').hidden&&document.getElementById('dvNotifyBadge').textContent==='1','Ungelesene Benachrichtigung erscheint als Badge');

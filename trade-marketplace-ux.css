@@ -18,6 +18,21 @@
 .dvCheckoutBeta strong{color:var(--gold2);white-space:nowrap;font-size:10px;letter-spacing:.06em}
 .dvCheckoutSuccess{text-align:center;padding:20px 14px}
 .dvCheckoutSuccessMark{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 12px;border:1px solid rgba(145,201,154,.45);border-radius:50%;color:var(--good);font-size:22px}
+.dvSellIntro{border:1px solid rgba(199,164,93,.28);background:linear-gradient(135deg,rgba(199,164,93,.08),rgba(199,164,93,.025));border-radius:11px;padding:11px 12px;margin:0 0 12px;color:#a9a195;font-size:11px;line-height:1.55}
+.dvSellIntro b{display:block;color:var(--gold2);font-size:10px;letter-spacing:.08em;margin-bottom:3px}
+.dvSellIntro span{display:block}
+.dvSellAdvanced{grid-column:1/-1;border:1px solid #2d333c;border-radius:11px;background:#0a0d12;overflow:hidden}
+.dvSellAdvanced>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;padding:12px 13px;color:var(--gold2);font-size:10px;letter-spacing:.07em;cursor:pointer}
+.dvSellAdvanced>summary::-webkit-details-marker{display:none}
+.dvSellAdvanced>summary:after{content:"+";font-size:17px;margin-left:auto;color:var(--gold)}
+.dvSellAdvanced[open]>summary:after{content:"−"}
+.dvSellAdvanced>summary span{border:1px solid #3a3428;border-radius:999px;padding:3px 6px;color:#9f978c;font-size:8px}
+.dvAdvancedGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 12px 12px;border-top:1px solid #242a32}
+.dvAdvancedGrid>.field{margin-top:10px}
+.dvAdvancedGrid>.field.full{grid-column:1/-1}
+.dvShippingReuse{grid-column:1/-1;border-left:2px solid var(--gold);padding:6px 9px;color:#aba397;font-size:10px;line-height:1.45}
+.dvShippingReuse[hidden]{display:none}
+#listDialog .formGrid>.dvShippingHint{margin-top:0}
 
 @media(min-width:761px){
   .dvTradeMore{display:block}
@@ -58,6 +73,9 @@
   dialog{max-height:calc(100dvh - 20px);overflow:auto}
   .modal{padding:17px}
   .modal h2{font-size:25px}
+  .dvAdvancedGrid{grid-template-columns:1fr}
+  .dvAdvancedGrid>.field.full{grid-column:auto}
+  .dvSellAdvanced>summary{min-height:45px}
 }
 
 @media(max-width:390px){
