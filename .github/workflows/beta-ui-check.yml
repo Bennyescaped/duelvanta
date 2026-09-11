@@ -5,12 +5,15 @@ on:
       - 'duelvanta-beta.css'
       - 'beta-home.css'
       - 'beta-app.css'
+      - 'beta-trade.css'
       - 'beta-design-system.html'
       - 'index.html'
       - 'app.html'
+      - 'trade.html'
       - 'tests/beta-design-system-test.mjs'
       - 'tests/beta-home-test.mjs'
       - 'tests/beta-app-test.mjs'
+      - 'tests/beta-trade-test.mjs'
       - '.github/workflows/beta-ui-check.yml'
   workflow_dispatch:
 jobs:
@@ -27,3 +30,9 @@ jobs:
         run: node tests/beta-home-test.mjs
       - name: Authenticated app shell contract
         run: node tests/beta-app-test.mjs
+      - name: Trade visual integration contract
+        run: node tests/beta-trade-test.mjs
+      - name: Install Trade DOM test runtime
+        run: npm install --no-save --no-package-lock linkedom@0.18.12
+      - name: Existing Trade DOM regression suite
+        run: node tests/trade-dom-test.mjs node_modules/linkedom/esm/index.js
