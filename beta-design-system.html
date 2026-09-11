@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#050506">
+<title>DUELVANTA · Beta Design System</title>
+<link rel="stylesheet" href="duelvanta-beta.css?v=1">
+</head>
+<body class="dv-beta">
+<header class="dv-topbar">
+  <div class="dv-container dv-topbar-inner">
+    <a class="dv-brand" href="#top" aria-label="DUELVANTA Design System">
+      <img src="v-logo.svg" alt="DUELVANTA V Logo">
+      <span class="dv-brand-word">DUELVANTA</span>
+    </a>
+    <nav class="dv-nav" aria-label="Design preview navigation">
+      <a class="active" href="#foundation">Foundation</a>
+      <a href="#components">Components</a>
+      <a href="#app">App Shell</a>
+    </nav>
+    <a class="dv-btn dv-btn-sm" href="index.html">Zur Website</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="dv-hero">
+    <img class="dv-hero-avatar" src="avatar-clean.png" alt="" aria-hidden="true">
+    <div class="dv-container">
+      <div class="dv-hero-content">
+        <p class="dv-eyebrow">Beta Release · Design Direction</p>
+        <h1 class="dv-display">DUELVANTA</h1>
+        <div class="dv-brand-rule"></div>
+        <p class="dv-hero-claim">COLLECT. TRADE. BATTLE.</p>
+        <p class="dv-lead">Cinematic in der Marke, klar in der Anwendung. Die neue Beta-Oberfläche verbindet dunkle Premium-Flächen, antikes Gold und die bestehende DUELVANTA-Welt mit einer ruhigeren, belastbaren Produkt-UI.</p>
+        <div class="dv-hero-actions">
+          <a class="dv-btn dv-btn-primary" href="#components">Komponenten ansehen →</a>
+          <a class="dv-btn dv-btn-ghost" href="#app">App Shell</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="foundation" class="dv-section">
+    <div class="dv-container dv-stack">
+      <div>
+        <p class="dv-eyebrow">01 · Foundation</p>
+        <h2 class="dv-display">Eine Sprache für die ganze Plattform.</h2>
+        <p class="dv-lead">Marketing darf groß und atmosphärisch sein. Die eigentliche Anwendung bleibt bewusst ruhiger. So wirkt DUELVANTA hochwertig, ohne Bedienbarkeit, Performance oder Lesbarkeit zu opfern.</p>
+      </div>
+
+      <div class="dv-card-grid">
+        <article class="dv-panel dv-panel-pad dv-panel-gold">
+          <p class="dv-eyebrow">Brand Gold</p>
+          <h3 class="dv-display">Antique Gold</h3>
+          <p class="dv-copy">Akzent, Fokus und Premium-Gefühl. Gold markiert Wichtiges, statt jede Fläche zu überstrahlen.</p>
+          <div class="dv-chip-row"><span class="dv-chip dv-chip-gold">#C89B52</span><span class="dv-chip dv-chip-gold">#EFCB84</span></div>
+        </article>
+        <article class="dv-panel dv-panel-pad">
+          <p class="dv-eyebrow">Surfaces</p>
+          <h3 class="dv-display">Black Layers</h3>
+          <p class="dv-copy">Mehrere dunkle Ebenen geben Tiefe, ohne Glassmorphism oder starke Blur-Effekte überall zu benötigen.</p>
+          <div class="dv-chip-row"><span class="dv-chip">#050506</span><span class="dv-chip">#0D0D10</span><span class="dv-chip">#17151A</span></div>
+        </article>
+        <article class="dv-panel dv-panel-pad">
+          <p class="dv-eyebrow">Typography</p>
+          <h3 class="dv-display">Display + Utility</h3>
+          <p class="dv-copy">Serif für Marke, Kapitel und große Aussagen. System-Sans für Scanner, Orders, Filter und mobile Bedienung.</p>
+          <p class="dv-kicker">COLLECT. TRADE. BATTLE.</p>
+        </article>
+      </div>
+
+      <div class="dv-stat-grid">
+        <div class="dv-stat"><b>44px</b><span>Minimum Touch Target</span></div>
+        <div class="dv-stat"><b>16px</b><span>Core Panel Radius</span></div>
+        <div class="dv-stat"><b>1×</b><span>Original V Logo</span></div>
+        <div class="dv-stat"><b>0</b><span>Required External Fonts</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="components" class="dv-section">
+    <div class="dv-container dv-stack">
+      <div>
+        <p class="dv-eyebrow">02 · Components</p>
+        <h2 class="dv-display">Premium, aber nicht verspielt.</h2>
+        <p class="dv-lead">Diese Bausteine sollen später in HOME, COLLECT, TRADE, BATTLE und PROFILE wiederverwendet werden.</p>
+      </div>
+
+      <div class="dv-row">
+        <button class="dv-btn dv-btn-primary" type="button">Primary Action</button>
+        <button class="dv-btn" type="button">Secondary</button>
+        <button class="dv-btn dv-btn-ghost" type="button">Ghost</button>
+      </div>
+
+      <div class="dv-chip-row">
+        <span class="dv-chip dv-chip-gold">Beta</span>
+        <span class="dv-chip dv-chip-success">Bereit</span>
+        <span class="dv-chip dv-chip-warning">Prüfen</span>
+        <span class="dv-chip dv-chip-danger">Aktion erforderlich</span>
+      </div>
+
+      <div class="dv-card-grid">
+        <a class="dv-action-card" href="#app">
+          <div class="dv-action-icon">◫</div>
+          <h3>COLLECT</h3>
+          <p>Scannen, ordnen und die eigene Sammlung als echte digitale Collection verwalten.</p>
+          <div class="dv-action-meta">Scan · Binder · Collection →</div>
+        </a>
+        <a class="dv-action-card" href="#app">
+          <div class="dv-action-icon">⇄</div>
+          <h3>TRADE</h3>
+          <p>Singles, Graded und Sealed entdecken, handeln und Bestellungen klar verfolgen.</p>
+          <div class="dv-action-meta">Marketplace · Orders →</div>
+        </a>
+        <a class="dv-action-card" href="#app">
+          <div class="dv-action-icon">⚔</div>
+          <h3>BATTLE</h3>
+          <p>Ranked, Matches und Spielerprofile in einer konsistenten Arena-Oberfläche.</p>
+          <div class="dv-action-meta">Arena · Ranking →</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="app" class="dv-section">
+    <div class="dv-container dv-split">
+      <div>
+        <p class="dv-eyebrow">03 · App Shell</p>
+        <h2 class="dv-display">Cinematic outside. Focused inside.</h2>
+        <p class="dv-lead">Die Inspirationsbilder werden nicht 1:1 nachgebaut. Stattdessen übernimmt die App ihre Wertigkeit und Stimmung, während produktive Screens ruhiger, schneller und klarer bleiben.</p>
+        <div class="dv-hero-actions">
+          <button class="dv-btn dv-btn-primary" type="button">Karte scannen</button>
+          <button class="dv-btn dv-btn-ghost" type="button">Marketplace</button>
+        </div>
+      </div>
+
+      <div class="dv-panel dv-panel-pad dv-panel-gold">
+        <p class="dv-eyebrow">Dashboard Preview</p>
+        <h3 class="dv-display">Willkommen zurück.</h3>
+        <p class="dv-copy">Ein späteres Dashboard kann Collection, Trade und Battle zusammenführen, ohne bestehende Fachlogik umzubauen.</p>
+        <div class="dv-stat-grid" style="margin-top:20px">
+          <div class="dv-stat"><b>248</b><span>Karten</span></div>
+          <div class="dv-stat"><b>12</b><span>Binder</span></div>
+          <div class="dv-stat"><b>3</b><span>Orders</span></div>
+          <div class="dv-stat"><b>1000</b><span>Rating</span></div>
+        </div>
+        <div class="dv-divider" style="margin:22px 0"></div>
+        <div class="dv-chip-row">
+          <span class="dv-chip dv-chip-success">Scanner verfügbar</span>
+          <span class="dv-chip dv-chip-gold">Beta UI</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="dv-mobile-nav" aria-label="Mobile App Preview">
+  <a class="active" href="#top"><span>⌂</span><span>Home</span></a>
+  <a href="#components"><span>◫</span><span>Collect</span></a>
+  <a href="#components"><span>⇄</span><span>Trade</span></a>
+  <a href="#components"><span>⚔</span><span>Battle</span></a>
+  <a href="#app"><span>○</span><span>Profile</span></a>
+</nav>
+</body>
+</html>

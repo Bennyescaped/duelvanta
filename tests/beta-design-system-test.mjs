@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
+const [css,html]=await Promise.all([read('duelvanta-beta.css'),read('beta-design-system.html')]);
+const must=(s,n,m)=>assert.ok(s.includes(n),`${m}: ${n}`);
+for(const token of ['--dv-bg:','--dv-surface:','--dv-gold:','--dv-gold-2:','--dv-ivory:','--dv-muted:','--dv-radius-md:','--dv-display:','--dv-body:'])must(css,token,'design token missing');
+for(const component of ['.dv-btn-primary','.dv-panel','.dv-action-card','.dv-chip-success','.dv-stat-grid','.dv-topbar','.dv-mobile-nav','.dv-hero'])must(css,component,'component missing');
+must(css,'@media(prefers-reduced-motion:reduce)','reduced-motion support missing');
+must(html,'src="v-logo.svg"','original V logo must be used directly');
+must(html,'src="avatar-clean.png"','existing Duelvanta avatar should be reused');
+must(html,'COLLECT. TRADE. BATTLE.','fixed primary slogan missing');
+must(html,'duelvanta-beta.css?v=1','beta stylesheet not wired');
+assert.ok(!html.includes('<svg'),'preview must not redraw the V logo inline');
+assert.ok(!css.includes('fonts.googleapis.com'),'beta UI must not require external font CDN');
+assert.ok(!css.includes('service_role')&&!html.includes('service_role'),'frontend must never contain service role secrets');
+console.log('PASS: DUELVANTA beta design system tokens, branding, accessibility and mobile shell');
