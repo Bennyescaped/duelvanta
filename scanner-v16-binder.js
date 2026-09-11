@@ -29,7 +29,7 @@
     slotsHost.addEventListener('dragend',()=>{dragId=null});
     const style=document.createElement('style');style.textContent='.binderMoveStatus{padding:0 2px 12px;color:#9ba2ad;font-size:12px}.slotMove{position:absolute;left:50%;bottom:7px;top:auto;right:auto;transform:translateX(-50%);z-index:3;width:34px;height:34px;border:1px solid rgba(239,209,140,.6);border-radius:999px;background:rgba(7,9,12,.9);color:#efd18c;font-size:17px}.cardSlot.moveSelected{outline:2px solid #efd18c;outline-offset:2px}.cardSlot[draggable=true]{touch-action:pan-y}@media(pointer:fine){.cardSlot[draggable=true]{cursor:grab}.cardSlot[draggable=true]:active{cursor:grabbing}}';document.head.appendChild(style);
     prev.onclick=()=>{if(page>0){page--;renderBinder()}};next.onclick=()=>{const m=model(),pages=m?.pages||Math.max(1,Math.ceil(filtered().length/9));if(page<pages-1){page++;renderBinder()}};
-    window.DV_SCAN_V16_BINDER={version:'16.19.0-lab',positionAware:true,interactive:true,model,move};
+    window.DV_SCAN_V16_BINDER={version:'16.20.0-lab',positionAware:true,interactive:true,model,move};
     return true;
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>160)clearInterval(t)},100);
