@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "dataset": "openai-v16-2026-09-11",
   "expiresAt": "2026-09-11T12:07:36.953Z",
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAoMWVtDw3kWGA+Mc0VHAaxRWGEMoQMk1f/iuIdPHX1Mg=\n-----END PUBLIC KEY-----\n",
