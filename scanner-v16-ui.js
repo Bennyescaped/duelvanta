@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const root=globalThis;
-  const VERSION='16.18.0-lab';
+  const VERSION='16.19.0-lab';
   let installed=false,mode='single',batch=[],savedRows=[],previewUrl='',qualityTimer=0,cameraEpoch=0,liveGate=null,importing=false;
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const money=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
@@ -160,7 +160,7 @@
   function close(){stopLive();$('dvV16Dialog').close()}
   function retry(){stopLive();$('dvV16Photo').classList.add('dvV16Hidden');$('dvV16Video').classList.remove('dvV16Hidden');controller().recover('Bereit für eine neue Aufnahme.');setStep('preview',0)}
   function candidate(result){return result.candidates?.[result.chosen||0]||result.best||null}
-  function storagePhoto(row){if(row.storagePhoto)return row.storagePhoto;const source=row.slab?(row.capturePhoto||row.crop):row.crop;if(!source)return null;const batchCapture=['multi','binder'].includes(row.captureMode);row.storagePhoto=row.slab?source:(root.DV_SCAN_V16_GEOMETRY?.normalizeCard?.(source,{width:900,inset:batchCapture ? .045 : 0})||source);return row.storagePhoto}
+  function storagePhoto(row){if(row.storagePhoto)return row.storagePhoto;const source=row.slab?(row.capturePhoto||row.crop):row.crop;if(!source)return null;const batchCapture=['multi','binder'].includes(row.captureMode),corners=batchCapture?row.providerEvidence?.cardCorners:null;row.storagePhoto=row.slab?source:(root.DV_SCAN_V16_GEOMETRY?.normalizeCard?.(source,{width:900,inset:batchCapture ? .045 : 0,corners})||source);return row.storagePhoto}
   function marketHtml(card){const price=card?.marketEur;return `<div class="dvV16Market"><div>MARKTWERT${price!=null?`<strong>${money.format(Number(price))}</strong>`:'<strong>—</strong>'}</div><div>QUELLE<strong style="font-size:9px">${esc(card?.priceSource||'Keine verlässlichen Daten')}</strong></div><div>7 / 30 TAGE<strong style="font-size:10px">— / —</strong></div><div>eBay LAST SOLD<strong style="font-size:9px">NOCH NICHT VERBUNDEN</strong></div></div>`}
   function recoveryHtml(result,index){
     const cards=result.candidates||[];

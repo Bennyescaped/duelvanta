@@ -10,7 +10,7 @@ const config={enabled:true,dataset:'openai-unit',expiresAt,publicKey:publicKey.e
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',OPENAI_API_KEY:'unit-only-never-live'};
 const ticket=JSON.stringify({dataset:config.dataset,model:MODEL,expiresAt,sha256:hash,tcg:'one_piece'});
 const body={ticket,signature:sign(null,Buffer.from(ticket),privateKey).toString('base64url'),imageBase64:image.toString('base64')};
-const observed={tcg:'one_piece',printed_code:'OP01-013',name:'Sanji',language:'EN',set_name:'Romance Dawn',rarity:null,variant:'Parallel / Alt Art',is_graded:true,grading_company:'PSA',grade:'10',certificate_number:'148536135',subgrades:[],confidence:.84,needs_review:true,uncertainty:'Certificate not verified'};
+const observed={tcg:'one_piece',printed_code:'OP01-013',name:'Sanji',language:'EN',set_name:'Romance Dawn',rarity:null,variant:'Parallel / Alt Art',is_graded:true,grading_company:'PSA',grade:'10',certificate_number:'148536135',card_corners:[{x:.1,y:.15},{x:.9,y:.12},{x:.92,y:.9},{x:.08,y:.92}],subgrades:[],confidence:.84,needs_review:true,uncertainty:'Certificate not verified'};
 let calls=0,sent;
 const fetchImpl=async(url,options)=>{calls++;assert.equal(url,'https://api.openai.com/v1/responses');assert.equal(options.headers.authorization,`Bearer ${env.OPENAI_API_KEY}`);assert.ok(!url.includes(env.OPENAI_API_KEY));sent=JSON.parse(options.body);return{ok:true,json:async()=>({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(observed)}]}],usage:{input_tokens:2000,output_tokens:500,total_tokens:2500,output_tokens_details:{reasoning_tokens:120}}})}};
 const make=options=>createOpenAIHandler({env,config,now:()=>now,fetchImpl,...options});
@@ -24,6 +24,7 @@ r=results[0];assert.equal(r.value.observed.printed_code,'OP01-013');assert.equal
 assert.equal(sent.model,MODEL);assert.equal(sent.store,false);assert.equal(sent.input[0].content[1].detail,'original');assert.equal(sent.text.format.type,'json_schema');assert.equal(sent.text.format.strict,true);assert.ok(!JSON.stringify(sent).includes('OP01-013'),'request must contain no expected answer');
 assert.equal(outputText({output:[{type:'message',content:[{type:'output_text',text:'a'},{type:'refusal',refusal:'x'}]}]}),'a');
 assert.equal(validateObservation(observed,'one_piece').status,'proposal');assert.equal(validateObservation({...observed,printed_code:'#013'},'one_piece').status,'identifier_failure');
+assert.throws(()=>validateObservation({...observed,card_corners:[{x:2,y:0}]},'one_piece'));
 const rgs={...observed,tcg:'pokemon',printed_code:'022/187',name:'ブースターex',language:'JP',grading_company:'RGS',certificate_number:null,subgrades:[{label:'Centering',value:'10'},{label:'Corners',value:'9'}]};
 assert.equal(validateObservation(rgs,'pokemon').status,'proposal');
 const unauthorized=await invoke(make(),{body:{...body,signature:'x'.repeat(86)}});assert.equal(unauthorized.code,403);assert.equal(calls,1);

@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.18.0-lab',CARD_RATIO=63/88;
+  const VERSION='16.19.0-lab',CARD_RATIO=63/88;
   let installed=false;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const size=s=>({w:Number(s?.videoWidth||s?.naturalWidth||s?.width||0),h:Number(s?.videoHeight||s?.naturalHeight||s?.height||0)});
@@ -59,8 +59,11 @@
     ox.putImageData(od,0,0);return out
   }
   function correctBinder(source){const d=detectBinderQuad(source);if(!d||d.confidence<.52)return{source,corrected:false,confidence:d?.confidence||0,quad:d?.quad||null};try{return{source:warpQuad(source,d.quad),corrected:true,confidence:d.confidence,quad:d.quad}}catch{return{source,corrected:false,confidence:d.confidence,quad:d.quad}}}
-  function normalizeCard(source,{width=900,inset=0}={}){
-    const s=size(source);if(!s.w||!s.h)return source;const d=detectBinderQuad(source),center=d?.quad?d.quad.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0}):null,centered=center&&Math.abs(center.x-s.w/2)<s.w*.14&&Math.abs(center.y-s.h/2)<s.h*.14,cardLike=d&&d.area>=.64&&d.ratio>=.60&&d.ratio<=.82&&centered;
+  function suppliedQuad(source,corners){
+    const s=size(source);if(!Array.isArray(corners)||corners.length!==4||!s.w||!s.h)return null;const quad=corners.map(p=>({x:Number(p?.x)*s.w,y:Number(p?.y)*s.h}));if(quad.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.x>s.w||p.y<0||p.y>s.h))return null;const area=polygonArea(quad)/(s.w*s.h),center=quad.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0}),top=Math.hypot(quad[1].x-quad[0].x,quad[1].y-quad[0].y),bottom=Math.hypot(quad[2].x-quad[3].x,quad[2].y-quad[3].y),left=Math.hypot(quad[3].x-quad[0].x,quad[3].y-quad[0].y),right=Math.hypot(quad[2].x-quad[1].x,quad[2].y-quad[1].y),ratio=((top+bottom)/2)/Math.max(1,(left+right)/2);return area>=.24&&area<=.98&&ratio>=.45&&ratio<=1&&Math.abs(center.x-s.w/2)<s.w*.28&&Math.abs(center.y-s.h/2)<s.h*.28?quad:null
+  }
+  function normalizeCard(source,{width=900,inset=0,corners=null}={}){
+    const s=size(source);if(!s.w||!s.h)return source;const observed=suppliedQuad(source,corners);if(observed)try{return warpQuad(source,observed,width,CARD_RATIO)}catch{}const d=detectBinderQuad(source),center=d?.quad?d.quad.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0}):null,centered=center&&Math.abs(center.x-s.w/2)<s.w*.14&&Math.abs(center.y-s.h/2)<s.h*.14,cardLike=d&&d.area>=.64&&d.ratio>=.60&&d.ratio<=.82&&centered;
     if(cardLike)try{return warpQuad(source,d.quad,width,CARD_RATIO)}catch{}
     const out=document.createElement('canvas'),W=Math.max(420,Math.round(width)),H=Math.round(W/CARD_RATIO),margin=clamp(Number(inset)||0,0,.08);out.width=W;out.height=H;let x=s.w*margin,y=s.h*margin,w=s.w*(1-margin*2),h=s.h*(1-margin*2),sourceRatio=w/h;
     if(sourceRatio>CARD_RATIO){const next=h*CARD_RATIO;x+=(w-next)/2;w=next}else if(sourceRatio<CARD_RATIO){const next=w/CARD_RATIO;y+=(h-next)/2;h=next}
@@ -82,7 +85,7 @@
       }
       const out=await base(source,opts);for(const r of out.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out;
     };
-    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder,normalizeCard};return true
+    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder,suppliedQuad,normalizeCard};return true
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>120)clearInterval(t)},50);
 })();
