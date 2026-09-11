@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const html=await readFile(new URL('../battle.html',import.meta.url),'utf8');
+const css=await readFile(new URL('../beta-battle.css',import.meta.url),'utf8');
+const must=(s,n,m)=>assert.ok(s.includes(n),`${m}: ${n}`);
+for(const id of ['id="app"','id="safetyBlocked"','id="battleShell"','id="lobbyView"','id="arenaView"','id="createMatch"','id="inviteCode"','id="matchGrid"','id="myVideo"','id="opponentVideo"','id="cameraBtn"','id="readyBtn"','id="startMatch"','id="safetyGate"','id="conductAccept"','id="privacyAccept"','id="createDialog"','id="reportDialog"'])must(html,id,'required Battle DOM id missing');
+for(const script of ['battle-safety.js','battle.js','battle-webrtc.js','battle-moderation.js','battle-profile-links.js','battle-history.js'])must(html,script,'stable Battle script chain missing');
+must(html,'duelvanta-beta.css?v=1','shared design system missing');
+must(html,'beta-battle.css?v=1','Battle beta skin missing');
+must(html,'KEINE AUFZEICHNUNG IN V1','Battle safety promise missing');
+assert.ok(!html.includes('scanner-v16-'),'Battle visual refresh must stay isolated from Scanner V16 work');
+assert.ok(!html.includes('service_role')&&!css.includes('service_role'),'frontend must not contain service role');
+for(const component of ['.battle-beta .matchGrid','.battle-beta .playerPanel','.battle-beta .videoFrame','.battle-beta .safetyDialog','.battle-beta .dv-site-header'])must(css,component,'Battle skin component missing');
+console.log('PASS: DUELVANTA beta Battle skin preserves safety, WebRTC and arena DOM contracts');
