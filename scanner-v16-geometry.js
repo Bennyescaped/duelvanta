@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.22.0-lab',CARD_RATIO=63/88;
+  const VERSION='16.23.0-lab',CARD_RATIO=63/88;
   let installed=false;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const size=s=>({w:Number(s?.videoWidth||s?.naturalWidth||s?.width||0),h:Number(s?.videoHeight||s?.naturalHeight||s?.height||0)});

@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const root=globalThis;
-  const VERSION='16.22.0-lab';
+  const VERSION='16.23.0-lab';
   let installed=false,mode='single',batch=[],savedRows=[],previewUrl='',qualityTimer=0,cameraEpoch=0,liveGate=null,importing=false;
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const money=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
