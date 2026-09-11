@@ -252,8 +252,9 @@ try{
   await page.route(base+'/api/scanner-v16-recognize',async route=>{
     if(route.request().method()==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:true,remaining:20-providerCalls,slabRemaining:5})});
     providerCalls++;const body=route.request().postDataJSON();
-    assert.equal(route.request().headers().authorization,'Bearer test-session');assert.equal(body.tcg,'pokemon');
+    assert.equal(route.request().headers().authorization,'Bearer test-session');assert.ok(['pokemon','one_piece'].includes(body.tcg));
     const sha256=createHash('sha256').update(Buffer.from(body.imageBase64,'base64')).digest('hex');
+    if(body.kind==='slab'&&body.tcg==='one_piece')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'ximilar-collectibles-v2-slab-id',selectedTcg:'one_piece',kind:'slab',sha256,status:'slab_review',slab:{company:'PSA',grade:'10',certificateNumber:'TEST0013',printedCode:'#013',set:'2022 ONE PIECE OP01 EN',name:'SANJI ALTERNATE ART'},cardRect:{x:50/730,y:230/1180,w:630/730,h:880/1180}})});
     if(body.kind==='slab')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'ximilar-collectibles-v2-slab-id',selectedTcg:'pokemon',kind:'slab',sha256,status:'slab_review',slab:{company:'PSA',grade:'9',certificateNumber:'00123456',printedCode:'#74',reviewRequired:true,certificateVerified:false},cardRect:{x:50/730,y:230/1180,w:630/730,h:880/1180}})});
     return route.fulfill({status:providerError?504:200,contentType:'application/json',body:JSON.stringify(providerError?{error:'provider_timeout_or_network'}:{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:'pokemon',sha256,observed:{tcg:'pokemon',printed_code:'074/084',language:'DE'},catalogCandidate:{card_id:'me05-074'},status:'proposed',remaining:19})});
   });
@@ -305,6 +306,22 @@ try{
   await page.click('#dvV16ImportBtn');await page.locator('#dvV16Complete:not(.dvV16Hidden)').waitFor();
   const graded=await page.evaluate(()=>window.__lastImportPayload);
   assert.equal(graded.grading_company,'PSA');assert.equal(graded.grade,9);assert.equal(graded.cert_number,'00123457');assert.equal(graded.market_price,null);assert.equal(graded.card_number,'074/084');
+  await page.selectOption('#dvV16Engine','local');
+
+  console.log('E2E: unreadable card number → explicit slab set/number → Sanji catalog candidates → manual parallel/label confirmation');
+  await page.route('https://optcgapi.com/api/**/card/OP01-013/',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(route.request().url().includes('/sets/')?[
+    {card_set_id:'OP01-013',card_image_id:'OP01-013',card_name:'Sanji',card_image:base+'/fixtures/onepiece/high.webp'},
+    {card_set_id:'OP01-013',card_image_id:'OP01-013_p1',card_name:'Sanji (Parallel)',card_image:base+'/fixtures/onepiece/high.webp'}]:[])}));
+  await page.selectOption('#dvV16Tcg','one_piece');await page.selectOption('#dvV16Kind','slab');
+  await upload('#dvV16GalleryFile','tests/fixtures/slab-sanji-label.svg');
+  await waitForResult('Sanji','OP01-013');
+  const sanjiEvidence=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id?.code,source:r.identifierSource,candidates:r.candidates.map(c=>c.name),benchmark:window.DV_SCAN_V16_BENCHMARK.load().at(-1)}});
+  assert.equal(sanjiEvidence.id,'OP01-013');assert.equal(sanjiEvidence.source,'slab_label');assert.ok(sanjiEvidence.candidates.includes('Sanji (Parallel)'));
+  assert.equal(sanjiEvidence.benchmark.results[0].identifier_source,'slab_label');assert.equal(providerCalls,4,'label recovery makes no second paid request');
+  assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
+  await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm][data-candidate="1"]').click();
+  await page.locator('[data-v16-slab] button').click();assert.equal(await page.locator('[data-v16-check]').isEnabled(),true);
+  await page.screenshot({path:resolve(root,'test-results/v16-sanji-label-recovery.png'),fullPage:true});
   await page.selectOption('#dvV16Engine','local');
 
   // Same real image, actual public catalogs; no mocked OCR, identifier or provider.

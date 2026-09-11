@@ -14,7 +14,7 @@
       if(cache.has(url))return cache.get(url);
       for(let attempt=1;attempt<=2;attempt++){
         const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),timeoutMs);let retryable=true;
-        try{const response=await request(url,{signal:abort.signal});if(response.status===404)return null;if(!response.ok){retryable=response.status===429||response.status>=500;throw new Error(`HTTP ${response.status}`)}const value=await response.json();cache.set(url,value);return value}
+        try{const response=await request(attempt===2?(root.DV_SCAN_V16_REFERENCES?.transport?.(url)||url):url,{signal:abort.signal});if(response.status===404)return null;if(!response.ok){retryable=response.status===429||response.status>=500;throw new Error(`HTTP ${response.status}`)}const value=await response.json();cache.set(url,value);return value}
         catch(error){if(!retryable||attempt===2){diagnostic.errors.push({url,error:error.name==='AbortError'?'timeout':String(error.message),attempts:attempt});return null}}
         finally{clearTimeout(timer)}
       }

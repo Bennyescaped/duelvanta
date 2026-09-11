@@ -80,7 +80,7 @@
   const hashSim=(a,b)=>{if(!a||!b||a.length!==b.length)return null;let n=0;for(let i=0;i<a.length;i++)if(a[i]===b[i])n++;return n/a.length};
   function colorGrid(source,x0=.06,y0=.06,x1=.94,y1=.94){try{const c=document.createElement('canvas');c.width=32;c.height=32;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,source.width*x0,source.height*y0,source.width*(x1-x0),source.height*(y1-y0),0,0,32,32);const d=x.getImageData(0,0,32,32).data,out=[];for(let gy=0;gy<4;gy++)for(let gx=0;gx<4;gx++){let r=0,g=0,b=0,n=0;for(let y=gy*8;y<(gy+1)*8;y++)for(let xx=gx*8;xx<(gx+1)*8;xx++){const i=(y*32+xx)*4;r+=d[i];g+=d[i+1];b+=d[i+2];n++}out.push([r/n,g/n,b/n])}return out}catch{return null}}
   function colorSim(a,b){if(!a||!b||a.length!==b.length)return null;let dist=0;for(let i=0;i<a.length;i++){const dr=a[i][0]-b[i][0],dg=a[i][1]-b[i][1],db=a[i][2]-b[i][2];dist+=Math.sqrt(dr*dr+dg*dg+db*db)/(441.7)}return clamp(1-dist/a.length,0,1)}
-  const loadImage=(url,timeoutMs=8000)=>new Promise((resolve,reject)=>{const i=new Image();let settled=false;const done=(error)=>{if(settled)return;settled=true;clearTimeout(timer);i.onload=null;i.onerror=null;error?reject(error):resolve(i)},timer=setTimeout(()=>done(new Error('artwork_image_timeout')),Math.max(1000,Number(timeoutMs)||8000));i.crossOrigin='anonymous';i.onload=()=>done();i.onerror=()=>done(new Error('artwork_image_failed'));i.src=url});
+  const loadImageDirect=(url,timeoutMs=8000)=>new Promise((resolve,reject)=>{const i=new Image();let settled=false;const done=(error)=>{if(settled)return;settled=true;clearTimeout(timer);i.onload=null;i.onerror=null;error?reject(error):resolve(i)},timer=setTimeout(()=>done(new Error('artwork_image_timeout')),Math.max(1000,Number(timeoutMs)||8000));i.crossOrigin='anonymous';i.onload=()=>done();i.onerror=()=>done(new Error('artwork_image_failed'));i.src=url});
   function highlightEvidence(card,ref){
     const W=110,H=154,read=source=>{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(source,0,0,W,H);return x.getImageData(0,0,W,H).data},a=read(card),b=read(ref),bright=(d,i)=>d[i]*.299+d[i+1]*.587+d[i+2]*.114>246;
     let white=0,extra=0,center=0,centerExtra=0;
@@ -92,6 +92,13 @@
     }
     return{shared:white?(white-extra)/white:0,extraGlare:100*extra/(W*H),extraCenterGlare:100*centerExtra/Math.max(1,center)};
   }
+  async function loadImage(url){
+    try{return await loadImageDirect(url)}catch(error){
+      const transport=window.DV_SCAN_V16_REFERENCES?.transport?.(url);
+      if(!transport||transport===url)throw error;
+      return loadImageDirect(transport);
+    }
+  }
   async function visualScore(card,url,tcg='pokemon',onReference=null){
     try{
       if(!url)return null;const ref=canvasFrom(await loadImage(url),null,card.width),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
@@ -100,10 +107,10 @@
     }catch{return null}
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
-  async function recognizeRegion(card,tcg,{identifierOverride,providerObservation,providerReplay=false,onProgress=()=>{}}={}){
+  async function recognizeRegion(card,tcg,{identifierOverride,cardObservedLanguage,providerObservation,providerReplay=false,onProgress=()=>{}}={}){
     const provider=providerObservation?window.DV_SCAN_V16_PROVIDER.read(providerObservation,tcg):null;
     const q=quality(card);let identifierEvidence=null,id=provider?provider.id:identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
-    const observedLanguage=provider?.language||identifierEvidence?.observedLanguage||null;
+    const observedLanguage=provider?.language||identifierEvidence?.observedLanguage||cardObservedLanguage||null;
     const sourceEvidence={providerReplay:!!providerReplay,...(provider?{identifierSource:'ximilar',providerEvidence:provider.evidence}:{})};
     if(!id)return{tcg,quality:q,id:null,identifierEvidence,observedLanguage,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0,...sourceEvidence};
     let cands=[],lookupInfo;
@@ -140,7 +147,7 @@
     if(!window.DV_SCAN_V16_LIVE)return null;
     try{const sample=canvasFrom(source,null,280),s=size(source),scale=sample.width/s.w,e=fitCenteredRect(sample),frame=window.DV_SCAN_V16_LIVE.inspect(sample.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sample.width,sample.height),e);return frame.presence&&frame.aligned?window.DV_SCAN_V16_LIVE.captureRect(frame.rect,scale,s.w,s.h):null}catch{return null}
   }
-  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,providerObservation,providerReplay=false,sourcePrepared=false}={}){
+  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,cardObservedLanguage,providerObservation,providerReplay=false,sourcePrepared=false}={}){
     if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
     if(providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine KI-Antwort gilt für genau eine Karte.');
     const regions=sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout),results=[];
@@ -152,7 +159,7 @@
       else{const detected=detectedRegion(source);if(detected)Object.assign(regions[0],detected)}
     }
     for(let i=0;i<regions.length;i++){
-      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,providerObservation,providerReplay,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
+      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,cardObservedLanguage,providerObservation,providerReplay,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
     }
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }

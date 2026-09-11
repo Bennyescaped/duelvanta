@@ -118,6 +118,7 @@ jobs:
           node --check api/scanner-v16-recognize.js
           node --check scanner-v16-provider.js
           node tests/scanner-v16-slab-test.mjs
+          node tests/scanner-v16-reference-server-test.mjs
           node tests/scanner-v16-provider-test.mjs
           node tests/scanner-v16-recognize-server-test.mjs
       - name: Verified artwork reference cache

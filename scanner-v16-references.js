@@ -25,6 +25,10 @@
       }
     };
   }
+  function transport(url){
+    if(!root.DV_SCAN_V16_STANDALONE||root.location?.protocol!=='https:'||!/^https:\/\/optcgapi\.com\/(?:api\/(?:sets|decks|promos)\/card\/|media\/static\/Card_Images\/)/.test(String(url)))return url;
+    return '/api/scanner-v16-reference?url='+encodeURIComponent(url);
+  }
   let resolver=createResolver(),state={status:'unloaded',count:0,completeCatalog:false};
   async function load(){
     const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),2000);
@@ -38,5 +42,5 @@
     finally{clearTimeout(timer)}
     return state;
   }
-  root.DV_SCAN_V16_REFERENCES={createResolver,resolve:(card,tcg)=>resolver.resolve(card,tcg),resolveCandidates:(cards,tcg)=>resolver.resolveCandidates(cards,tcg),state:()=>({...state}),ready:typeof document==='undefined'?Promise.resolve(state):load()};
+  root.DV_SCAN_V16_REFERENCES={createResolver,transport,resolve:(card,tcg)=>resolver.resolve(card,tcg),resolveCandidates:(cards,tcg)=>resolver.resolveCandidates(cards,tcg),state:()=>({...state}),ready:typeof document==='undefined'?Promise.resolve(state):load()};
 })();

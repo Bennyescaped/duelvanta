@@ -39,7 +39,7 @@
 
   function explain(result,tcg,{candidateIndex=0}={}){
     const c=candidateAt(result,candidateIndex),head=headlineFor(result,{candidateIndex}),reasons=reasonsOf(result),q=result?.quality||{},art=Number(c?.v16Visual||result?.visualConfidence||0),gap=Number(result?.visualGap||result?.qualityDecision?.visualGap||0),lang=languageOf(c),variant=variantOf(c,tcg),evidence=[];
-    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierSource==='ximilar'?'Ximilar · Katalog passt':result?.identifierSource==='manual'?'manuell eingegeben · Katalog passt':result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
+    if(c?.v16ExactId||reasons.includes('exact_id'))evidence.push({kind:result?.identifierReliable?'good':'neutral',label:'Kartennummer',value:result?.identifierSource==='ximilar'?'Ximilar · Katalog passt':result?.identifierSource==='slab_label'?'Slab-Label · Katalog passt':result?.identifierSource==='manual'?'manuell eingegeben · Katalog passt':result?.identifierReliable?'mehrfach gelesen · Katalog passt':'OCR/Katalog gleich · noch unbestätigt'});
     else if(result?.id)evidence.push({kind:'neutral',label:'Kartennummer',value:String(result.id.code||'erkannt')});
     if(art>0)evidence.push({kind:art>=78?'good':art>=62?'neutral':'warn',label:'Artwork',value:`${Math.round(art)} %`});
     if(gap>0)evidence.push({kind:gap>=9?'good':gap>=5?'neutral':'warn',label:'Abstand #1 → #2',value:`+${Math.round(gap)}`});

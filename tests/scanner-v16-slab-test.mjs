@@ -24,3 +24,26 @@ const photos=[];globalThis.DV_SCAN_V16_CORE={canvasFrom:(source,rect,width)=>{co
 const pack=await slab.analyze({width:400,height:700},{slabObservation:response,tcg:'pokemon',mode:'single'},async(crop,opts)=>{assert.equal(opts.sourcePrepared,true);assert.equal(opts.providerObservation,undefined,'use real local card pipeline');return{ready:1,results:[{best:{name:'Fixture'},id:{code:'074/084'},status:'ready',selected:true,crop}]}});
 assert.equal(pack.ready,0);assert.equal(pack.review,1);assert.equal(pack.results[0].selected,false);assert.equal(pack.results[0].slabConfirmed,false);assert.equal(pack.results[0].capturePhoto.rect,null,'save full holder');assert.ok(Math.abs(pack.results[0].crop.rect.y-180)<1e-6,'OCR uses card only');
 console.log('PASS: dedicated 15-credit slab request, label/card distinction, bounded crop, certificate preservation, explicit confirmation, existing collection company constraints; no real paid calls');
+
+await import('../scanner-v16-tcg.js');
+await import('../scanner-v16-recovery.js');
+assert.equal(slab.labelIdentifier({printedCode:'#013',set:'2022 ONE PIECE OP01 EN'},'one_piece').code,'OP01-013');
+assert.equal(slab.labelIdentifier({printedCode:'OP01-013'},'one_piece').code,'OP01-013');
+assert.equal(slab.labelIdentifier({printedCode:'#74',set:'Pokemon 2026'},'pokemon'),null);
+assert.equal(slab.labelIdentifier({printedCode:'#013',set:'OP01 OP02'},'one_piece'),null);
+assert.equal(slab.labelIdentifier({printedCode:'OP01-013'},'pokemon'),null);
+let calls=0;
+const sanji={...response,selectedTcg:'one_piece',slab:{...parsed.slab,printedCode:'#013',set:'2022 ONE PIECE OP01 EN',name:'SANJI ALTERNATE ART'}};
+const recovered=await slab.analyze({width:400,height:700},{slabObservation:sanji,tcg:'one_piece'},async(crop,opts)=>{
+  calls++;
+  if(calls===1)return{empty:1,results:[{id:null,observedLanguage:'EN',identifierEvidence:{votes:[]},crop}]};
+  assert.equal(opts.identifierOverride.code,'OP01-013');assert.equal(opts.cardObservedLanguage,'EN');
+  return{empty:1,results:[{id:opts.identifierOverride,best:{name:'Sanji (Parallel)'},crop}]};
+});
+assert.equal(calls,2);assert.equal(recovered.empty,0);assert.equal(recovered.review,1);
+assert.equal(recovered.results[0].identifierSource,'slab_label');assert.equal(recovered.results[0].selected,false);
+assert.equal(slab.canSave(recovered.results[0]),false);
+calls=0;
+const conflict=await slab.analyze({width:400,height:700},{slabObservation:sanji,tcg:'one_piece'},async(crop)=>{calls++;return{results:[{id:{code:'OP02-013'},best:null,crop}]}});
+assert.equal(calls,1,'label cannot overwrite a conflicting card read');assert.equal(conflict.results[0].id.code,'OP02-013');assert.equal(conflict.results[0].labelIdentifierConflict,true);
+console.log('PASS: Sanji label fallback, provenance, no invented Pokemon denominator, no OCR conflict overwrite, explicit save gates');
