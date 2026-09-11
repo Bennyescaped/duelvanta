@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="630" height="880" viewBox="0 0 630 880">
+  <defs><pattern id="texture" width="30" height="30" patternUnits="userSpaceOnUse"><rect width="30" height="30" fill="#8aa4c9"/><path d="M0 15L15 0L30 15L15 30Z" fill="#536d91"/></pattern></defs>
+  <rect width="630" height="880" fill="#c4c9d0"/>
+  <rect x="18" y="18" width="594" height="844" rx="24" fill="#c3c9d2" stroke="#5c6878" stroke-width="10"/>
+  <text x="50" y="85" font-family="Arial" font-size="42" font-weight="700" fill="#121722">Retourorden</text>
+  <rect x="42" y="120" width="546" height="455" fill="url(#texture)"/>
+  <text x="50" y="635" font-family="Arial" font-size="22" fill="#182030">Synthetic OCR regression fixture</text>
+  <text x="50" y="680" font-family="Arial" font-size="22" fill="#182030">No real card artwork or catalog claim</text>
+  <text x="50" y="814" font-family="Arial" font-size="48" font-weight="700" fill="#10151d">074/084</text>
+</svg>

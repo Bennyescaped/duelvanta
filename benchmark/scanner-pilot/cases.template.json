@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "id": "v16-decision-pilot-01",
+  "baselineCommit": "666e2ac6efb19a40d3e91538d51fb6ccd833e98f",
+  "frozen": false,
+  "scope": "Eight physical cards, sixteen real photographs; decision pilot only",
+  "cards": [
+    {
+      "id": "P01",
+      "tcg": "pokemon",
+      "category": "Standard – bevorzugt Retourorden",
+      "split": "development",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "P01-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "P01-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "tcg": "pokemon",
+      "category": "Full-Art / ex / VMAX",
+      "split": "development",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "P02-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "P02-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "tcg": "pokemon",
+      "category": "Secret Rare oder weitere schwierige Full-Art",
+      "split": "holdout",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "P03-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "P03-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "tcg": "pokemon",
+      "category": "Andere Sprache oder Holo/Reverse",
+      "split": "holdout",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "P04-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "P04-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "O01",
+      "tcg": "one_piece",
+      "category": "Standard – bevorzugt bisher erfolglose Karte",
+      "split": "development",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "O01-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "O01-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "O02",
+      "tcg": "one_piece",
+      "category": "Parallel / Alt-Art",
+      "split": "development",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "O02-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "O02-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "O03",
+      "tcg": "one_piece",
+      "category": "Manga, weitere Alt-Art oder Reprint",
+      "split": "holdout",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "O03-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "O03-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "O04",
+      "tcg": "one_piece",
+      "category": "Promo P- oder ST/EB/PRB-Karte",
+      "split": "holdout",
+      "expected": {
+        "code": null,
+        "name": null,
+        "language": null,
+        "variant": null,
+        "printingKey": null,
+        "confirmed": false
+      },
+      "shots": [
+        {
+          "id": "O04-A",
+          "condition": "clear",
+          "file": null,
+          "sha256": null
+        },
+        {
+          "id": "O04-B",
+          "condition": "normal_handheld_or_sleeve",
+          "file": null,
+          "sha256": null
+        }
+      ]
+    }
+  ]
+}

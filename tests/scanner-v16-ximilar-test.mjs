@@ -1,0 +1,71 @@
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign,createHash} from 'node:crypto';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+import pilot from '../benchmark/scanner-pilot/ximilar-server.cjs';
+import {scoreXimilar} from '../benchmark/scanner-pilot/score-ximilar.mjs';
+const {createXimilarHandler,MODEL,parseResponse,sanitize}=pilot;
+const {publicKey,privateKey}=generateKeyPairSync('ed25519');
+const image=Buffer.from([255,216,255,1,2,3]),sha256=createHash('sha256').update(image).digest('hex');
+const now=Date.now(),config={enabled:true,dataset:'unit',expiresAt:new Date(now+3600000).toISOString(),publicKey:publicKey.export({type:'spki',format:'pem'}),photos:{[sha256]:'pokemon'}};
+const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',XIMILAR_API_TOKEN:'unit-key-not-live'};
+const ticket=JSON.stringify({dataset:config.dataset,model:MODEL,expiresAt:config.expiresAt,sha256,tcg:'pokemon'});
+const body={ticket,signature:sign(null,Buffer.from(ticket),privateKey).toString('base64url'),imageBase64:image.toString('base64')};
+const sample={status:{code:200},records:[{_status:{code:200},_base64:body.imageBase64,_objects:[{name:'Card',area:0.7,_ocr:{lang:'de'},_tags:{'Foil/Holo':[{name:'Non-Foil'}]},_identification:{best_match:{name:'Retourorden',card_number:'074',out_of:'084',subcategory:'Pokemon',set:'Dunkelnacht'},alternatives:[],distances:[0.12]}}]}],statistics:{credits:10}};
+let calls=0;
+const fetchImpl=async(url,options)=>{calls++;assert.equal(url,'https://api.ximilar.com/collectibles/v2/tcg_id');assert.equal(options.headers.Authorization,`Token ${env.XIMILAR_API_TOKEN}`);assert.equal(options.redirect,'error');const d=JSON.parse(options.body);assert.equal(d.records[0]._base64,body.imageBase64);assert.equal(d.records[0].Subcategory,'Pokemon');assert.equal(d.lang,true);assert.equal(d.rotate,true);for(const k of ['price_stats','slab_id','slab_grade','analyze_all'])assert.equal(d[k],false);assert.ok(!options.body.includes('074'));return{ok:true,json:async()=>sample}};
+const make=(overrides={})=>createXimilarHandler({env,config,now:()=>now,fetchImpl,...overrides});
+async function invoke(handler,req={}){const res={setHeader(){},status(v){this.code=v;return this},json(v){this.value=v;return this}};await handler({method:'POST',headers:{'content-type':'application/json'},body,...req},res);return res}
+assert.equal((await invoke(make(),{method:'GET'})).value.model,MODEL);
+assert.equal((await invoke(make({env:{...env,VERCEL_ENV:'production'}}))).code,404);
+assert.equal((await invoke(make({env:{...env,VERCEL_GIT_COMMIT_REF:'main'}}))).code,404);
+assert.equal((await invoke(make({env:{...env,XIMILAR_API_TOKEN:''}}))).value.error,'ximilar_key_missing');
+assert.equal((await invoke(make({config:{...config,enabled:false}}))).value.error,'pilot_closed');
+assert.equal((await invoke(make({now:()=>now+7200000}))).value.error,'pilot_closed');
+assert.equal((await invoke(make(),{body:{...body,prompt:'074/084'}})).code,400);
+assert.equal((await invoke(make(),{body:{...body,imageBase64:Buffer.from([255,216,255,9]).toString('base64')}})).code,403);
+const other=ticket.replace(MODEL,'gemini-3.5-flash-lite');assert.equal((await invoke(make(),{body:{...body,ticket:other,signature:sign(null,Buffer.from(other),privateKey).toString('base64url')}})).value.error,'photo_not_authorized');assert.equal(calls,0);
+const handler=make(),results=await Promise.all([invoke(handler),invoke(handler)]);assert.equal(calls,1);const result=results[0].value;
+assert.equal(result.observed.printed_code,'074/084');assert.equal(result.observed.language,'DE');assert.equal(result.importable,false);assert.equal(result.observed.confidence,null);assert.equal(result.usage.reportedCredits,10);assert.ok(!JSON.stringify(result.raw).includes('base64'));
+let denied=0;const access=make({fetchImpl:async()=>{denied++;return{ok:false,status:403}}});assert.equal((await invoke(access)).value.error,'provider_http_403');await invoke(access);assert.equal(denied,1);
+let unauthorized=0;const auth=make({fetchImpl:async()=>{unauthorized++;return{ok:false,status:401}}});assert.equal((await invoke(auth)).value.error,'provider_http_401');await invoke(auth);assert.equal(unauthorized,1);
+const invalid=await invoke(make({fetchImpl:async()=>({ok:false,status:401,json:async()=>({detail:`Invalid token. ${env.XIMILAR_API_TOKEN}`})})}));assert.equal(invalid.value.providerReason,'invalid_token');assert.ok(!JSON.stringify(invalid).includes(env.XIMILAR_API_TOKEN));
+const entitlement=await invoke(make({fetchImpl:async()=>({ok:false,status:403,json:async()=>({detail:'Your subscription does not include this service.'})})}));assert.equal(entitlement.value.providerReason,'account_or_service_access');
+assert.equal((await invoke(make({fetchImpl:async()=>({ok:true,json:async()=>({status:{code:402}})})}))).value.error,'provider_status_402');
+assert.equal((await invoke(make({fetchImpl:async()=>{throw Error(env.XIMILAR_API_TOKEN)}}))).value.error,'provider_timeout_or_network');
+const op=structuredClone(sample);const c=op.records[0]._objects[0];c._ocr.lang='en';c._identification.best_match={name:'Ganzui',card_number:'OP17-043',subcategory:'One Piece'};
+assert.equal(parseResponse(op,'one_piece').observed.printed_code,'OP17-043');assert.equal(parseResponse(op,'one_piece').observed.language,'EN');assert.equal(parseResponse(op,'pokemon').status,'tcg_conflict');
+assert.equal(parseResponse({records:[{_objects:[]}]},'pokemon').status,'catalog_no_match');
+assert.deepEqual(sanitize({token:'secret',_base64:'photo',text:'secret'},'secret'),{text:'[redacted]'});
+// Observed provider shapes: OP uses card_id, Japanese Pokemon may omit catalog out_of.
+const splitOp=structuredClone(op);splitOp.records[0]._objects[0]._identification.best_match={name:'Ganzui',card_id:'OP17-043',card_number:'043',set_code:'OP17',subcategory:'One Piece'};
+assert.equal(parseResponse(splitOp,'one_piece').observed.printed_code,'OP17-043');
+const opTicket=JSON.stringify({...JSON.parse(ticket),tcg:'one_piece'});
+const opHandler=make({config:{...config,photos:{[sha256]:'one_piece'}},fetchImpl:async(url,options)=>{assert.equal(JSON.parse(options.body).records[0].Subcategory,'One Piece');return{ok:true,json:async()=>splitOp}}});
+const fullOp=await invoke(opHandler,{body:{...body,ticket:opTicket,signature:sign(null,Buffer.from(opTicket),privateKey).toString('base64url')}});assert.equal(fullOp.value.observed.printed_code,'OP17-043');assert.equal(fullOp.value.selectedTcg,'one_piece');assert.equal(fullOp.value.observed.language,'EN');assert.equal(fullOp.value.importable,false);
+const reprint=structuredClone(splitOp);reprint.records[0]._objects[0]._identification.best_match={name:'Sabo',card_id:'OP04-083_R2',card_number:'083',set_code:'OP04',subcategory:'One Piece'};
+assert.equal(parseResponse(reprint,'one_piece').observed.printed_code,'OP04-083');assert.equal(parseResponse(reprint,'one_piece').catalogCandidate.card_id,'OP04-083_R2');
+const jp=structuredClone(sample),j=jp.records[0]._objects[0];j._ocr={lang:'ja',full_text:'メッソン M1S 021/063'};j._identification.best_match={name:'Sobble',card_number:'21',set_code:'M1S',subcategory:'Pokemon'};
+assert.equal(parseResponse(jp,'pokemon').observed.printed_code,'021/063');assert.equal(parseResponse(jp,'pokemon').identifierSource,'ocr_with_matching_catalog_numerator');assert.equal(parseResponse(jp,'pokemon').observed.language,'JP');
+const conflicting=structuredClone(sample);conflicting.records[0]._objects[0]._ocr.full_text='074/081';assert.equal(parseResponse(conflicting,'pokemon').status,'identifier_conflict');
+j._ocr.full_text='021/063 021/081';assert.equal(parseResponse(jp,'pokemon').identifierConflict,true);assert.equal(parseResponse(jp,'pokemon').observed.printed_code,'21');
+const manifest={cards:[{id:'P01',tcg:'pokemon',split:'development',expected:{code:'074/084',language:'DE'},shots:[{id:'P01-A',sha256}]}]};
+const scored=scoreXimilar(manifest,[{photoId:'P01-A',sha256,result}]);assert.equal(scored.identifierAndLanguageCorrect,1);assert.equal(scored.exactPrintingVerified,0);assert.equal(scored.reportedCredits,10);
+const conflictScore=scoreXimilar(manifest,[{photoId:'P01-A',sha256,result:{...result,raw:conflicting}}]);assert.equal(conflictScore.identifierAndLanguageCorrect,0);assert.equal(conflictScore.ocrCatalogConflicts,1);
+assert.throws(()=>scoreXimilar(manifest,[{photoId:'P01-A',sha256:'wrong',result}]));
+// A second click, including after a reload, must not advance past an authentication failure.
+const uiSource=await readFile(new URL('../scanner-v16-ai-pilot.js',import.meta.url),'utf8');
+const storage=new Map();let posts=0;
+async function page(){
+  const nodes=new Map(),element=()=>({textContent:'',handlers:{},addEventListener(k,f){this.handlers[k]=f},append(){},replaceChildren(){}});
+  const $=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)};
+  vm.runInNewContext(uiSource,{URLSearchParams,location:{search:'?provider=ximilar'},document:{getElementById:$,createElement:element},AbortSignal,
+    localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},fetch:async(_,options={})=>options.method==='POST'?(posts++,{ok:false,json:async()=>({error:'provider_http_401'})}):{ok:true,json:async()=>({model:MODEL,configured:true,active:true})}});
+  await new Promise(resolve=>setImmediate(resolve));
+  const photos=[{photoId:'first',...body},{photoId:'second',...body,ticket:ticket.replace(sha256,'other')}];
+  await $('bundle').handlers.change({target:{files:[{size:100,text:async()=>JSON.stringify({schema:'duelvanta.signed-photo-pilot.v1',photos})}]}});
+  return $;
+}
+const ui=await page();await ui('start').handlers.click();assert.equal(posts,1);assert.equal(ui('start').disabled,true);await ui('start').handlers.click();assert.equal(posts,1);
+const reloaded=await page();assert.equal(reloaded('start').disabled,true);await reloaded('start').handlers.click();assert.equal(posts,1);assert.equal(storage.has('duelvanta_gemini_pilot_v1'),false);
+console.log('Ximilar pilot: signed provider isolation, safe options, exact originals, candidates, language, credit metadata and no-repeat errors verified.');

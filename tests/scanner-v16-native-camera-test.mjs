@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+await import('../scanner-v16-native-camera.js');
+const c=globalThis.DV_SCAN_V16_NATIVE_CAMERA;
+assert.ok(c,'native camera module missing');
+assert.equal(c.version,'16.9.0-lab');
+assert.equal(c.isAppleMobile({userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X)',platform:'iPhone',maxTouchPoints:5}),true);
+assert.equal(c.isAppleMobile({userAgent:'Mozilla/5.0',platform:'MacIntel',maxTouchPoints:5}),true);
+assert.equal(c.isAppleMobile({userAgent:'Mozilla/5.0 (Linux; Android 16)',platform:'Linux armv8l',maxTouchPoints:5}),false);
+assert.deepEqual(c.inputPolicy('camera'),{accept:'image/*',capture:'environment'});
+assert.deepEqual(c.inputPolicy('gallery'),{accept:'image/*',capture:null});
+assert.equal(typeof c.configure,'function');
+assert.equal(typeof c.open,'function');
+console.log('PASS: Scanner V16.9 separate native camera and gallery input policy');

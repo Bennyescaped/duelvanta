@@ -1,0 +1,179 @@
+name: Scanner V16 Check
+on:
+  push:
+    branches: [scanner-v16, main]
+  pull_request:
+    paths:
+      - 'scanner-v16-*.js'
+      - 'scanner-v16-ai-pilot.html'
+      - 'api/scanner-v16-gemini.js'
+      - 'api/scanner-v16-ximilar.js'
+      - 'api/scanner-v16-openai.js'
+      - 'api/scanner-v16-recognize.js'
+      - 'benchmark/scanner-pilot/recognize-server.cjs'
+      - 'tests/scanner-v16-provider-test.mjs'
+      - 'tests/scanner-v16-recognize-server-test.mjs'
+      - 'benchmark/scanner-pilot/ximilar-*'
+      - 'benchmark/scanner-pilot/score-ximilar.mjs'
+      - 'tests/scanner-v16-ximilar-test.mjs'
+      - 'benchmark/scanner-pilot/openai-*'
+      - 'tests/scanner-v16-openai-test.mjs'
+      - 'benchmark/scanner-pilot/gemini-*'
+      - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
+      - 'benchmark/scanner-pilot/score-gemini.mjs'
+      - 'tests/scanner-v16-gemini-test.mjs'
+      - 'vercel.json'
+      - 'scanner-v16-assets/**'
+      - 'tests/scanner-v16-references-test.mjs'
+      - 'scanner-v16-lab.html'
+      - 'scanner-v16.html'
+      - 'scanner-v16-host.js'
+      - 'database/collect-scanner-v16-*.sql'
+      - 'database/collect-binder-*.sql'
+      - 'admin.html'
+      - 'tests/scanner-v16-contract-test.mjs'
+      - 'tests/scanner-v16-acceptance-regression-test.mjs'
+      - 'tests/scanner-v16-tcg-test.mjs'
+      - 'tests/scanner-v16-quality-test.mjs'
+      - 'tests/scanner-v16-explain-test.mjs'
+      - 'tests/scanner-v16-resilience-test.mjs'
+      - 'tests/scanner-v16-benchmark-session-test.mjs'
+      - 'tests/scanner-v16-camera-test.mjs'
+      - 'tests/scanner-v16-native-camera-test.mjs'
+      - 'tests/scanner-v16-mobile-runtime-test.mjs'
+      - 'tests/scanner-v16-mobile-route-test.mjs'
+      - 'tests/scanner-v16-browser-e2e.mjs'
+      - 'tests/scanner-v16-real-card-matrix.mjs'
+      - 'tests/fixtures/**'
+      - '.github/workflows/scanner-v16-check.yml'
+  workflow_dispatch:
+jobs:
+  quota_database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Real SQL quota regression in disposable database
+        run: |
+          psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f database/collect-scanner-v16-weekly-quota.sql
+          psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-database.sql
+          psql -v ON_ERROR_STOP=1 -f database/collect-scanner-v16-owner-control.sql
+          psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-owner-control-database.sql
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check scanner-v16-tcg.js
+          node --check scanner-v16-core.js
+          node --check scanner-v16-quality.js
+          node --check scanner-v16-resilience.js
+          node --check scanner-v16-explain.js
+          node --check scanner-v16-guidance.js
+          node --check scanner-v16-ui.js
+          node --check scanner-v16-camera.js
+          node --check scanner-v16-native-camera.js
+          node --check scanner-v16-binder.js
+          node --check scanner-v16-market.js
+          node --check scanner-v16-overlay.js
+          node --check scanner-v16-geometry.js
+          node --check scanner-v16-vision.js
+          node --check scanner-v16-benchmark.js
+          node --check scanner-v16-benchmark-session.js
+          node --check scanner-v16-freeform-ui.js
+          node --check scanner-v16-loader.js
+          node --check scanner-v16-runtime.js
+          node --check scanner-v16-host.js
+          node --check scanner-v16-references.js
+          node --check scanner-v16-catalog.js
+          node --check scanner-v16-recovery.js
+          node --check scanner-v16-live.js
+          node --check scanner-v16-ocr.js
+      - name: Scanner V16 contract
+        run: |
+          node tests/scanner-v16-contract-test.mjs
+          node tests/scanner-v16-binder-layout-test.mjs
+          node tests/scanner-v16-entry-test.mjs
+      - name: Gemini private pilot (no provider calls)
+        run: |
+          node --check api/scanner-v16-gemini.js
+          node --check scanner-v16-ai-pilot.js
+          node tests/scanner-v16-gemini-test.mjs
+          node --check api/scanner-v16-ximilar.js
+          node tests/scanner-v16-ximilar-test.mjs
+          node --check api/scanner-v16-openai.js
+          node tests/scanner-v16-openai-test.mjs
+      - name: Ximilar integration and durable quota boundary (no paid calls)
+        run: |
+          node --check api/scanner-v16-recognize.js
+          node --check scanner-v16-provider.js
+          node tests/scanner-v16-slab-test.mjs
+          node tests/scanner-v16-reference-server-test.mjs
+          node tests/scanner-v16-provider-test.mjs
+          node tests/scanner-v16-recognize-server-test.mjs
+      - name: Verified artwork reference cache
+        run: node tests/scanner-v16-references-test.mjs
+      - name: Pokemon and One Piece recognition
+        run: node tests/scanner-v16-tcg-test.mjs
+      - name: Evidence quality gates
+        run: node tests/scanner-v16-quality-test.mjs
+      - name: Explainable confidence UI
+        run: node tests/scanner-v16-explain-test.mjs
+      - name: Resilience and capture guidance
+        run: node tests/scanner-v16-resilience-test.mjs
+      - name: Guided benchmark session
+        run: node tests/scanner-v16-benchmark-session-test.mjs
+      - name: Web camera readiness
+        run: node tests/scanner-v16-camera-test.mjs
+      - name: Native iOS photo capture
+        run: node tests/scanner-v16-native-camera-test.mjs
+      - name: Mobile photo pipeline and state recovery
+        run: node tests/scanner-v16-mobile-runtime-test.mjs
+      - name: Direct mobile route and benchmark integration
+        run: node tests/scanner-v16-mobile-route-test.mjs
+      - name: Install Chromium browser test runtime
+        id: browser_runtime
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0
+          npx playwright install chromium
+      - name: Second mobile acceptance regressions
+        run: node tests/scanner-v16-acceptance-regression-test.mjs
+      - name: Mobile browser upload E2E
+        env:
+          V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
+        run: node tests/scanner-v16-browser-e2e.mjs
+      - name: Real complex-card reference recognition and recovery
+        if: always() && steps.browser_runtime.outcome == 'success' && github.event_name == 'push'
+        run: node tests/scanner-v16-real-card-matrix.mjs
+      - name: Read-only live catalog availability
+        if: github.event_name == 'push'
+        run: node tests/scanner-v16-catalog-live-smoke.mjs
+      - name: Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v16-mobile-recognition
+          path: test-results/
+          if-no-files-found: ignore

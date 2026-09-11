@@ -1,0 +1,3 @@
+-- SUPERSEDED. Do not apply the former one-off 20-scan allowance.
+-- Approved beta policy and implementation: collect-scanner-v16-weekly-quota.sql.
+-- 20 raw + 5 slab attempts per user/week (Europe/Berlin), centrally reducible.

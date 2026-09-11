@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+await import('../scanner-v16-tcg.js');
+await import('../scanner-v16-references.js');
+await import('../scanner-v16-catalog.js');
+
+const manifest=JSON.parse(fs.readFileSync(new URL('../scanner-v16-assets/references.json',import.meta.url)));
+assert.equal(manifest.completeCatalog,false,'a small transport cache must not claim catalog coverage');
+const references=globalThis.DV_SCAN_V16_REFERENCES;
+const resolver=references.createResolver(manifest.references);
+assert.equal(resolver.count,manifest.references.length);
+for(const row of manifest.references){
+  const bytes=fs.readFileSync(new URL('../'+row.path,import.meta.url));
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),row.sha256,'shipped bytes must match the verified original');
+}
+const original=manifest.references.find(r=>r.id==='OP04-083'),reprint=manifest.references.find(r=>r.id==='OP04-083_r3');
+assert.ok(original&&reprint);
+const card={tcg:'one_piece',catalogId:original.id,number:original.code,image:original.sourceUrl,confidence:71,catalogVerified:true};
+const local=resolver.resolve(card,'one_piece');
+assert.equal(local.referenceImageSource,original.sourceUrl);
+assert.equal(local.image,'./'+original.path);
+assert.equal(local.confidence,71,'availability is not recognition evidence');
+assert.equal(local.catalogId,card.catalogId);
+assert.equal(card.image,original.sourceUrl,'do not mutate the provider record');
+assert.notEqual(resolver.resolve({...card,image:reprint.sourceUrl},'one_piece').image,local.image,'same code must not merge reprint artwork');
+assert.equal(resolver.resolve(card,'pokemon'),card,'TCG context must match');
+const unknown={...card,image:'https://example.invalid/unknown.jpg'};
+assert.equal(resolver.resolve(unknown,'one_piece'),unknown,'unknown references retain the normal provider path');
+const mixed=[card,unknown];
+assert.equal(resolver.resolveCandidates(mixed,'one_piece'),mixed,'do not mix pinned and live variant images in one ranking');
+assert.equal(resolver.resolveCandidates([card,{...card,image:reprint.sourceUrl}],'one_piece').filter(c=>c.referenceImageSource).length,2,'use the cache only when the whole candidate group is covered');
+assert.equal(references.createResolver([{...original,path:'../collect.html'}]).count,0,'reject arbitrary local paths');
+
+references.resolveCandidates=resolver.resolveCandidates;
+const client=globalThis.DV_SCAN_V16_CATALOG.createClient({fetch:async url=>({ok:true,status:200,json:async()=>url.includes('/sets/card/')?[{card_set_id:'OP04-083',card_image_id:original.id,card_name:'Sabo',card_image:original.sourceUrl}]:[]})});
+const candidates=await client.lookup({code:'OP04-083'},{tcg:'one_piece'});
+assert.equal(candidates.length,1);
+assert.equal(candidates[0].image,local.image);
+assert.equal(candidates[0].number,'OP04-083');
+assert.equal(candidates[0].catalogVerified,true);
+assert.equal(candidates.lookupInfo.localReferenceImages,1);
+console.log('PASS: verified reference bytes, exact source/TCG mapping, separate reprints, unchanged evidence, external fallback and catalog integration');
+globalThis.DV_SCAN_V16_STANDALONE=true;globalThis.location={protocol:'https:'};
+assert.equal(references.transport('https://evil.test/image.jpg'),'https://evil.test/image.jpg');
+let attempts=[];
+const retryClient=DV_SCAN_V16_CATALOG.createClient({fetch:async url=>{attempts.push(url);if(url.startsWith('https:'))throw new TypeError('browser network/CORS');return{ok:true,status:200,json:async()=>[]}}});
+const retried=await retryClient.lookup({code:'OP01-013'},{tcg:'one_piece'});
+assert.equal(retried.lookupInfo.errors.length,0);assert.equal(attempts.length,6);assert.ok(attempts[1].startsWith('/api/scanner-v16-reference?url='));
+console.log('PASS: failed direct catalog reads retry via bounded same-origin transport');

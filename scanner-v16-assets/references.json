@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "version": "16.12.1",
+  "completeCatalog": false,
+  "purpose": "Verified reference transport cache; never an identification shortcut or a confidence signal. No user photos.",
+  "references": [
+    {
+      "id": "OP17-019",
+      "tcg": "one_piece",
+      "code": "OP17-019",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP17-019_dshq9s8.jpg",
+      "sha256": "47f9b3721b1889f037d4fae4d3771d3c5b69a3af6578fc2c95c9a4da858cf2ff",
+      "path": "scanner-v16-assets/references/47f9b3721b1889f037d4fae4d3771d3c5b69a3af6578fc2c95c9a4da858cf2ff.png",
+      "bytes": 250088
+    },
+    {
+      "id": "OP04-083",
+      "tcg": "one_piece",
+      "code": "OP04-083",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP04-083.jpg",
+      "sha256": "aeb896bc10d12d8cd370a8471235df724596bdab5255ba606620678bd597d569",
+      "path": "scanner-v16-assets/references/aeb896bc10d12d8cd370a8471235df724596bdab5255ba606620678bd597d569.png",
+      "bytes": 234271
+    },
+    {
+      "id": "OP04-083_p2",
+      "tcg": "one_piece",
+      "code": "OP04-083",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP04-083_p2.jpg",
+      "sha256": "03fb47db0c8cc4d7dc002f78717d8f07203a50ed62b5fb5718654a8ac6f39e23",
+      "path": "scanner-v16-assets/references/03fb47db0c8cc4d7dc002f78717d8f07203a50ed62b5fb5718654a8ac6f39e23.png",
+      "bytes": 240114
+    },
+    {
+      "id": "OP04-083_r1",
+      "tcg": "one_piece",
+      "code": "OP04-083",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP04-083_r1.jpg",
+      "sha256": "0a708cc2165f3e65e9b1c68250806abf124fcc37a80ffc7d85fd01fcb92c0d40",
+      "path": "scanner-v16-assets/references/0a708cc2165f3e65e9b1c68250806abf124fcc37a80ffc7d85fd01fcb92c0d40.png",
+      "bytes": 224466
+    },
+    {
+      "id": "OP04-083_r3",
+      "tcg": "one_piece",
+      "code": "OP04-083",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP04-083_r3.jpg",
+      "sha256": "2f313194c5d068799b658df5c60b70653ed2441b38b282a5f03eb15ce0d6b6a0",
+      "path": "scanner-v16-assets/references/2f313194c5d068799b658df5c60b70653ed2441b38b282a5f03eb15ce0d6b6a0.jpg",
+      "bytes": 143457
+    },
+    {
+      "id": "ST29-009",
+      "tcg": "one_piece",
+      "code": "ST29-009",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/ST29-009_qdyCIqe.jpg",
+      "sha256": "1954482dbb042875fb1b9f142b3e2943dd24f7a29fe8a0eb9eaa0a20195685a7",
+      "path": "scanner-v16-assets/references/1954482dbb042875fb1b9f142b3e2943dd24f7a29fe8a0eb9eaa0a20195685a7.png",
+      "bytes": 182908
+    },
+    {
+      "id": "ST29-009_p1",
+      "tcg": "one_piece",
+      "code": "ST29-009",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/ST29-009_p1_P0lUU7L.jpg",
+      "sha256": "37a64300df967cae3c361b68f1b534c223fbd11702e552c020617b6e2ed697a8",
+      "path": "scanner-v16-assets/references/37a64300df967cae3c361b68f1b534c223fbd11702e552c020617b6e2ed697a8.png",
+      "bytes": 200221
+    },
+    {
+      "id": "de:sv03-223",
+      "tcg": "pokemon",
+      "code": "223/197",
+      "language": "DE",
+      "sourceUrl": "https://assets.tcgdex.net/de/sv/sv03/223/high.webp",
+      "sha256": "6be3a8c8ffdd9b8a167b02187bdae6900567acebbe04b6b37eaffb2e693e92d7",
+      "path": "scanner-v16-assets/references/6be3a8c8ffdd9b8a167b02187bdae6900567acebbe04b6b37eaffb2e693e92d7.webp",
+      "bytes": 159108
+    },
+    {
+      "id": "en:swsh7-215",
+      "tcg": "pokemon",
+      "code": "215/203",
+      "language": "EN",
+      "sourceUrl": "https://assets.tcgdex.net/en/swsh/swsh7/215/high.webp",
+      "sha256": "29deb2deed66aba61b0162ab35890856da05cce80b5e8d1fafc27e6e0c3a63d4",
+      "path": "scanner-v16-assets/references/29deb2deed66aba61b0162ab35890856da05cce80b5e8d1fafc27e6e0c3a63d4.webp",
+      "bytes": 113022
+    },
+    {
+      "id": "OP05-119",
+      "tcg": "one_piece",
+      "code": "OP05-119",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP05-119.jpg",
+      "sha256": "eedd08627d9f15002eedd8bcd38304e7e403c7eb57a215f8d33543564702d74f",
+      "path": "scanner-v16-assets/references/eedd08627d9f15002eedd8bcd38304e7e403c7eb57a215f8d33543564702d74f.png",
+      "bytes": 249443
+    },
+    {
+      "id": "OP05-119_p1",
+      "tcg": "one_piece",
+      "code": "OP05-119",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP05-119_p1.jpg",
+      "sha256": "a7c6bcb300eb4cca43089c39269a222a73b61eb407e0438f3e8d16a2a0b41134",
+      "path": "scanner-v16-assets/references/a7c6bcb300eb4cca43089c39269a222a73b61eb407e0438f3e8d16a2a0b41134.png",
+      "bytes": 202904
+    },
+    {
+      "id": "OP05-119_p2",
+      "tcg": "one_piece",
+      "code": "OP05-119",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP05-119_p2.jpg",
+      "sha256": "6b396da2a9d725e3981076ba68b28d0fb90aefdc0923a031c815a79bbda0e524",
+      "path": "scanner-v16-assets/references/6b396da2a9d725e3981076ba68b28d0fb90aefdc0923a031c815a79bbda0e524.png",
+      "bytes": 247155
+    },
+    {
+      "id": "P-001_pr8",
+      "tcg": "one_piece",
+      "code": "P-001",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/Monkey.D.Luffy_001_Offline_Regional_2024_Vol._2_Participant_img.jpg",
+      "sha256": "95c6711ad13d4e5d311e1638f1a23332db7057a8632cdef507a52d007554eb8c",
+      "path": "scanner-v16-assets/references/95c6711ad13d4e5d311e1638f1a23332db7057a8632cdef507a52d007554eb8c.jpg",
+      "bytes": 102170
+    },
+    {
+      "id": "OP17-043",
+      "tcg": "one_piece",
+      "code": "OP17-043",
+      "language": "EN",
+      "sourceUrl": "https://optcgapi.com/media/static/Card_Images/OP17-043.jpg",
+      "sha256": "3de1576c5df4fd045b1885b65d66fb80e05d9cedac7947123f5b1d41e1f42dec",
+      "path": "scanner-v16-assets/references/3de1576c5df4fd045b1885b65d66fb80e05d9cedac7947123f5b1d41e1f42dec.png",
+      "bytes": 213357
+    }
+  ]
+}

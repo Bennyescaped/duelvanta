@@ -1,5 +1,23 @@
 # TRADE checkout + automation + shipping + resolution verification
 
+## Scanner V16.9 mobile
+
+The canonical branch-only scanner route is `scanner-v16.html`.
+`scanner-v16-lab.html` only redirects to it; there is no iframe camera
+boundary. The deterministic browser route
+`scanner-v16.html?e2e=1` uses local scanner fixtures and cannot mutate
+Supabase data.
+
+Run all Scanner V16 contracts with:
+
+```sh
+for test in tests/scanner-v16-*-test.mjs; do node "$test"; done
+```
+
+The mobile runtime test covers photo decode, analysis start, recovery and
+duplicate binding. The mobile route test covers the direct route, separate
+native-camera/gallery inputs and Guided Benchmark completion wiring.
+
 The fixtures in this directory are local in-memory responses, not Supabase users,
 listings, deals or payments. Production HTML does not load them. Do not create real
 test users or purchases to run these checks.

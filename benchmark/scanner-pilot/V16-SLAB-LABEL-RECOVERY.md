@@ -1,0 +1,11 @@
+# V16.15.2 — physical Sanji slab acceptance repair
+
+The iPhone acceptance screenshots showed correctly read PSA/10/certificate fields, but initially no card identifier. Sanji OP01-013 Parallel EN was obtained by manual recovery, not automatic recognition. The previous slab wrapper discarded the provider's label name, printedCode and set when invoking card OCR/catalog lookup.
+
+The retained V16 pipeline now completes card OCR first. If no identifier exists, a full valid label code or an explicit One Piece set code plus numeric label number can supply a catalog query. No Pokemon denominator is inferred from a name or year; an existing card identifier is never overwritten by the label. Conflicts are retained. Source is `slab_label`, including benchmark and explanation, never falsely described as manual entry or repeated card OCR. Existing observed card language is retained; label language is not used as card language. Card candidate and slab label still require separate confirmation. No unknown entry becomes importable.
+
+The screenshots also show partial catalog failure and unavailable artwork, but do not identify the underlying HTTP/CORS/timeout cause. A preview/scanner-v16-only reference endpoint now provides fallback transport after a failed direct One Piece catalog or image request. It permits only exact card endpoints and image filenames on optcgapi.com, refuses redirects/credentials/arbitrary URLs, bounds time and streamed response size, validates content type, and caches successful public responses only. It does not fabricate missing references or choose a printing from label text. Provider outages still fail visibly.
+
+Regression coverage: Sanji set+number fallback; Pokemon denominator refusal; OCR/label conflict; original card-language propagation; manual confirmation gates; branch-only transport and host/path/redirect/type/size boundaries; failed-direct catalog retry. Browser E2E adds a synthetic slab with unreadable card number and mocked label/catalog responses, real OCR, OP01-013 and Sanji candidate assertions, label-source benchmark and manual parallel confirmation. This is not a claim of a second physical automatic Sanji pass.
+
+No paid recognition calls, quota changes, Auth/RLS changes, production COLLECT changes or merge are part of this repair.
