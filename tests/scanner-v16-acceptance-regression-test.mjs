@@ -71,10 +71,13 @@ assert.equal(pack.results[0].id.code,'074/084');assert.equal(pack.results[0].bes
 assert.equal(globalThis.selectedScanTcg,'one_piece','core must never mutate the global TCG selection');
 activeCode='OP05-119';pack=await core.analyze({width:630,height:880},{tcg:'one_piece'});
 assert.equal(pack.results[0].best.number,'OP05-119');assert.equal(pack.results[0].tcg,'one_piece');assert.deepEqual(contexts,['pokemon','one_piece']);
-const before=ocrCalls,original={...noHit,crop:{width:630,height:880},slot:7};
+const storageSource={width:1260,height:1760},providerEvidence={name:'Retourorden',language:'DE',cardCorners:[{x:.1,y:.1},{x:.9,y:.1},{x:.9,y:.9},{x:.1,y:.9}]};
+const before=ocrCalls,original={...noHit,crop:{width:630,height:880},storageSource,captureMode:'single',providerEvidence,slot:7};
 const recovered=await recovery.search(original,'074/084',(source,options)=>core.analyze(source,options));
 assert.equal(ocrCalls,before,'manual code recovery must not rescan the photo');
 assert.equal(recovered.slot,7);assert.equal(recovered.selected,false);
+assert.equal(recovered.storageSource,storageSource,'manual recovery must retain the original coordinate space for normalization');
+assert.equal(recovered.providerEvidence,providerEvidence,'manual recovery must retain provider name and corner evidence');
 recovery.confirm(recovered,0);assert.equal(recovered.selected,true);assert.equal(recovered.manualConfirmed,true);
 assert.throws(()=>recovery.confirm({...noHit,candidates:[{name:'Unknown'}]},0),/verifizierter/);
 assert.equal(recovery.canConfirm(recovered,{...cards[0],tcg:'one_piece'}),false);

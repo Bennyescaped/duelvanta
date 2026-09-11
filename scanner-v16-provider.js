@@ -12,11 +12,11 @@
     if(!proposal||proposal.model!==MODEL)throw new Error('Unbekannte KI-Antwort.');
     const o=proposal.observed;
     if(proposal.selectedTcg!==tcg||!o||(!['unknown',tcg].includes(o.tcg)))throw new Error('KI-Antwort und ausgewähltes Kartenspiel stimmen nicht überein.');
-    const code=printedCode(o.printed_code,tcg),id=root.DV_SCAN_V16_RECOVERY.parse(code,tcg),cardCorners=Array.isArray(o.card_corners)&&o.card_corners.length===4?o.card_corners.map(p=>({x:Number(p.x),y:Number(p.y)})):null;
+    const corners=value=>Array.isArray(value)&&value.length===4?value.map(p=>({x:Number(p.x),y:Number(p.y)})):null,code=printedCode(o.printed_code,tcg),id=root.DV_SCAN_V16_RECOVERY.parse(code,tcg),cardCorners=corners(o.card_corners),holderCorners=corners(o.holder_corners);
     const conflict=proposal.status==='tcg_conflict';
     const language=root.DV_SCAN_V16_QUALITY.languageOf({language:o.language});
     return{id:conflict?null:id,language,evidence:{provider:'openai',model:MODEL,
-      name:text(o.name),printedCode:code,language,set:text(o.set_name),cardCorners,
+      name:text(o.name),printedCode:code,language,set:text(o.set_name),cardCorners,holderCorners,
       printingId:null,rarity:text(o.rarity),variant:text(o.variant),finish:text(o.variant),
       identifierConflict:conflict,elapsedMs:Number.isFinite(proposal.elapsedMs)?proposal.elapsedMs:null,
       usage:proposal.usage||null,estimatedCostUsd:Number.isFinite(proposal.estimatedCostUsd)?proposal.estimatedCostUsd:null,

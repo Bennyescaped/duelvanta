@@ -33,7 +33,7 @@ await new Promise(resolve=>setTimeout(resolve,65));
 const file=new File(['same original bytes'],'original.jpg',{type:'image/jpeg'});
 const sha256=createHash('sha256').update('same original bytes').digest('hex');
 const proposalFor=f=>{
-  const [tcg,code,language,,name]=f;
+  const [tcg,code,language,name]=f;
   return {model:'gpt-5.4-mini',selectedTcg:tcg,sha256,elapsedMs:2500,status:'proposal',observed:{tcg,printed_code:code,name,language,set_name:null,rarity:null,variant:null,needs_review:true},usage:{inputTokens:2000,outputTokens:100},estimatedCostUsd:.00195};
 };
 for(const f of fixtureCards){
@@ -68,4 +68,9 @@ assert.equal(wrong.best,null);assert.equal(wrong.failureType,'language_ambiguity
 wrongLanguage=false;
 const live=(await DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'pokemon',providerObservation:p})).results[0];
 assert.equal(live.status,'review');DV_SCAN_V16_RECOVERY.confirm(live,0);assert.equal(live.selected,true);
+const wrongManual={tcg:'one_piece',id:{code:'ST29-006'},providerEvidence:{name:'Nico Robin',language:'EN'}};
+const stussy={tcg:'one_piece',number:'ST29-006',name:'Stussy (Full Art)',language:'EN',catalogVerified:true};
+assert.equal(DV_SCAN_V16_RECOVERY.nameConflict(wrongManual,stussy),true,'manual number must not silently override a contradictory observed card name');
+assert.equal(DV_SCAN_V16_RECOVERY.canConfirm(wrongManual,stussy),false,'contradictory manual candidate must not be confirmable');
+assert.equal(DV_SCAN_V16_RECOVERY.parse('ST29-009','one_piece').code,'ST29-009');
 console.log('PASS: OpenAI evidence → original V16 catalog/language/quality/result/benchmark; exact-photo binding, no invented OCR, no replay imports, conflicts and no-match recovery.');

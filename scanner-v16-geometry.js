@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.20.0-lab',CARD_RATIO=63/88;
+  const VERSION='16.21.0-lab',CARD_RATIO=63/88;
   let installed=false;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const size=s=>({w:Number(s?.videoWidth||s?.naturalWidth||s?.width||0),h:Number(s?.videoHeight||s?.naturalHeight||s?.height||0)});
@@ -69,6 +69,8 @@
     if(sourceRatio>CARD_RATIO){const next=h*CARD_RATIO;x+=(w-next)/2;w=next}else if(sourceRatio<CARD_RATIO){const next=w/CARD_RATIO;y+=(h-next)/2;h=next}
     out.getContext('2d').drawImage(source,x,y,w,h,0,0,W,H);return out
   }
+  function containPortrait(source,{width=900,ratio=.55}={}){const s=size(source);if(!s.w||!s.h)return source;const W=Math.max(420,Math.round(width)),H=Math.round(W/ratio),out=document.createElement('canvas');out.width=W;out.height=H;const x=out.getContext('2d');x.fillStyle='#050608';x.fillRect(0,0,W,H);const scale=Math.min(W/s.w,H/s.h),w=s.w*scale,h=s.h*scale;x.drawImage(source,(W-w)/2,(H-h)/2,w,h);return out}
+  function normalizeSlab(source,{width=900,corners=null}={}){const quad=suppliedQuad(source,corners);if(!quad)return containPortrait(source,{width});try{return containPortrait(warpQuad(source,quad,width),{width})}catch{return containPortrait(source,{width})}}
 
   function install(){
     const core=window.DV_SCAN_V16_CORE;if(!core||installed)return !!core;installed=true;const base=core.analyze.bind(core);
@@ -85,7 +87,7 @@
       }
       const out=await base(source,opts);for(const r of out.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out;
     };
-    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder,suppliedQuad,normalizeCard};return true
+    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder,suppliedQuad,normalizeCard,normalizeSlab};return true
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>120)clearInterval(t)},50);
 })();
