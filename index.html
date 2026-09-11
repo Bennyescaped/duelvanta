@@ -7,237 +7,35 @@
 <title>DUELVANTA — Collect. Trade. Battle.</title>
 <meta name="description" content="DUELVANTA verbindet Collection, Marketplace und Arena für Trading-Card-Sammler, Händler und Spieler.">
 <link rel="stylesheet" href="duelvanta-beta.css?v=1">
-<link rel="stylesheet" href="beta-home.css?v=1">
+<link rel="stylesheet" href="beta-home.css?v=2">
 </head>
 <body class="dv-beta beta-home">
-
 <div id="intro" class="beta-intro" aria-label="DUELVANTA Intro">
-  <div class="beta-intro-stage">
-    <img class="beta-intro-logo" src="v-logo.svg" alt="DUELVANTA V">
-    <div class="beta-intro-name">DUELVANTA</div>
-    <div class="beta-intro-tag">COLLECT · TRADE · BATTLE</div>
-    <img class="beta-intro-avatar" src="avatar-clean.png" alt="" aria-hidden="true">
-  </div>
+  <div class="beta-intro-stage"><img class="beta-intro-logo" src="v-logo.svg" alt="DUELVANTA V"><div class="beta-intro-name">DUELVANTA</div><div class="beta-intro-tag">COLLECT · TRADE · BATTLE</div><img class="beta-intro-avatar" src="avatar-clean.png" alt="" aria-hidden="true"></div>
   <button class="beta-intro-skip" id="skipIntro" type="button">Überspringen</button>
 </div>
-
 <header class="home-header">
   <div class="dv-container dv-topbar-inner">
-    <a class="dv-brand" href="#top" aria-label="DUELVANTA Startseite">
-      <img src="v-logo.svg" alt="">
-      <span class="dv-brand-word">DUELVANTA</span>
-    </a>
-    <nav class="home-nav" aria-label="Hauptnavigation">
-      <a href="#collect">Collect</a>
-      <a href="#trade">Trade</a>
-      <a href="#battle">Battle</a>
-      <a href="#vision">Vision</a>
-    </nav>
-    <div class="home-actions">
-      <a id="mobileAccountLink" class="dv-btn dv-btn-ghost dv-btn-sm home-mobile-login" href="login.html">LOGIN</a>
-      <a id="accountLink" class="dv-btn dv-btn-ghost dv-btn-sm" href="login.html">LOGIN</a>
-      <a class="dv-btn dv-btn-primary dv-btn-sm beta-link" href="#beta">Beta-Zugang</a>
-    </div>
+    <a class="dv-brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt=""><span class="dv-brand-word">DUELVANTA</span></a>
+    <nav class="home-nav" aria-label="Hauptnavigation"><a href="#collect">Collect</a><a href="#trade">Trade</a><a href="#battle">Battle</a><a href="#vision">Vision</a></nav>
+    <div class="home-actions"><a id="accountLink" class="dv-btn dv-btn-ghost dv-btn-sm" href="login.html">LOGIN</a><a class="dv-btn dv-btn-primary dv-btn-sm beta-link" href="#beta">Beta-Zugang</a></div>
   </div>
 </header>
-
 <main>
-  <section class="home-hero" id="top">
-    <div class="home-hero-glow"></div>
-    <img class="home-hero-avatar" src="avatar-clean.png" alt="Der DUELVANTA Host">
-    <div class="dv-container">
-      <div class="home-hero-content">
-        <p class="dv-eyebrow">Eine Plattform für echte TCG-Spieler</p>
-        <h1 class="dv-display"><span>COLLECT.</span><span>TRADE.</span><span class="accent-line">BATTLE.</span></h1>
-        <p class="home-hero-sub">Deine Karten. Dein Markt. Deine Arena.</p>
-        <p class="dv-lead">DUELVANTA verbindet Sammlung, Handel und echte Matches in einer Plattform — beginnend mit Pokémon und One Piece.</p>
-        <div class="dv-hero-actions">
-          <a class="dv-btn dv-btn-primary" href="#beta">Beta-Zugang sichern →</a>
-          <a class="dv-btn dv-btn-ghost" href="#worlds">DUELVANTA entdecken</a>
-        </div>
-        <div class="home-badges">
-          <span class="dv-chip dv-chip-gold">Beta in Entwicklung</span>
-          <span class="dv-chip">Pokémon</span>
-          <span class="dv-chip">One Piece</span>
-        </div>
-      </div>
-    </div>
-    <div class="home-scroll">Entdecken</div>
-  </section>
-
-  <section id="worlds" class="dv-section worlds">
-    <div class="dv-container">
-      <div class="world-heading reveal">
-        <p class="dv-eyebrow">Die drei Welten</p>
-        <h2 class="dv-display">Mehr als Karten.</h2>
-        <p class="dv-lead">DUELVANTA soll nicht die nächste isolierte TCG-App sein. Collection, Marketplace und Arena gehören zusammen.</p>
-      </div>
-      <div class="dv-card-grid">
-        <a class="world-card reveal" data-mark="C" href="#collect">
-          <div class="world-content">
-            <div class="world-index">01 · Build your collection</div>
-            <h3>COLLECT</h3>
-            <p>Scannen, organisieren und deine Karten als echte digitale Sammlung verwalten.</p>
-            <div class="world-links"><span>Scanner</span><span>Binder</span><span>Portfolio</span></div>
-          </div>
-        </a>
-        <a class="world-card reveal" data-mark="T" href="#trade">
-          <div class="world-content">
-            <div class="world-index">02 · Find your next card</div>
-            <h3>TRADE</h3>
-            <p>Singles, Graded und Sealed entdecken, anbieten, kaufen und verkaufen.</p>
-            <div class="world-links"><span>Marketplace</span><span>Offers</span><span>Orders</span></div>
-          </div>
-        </a>
-        <a class="world-card reveal" data-mark="B" href="#battle">
-          <div class="world-content">
-            <div class="world-index">03 · Prove your skills</div>
-            <h3>BATTLE</h3>
-            <p>Mit deinen echten Karten spielen, Matches bestreiten und dich im Ranking messen.</p>
-            <div class="world-links"><span>Ranked</span><span>Arena</span><span>Profiles</span></div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section id="collect" class="dv-section spotlight">
-    <div class="dv-container spotlight-grid">
-      <div class="spotlight-copy reveal">
-        <p class="dv-eyebrow">Collect</p>
-        <h2 class="dv-display">COLLECT. SCAN. ORGANIZE.</h2>
-        <p class="dv-lead">Aus einer physischen Sammlung wird eine digitale Collection, die sich wirklich verwalten lässt. Scanner V16 entsteht parallel und wird erst integriert, wenn der Mobile-Akzeptanztest bestanden ist.</p>
-        <div class="spotlight-list">
-          <div class="spotlight-item"><div class="spotlight-icon">◫</div><div><b>Card Scanner</b><span>Einzelkarten schnell erfassen und zuordnen.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">▤</div><div><b>Multi & Binder Scan</b><span>Mehrere Karten und komplette Binderseiten effizient erfassen.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">□</div><div><b>Binder Management</b><span>Ordnen, verschieben und die Sammlung visuell abbilden.</span></div></div>
-        </div>
-      </div>
-      <div class="product-window collect-visual reveal" aria-label="COLLECT UI Vorschau">
-        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
-        <div class="product-body">
-          <div class="product-hero"><div><p class="dv-eyebrow">Your cards. Organized.</p><h4>Collection Hub</h4><p>Scan · Track · Build · Belong</p></div></div>
-          <div class="product-grid">
-            <div class="product-tile"><strong>Scanner</strong><span>Single Card</span></div>
-            <div class="product-tile"><strong>Multi Scan</strong><span>Mehrere Karten</span></div>
-            <div class="product-tile"><strong>Binder</strong><span>9-Pocket Seiten</span></div>
-            <div class="product-tile"><strong>Collection</strong><span>Übersicht</span></div>
-            <div class="product-tile"><strong>Organize</strong><span>Sortieren & filtern</span></div>
-            <div class="product-tile"><strong>Portfolio</strong><span>Marktwert & Verlauf</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="trade" class="dv-section spotlight flip">
-    <div class="dv-container spotlight-grid">
-      <div class="spotlight-copy reveal">
-        <p class="dv-eyebrow">Trade</p>
-        <h2 class="dv-display">TRADE. BUY. SELL.</h2>
-        <p class="dv-lead">Der bestehende Marketplace bleibt funktional stabil. Für den Beta-Refresh wird die Oberfläche hochwertiger, klarer und schneller erfassbar — ohne die Order- und Angebotslogik neu zu erfinden.</p>
-        <div class="spotlight-list">
-          <div class="spotlight-item"><div class="spotlight-icon">◇</div><div><b>Singles & Graded</b><span>Gezielt suchen, filtern und Angebote vergleichen.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">▣</div><div><b>Sealed</b><span>Displays, Cases und Kollektionen sauber getrennt handeln.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">⇄</div><div><b>Orders & Offers</b><span>Klare Zustände und sichtbare Aktionen statt Bestellchaos.</span></div></div>
-        </div>
-      </div>
-      <div class="product-window trade-visual reveal" aria-label="TRADE UI Vorschau">
-        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
-        <div class="product-body">
-          <div class="product-hero"><div><p class="dv-eyebrow">Marketplace</p><h4>Real cards. Real people.</h4><p>Singles · Graded · Sealed · Offers</p></div></div>
-          <div class="product-grid">
-            <div class="product-tile"><div class="trade-card"></div><strong>Singles</strong><span>Karten entdecken</span></div>
-            <div class="product-tile"><div class="trade-card"></div><strong>Sealed</strong><span>Displays & Cases</span></div>
-            <div class="product-tile"><div class="trade-card"></div><strong>Offers</strong><span>Verhandeln</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="battle" class="dv-section spotlight">
-    <div class="dv-container spotlight-grid">
-      <div class="spotlight-copy reveal">
-        <p class="dv-eyebrow">Battle</p>
-        <h2 class="dv-display">BATTLE. WATCH. COMPETE.</h2>
-        <p class="dv-lead">Von der Sammlung in die Arena. Ranked und Profile bilden das Fundament; weitere Match- und Zuschauerfunktionen werden als Beta oder kommende Ausbaustufe transparent gekennzeichnet.</p>
-        <div class="spotlight-list">
-          <div class="spotlight-item"><div class="spotlight-icon">⚔</div><div><b>Ranked</b><span>Server-autoritatives Rating und nachvollziehbare Ergebnisse.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">○</div><div><b>Player Profiles</b><span>Rang, Verlauf und Spieleridentität an einem Ort.</span></div></div>
-          <div class="spotlight-item"><div class="spotlight-icon">▷</div><div><b>Live & Tournaments</b><span>Ausbau nach stabiler Beta-Basis — ohne Funktionen vorzutäuschen.</span></div></div>
-        </div>
-      </div>
-      <div class="product-window battle-visual reveal" aria-label="BATTLE UI Vorschau">
-        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
-        <div class="product-body">
-          <div class="product-hero"><div class="battle-vs"><div class="battle-vs-card">V</div><b>VS</b><div class="battle-vs-card">V</div></div></div>
-          <div class="product-grid">
-            <div class="product-tile"><strong>Ranked</strong><span>Rating & Rang</span></div>
-            <div class="product-tile"><strong>History</strong><span>Matches & Ergebnisse</span></div>
-            <div class="product-tile"><strong>Profiles</strong><span>Stats & Identität</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="vision" class="dv-section community-section">
-    <div class="dv-container reveal">
-      <p class="dv-eyebrow">Belong</p>
-      <h2 class="dv-display">Die Plattform endet nicht bei einer Karte.</h2>
-      <p class="dv-lead">Heute beginnt DUELVANTA mit einer kleinen Community. Daraus soll Schritt für Schritt ein Ort entstehen, an dem Sammler, Händler und Spieler wirklich zusammenkommen.</p>
-      <p class="community-quote">„Die besten Karten haben eine Geschichte. <span class="dv-gold">DUELVANTA gibt ihnen eine Bühne.</span>“</p>
-    </div>
-  </section>
-
-  <section id="beta" class="dv-section">
-    <div class="dv-container beta-signup">
-      <div class="reveal">
-        <p class="dv-eyebrow">Founders Beta</p>
-        <h2 class="dv-display">Sei von Anfang an dabei.</h2>
-        <p class="dv-lead">Die ersten Mitglieder erleben DUELVANTA vor dem öffentlichen Start und helfen dabei, Scanner, Marketplace und Arena mit realem Feedback zu verbessern.</p>
-      </div>
-      <div class="beta-form-card reveal">
-        <form class="beta-form" id="betaForm">
-          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="Deine E-Mail-Adresse" required aria-label="E-Mail-Adresse">
-          <button class="dv-btn dv-btn-primary" type="submit" id="betaSubmit">Zur Warteliste →</button>
-          <label class="beta-consent"><input type="checkbox" id="consent" required><span>Ich möchte auf die DUELVANTA-Beta-Warteliste und akzeptiere die Verarbeitung meiner E-Mail-Adresse hierfür. Hinweise stehen in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label>
-        </form>
-        <div class="beta-note" id="formNote" role="status" aria-live="polite">Deine E-Mail-Adresse wird ausschließlich für die DUELVANTA-Beta-Warteliste gespeichert.</div>
-      </div>
-    </div>
-  </section>
+  <section class="home-hero" id="top"><div class="home-hero-glow"></div><img class="home-hero-avatar" src="avatar-clean.png" alt="Der DUELVANTA Host"><div class="dv-container"><div class="home-hero-content"><p class="dv-eyebrow">Eine Plattform für echte TCG-Spieler</p><h1 class="dv-display"><span>COLLECT.</span><span>TRADE.</span><span class="accent-line">BATTLE.</span></h1><p class="home-hero-sub">Deine Karten. Dein Markt. Deine Arena.</p><p class="dv-lead">DUELVANTA verbindet Sammlung, Handel und echte Matches in einer Plattform — beginnend mit Pokémon und One Piece.</p><div class="dv-hero-actions"><a class="dv-btn dv-btn-primary" href="#beta">Beta-Zugang sichern →</a><a class="dv-btn dv-btn-ghost" href="#worlds">DUELVANTA entdecken</a></div><div class="home-badges"><span class="dv-chip dv-chip-gold">Beta in Entwicklung</span><span class="dv-chip">Pokémon</span><span class="dv-chip">One Piece</span></div></div></div><div class="home-scroll">Entdecken</div></section>
+  <section id="worlds" class="dv-section worlds"><div class="dv-container"><div class="world-heading reveal"><p class="dv-eyebrow">Die drei Welten</p><h2 class="dv-display">Mehr als Karten.</h2><p class="dv-lead">DUELVANTA soll nicht die nächste isolierte TCG-App sein. Collection, Marketplace und Arena gehören zusammen.</p></div><div class="dv-card-grid"><a class="world-card reveal" data-mark="C" href="#collect"><div class="world-content"><div class="world-index">01 · Build your collection</div><h3>COLLECT</h3><p>Scannen, organisieren und deine Karten als echte digitale Sammlung verwalten.</p><div class="world-links"><span>Scanner</span><span>Binder</span><span>Portfolio</span></div></div></a><a class="world-card reveal" data-mark="T" href="#trade"><div class="world-content"><div class="world-index">02 · Find your next card</div><h3>TRADE</h3><p>Singles, Graded und Sealed entdecken, anbieten, kaufen und verkaufen.</p><div class="world-links"><span>Marketplace</span><span>Offers</span><span>Orders</span></div></div></a><a class="world-card reveal" data-mark="B" href="#battle"><div class="world-content"><div class="world-index">03 · Prove your skills</div><h3>BATTLE</h3><p>Mit deinen echten Karten spielen, Matches bestreiten und dich im Ranking messen.</p><div class="world-links"><span>Ranked</span><span>Arena</span><span>Profiles</span></div></div></a></div></div></section>
+  <section id="collect" class="dv-section spotlight"><div class="dv-container spotlight-grid"><div class="spotlight-copy reveal"><p class="dv-eyebrow">Collect</p><h2 class="dv-display">COLLECT. SCAN. ORGANIZE.</h2><p class="dv-lead">Aus einer physischen Sammlung wird eine digitale Collection, die sich wirklich verwalten lässt. Scanner V16 entsteht parallel und wird erst integriert, wenn der Mobile-Akzeptanztest bestanden ist.</p><div class="spotlight-list"><div class="spotlight-item"><div class="spotlight-icon">◫</div><div><b>Card Scanner</b><span>Einzelkarten schnell erfassen und zuordnen.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">▤</div><div><b>Multi & Binder Scan</b><span>Mehrere Karten und komplette Binderseiten effizient erfassen.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">□</div><div><b>Binder Management</b><span>Ordnen, verschieben und die Sammlung visuell abbilden.</span></div></div></div></div><div class="product-window collect-visual reveal"><div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div><div class="product-body"><div class="product-hero"><div><p class="dv-eyebrow">Your cards. Organized.</p><h4>Collection Hub</h4><p>Scan · Track · Build · Belong</p></div></div><div class="product-grid"><div class="product-tile"><strong>Scanner</strong><span>Single Card</span></div><div class="product-tile"><strong>Multi Scan</strong><span>Mehrere Karten</span></div><div class="product-tile"><strong>Binder</strong><span>9-Pocket Seiten</span></div><div class="product-tile"><strong>Collection</strong><span>Übersicht</span></div><div class="product-tile"><strong>Organize</strong><span>Sortieren & filtern</span></div><div class="product-tile"><strong>Portfolio</strong><span>Marktwert & Verlauf</span></div></div></div></div></div></section>
+  <section id="trade" class="dv-section spotlight flip"><div class="dv-container spotlight-grid"><div class="spotlight-copy reveal"><p class="dv-eyebrow">Trade</p><h2 class="dv-display">TRADE. BUY. SELL.</h2><p class="dv-lead">Marketplace, Angebote und Orders in einer klaren Handelsoberfläche — ohne die stabile Order- und Angebotslogik neu zu erfinden.</p><div class="spotlight-list"><div class="spotlight-item"><div class="spotlight-icon">◇</div><div><b>Singles & Graded</b><span>Gezielt suchen, filtern und Angebote vergleichen.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">▣</div><div><b>Sealed</b><span>Displays, Cases und Kollektionen sauber getrennt handeln.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">⇄</div><div><b>Orders & Offers</b><span>Klare Zustände und sichtbare Aktionen statt Bestellchaos.</span></div></div></div></div><div class="product-window trade-visual reveal"><div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div><div class="product-body"><div class="product-hero"><div><p class="dv-eyebrow">Marketplace</p><h4>Real cards. Real people.</h4><p>Singles · Graded · Sealed · Offers</p></div></div><div class="product-grid"><div class="product-tile"><div class="trade-card"></div><strong>Singles</strong><span>Karten entdecken</span></div><div class="product-tile"><div class="trade-card"></div><strong>Sealed</strong><span>Displays & Cases</span></div><div class="product-tile"><div class="trade-card"></div><strong>Offers</strong><span>Verhandeln</span></div></div></div></div></div></section>
+  <section id="battle" class="dv-section spotlight"><div class="dv-container spotlight-grid"><div class="spotlight-copy reveal"><p class="dv-eyebrow">Battle</p><h2 class="dv-display">BATTLE. WATCH. COMPETE.</h2><p class="dv-lead">Von der Sammlung in die Arena. Ranked und Profile bilden das Fundament; weitere Match- und Zuschauerfunktionen werden transparent als Beta oder kommende Ausbaustufe gekennzeichnet.</p><div class="spotlight-list"><div class="spotlight-item"><div class="spotlight-icon">⚔</div><div><b>Ranked</b><span>Server-autoritatives Rating und nachvollziehbare Ergebnisse.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">○</div><div><b>Player Profiles</b><span>Rang, Verlauf und Spieleridentität an einem Ort.</span></div></div><div class="spotlight-item"><div class="spotlight-icon">▷</div><div><b>Live & Tournaments</b><span>Ausbau nach stabiler Beta-Basis — ohne Funktionen vorzutäuschen.</span></div></div></div></div><div class="product-window battle-visual reveal"><div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div><div class="product-body"><div class="product-hero"><div class="battle-vs"><div class="battle-vs-card">V</div><b>VS</b><div class="battle-vs-card">V</div></div></div><div class="product-grid"><div class="product-tile"><strong>Ranked</strong><span>Rating & Rang</span></div><div class="product-tile"><strong>History</strong><span>Matches & Ergebnisse</span></div><div class="product-tile"><strong>Profiles</strong><span>Stats & Identität</span></div></div></div></div></div></section>
+  <section id="vision" class="dv-section community-section"><div class="dv-container reveal"><p class="dv-eyebrow">Belong</p><h2 class="dv-display">Die Plattform endet nicht bei einer Karte.</h2><p class="dv-lead">Heute beginnt DUELVANTA mit einer kleinen Community. Daraus soll Schritt für Schritt ein Ort entstehen, an dem Sammler, Händler und Spieler wirklich zusammenkommen.</p><p class="community-quote">„Die besten Karten haben eine Geschichte. <span class="dv-gold">DUELVANTA gibt ihnen eine Bühne.</span>“</p></div></section>
+  <section id="beta" class="dv-section"><div class="dv-container beta-signup"><div class="reveal"><p class="dv-eyebrow">Founders Beta</p><h2 class="dv-display">Sei von Anfang an dabei.</h2><p class="dv-lead">Die ersten Mitglieder erleben DUELVANTA vor dem öffentlichen Start und helfen dabei, Scanner, Marketplace und Arena mit realem Feedback zu verbessern.</p></div><div class="beta-form-card reveal"><form class="beta-form" id="betaForm"><input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="Deine E-Mail-Adresse" required aria-label="E-Mail-Adresse"><button class="dv-btn dv-btn-primary" type="submit" id="betaSubmit">Zur Warteliste →</button><label class="beta-consent"><input type="checkbox" id="consent" required><span>Ich möchte auf die DUELVANTA-Beta-Warteliste und akzeptiere die Verarbeitung meiner E-Mail-Adresse hierfür. Hinweise stehen in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label></form><div class="beta-note" id="formNote" role="status" aria-live="polite">Deine E-Mail-Adresse wird ausschließlich für die DUELVANTA-Beta-Warteliste gespeichert.</div></div></div></section>
 </main>
-
-<footer class="home-footer">
-  <div class="dv-container home-footer-inner">
-    <a class="dv-brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt=""><span class="dv-brand-word">DUELVANTA</span></a>
-    <div class="home-legal"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="mailto:info@duelvanta.de">Kontakt</a></div>
-  </div>
-</footer>
-
-<nav class="dv-mobile-nav home-mobile-nav" aria-label="Mobile Navigation">
-  <a class="active" href="#top"><span>⌂</span><span>Home</span></a>
-  <a href="#collect"><span>◫</span><span>Collect</span></a>
-  <a href="#trade"><span>⇄</span><span>Trade</span></a>
-  <a href="#battle"><span>⚔</span><span>Battle</span></a>
-  <a href="#beta"><span>◇</span><span>Beta</span></a>
-</nav>
-
+<footer class="home-footer"><div class="dv-container home-footer-inner"><a class="dv-brand" href="#top"><img src="v-logo.svg" alt=""><span class="dv-brand-word">DUELVANTA</span></a><div class="home-legal"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="mailto:info@duelvanta.de">Kontakt</a></div></div></footer>
+<nav class="dv-mobile-nav home-mobile-nav" aria-label="Mobile Navigation"><a class="active" href="#top"><span>⌂</span><span>Home</span></a><a href="#collect"><span>◫</span><span>Collect</span></a><a href="#trade"><span>⇄</span><span>Trade</span></a><a href="#battle"><span>⚔</span><span>Battle</span></a><a href="#beta"><span>◇</span><span>Beta</span></a></nav>
 <script>
-const intro=document.getElementById('intro');const skip=document.getElementById('skipIntro');
-function finishIntro(){intro.classList.add('done');sessionStorage.setItem('duelvantaIntroSeen','1')}
-if(sessionStorage.getItem('duelvantaIntroSeen')){intro.style.display='none'}else{setTimeout(finishIntro,3200)}
-skip.addEventListener('click',finishIntro);
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
-document.getElementById('betaForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const mail=document.getElementById('email').value.trim().toLowerCase();const consent=document.getElementById('consent').checked;const note=document.getElementById('formNote');const btn=document.getElementById('betaSubmit');note.className='beta-note';if(!mail||!consent)return;btn.disabled=true;btn.textContent='Wird eingetragen …';try{const r=await fetch(SB_URL+'/rest/v1/beta_waitlist',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email:mail,consent:true,source:'landingpage'})});if(r.ok){note.textContent='Geschafft – du stehst auf der DUELVANTA-Beta-Warteliste.';note.classList.add('ok');form.reset();}else if(r.status===409){note.textContent='Diese E-Mail-Adresse steht bereits auf der Warteliste.';note.classList.add('ok');}else{throw new Error('HTTP '+r.status)}}catch(err){console.error(err);note.textContent='Die Anmeldung konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.';note.classList.add('err')}finally{btn.disabled=false;btn.textContent='Zur Warteliste →'}});
+const intro=document.getElementById('intro'),skip=document.getElementById('skipIntro');function finishIntro(){intro.classList.add('done');sessionStorage.setItem('duelvantaIntroSeen','1')}if(sessionStorage.getItem('duelvantaIntroSeen'))intro.style.display='none';else setTimeout(finishIntro,4200);skip.addEventListener('click',finishIntro);const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';document.getElementById('betaForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget,mail=document.getElementById('email').value.trim().toLowerCase(),consent=document.getElementById('consent').checked,note=document.getElementById('formNote'),btn=document.getElementById('betaSubmit');note.className='beta-note';if(!mail||!consent)return;btn.disabled=true;btn.textContent='Wird eingetragen …';try{const r=await fetch(SB_URL+'/rest/v1/beta_waitlist',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({email:mail,consent:true,source:'landingpage'})});if(r.ok){note.textContent='Geschafft – du stehst auf der DUELVANTA-Beta-Warteliste.';note.classList.add('ok');form.reset()}else if(r.status===409){note.textContent='Diese E-Mail-Adresse steht bereits auf der Warteliste.';note.classList.add('ok')}else throw new Error('HTTP '+r.status)}catch(err){console.error(err);note.textContent='Die Anmeldung konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.';note.classList.add('err')}finally{btn.disabled=false;btn.textContent='Zur Warteliste →'}});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(()=>{const c=window.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true}});c.auth.getSession().then(({data})=>{const on=!!data.session;for(const id of ['accountLink','mobileAccountLink']){const a=document.getElementById(id);if(a){a.textContent=on?'MEIN DUELVANTA':'LOGIN';a.href=on?'app.html':'login.html'}}})})();
-</script>
-</body>
-</html>
+<script>(()=>{const c=window.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true}});c.auth.getSession().then(({data})=>{const a=document.getElementById('accountLink');if(a){const on=!!data.session;a.textContent=on?'MEIN DUELVANTA':'LOGIN';a.href=on?'app.html':'login.html'}})})();</script>
+</body></html>
