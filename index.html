@@ -1,89 +1,243 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#050506" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050506">
 <title>DUELVANTA — Collect. Trade. Battle.</title>
-<meta name="description" content="DUELVANTA verbindet Collection, Marketplace und Arena für Trading-Card-Sammler, Händler und Spieler." />
-<style>
-:root{--bg:#050506;--panel:#0a0a0c;--gold:#d5a458;--gold2:#f2cf8b;--muted:#aaa7a0;--line:rgba(213,164,88,.24);--white:#f7f1e8}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}.serif{font-family:Georgia,"Times New Roman",serif}.wrap{width:min(1180px,92vw);margin:auto}.gold{color:var(--gold2)}a{color:inherit;text-decoration:none}button,input{font:inherit}
-/* INTRO */
-#intro{position:fixed;inset:0;z-index:999;background:#000;display:grid;place-items:center;overflow:hidden;transition:opacity 1.15s ease,visibility 1.15s ease}
-#intro.done{opacity:0;visibility:hidden;pointer-events:none}.intro-fog,.intro-glow,.intro-particles{position:absolute;inset:-10%;pointer-events:none}.intro-glow{background:radial-gradient(circle at 50% 48%,rgba(213,164,88,.13),transparent 28%),radial-gradient(circle at 50% 48%,rgba(255,255,255,.025),transparent 40%);filter:blur(12px);animation:breathe 3.5s ease-in-out infinite}.intro-fog{background:radial-gradient(ellipse at 28% 62%,rgba(255,255,255,.055),transparent 28%),radial-gradient(ellipse at 72% 58%,rgba(255,255,255,.04),transparent 25%);filter:blur(30px);opacity:.6;animation:fog 8s ease-in-out infinite alternate}.intro-particles{background-image:radial-gradient(circle,rgba(242,207,139,.35) 0 1px,transparent 1.5px);background-size:84px 84px;mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent);opacity:.18;animation:drift 14s linear infinite}.intro-stage{position:relative;width:min(760px,90vw);text-align:center;transform:translateY(6px)}.intro-v{width:clamp(112px,12vw,160px);height:auto;display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 0 24px rgba(213,164,88,.22));opacity:0;transform:scale(.86);animation:vIn 1.35s .5s cubic-bezier(.16,.8,.18,1) forwards}.intro-wordmark{width:min(520px,80vw);height:auto;display:block;margin:26px auto 0;object-fit:contain;filter:drop-shadow(0 0 14px rgba(213,164,88,.12));opacity:0;transform:translateY(10px);animation:fadeUp 1s 2.1s ease forwards}.intro-rule{width:0;height:1px;margin:20px auto 14px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:ruleIn 1s 2.55s ease forwards}.intro-tag{letter-spacing:.5em;font-size:clamp(10px,1.15vw,13px);color:#d8c9b4;opacity:0;animation:fadeUp .9s 2.7s ease forwards}.intro-avatar{position:absolute;left:50%;bottom:-76vh;width:min(760px,95vw);transform:translateX(-50%) scale(.98);opacity:0;filter:brightness(.56) saturate(.88);mask-image:linear-gradient(to bottom,transparent 0%,black 24%,black 72%,transparent 98%);animation:avatarRise 2.2s 2.65s cubic-bezier(.16,.82,.2,1) forwards;z-index:-1}.intro-vignette{position:absolute;inset:0;background:radial-gradient(circle at center,transparent 30%,rgba(0,0,0,.42) 62%,#000 100%);pointer-events:none}.skip{position:absolute;right:24px;bottom:22px;color:#8f887e;background:none;border:0;font-size:12px;letter-spacing:.16em;cursor:pointer;opacity:.65}.skip:hover{opacity:1;color:var(--gold2)}
-@keyframes vIn{to{opacity:1;transform:scale(1)}}@keyframes ruleIn{to{width:min(350px,62vw)}}@keyframes fadeUp{to{opacity:1;transform:translateY(-3px)}}@keyframes avatarRise{0%{bottom:-72vh;opacity:0}35%{opacity:.15}100%{bottom:-43vh;opacity:.34}}@keyframes breathe{50%{transform:scale(1.05);opacity:.8}}@keyframes fog{to{transform:translate3d(4%,2%,0) scale(1.05)}}@keyframes drift{to{transform:translateY(-84px)}}
-/* HERO */
-.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;background:linear-gradient(180deg,#050506 0%,#070709 68%,#050506 100%)}.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 44%,rgba(213,164,88,.15),transparent 27%),linear-gradient(90deg,#050506 0%,rgba(5,5,6,.84) 39%,rgba(5,5,6,.20) 70%,#050506 100%);z-index:2}.hero-bg{position:absolute;right:-2%;bottom:-5%;width:min(850px,68vw);height:94%;object-fit:cover;object-position:center;filter:brightness(.67) contrast(1.08) saturate(.82);opacity:.92;mask-image:linear-gradient(to left,black 62%,transparent 100%);transform:scale(1.04);animation:heroFloat 12s ease-in-out infinite}.hero-noise{position:absolute;inset:0;opacity:.07;z-index:3;background-image:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1.2px);background-size:115px 115px}.nav{position:absolute;top:0;left:0;right:0;z-index:8;padding:26px 0}.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:30px}.brand img{width:235px;height:auto;display:block}.nav-links{display:flex;align-items:center;gap:28px;color:#c8c0b6;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.nav-cta,.btn{border:1px solid rgba(213,164,88,.65);padding:13px 18px;color:var(--gold2);background:rgba(10,10,12,.46);backdrop-filter:blur(12px)}.hero-content{position:relative;z-index:5;padding-top:110px;width:min(650px,58vw)}.eyebrow{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#a99a88;margin-bottom:20px}.hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(50px,7.4vw,104px);font-weight:400;letter-spacing:.11em;margin:0 0 14px;line-height:.94;text-shadow:0 0 35px rgba(213,164,88,.12)}.claim{font-size:clamp(14px,1.4vw,19px);letter-spacing:.42em;color:#eadbc8;margin:0 0 34px}.hero-copy{max-width:590px;color:#c5bdb1;line-height:1.8;font-size:16px}.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}.btn{display:inline-flex;align-items:center;gap:12px;transition:.25s ease}.btn.primary{background:linear-gradient(135deg,#c28f48,#f0c57a);color:#17100a;border-color:transparent;font-weight:700}.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(213,164,88,.13)}.micro{margin-top:18px;color:#817a70;font-size:12px;letter-spacing:.08em}.scrollcue{position:absolute;z-index:6;left:50%;bottom:24px;transform:translateX(-50%);font-size:10px;letter-spacing:.28em;color:#777067;text-transform:uppercase}.scrollcue::after{content:"";display:block;width:1px;height:42px;background:linear-gradient(var(--gold),transparent);margin:12px auto 0}.card-float{position:absolute;z-index:4;width:100px;height:140px;border:1px solid rgba(213,164,88,.35);border-radius:8px;background:linear-gradient(145deg,rgba(28,24,20,.9),rgba(7,7,8,.95));box-shadow:0 15px 50px #000;transform:rotate(var(--r));opacity:.35}.card-float::before{content:"V";position:absolute;inset:12px;border:1px solid rgba(213,164,88,.2);display:grid;place-items:center;color:rgba(213,164,88,.5);font-family:Georgia,serif;font-size:30px}.c1{right:10%;top:18%;--r:9deg;animation:float1 8s ease-in-out infinite}.c2{right:3%;top:54%;--r:-12deg;animation:float2 10s ease-in-out infinite}.c3{left:47%;bottom:6%;--r:7deg;animation:float1 11s ease-in-out infinite reverse}@keyframes heroFloat{50%{transform:scale(1.065) translateY(-8px)}}@keyframes float1{50%{transform:translateY(-18px) rotate(calc(var(--r) + 3deg))}}@keyframes float2{50%{transform:translateY(17px) rotate(calc(var(--r) - 2deg))}}
-/* CONTENT */
-.section{padding:105px 0;position:relative}.section::before{content:"";position:absolute;left:50%;top:0;width:min(1100px,90vw);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,var(--line),transparent)}.kicker{text-transform:uppercase;letter-spacing:.3em;font-size:11px;color:#8c8174}.section h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,5vw,65px);font-weight:400;letter-spacing:.04em;margin:14px 0 22px}.lead{color:#aaa39a;line-height:1.8;max-width:760px}.vision-section{overflow:hidden;background:radial-gradient(circle at 78% 38%,rgba(213,164,88,.07),transparent 30%)}.vision-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:90px;align-items:start}.vision-wrap>div:first-child{position:sticky;top:110px}.vision-story{max-width:700px}.vision-copy{font-size:17px;line-height:1.9;color:#aaa39a;margin:0 0 38px}.vision-statement{font-family:Georgia,"Times New Roman",serif;font-size:clamp(30px,3.4vw,48px);line-height:1.25;margin:10px 0 42px}.vision-punch{border-left:1px solid var(--gold);padding:6px 0 6px 25px;margin:8px 0 44px;display:grid;gap:9px;color:#d6cdc0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,2vw,27px)}.vision-mantra{font-family:Georgia,"Times New Roman",serif;font-size:clamp(28px,3.2vw,44px);line-height:1.35;margin:0 0 42px;color:#eee3d5}.vision-claim{margin-top:52px;padding-top:26px;border-top:1px solid var(--line);font-size:13px;letter-spacing:.45em;color:#d9c7ad}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px}.feature{background:linear-gradient(180deg,rgba(18,17,18,.86),rgba(8,8,9,.92));border:1px solid rgba(213,164,88,.17);padding:34px;min-height:250px;position:relative;overflow:hidden}.feature::after{content:"";position:absolute;width:130px;height:130px;border:1px solid rgba(213,164,88,.1);border-radius:50%;right:-40px;top:-40px}.feature .num{font-family:Georgia,serif;color:#6f5d45;font-size:13px;letter-spacing:.2em}.feature h3{font-family:Georgia,serif;font-size:31px;font-weight:400;letter-spacing:.17em;margin:50px 0 12px}.feature p{color:#9f998f;line-height:1.7}.manifest{background:radial-gradient(circle at 50% 50%,rgba(213,164,88,.09),transparent 25%),#060607;text-align:center}.manifest blockquote{font-family:Georgia,serif;font-size:clamp(30px,4vw,54px);font-weight:400;line-height:1.4;margin:0 auto;max-width:900px;color:#efe5d8}.manifest small{display:block;margin-top:26px;color:#7f7569;letter-spacing:.26em;text-transform:uppercase}.beta{display:grid;grid-template-columns:1.15fr .85fr;gap:55px;align-items:center}.beta-card{border:1px solid var(--line);padding:34px;background:rgba(13,12,13,.75)}.beta-form{display:flex;gap:10px}.beta-form input{flex:1;min-width:0;background:#070708;border:1px solid #3a342d;color:#eee;padding:15px}.beta-form button{background:linear-gradient(135deg,#c28f48,#efc57b);border:0;color:#1b130c;font-weight:800;padding:15px 20px;cursor:pointer}.beta-note{font-size:12px;color:#766f66;margin-top:12px}.footer{padding:38px 0 48px;border-top:1px solid rgba(213,164,88,.13);color:#7f786f}.footer-inner{display:flex;justify-content:space-between;gap:20px;align-items:center}.footer img{width:210px}.legal{display:flex;gap:22px;font-size:12px}
-.brand{display:inline-flex;align-items:center;gap:12px}.brand img{width:44px;height:44px;object-fit:contain}.brand span{font-family:Georgia,"Times New Roman",serif;font-size:22px;letter-spacing:.12em;color:#d9ae68}.mobile-login{display:none;border:1px solid rgba(213,164,88,.65);padding:10px 13px;color:var(--gold2);font-size:11px;letter-spacing:.12em;text-transform:uppercase}.footer-brand img{width:40px!important}.footer-brand span{font-size:19px}.beta-form-live{flex-wrap:wrap}.consent{width:100%;display:flex;gap:10px;align-items:flex-start;color:#91887c;font-size:11px;line-height:1.5;margin-top:4px}.consent input{flex:0 0 auto;margin-top:2px}.consent a{color:#caa66e;text-decoration:underline}.beta-form button[disabled]{opacity:.55;cursor:not-allowed}.beta-note.ok{color:#b9c99f}.beta-note.err{color:#d6a0a0}.reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}.reveal.in{opacity:1;transform:none}
-@media(max-width:820px){.mobile-login{display:inline-flex}.nav-inner{gap:12px}.brand span{font-size:18px}.vision-wrap{grid-template-columns:1fr;gap:36px}.vision-wrap>div:first-child{position:static}.vision-copy{font-size:16px}.vision-claim{letter-spacing:.25em}.nav-links{display:none}.brand img{width:195px}.hero{min-height:920px;align-items:flex-start}.hero-content{width:100%;padding-top:160px}.hero h1{font-size:52px;letter-spacing:.06em}.claim{letter-spacing:.22em;font-size:13px}.hero-bg{width:100vw;height:54%;right:0;bottom:0;mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 100%);object-position:center top;opacity:.67}.hero::before{background:linear-gradient(180deg,#050506 0%,rgba(5,5,6,.95) 45%,rgba(5,5,6,.22) 72%,#050506 100%)}.card-float{display:none}.grid3{grid-template-columns:1fr}.beta{grid-template-columns:1fr}.beta-form{flex-direction:column}.footer-inner{flex-direction:column;align-items:flex-start}.section{padding:78px 0}.intro-avatar{width:120vw}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.intro-v{opacity:1}#intro{display:none}.reveal{opacity:1;transform:none}}
-</style>
+<meta name="description" content="DUELVANTA verbindet Collection, Marketplace und Arena für Trading-Card-Sammler, Händler und Spieler.">
+<link rel="stylesheet" href="duelvanta-beta.css?v=1">
+<link rel="stylesheet" href="beta-home.css?v=1">
 </head>
-<body>
-<div id="intro" aria-label="DUELVANTA Intro">
-  <div class="intro-glow"></div><div class="intro-fog"></div><div class="intro-particles"></div>
-  <div class="intro-stage">
-    <img class="intro-v" src="v-logo.svg" alt="DUELVANTA V" />
-    <img class="intro-avatar" src="avatar-clean.png" alt="" aria-hidden="true" />
+<body class="dv-beta beta-home">
+
+<div id="intro" class="beta-intro" aria-label="DUELVANTA Intro">
+  <div class="beta-intro-stage">
+    <img class="beta-intro-logo" src="v-logo.svg" alt="DUELVANTA V">
+    <div class="beta-intro-name">DUELVANTA</div>
+    <div class="beta-intro-tag">COLLECT · TRADE · BATTLE</div>
+    <img class="beta-intro-avatar" src="avatar-clean.png" alt="" aria-hidden="true">
   </div>
-  <div class="intro-vignette"></div><button class="skip" id="skipIntro">ÜBERSPRINGEN</button>
+  <button class="beta-intro-skip" id="skipIntro" type="button">Überspringen</button>
 </div>
 
-<main>
-<section class="hero">
-  <nav class="nav"><div class="wrap nav-inner"><a class="brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt="" /><span>DUELVANTA</span></a><a id="mobileAccountLink" class="mobile-login" href="login.html">LOGIN</a><div class="nav-links"><a href="#vision">Vision</a><a href="#features">Features</a><a href="#beta">Beta</a><a id="accountLink" class="nav-cta" href="login.html">LOGIN</a><a class="nav-cta" href="#beta">Beta-Zugang</a></div></div></nav>
-  <img class="hero-bg" src="avatar-clean.png" alt="Der DUELVANTA Host" />
-  <div class="hero-noise"></div><div class="card-float c1"></div><div class="card-float c2"></div><div class="card-float c3"></div>
-  <div class="wrap"><div class="hero-content" id="top">
-    <div class="eyebrow">Eine neue Welt für Trading Cards</div>
-    <h1>DUELVANTA</h1>
-    <div class="claim">COLLECT. TRADE. BATTLE.</div>
-    <p class="hero-copy">Eine Plattform für Sammler, Händler und Spieler. Verwalte deine Collection, handle Karten, entdecke Scan & Sell und tritt später in Webcam-Matches, Rankings und Turnieren an.</p>
-    <div class="actions"><a class="btn primary" href="#beta">Beta-Zugang sichern <span>→</span></a><a class="btn" href="#vision">Die Vision entdecken</a></div>
-    <div class="micro">Kein künstlicher Countdown. DUELVANTA startet, wenn es bereit ist.</div>
-  </div></div><div class="scrollcue">Entdecken</div>
-</section>
-
-<section class="section vision-section" id="vision"><div class="wrap vision-wrap">
-  <div class="reveal"><div class="kicker">Die Vision</div><h2>Sammeln ist mehr<br>als Karten besitzen.</h2></div>
-  <div class="vision-story">
-    <p class="vision-copy reveal">Wir kennen das selbst: Man sucht Karten auf einer Plattform, Preise auf der nächsten, verwaltet seine Sammlung irgendwo anders – und zum Spielen braucht man wieder einen anderen Dienst.</p>
-    <p class="vision-statement reveal"><span class="gold">DUELVANTA soll das ändern.</span></p>
-    <p class="vision-copy reveal">Wir bauen einen Ort, an dem deine Sammlung wirklich lebt. Du kannst Karten sammeln, ihren Wert verfolgen, handeln und verkaufen. Und wenn du spielen willst, nimmst du genau diese echten Karten und trittst über die DUELVANTA Arena gegen andere Spieler an.</p>
-    <div class="vision-punch reveal"><span>Keine digitale Kopie deiner Sammlung.</span><span>Keine fünf verschiedenen Plattformen.</span></div>
-    <p class="vision-mantra reveal">Deine Karten. <span class="gold">Deine Sammlung.</span> Deine Matches.</p>
-    <p class="vision-copy reveal">Heute beginnt DUELVANTA mit einer kleinen Community. Daraus soll Schritt für Schritt eine Plattform entstehen, auf der Sammler, Händler und Spieler zusammenkommen.</p>
-    <div class="vision-claim reveal">COLLECT. TRADE. BATTLE.</div>
+<header class="home-header">
+  <div class="dv-container dv-topbar-inner">
+    <a class="dv-brand" href="#top" aria-label="DUELVANTA Startseite">
+      <img src="v-logo.svg" alt="">
+      <span class="dv-brand-word">DUELVANTA</span>
+    </a>
+    <nav class="home-nav" aria-label="Hauptnavigation">
+      <a href="#collect">Collect</a>
+      <a href="#trade">Trade</a>
+      <a href="#battle">Battle</a>
+      <a href="#vision">Vision</a>
+    </nav>
+    <div class="home-actions">
+      <a id="mobileAccountLink" class="dv-btn dv-btn-ghost dv-btn-sm home-mobile-login" href="login.html">LOGIN</a>
+      <a id="accountLink" class="dv-btn dv-btn-ghost dv-btn-sm" href="login.html">LOGIN</a>
+      <a class="dv-btn dv-btn-primary dv-btn-sm beta-link" href="#beta">Beta-Zugang</a>
+    </div>
   </div>
-</div></section>
+</header>
 
-<section class="section" id="features"><div class="wrap"><div class="kicker reveal">Die drei Säulen</div><div class="grid3">
-  <article class="feature reveal"><div class="num">01</div><h3>COLLECT</h3><p>Collection & Portfolio mit Marktwert, Kaufpreis, Gewinn/Verlust, Grading-Status und persönlichen Sets.</p></article>
-  <article class="feature reveal"><div class="num">02</div><h3>TRADE</h3><p>Marketplace, Direktankauf und Scan & Sell: Karte erfassen, erkennen, bewerten und in wenigen Schritten listen.</p></article>
-  <article class="feature reveal"><div class="num">03</div><h3>BATTLE</h3><p>Webcam Arena, Casual und Ranked, Turniere, Rankings, Judges und später Live-Matches für Zuschauer.</p></article>
-</div></div></section>
+<main>
+  <section class="home-hero" id="top">
+    <div class="home-hero-glow"></div>
+    <img class="home-hero-avatar" src="avatar-clean.png" alt="Der DUELVANTA Host">
+    <div class="dv-container">
+      <div class="home-hero-content">
+        <p class="dv-eyebrow">Eine Plattform für echte TCG-Spieler</p>
+        <h1 class="dv-display"><span>COLLECT.</span><span>TRADE.</span><span class="accent-line">BATTLE.</span></h1>
+        <p class="home-hero-sub">Deine Karten. Dein Markt. Deine Arena.</p>
+        <p class="dv-lead">DUELVANTA verbindet Sammlung, Handel und echte Matches in einer Plattform — beginnend mit Pokémon und One Piece.</p>
+        <div class="dv-hero-actions">
+          <a class="dv-btn dv-btn-primary" href="#beta">Beta-Zugang sichern →</a>
+          <a class="dv-btn dv-btn-ghost" href="#worlds">DUELVANTA entdecken</a>
+        </div>
+        <div class="home-badges">
+          <span class="dv-chip dv-chip-gold">Beta in Entwicklung</span>
+          <span class="dv-chip">Pokémon</span>
+          <span class="dv-chip">One Piece</span>
+        </div>
+      </div>
+    </div>
+    <div class="home-scroll">Entdecken</div>
+  </section>
 
-<section class="section manifest"><div class="wrap reveal"><blockquote>„Die besten Karten haben eine Geschichte. <span class="gold">DUELVANTA gibt ihnen eine Bühne.</span>“</blockquote><small>Same passion. Different worlds.</small></div></section>
+  <section id="worlds" class="dv-section worlds">
+    <div class="dv-container">
+      <div class="world-heading reveal">
+        <p class="dv-eyebrow">Die drei Welten</p>
+        <h2 class="dv-display">Mehr als Karten.</h2>
+        <p class="dv-lead">DUELVANTA soll nicht die nächste isolierte TCG-App sein. Collection, Marketplace und Arena gehören zusammen.</p>
+      </div>
+      <div class="dv-card-grid">
+        <a class="world-card reveal" data-mark="C" href="#collect">
+          <div class="world-content">
+            <div class="world-index">01 · Build your collection</div>
+            <h3>COLLECT</h3>
+            <p>Scannen, organisieren und deine Karten als echte digitale Sammlung verwalten.</p>
+            <div class="world-links"><span>Scanner</span><span>Binder</span><span>Portfolio</span></div>
+          </div>
+        </a>
+        <a class="world-card reveal" data-mark="T" href="#trade">
+          <div class="world-content">
+            <div class="world-index">02 · Find your next card</div>
+            <h3>TRADE</h3>
+            <p>Singles, Graded und Sealed entdecken, anbieten, kaufen und verkaufen.</p>
+            <div class="world-links"><span>Marketplace</span><span>Offers</span><span>Orders</span></div>
+          </div>
+        </a>
+        <a class="world-card reveal" data-mark="B" href="#battle">
+          <div class="world-content">
+            <div class="world-index">03 · Prove your skills</div>
+            <h3>BATTLE</h3>
+            <p>Mit deinen echten Karten spielen, Matches bestreiten und dich im Ranking messen.</p>
+            <div class="world-links"><span>Ranked</span><span>Arena</span><span>Profiles</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
 
-<section class="section" id="beta"><div class="wrap beta"><div class="reveal"><div class="kicker">Founders Beta</div><h2>Sei von Anfang an dabei.</h2><p class="lead">Die ersten Mitglieder erleben DUELVANTA vor dem öffentlichen Start und helfen dabei, die Plattform mitzugestalten.</p></div><div class="beta-card reveal"><form class="beta-form beta-form-live" id="betaForm"><input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="Deine E-Mail-Adresse" required aria-label="E-Mail-Adresse"><button type="submit" id="betaSubmit">Zur Warteliste →</button><label class="consent"><input type="checkbox" id="consent" required><span>Ich möchte auf die DUELVANTA-Beta-Warteliste und akzeptiere die Verarbeitung meiner E-Mail-Adresse hierfür. Hinweise stehen in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label></form><div class="beta-note" id="formNote" role="status" aria-live="polite">Deine E-Mail-Adresse wird ausschließlich für die DUELVANTA-Beta-Warteliste gespeichert.</div></div></div></section>
+  <section id="collect" class="dv-section spotlight">
+    <div class="dv-container spotlight-grid">
+      <div class="spotlight-copy reveal">
+        <p class="dv-eyebrow">Collect</p>
+        <h2 class="dv-display">COLLECT. SCAN. ORGANIZE.</h2>
+        <p class="dv-lead">Aus einer physischen Sammlung wird eine digitale Collection, die sich wirklich verwalten lässt. Scanner V16 entsteht parallel und wird erst integriert, wenn der Mobile-Akzeptanztest bestanden ist.</p>
+        <div class="spotlight-list">
+          <div class="spotlight-item"><div class="spotlight-icon">◫</div><div><b>Card Scanner</b><span>Einzelkarten schnell erfassen und zuordnen.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">▤</div><div><b>Multi & Binder Scan</b><span>Mehrere Karten und komplette Binderseiten effizient erfassen.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">□</div><div><b>Binder Management</b><span>Ordnen, verschieben und die Sammlung visuell abbilden.</span></div></div>
+        </div>
+      </div>
+      <div class="product-window collect-visual reveal" aria-label="COLLECT UI Vorschau">
+        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
+        <div class="product-body">
+          <div class="product-hero"><div><p class="dv-eyebrow">Your cards. Organized.</p><h4>Collection Hub</h4><p>Scan · Track · Build · Belong</p></div></div>
+          <div class="product-grid">
+            <div class="product-tile"><strong>Scanner</strong><span>Single Card</span></div>
+            <div class="product-tile"><strong>Multi Scan</strong><span>Mehrere Karten</span></div>
+            <div class="product-tile"><strong>Binder</strong><span>9-Pocket Seiten</span></div>
+            <div class="product-tile"><strong>Collection</strong><span>Übersicht</span></div>
+            <div class="product-tile"><strong>Organize</strong><span>Sortieren & filtern</span></div>
+            <div class="product-tile"><strong>Portfolio</strong><span>Marktwert & Verlauf</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trade" class="dv-section spotlight flip">
+    <div class="dv-container spotlight-grid">
+      <div class="spotlight-copy reveal">
+        <p class="dv-eyebrow">Trade</p>
+        <h2 class="dv-display">TRADE. BUY. SELL.</h2>
+        <p class="dv-lead">Der bestehende Marketplace bleibt funktional stabil. Für den Beta-Refresh wird die Oberfläche hochwertiger, klarer und schneller erfassbar — ohne die Order- und Angebotslogik neu zu erfinden.</p>
+        <div class="spotlight-list">
+          <div class="spotlight-item"><div class="spotlight-icon">◇</div><div><b>Singles & Graded</b><span>Gezielt suchen, filtern und Angebote vergleichen.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">▣</div><div><b>Sealed</b><span>Displays, Cases und Kollektionen sauber getrennt handeln.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">⇄</div><div><b>Orders & Offers</b><span>Klare Zustände und sichtbare Aktionen statt Bestellchaos.</span></div></div>
+        </div>
+      </div>
+      <div class="product-window trade-visual reveal" aria-label="TRADE UI Vorschau">
+        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
+        <div class="product-body">
+          <div class="product-hero"><div><p class="dv-eyebrow">Marketplace</p><h4>Real cards. Real people.</h4><p>Singles · Graded · Sealed · Offers</p></div></div>
+          <div class="product-grid">
+            <div class="product-tile"><div class="trade-card"></div><strong>Singles</strong><span>Karten entdecken</span></div>
+            <div class="product-tile"><div class="trade-card"></div><strong>Sealed</strong><span>Displays & Cases</span></div>
+            <div class="product-tile"><div class="trade-card"></div><strong>Offers</strong><span>Verhandeln</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="battle" class="dv-section spotlight">
+    <div class="dv-container spotlight-grid">
+      <div class="spotlight-copy reveal">
+        <p class="dv-eyebrow">Battle</p>
+        <h2 class="dv-display">BATTLE. WATCH. COMPETE.</h2>
+        <p class="dv-lead">Von der Sammlung in die Arena. Ranked und Profile bilden das Fundament; weitere Match- und Zuschauerfunktionen werden als Beta oder kommende Ausbaustufe transparent gekennzeichnet.</p>
+        <div class="spotlight-list">
+          <div class="spotlight-item"><div class="spotlight-icon">⚔</div><div><b>Ranked</b><span>Server-autoritatives Rating und nachvollziehbare Ergebnisse.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">○</div><div><b>Player Profiles</b><span>Rang, Verlauf und Spieleridentität an einem Ort.</span></div></div>
+          <div class="spotlight-item"><div class="spotlight-icon">▷</div><div><b>Live & Tournaments</b><span>Ausbau nach stabiler Beta-Basis — ohne Funktionen vorzutäuschen.</span></div></div>
+        </div>
+      </div>
+      <div class="product-window battle-visual reveal" aria-label="BATTLE UI Vorschau">
+        <div class="product-topbar"><span class="product-dot gold"></span><span class="product-dot"></span><span class="product-dot"></span></div>
+        <div class="product-body">
+          <div class="product-hero"><div class="battle-vs"><div class="battle-vs-card">V</div><b>VS</b><div class="battle-vs-card">V</div></div></div>
+          <div class="product-grid">
+            <div class="product-tile"><strong>Ranked</strong><span>Rating & Rang</span></div>
+            <div class="product-tile"><strong>History</strong><span>Matches & Ergebnisse</span></div>
+            <div class="product-tile"><strong>Profiles</strong><span>Stats & Identität</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="vision" class="dv-section community-section">
+    <div class="dv-container reveal">
+      <p class="dv-eyebrow">Belong</p>
+      <h2 class="dv-display">Die Plattform endet nicht bei einer Karte.</h2>
+      <p class="dv-lead">Heute beginnt DUELVANTA mit einer kleinen Community. Daraus soll Schritt für Schritt ein Ort entstehen, an dem Sammler, Händler und Spieler wirklich zusammenkommen.</p>
+      <p class="community-quote">„Die besten Karten haben eine Geschichte. <span class="dv-gold">DUELVANTA gibt ihnen eine Bühne.</span>“</p>
+    </div>
+  </section>
+
+  <section id="beta" class="dv-section">
+    <div class="dv-container beta-signup">
+      <div class="reveal">
+        <p class="dv-eyebrow">Founders Beta</p>
+        <h2 class="dv-display">Sei von Anfang an dabei.</h2>
+        <p class="dv-lead">Die ersten Mitglieder erleben DUELVANTA vor dem öffentlichen Start und helfen dabei, Scanner, Marketplace und Arena mit realem Feedback zu verbessern.</p>
+      </div>
+      <div class="beta-form-card reveal">
+        <form class="beta-form" id="betaForm">
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="Deine E-Mail-Adresse" required aria-label="E-Mail-Adresse">
+          <button class="dv-btn dv-btn-primary" type="submit" id="betaSubmit">Zur Warteliste →</button>
+          <label class="beta-consent"><input type="checkbox" id="consent" required><span>Ich möchte auf die DUELVANTA-Beta-Warteliste und akzeptiere die Verarbeitung meiner E-Mail-Adresse hierfür. Hinweise stehen in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label>
+        </form>
+        <div class="beta-note" id="formNote" role="status" aria-live="polite">Deine E-Mail-Adresse wird ausschließlich für die DUELVANTA-Beta-Warteliste gespeichert.</div>
+      </div>
+    </div>
+  </section>
 </main>
-<footer class="footer"><div class="wrap footer-inner"><a class="brand footer-brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt="" /><span>DUELVANTA</span></a><div class="legal"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="mailto:info@duelvanta.de">Kontakt</a></div></div></footer>
+
+<footer class="home-footer">
+  <div class="dv-container home-footer-inner">
+    <a class="dv-brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt=""><span class="dv-brand-word">DUELVANTA</span></a>
+    <div class="home-legal"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="mailto:info@duelvanta.de">Kontakt</a></div>
+  </div>
+</footer>
+
+<nav class="dv-mobile-nav home-mobile-nav" aria-label="Mobile Navigation">
+  <a class="active" href="#top"><span>⌂</span><span>Home</span></a>
+  <a href="#collect"><span>◫</span><span>Collect</span></a>
+  <a href="#trade"><span>⇄</span><span>Trade</span></a>
+  <a href="#battle"><span>⚔</span><span>Battle</span></a>
+  <a href="#beta"><span>◇</span><span>Beta</span></a>
+</nav>
+
 <script>
 const intro=document.getElementById('intro');const skip=document.getElementById('skipIntro');
 function finishIntro(){intro.classList.add('done');sessionStorage.setItem('duelvantaIntroSeen','1')}
-if(sessionStorage.getItem('duelvantaIntroSeen')){intro.style.display='none'}else{setTimeout(finishIntro,5900)}
+if(sessionStorage.getItem('duelvantaIntroSeen')){intro.style.display='none'}else{setTimeout(finishIntro,3200)}
 skip.addEventListener('click',finishIntro);
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.14});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
 document.getElementById('betaForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const mail=document.getElementById('email').value.trim().toLowerCase();const consent=document.getElementById('consent').checked;const note=document.getElementById('formNote');const btn=document.getElementById('betaSubmit');note.className='beta-note';if(!mail||!consent)return;btn.disabled=true;btn.textContent='Wird eingetragen …';try{const r=await fetch(SB_URL+'/rest/v1/beta_waitlist',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email:mail,consent:true,source:'landingpage'})});if(r.ok){note.textContent='Geschafft – du stehst auf der DUELVANTA-Beta-Warteliste.';note.classList.add('ok');form.reset();}else if(r.status===409){note.textContent='Diese E-Mail-Adresse steht bereits auf der Warteliste.';note.classList.add('ok');}else{throw new Error('HTTP '+r.status)}}catch(err){console.error(err);note.textContent='Die Anmeldung konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.';note.classList.add('err')}finally{btn.disabled=false;btn.textContent='Zur Warteliste →'}});
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{const c=window.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true}});c.auth.getSession().then(({data})=>{const on=!!data.session;for(const id of ['accountLink','mobileAccountLink']){const a=document.getElementById(id);if(a){a.textContent=on?'MEIN DUELVANTA':'LOGIN';a.href=on?'app.html':'login.html'}}})})();
 </script>
-</body></html>
+</body>
+</html>
