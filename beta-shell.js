@@ -3,11 +3,11 @@
   const pathname=String(globalThis.location?.pathname||'app.html');
   const page=(pathname.split('/').pop()||'app.html').toLowerCase();
   const items=[
-    ['app.html','H','Home'],
-    ['collect.html','C','Collect'],
-    ['trade.html','T','Trade'],
-    ['battle.html','B','Battle'],
-    ['profile.html','P','Profile']
+    ['app.html','⌂','Home'],
+    ['collect.html','▤','Collect'],
+    ['trade.html','⇄','Trade'],
+    ['battle.html','◇','Battle'],
+    ['profile.html','○','Profile']
   ];
   function mountDock(){
     if(document.querySelector('.beta-mobile-dock'))return;
@@ -27,6 +27,16 @@
     strip.innerHTML=items.map(([href,symbol,label])=>`<a href="${href}" class="${page===href?'active':''}"><span class="beta-route-symbol">${symbol}</span><span>${label}</span></a>`).join('');
     hero.insertAdjacentElement('afterend',strip);
   }
-  function start(){mountDock();mountRouteStrip()}
+  function bindTileActions(){
+    document.addEventListener('click',e=>{
+      const tile=e.target.closest?.('[data-beta-action]');if(!tile)return;
+      const action=tile.dataset.betaAction;
+      const map={market:'[data-tab="market"]',mine:'[data-tab="mine"]',offers:'[data-tab="offers"]',sell:'#sell','create-match':'#createMatch'};
+      const target=map[action]?document.querySelector(map[action]):null;
+      if(target){e.preventDefault();target.click();target.scrollIntoView?.({behavior:'smooth',block:'center'});return}
+      if(action==='lobby'){e.preventDefault();document.getElementById('lobbyView')?.scrollIntoView?.({behavior:'smooth',block:'start'})}
+    });
+  }
+  function start(){mountDock();mountRouteStrip();bindTileActions()}
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
 })();
