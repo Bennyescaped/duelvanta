@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.1.0-lab';
+  const VERSION='16.18.0-lab',CARD_RATIO=63/88;
   let installed=false;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const size=s=>({w:Number(s?.videoWidth||s?.naturalWidth||s?.width||0),h:Number(s?.videoHeight||s?.naturalHeight||s?.height||0)});
@@ -53,12 +53,19 @@
     const tw=Math.hypot(q[1].x-q[0].x,q[1].y-q[0].y),bw=Math.hypot(q[2].x-q[3].x,q[2].y-q[3].y),lh=Math.hypot(q[3].x-q[0].x,q[3].y-q[0].y),rh=Math.hypot(q[2].x-q[1].x,q[2].y-q[1].y),ratio=((tw+bw)/2)/Math.max(1,(lh+rh)/2);if(ratio<.48||ratio>1.02)return null;
     const confidence=clamp(.35+area*.35+Math.min(1,(L.n+R.n+T.n+B.n)/220)*.3,0,1);return{quad:q.map(p=>({x:p.x*sx,y:p.y*sy})),confidence,area,ratio};
   }
-  function warpQuad(source,quad,width=820){
-    const {w,h}=size(source),src=document.createElement('canvas');src.width=w;src.height=h;const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(source,0,0,w,h);const s= sx.getImageData(0,0,w,h),q=quad,top=Math.hypot(q[1].x-q[0].x,q[1].y-q[0].y),bottom=Math.hypot(q[2].x-q[3].x,q[2].y-q[3].y),left=Math.hypot(q[3].x-q[0].x,q[3].y-q[0].y),right=Math.hypot(q[2].x-q[1].x,q[2].y-q[1].y),ratio=((top+bottom)/2)/Math.max(1,(left+right)/2),W=Math.max(420,Math.round(width)),H=Math.max(520,Math.round(W/clamp(ratio,.55,.90))),out=document.createElement('canvas');out.width=W;out.height=H;const ox=out.getContext('2d'),od=ox.createImageData(W,H);
+  function warpQuad(source,quad,width=820,targetRatio=null){
+    const {w,h}=size(source),src=document.createElement('canvas');src.width=w;src.height=h;const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(source,0,0,w,h);const s= sx.getImageData(0,0,w,h),q=quad,top=Math.hypot(q[1].x-q[0].x,q[1].y-q[0].y),bottom=Math.hypot(q[2].x-q[3].x,q[2].y-q[3].y),left=Math.hypot(q[3].x-q[0].x,q[3].y-q[0].y),right=Math.hypot(q[2].x-q[1].x,q[2].y-q[1].y),measured=((top+bottom)/2)/Math.max(1,(left+right)/2),ratio=Number(targetRatio)||measured,W=Math.max(420,Math.round(width)),H=Math.max(520,Math.round(W/clamp(ratio,.48,.90))),out=document.createElement('canvas');out.width=W;out.height=H;const ox=out.getContext('2d'),od=ox.createImageData(W,H);
     for(let yy=0;yy<H;yy++){const v=yy/(H-1);for(let xx=0;xx<W;xx++){const u=xx/(W-1),a=(1-u)*(1-v),b=u*(1-v),c=u*v,d=(1-u)*v,px=clamp(Math.round(a*q[0].x+b*q[1].x+c*q[2].x+d*q[3].x),0,w-1),py=clamp(Math.round(a*q[0].y+b*q[1].y+c*q[2].y+d*q[3].y),0,h-1),si=(py*w+px)*4,di=(yy*W+xx)*4;od.data[di]=s.data[si];od.data[di+1]=s.data[si+1];od.data[di+2]=s.data[si+2];od.data[di+3]=255}}
     ox.putImageData(od,0,0);return out
   }
   function correctBinder(source){const d=detectBinderQuad(source);if(!d||d.confidence<.52)return{source,corrected:false,confidence:d?.confidence||0,quad:d?.quad||null};try{return{source:warpQuad(source,d.quad),corrected:true,confidence:d.confidence,quad:d.quad}}catch{return{source,corrected:false,confidence:d.confidence,quad:d.quad}}}
+  function normalizeCard(source,{width=900,inset=0}={}){
+    const s=size(source);if(!s.w||!s.h)return source;const d=detectBinderQuad(source),center=d?.quad?d.quad.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0}):null,centered=center&&Math.abs(center.x-s.w/2)<s.w*.14&&Math.abs(center.y-s.h/2)<s.h*.14,cardLike=d&&d.area>=.64&&d.ratio>=.60&&d.ratio<=.82&&centered;
+    if(cardLike)try{return warpQuad(source,d.quad,width,CARD_RATIO)}catch{}
+    const out=document.createElement('canvas'),W=Math.max(420,Math.round(width)),H=Math.round(W/CARD_RATIO),margin=clamp(Number(inset)||0,0,.08);out.width=W;out.height=H;let x=s.w*margin,y=s.h*margin,w=s.w*(1-margin*2),h=s.h*(1-margin*2),sourceRatio=w/h;
+    if(sourceRatio>CARD_RATIO){const next=h*CARD_RATIO;x+=(w-next)/2;w=next}else if(sourceRatio<CARD_RATIO){const next=w/CARD_RATIO;y+=(h-next)/2;h=next}
+    out.getContext('2d').drawImage(source,x,y,w,h,0,0,W,H);return out
+  }
 
   function install(){
     const core=window.DV_SCAN_V16_CORE;if(!core||installed)return !!core;installed=true;const base=core.analyze.bind(core);
@@ -75,7 +82,7 @@
       }
       const out=await base(source,opts);for(const r of out.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out;
     };
-    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder};return true
+    core.version=VERSION;window.DV_SCAN_V16_GEOMETRY={version:VERSION,detectCardRects,detectBinderQuad,warpQuad,correctBinder,normalizeCard};return true
   }
   let tries=0;const t=setInterval(()=>{tries++;if(install()||tries>120)clearInterval(t)},50);
 })();
