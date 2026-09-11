@@ -43,6 +43,10 @@ unread notification badge, notification dialog/read state, direct order routing,
 `AKTION ERFORDERLICH` for address and receipt, and removal of the receipt action
 after completion.
 
+The same browser fixture verifies the simplified mobile Marketplace navigation,
+contextual section headings, compact non-market views, touch quantity controls and
+the explicit transition from an accepted price proposal to its Order.
+
 ## Static contract regressions
 
 Run with plain Node.js:
@@ -51,6 +55,7 @@ Run with plain Node.js:
 node tests/trade-automation-contract-test.mjs
 node tests/trade-shipping-contract-test.mjs
 node tests/trade-resolution-contract-test.mjs
+node tests/trade-marketplace-ux-contract-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,

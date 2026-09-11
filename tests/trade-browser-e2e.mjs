@@ -11,6 +11,7 @@ let browser;
 try{
  browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));
  // Confirm the user's receipt action in the fixture, just as in the real UI.
  page.on('dialog',dialog=>dialog.accept());
  await page.goto('http://127.0.0.1:4173/trade.html?selftest=1');
@@ -20,5 +21,8 @@ try{
  await writeFile(new URL('../test-results/trade-browser.txt',import.meta.url),text);
  if(!text.includes('ALL UI TESTS PASSED'))console.log(await page.evaluate(()=>({calls:TRADE_UI_FIXTURE.calls.slice(-12),body:document.body.innerText.slice(-6000)})));
  assert.ok(text.includes('ALL UI TESTS PASSED'),text);
+ assert.deepEqual(pageErrors,[],'Mobile TRADE page raised a browser error');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),true,'Mobile Marketplace must not overflow horizontally');
+ await page.screenshot({path:fileURLToPath(new URL('../test-results/trade-mobile.png',import.meta.url)),fullPage:true});
  console.log(text);
 }finally{await browser?.close();server.kill()}
