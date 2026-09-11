@@ -29,6 +29,7 @@ on:
       - 'scanner-v16.html'
       - 'scanner-v16-host.js'
       - 'database/collect-scanner-v16-*.sql'
+      - 'database/collect-binder-*.sql'
       - 'tests/scanner-v16-contract-test.mjs'
       - 'tests/scanner-v16-acceptance-regression-test.mjs'
       - 'tests/scanner-v16-tcg-test.mjs'
@@ -108,7 +109,9 @@ jobs:
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
       - name: Scanner V16 contract
-        run: node tests/scanner-v16-contract-test.mjs
+        run: |
+          node tests/scanner-v16-contract-test.mjs
+          node tests/scanner-v16-binder-layout-test.mjs
       - name: Gemini private pilot (no provider calls)
         run: |
           node --check api/scanner-v16-gemini.js

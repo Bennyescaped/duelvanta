@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host,slots,hardening]=await Promise.all([
+const [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host,slots,hardening,binderPages]=await Promise.all([
   read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-camera.js'),read('scanner-v16-native-camera.js'),read('scanner-v16-runtime.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
   read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),read('scanner-v16.html'),read('scanner-v16-host.js'),
-  read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql')
+  read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql'),read('database/collect-binder-pages-v1.sql')
 ]);
 const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
 const collect=await read('collect.html');
@@ -64,12 +64,18 @@ must(ui,'normalizeCard?.(source','raw scan must be normalized before storage');
 must(ui,'providerEvidence?.cardCorners','OpenAI card corners must drive batch crop normalization');
 must(ui,'row.storageSource=sourceCopy','single-card provider coordinates must retain their original image space');
 must(ui,'holderCorners','slab storage must preserve the complete holder and label');
+must(ui,"host.classList.remove('dvV16Hidden')",'saved cards must open inline without leaving the scanner');
+assert.ok(!ui.includes("location.assign('collect.html'"),'saved-card viewing must not reload COLLECT');
 must(ui,'normalizeSlab?.(source','slab scans must use the universal normalized storage path');
 must(binder,'feste Binderplätze','position-aware binder rendering missing');
 must(binder,"db.rpc('dv_collect_move_card'",'atomic interactive binder move missing');
 must(binder,'data-move','mobile binder move control missing');
 must(binder,'Zum Verschieben oben einen eigenen Binder öffnen','Master Collection positioning guidance missing');
-must(collect,'scanner-v16-binder.js?v=16.23.0','interactive binder must load in COLLECT');
+must(collect,'scanner-v16-binder.js?v=16.24.0','interactive binder must load in COLLECT');
+must(collect,'binder_pages:binderPages','new binders must persist their chosen page count');
+must(binder,'persistentPages:true','binder module must expose durable page-count support');
+must(binder,"update({binder_pages:requested})",'existing binders must allow owner-controlled page changes');
+must(binder,'renderBinder();announce','binder moves must update locally without reloading the full collection');
 must(collect,"GRADED_SCOPE='__graded__'",'virtual Graded Collection scope missing');
 must(collect,"'Graded Collection'",'Graded Collection entry missing');
 must(binder,'unplaced','legacy/unpositioned cards must remain visible');
@@ -98,27 +104,30 @@ must(benchmarkSession,'BERICHT KOPIEREN','guided benchmark report action missing
 must(benchmarkSession,'Multi/Binder Slots','guided batch benchmark reporting missing');
 must(freeform,'AUTO · freie Anordnung','freeform UI option missing');
 must(loader,'scanner-v15-loader.js?v=15.8','V15 fallback must remain available in lab');
-must(loader,'scanner-v16-tcg.js?v=16.23.0','TCG-specific V16.2 module not loaded');
-must(loader,'scanner-v16-core.js?v=16.23.0','V16.2 core not loaded');
-must(loader,'scanner-v16-quality.js?v=16.23.0','V16.3 evidence quality layer not loaded');
-must(loader,'scanner-v16-resilience.js?v=16.23.0','V16.5 resilience layer not loaded');
-must(loader,'scanner-v16-explain.js?v=16.23.0','V16.4 explainability layer not loaded');
-must(loader,'scanner-v16-guidance.js?v=16.23.0','V16.5 guidance UI not loaded');
-must(loader,'scanner-v16-benchmark.js?v=16.23.0','V16.5 benchmark not loaded');
-must(loader,'scanner-v16-benchmark-session.js?v=16.23.0','V16.9 guided benchmark session not loaded');
-must(loader,'scanner-v16-runtime.js?v=16.23.0','V16.9 state machine not loaded');
-must(loader,'scanner-v16-camera.js?v=16.23.0','V16.9 live camera service not loaded');
-must(loader,'scanner-v16-native-camera.js?v=16.23.0','V16.9 native fallback not loaded');
-for(const module of ['scanner-v16-geometry.js?v=16.23.0','scanner-v16-vision.js?v=16.23.0','scanner-v16-freeform-ui.js?v=16.23.0'])must(loader,module,'V16.1 module not loaded');
+must(loader,'scanner-v16-tcg.js?v=16.24.0','TCG-specific V16.2 module not loaded');
+must(loader,'scanner-v16-core.js?v=16.24.0','V16.2 core not loaded');
+must(loader,'scanner-v16-quality.js?v=16.24.0','V16.3 evidence quality layer not loaded');
+must(loader,'scanner-v16-resilience.js?v=16.24.0','V16.5 resilience layer not loaded');
+must(loader,'scanner-v16-explain.js?v=16.24.0','V16.4 explainability layer not loaded');
+must(loader,'scanner-v16-guidance.js?v=16.24.0','V16.5 guidance UI not loaded');
+must(loader,'scanner-v16-benchmark.js?v=16.24.0','V16.5 benchmark not loaded');
+must(loader,'scanner-v16-benchmark-session.js?v=16.24.0','V16.9 guided benchmark session not loaded');
+must(loader,'scanner-v16-runtime.js?v=16.24.0','V16.9 state machine not loaded');
+must(loader,'scanner-v16-camera.js?v=16.24.0','V16.9 live camera service not loaded');
+must(loader,'scanner-v16-native-camera.js?v=16.24.0','V16.9 native fallback not loaded');
+for(const module of ['scanner-v16-geometry.js?v=16.24.0','scanner-v16-vision.js?v=16.24.0','scanner-v16-freeform-ui.js?v=16.24.0'])must(loader,module,'V16.1 module not loaded');
 must(lab,"location.replace('scanner-v16.html'",'legacy lab must route to direct V16 page');
 assert.ok(!lab.includes('<iframe'),'V16 Lab must not use an iframe');
-must(route,'scanner-v16-loader.js?v=16.23.0','direct V16 route loader missing');
+must(route,'scanner-v16-loader.js?v=16.24.0','direct V16 route loader missing');
 must(route,'COLLECT & BINDER ÖFFNEN','standalone scanner must link to COLLECT');
 must(route,'viewport-fit=cover','mobile safe-area viewport missing');
 must(host,'DV_SCAN_V16_STANDALONE=true','standalone host bridge missing');
 for(const col of ['binder_page','binder_slot','scan_source','scan_confidence'])must(slots,col,'V16 collection metadata missing');
 must(slots,'collection_items_binder_position_unique','binder slot uniqueness missing');
 must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot clearing missing');
+must(binderPages,'add column if not exists binder_pages','binder page count migration missing');
+must(binderPages,'greatest(','existing and occupied binder pages must never be truncated');
+must(binderPages,'between 2 and 100','binder page limits missing');
 for(const source of [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
 console.log('PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition');

@@ -37,6 +37,7 @@ const base=`http://127.0.0.1:${server.address().port}`,browser=await chromium.la
 page.setDefaultTimeout(15000);const errors=[],report=[];let failed=false;
 page.on('pageerror',e=>errors.push(e.message));
 page.on('console',m=>{if(m.type()==='error'&&!/status of 404/.test(m.text()))errors.push(m.text())});
+await page.route('https://api.frankfurter.dev/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({rate:.85})}));
 await page.route(/https:\/\/(api\.tcgdex\.net|assets\.tcgdex\.net|optcgapi\.com)\//,async route=>{try{const r=await remote(route.request().url());await route.fulfill({status:r.status,contentType:r.contentType,body:r.body})}catch(e){providerErrors.push({url:route.request().url(),error:e.message});await route.abort()}});
 const snapshot=()=>page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{tcg:r?.tcg,id:r?.id?.code,observedLanguage:r?.observedLanguage,evidence:r?.identifierEvidence,status:r?.status,failure:r?.failureType,quality:r?.quality,reviewReasons:r?.reviewReasons,manualConfirmed:r?.manualConfirmed,best:r?.best&&{id:r.best.catalogId,name:r.best.name,number:r.best.number,language:r.best.language,variant:r.best.variant,artwork:r.best.v16Visual},candidates:r?.candidates?.map(c=>({id:c.catalogId,art:c.v16Visual,language:c.language,variant:c.variant})),benchmark:window.DV_SCAN_V16_BENCHMARK.load().length}});
 const waitResult=()=>page.waitForFunction(()=>document.getElementById('dvV16Status')?.textContent.includes('Analyse fertig'),null,{timeout:100000});

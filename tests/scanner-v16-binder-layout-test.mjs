@@ -7,7 +7,7 @@ await import('../scanner-v16-binder.js');
 
 const moved={id:'moved',binder_page:1,binder_slot:1};
 const loose=Array.from({length:10},(_,i)=>({id:`loose-${i+1}`,binder_page:null,binder_slot:null}));
-assert.equal(DV_SCAN_V16_BINDER_LAYOUT.pageCount(11,[moved]),2,'eleven cards with one fixed position must use two pages, not split fixed and loose pages');
+assert.equal(DV_SCAN_V16_BINDER_LAYOUT.pageCount(11,[moved],2),2,'eleven cards with one fixed position must use two pages, not split fixed and loose pages');
 let slots=DV_SCAN_V16_BINDER_LAYOUT.composeSlots([moved],loose,2);
 assert.equal(slots.length,18);
 assert.equal(slots[0],moved,'fixed card must retain its chosen position');
@@ -20,4 +20,6 @@ assert.equal(DV_SCAN_V16_BINDER_LAYOUT.pageCount(2,[late]),4,'an explicitly sele
 slots=DV_SCAN_V16_BINDER_LAYOUT.composeSlots([late],[{id:'first'}],4);
 assert.equal(slots[0].id,'first');
 assert.equal(slots[35],late,'explicit late-page placement must remain addressable');
+assert.equal(DV_SCAN_V16_BINDER_LAYOUT.pageCount(2,[],6),6,'the saved binder page count must expose intentionally empty later pages');
+assert.equal(DV_SCAN_V16_BINDER_LAYOUT.pageCount(1,[],1),2,'every collector binder must retain at least two pages');
 console.log('PASS: fixed binder positions and legacy/unpositioned cards share compact pages without hiding cards.');

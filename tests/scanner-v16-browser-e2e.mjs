@@ -51,6 +51,7 @@ await page.route('https://optcgapi.com/**',async route=>{
   const url=route.request().url();catalogRequests.push(url);
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(url.includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Synthetic regression set',rarity:'SEC',card_image:base+'/fixtures/onepiece/high.webp'}]:[])});
 });
+await page.route('https://api.frankfurter.dev/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({rate:.85})}));
 await page.route(base+'/fixtures/**',async route=>{
   const file=route.request().url().includes('pokemon')?'pokemon-074-084.svg':'onepiece-op05-119.svg';
   await route.fulfill({status:200,contentType:'image/svg+xml',body:await readFile(resolve(root,'tests/fixtures',file))});

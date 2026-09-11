@@ -30,7 +30,7 @@ assert.equal(m.average_ms,1667);
 assert.ok(b.report(session).includes('Multi/Binder Slots: 7/9 korrekt'));
 const loader=await readFile(new URL('../scanner-v16-loader.js',import.meta.url),'utf8');
 const lab=await readFile(new URL('../scanner-v16-lab.html',import.meta.url),'utf8');
-assert.ok(loader.includes('scanner-v16-benchmark-session.js?v=16.23.0'),'V16.9 benchmark session not loaded');
+assert.ok(loader.includes('scanner-v16-benchmark-session.js?v=16.24.0'),'V16.9 benchmark session not loaded');
 assert.ok(lab.includes("location.replace('scanner-v16.html'"),'legacy lab route must forward to direct V16 page');
 assert.ok(!loader.includes('service_role'),'benchmark loader must not expose service_role');
 console.log('PASS: Scanner V16.9 benchmark session ground truth, metrics and direct-route wiring');
