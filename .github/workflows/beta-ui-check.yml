@@ -4,10 +4,13 @@ on:
     paths:
       - 'duelvanta-beta.css'
       - 'beta-home.css'
+      - 'beta-app.css'
       - 'beta-design-system.html'
       - 'index.html'
+      - 'app.html'
       - 'tests/beta-design-system-test.mjs'
       - 'tests/beta-home-test.mjs'
+      - 'tests/beta-app-test.mjs'
       - '.github/workflows/beta-ui-check.yml'
   workflow_dispatch:
 jobs:
@@ -22,3 +25,5 @@ jobs:
         run: node tests/beta-design-system-test.mjs
       - name: Beta homepage contract
         run: node tests/beta-home-test.mjs
+      - name: Authenticated app shell contract
+        run: node tests/beta-app-test.mjs
