@@ -119,7 +119,7 @@ must(loader,'scanner-v16-native-camera.js?v=16.24.0','V16.9 native fallback not 
 for(const module of ['scanner-v16-geometry.js?v=16.24.0','scanner-v16-vision.js?v=16.24.0','scanner-v16-freeform-ui.js?v=16.24.0'])must(loader,module,'V16.1 module not loaded');
 must(lab,"location.replace('scanner-v16.html'",'legacy lab must route to direct V16 page');
 assert.ok(!lab.includes('<iframe'),'V16 Lab must not use an iframe');
-must(route,'scanner-v16-loader.js?v=16.24.0','direct V16 route loader missing');
+must(route,'scanner-v16-loader.js?v=16.26.0','direct V16 route loader missing');
 must(route,'COLLECT & BINDER ÖFFNEN','standalone scanner must link to COLLECT');
 must(route,'viewport-fit=cover','mobile safe-area viewport missing');
 must(host,'DV_SCAN_V16_STANDALONE=true','standalone host bridge missing');
