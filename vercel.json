@@ -6,6 +6,9 @@
     },
     "api/scanner-v16-ximilar.js": {
       "maxDuration": 60
+    },
+    "api/scanner-v16-openai.js": {
+      "maxDuration": 60
     }
   },
   "rewrites": [

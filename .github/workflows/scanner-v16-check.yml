@@ -8,6 +8,7 @@ on:
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
       - 'api/scanner-v16-ximilar.js'
+      - 'api/scanner-v16-openai.js'
       - 'api/scanner-v16-recognize.js'
       - 'benchmark/scanner-pilot/recognize-server.cjs'
       - 'tests/scanner-v16-provider-test.mjs'
@@ -15,6 +16,8 @@ on:
       - 'benchmark/scanner-pilot/ximilar-*'
       - 'benchmark/scanner-pilot/score-ximilar.mjs'
       - 'tests/scanner-v16-ximilar-test.mjs'
+      - 'benchmark/scanner-pilot/openai-*'
+      - 'tests/scanner-v16-openai-test.mjs'
       - 'benchmark/scanner-pilot/gemini-*'
       - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
       - 'benchmark/scanner-pilot/score-gemini.mjs'
@@ -113,6 +116,8 @@ jobs:
           node tests/scanner-v16-gemini-test.mjs
           node --check api/scanner-v16-ximilar.js
           node tests/scanner-v16-ximilar-test.mjs
+          node --check api/scanner-v16-openai.js
+          node tests/scanner-v16-openai-test.mjs
       - name: Ximilar integration and durable quota boundary (no paid calls)
         run: |
           node --check api/scanner-v16-recognize.js

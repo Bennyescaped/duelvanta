@@ -1,7 +1,8 @@
 (()=>{
   'use strict';
-  const provider=new URLSearchParams(location.search).get('provider')==='ximilar'?'ximilar':'gemini';
-  const providerName=provider==='ximilar'?'Ximilar':'Gemini';
+  const requested=new URLSearchParams(location.search).get('provider');
+  const provider=['gemini','ximilar','openai'].includes(requested)?requested:'gemini';
+  const providerName=provider==='ximilar'?'Ximilar':provider==='openai'?'OpenAI':'Gemini';
   const endpoint=`/api/scanner-v16-${provider}`,key=`duelvanta_${provider}_pilot_v1`;
   const $=id=>document.getElementById(id);
   let bundle=null,running=false,stop=false,connection=null;
@@ -16,7 +17,10 @@
     $('report').textContent=JSON.stringify(entries,null,2);$('results').replaceChildren();
     for(const entry of entries){const article=document.createElement('article'),title=document.createElement('strong'),info=document.createElement('p');
       title.textContent=`${entry.photoId} · ${entry.result?.observed?.name||entry.error||'Kein Ergebnis'}`;
-      info.textContent=entry.result?`${entry.result.observed.printed_code||'Nummer nicht erkannt'} · ${entry.result.observed.language||'Sprache offen'} · ${entry.result.observed.variant||'Variante offen'} · ${entry.result.elapsedMs} ms · Katalog noch ungeprüft`:'Kein erfolgreicher Erkennungsnachweis.';
+      const usage=entry.result?.usage,grading=entry.result?.observed?.is_graded?[entry.result.observed.grading_company,entry.result.observed.grade].filter(Boolean).join(' '):'';
+      const cost=Number.isFinite(entry.result?.estimatedCostUsd)?` · $${entry.result.estimatedCostUsd.toFixed(5)}`:'';
+      const tokens=Number.isFinite(usage?.totalTokens)?` · ${usage.totalTokens} Tokens`:'';
+      info.textContent=entry.result?`${entry.result.observed.printed_code||'Nummer nicht erkannt'} · ${entry.result.observed.language||'Sprache offen'} · ${entry.result.observed.variant||'Variante offen'}${grading?' · '+grading:''} · ${entry.result.elapsedMs} ms${tokens}${cost} · Katalog noch ungeprüft`:'Kein erfolgreicher Erkennungsnachweis.';
       article.append(title,info);$('results').append(article)}
     $('start').disabled=running||!connection?.active||!connection?.configured||!bundle||bundleHasFailure();
     $('bundle').disabled=running;$('check').disabled=running;$('stop').disabled=!running;
