@@ -1,6 +1,7 @@
 (()=>{
   'use strict';
-  const page=(location.pathname.split('/').pop()||'app.html').toLowerCase();
+  const pathname=String(globalThis.location?.pathname||'app.html');
+  const page=(pathname.split('/').pop()||'app.html').toLowerCase();
   const items=[
     ['app.html','H','Home'],
     ['collect.html','C','Collect'],
