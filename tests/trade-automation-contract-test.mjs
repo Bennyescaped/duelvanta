@@ -22,7 +22,8 @@ for(const fn of ['emit_market_offer_notification','emit_market_purchase_notifica
   const source=fn==='link_offer_notification_to_order'?hardening:migration;
   must(source,`revoke all on function public.${fn}`,'internal trigger function must not be client-callable');
 }
-for(const fn of ['emit_market_offer_notification','emit_market_purchase_notification','emit_market_order_status_notification','get_my_market_notifications','mark_market_notification_read','mark_all_market_notifications_read','get_my_trade_actions','link_offer_notification_to_order'])must(hardening,`alter function public.${fn}`,'hardening missing function');
+for(const fn of ['emit_market_offer_notification','emit_market_purchase_notification','emit_market_order_status_notification','get_my_market_notifications','mark_market_notification_read','mark_all_market_notifications_read','get_my_trade_actions'])must(hardening,`alter function public.${fn}`,'hardening missing function');
+assert.match(hardening,/create or replace function public\.link_offer_notification_to_order\(\)[\s\S]*?security definer\s+set search_path = ''/,'new trigger function must define its safe search path at creation');
 must(hardening,"set search_path = ''",'SECURITY DEFINER search_path hardening missing');
 must(automation,"if(item?.order_id)return openOrder(item.order_id)",'notification/action should prefer direct order routing');
 must(automation,"if(item?.offer_id)return openOffer()",'offer fallback routing missing');
