@@ -227,26 +227,26 @@ try{
   assert.equal(await page.locator('#dvV16Tcg').inputValue(),selectedTcg);assert.equal(await page.locator('#dvV16Folder').inputValue(),selectedBinder);
   assert.equal(await page.evaluate(()=>window.__importCalls),1,'starting next scan must not repeat an import');
 
-  console.log('E2E: saved Ximilar evidence → correct catalog result → benchmark; replay cannot import');
+  console.log('E2E: saved OpenAI evidence → correct catalog result → benchmark; replay cannot import');
   for(const fixture of [{tcg:'pokemon',file:'pokemon-074-084.svg',code:'074/084',name:'Retourorden',language:'DE',printing:'me05-074'},{tcg:'one_piece',file:'onepiece-op05-119.svg',code:'OP05-119',name:'Monkey D. Luffy',language:'EN',printing:'OP05-119_P1'}]){
     await page.selectOption('#dvV16Tcg',fixture.tcg);
     await page.evaluate(async fixture=>{
       const file=await fetch('/tests/fixtures/'+fixture.file).then(r=>r.blob());
       const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer()),sha256=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
-      await window.DV_SCAN_V16.processProviderResult(file,{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:fixture.tcg,sha256,observed:{tcg:fixture.tcg,printed_code:fixture.code,language:fixture.language,name:fixture.name},catalogCandidate:{card_id:fixture.printing},status:'proposed',elapsedMs:2700});
+      await window.DV_SCAN_V16.processProviderResult(file,{model:'gpt-5.4-mini',selectedTcg:fixture.tcg,sha256,observed:{tcg:fixture.tcg,printed_code:fixture.code,language:fixture.language,name:fixture.name,needs_review:true},status:'proposal',elapsedMs:2700});
     },fixture);
     await waitForResult(fixture.name,fixture.code);
     await page.locator('.dvV16Details summary').click();
-    assert.match(await page.locator('.dvV16Debug').innerText(),/Ximilar · gespeicherter Test/);
+    assert.match(await page.locator('.dvV16Debug').innerText(),/OpenAI · gespeicherter Test/);
     assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
     assert.match(await page.locator('.dvV16Badge').first().innerText(),/TEST · KEIN IMPORT/);
     const saved=await page.evaluate(()=>window.DV_SCAN_V16_BENCHMARK.load().at(-1));
-    assert.equal(saved.results[0].provider,'ximilar');assert.equal(saved.results[0].provider_replay,true);assert.equal(saved.results[0].number,fixture.code);
+    assert.equal(saved.results[0].provider,'openai');assert.equal(saved.results[0].provider_replay,true);assert.equal(saved.results[0].number,fixture.code);
     assert.equal(await page.evaluate(()=>window.__importCalls),1);
   }
   await page.screenshot({path:resolve(root,'test-results/v16-ximilar-replay.png'),fullPage:true});
 
-  console.log('E2E: explicit Ximilar choice → authenticated mock API → review → manual confirmation → isolated import');
+  console.log('E2E: explicit OpenAI choice → authenticated mock API → review → manual confirmation → isolated import');
   let providerCalls=0,providerError=false;
   await page.unroute(base+'/api/scanner-v16-recognize');
   await page.route(base+'/api/scanner-v16-recognize',async route=>{
@@ -254,14 +254,14 @@ try{
     providerCalls++;const body=route.request().postDataJSON();
     assert.equal(route.request().headers().authorization,'Bearer test-session');assert.ok(['pokemon','one_piece'].includes(body.tcg));
     const sha256=createHash('sha256').update(Buffer.from(body.imageBase64,'base64')).digest('hex');
-    if(body.kind==='slab'&&body.tcg==='one_piece')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'ximilar-collectibles-v2-slab-id',selectedTcg:'one_piece',kind:'slab',sha256,status:'slab_review',slab:{company:'PSA',grade:'10',certificateNumber:'TEST0013',printedCode:'#013',set:'2022 ONE PIECE OP01 EN',name:'SANJI ALTERNATE ART'},cardRect:{x:50/730,y:230/1180,w:630/730,h:880/1180}})});
-    if(body.kind==='slab')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'ximilar-collectibles-v2-slab-id',selectedTcg:'pokemon',kind:'slab',sha256,status:'slab_review',slab:{company:'PSA',grade:'9',certificateNumber:'00123456',printedCode:'#74',reviewRequired:true,certificateVerified:false},cardRect:{x:50/730,y:230/1180,w:630/730,h:880/1180}})});
-    return route.fulfill({status:providerError?504:200,contentType:'application/json',body:JSON.stringify(providerError?{error:'provider_timeout_or_network'}:{model:'ximilar-collectibles-v2-tcg-id',selectedTcg:'pokemon',sha256,observed:{tcg:'pokemon',printed_code:'074/084',language:'DE'},catalogCandidate:{card_id:'me05-074'},status:'proposed',remaining:19})});
+    if(body.kind==='slab'&&body.tcg==='one_piece')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'gpt-5.4-mini',selectedTcg:'one_piece',kind:'slab',sha256,status:'proposal',observed:{tcg:'one_piece',printed_code:'OP01-013',language:'EN',name:'Sanji',is_graded:true,grading_company:'PSA',grade:'10',certificate_number:'TEST0013',subgrades:[],needs_review:true}})});
+    if(body.kind==='slab')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({model:'gpt-5.4-mini',selectedTcg:'pokemon',kind:'slab',sha256,status:'proposal',observed:{tcg:'pokemon',printed_code:'074/084',language:'DE',name:'Retourorden',is_graded:true,grading_company:'PSA',grade:'9',certificate_number:'00123456',subgrades:[],needs_review:true}})});
+    return route.fulfill({status:providerError?504:200,contentType:'application/json',body:JSON.stringify(providerError?{error:'provider_timeout_or_network'}:{model:'gpt-5.4-mini',selectedTcg:'pokemon',sha256,observed:{tcg:'pokemon',printed_code:'074/084',language:'DE',name:'Retourorden',needs_review:true},status:'proposal',remaining:19})});
   });
   await page.evaluate(()=>{window.db.auth={getSession:async()=>({data:{session:{access_token:'test-session'}}})}});
   await page.click('#dvV16Close');await page.click('#dvV16Launch');
   await page.locator('#dvV16EngineField:not(.dvV16Hidden)').waitFor();
-  await page.selectOption('#dvV16Tcg','pokemon');await page.selectOption('#dvV16Engine','ximilar');
+  await page.selectOption('#dvV16Tcg','pokemon');await page.selectOption('#dvV16Engine','openai');
   await upload('#dvV16GalleryFile','tests/fixtures/pokemon-074-084.svg');
   await waitForResult('Retourorden','074/084');assert.equal(providerCalls,1);
   assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
@@ -288,7 +288,7 @@ try{
   console.log('E2E: whole slab upload → one mock label API → real card OCR → separate card/label confirmation → isolated graded import');
   providerError=false;expectedProviderError=false;
   await page.selectOption('#dvV16Kind','slab');
-  assert.equal(await page.locator('#dvV16Engine').inputValue(),'ximilar');
+  assert.equal(await page.locator('#dvV16Engine').inputValue(),'openai');
   await upload('#dvV16GalleryFile','tests/fixtures/slab-pokemon-074-084.svg');
   await waitForResult('Retourorden','074/084');
   assert.equal(providerCalls,3);assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
@@ -316,8 +316,8 @@ try{
   await upload('#dvV16GalleryFile','tests/fixtures/slab-sanji-label.svg');
   await waitForResult('Sanji','OP01-013');
   const sanjiEvidence=await page.evaluate(()=>{const r=window.DV_SCAN_V16.batch[0];return{id:r.id?.code,source:r.identifierSource,candidates:r.candidates.map(c=>c.name),benchmark:window.DV_SCAN_V16_BENCHMARK.load().at(-1)}});
-  assert.equal(sanjiEvidence.id,'OP01-013');assert.equal(sanjiEvidence.source,'slab_label');assert.ok(sanjiEvidence.candidates.includes('Sanji (Parallel)'));
-  assert.equal(sanjiEvidence.benchmark.results[0].identifier_source,'slab_label');assert.equal(providerCalls,4,'label recovery makes no second paid request');
+  assert.equal(sanjiEvidence.id,'OP01-013');assert.equal(sanjiEvidence.source,'openai');assert.ok(sanjiEvidence.candidates.includes('Sanji (Parallel)'));
+  assert.equal(sanjiEvidence.benchmark.results[0].identifier_source,'openai');assert.equal(providerCalls,4,'catalog verification makes no second paid request');
   assert.equal(await page.locator('[data-v16-check]').isDisabled(),true);
   await page.locator('.dvV16Recovery summary').click();await page.locator('[data-v16-confirm][data-candidate="1"]').click();
   await page.locator('[data-v16-slab] button').click();assert.equal(await page.locator('[data-v16-check]').isEnabled(),true);

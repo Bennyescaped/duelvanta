@@ -65,8 +65,9 @@
     core.analyze=async function(source,opts={}){
       const mode=opts.mode||'single';
       if(opts.providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine KI-Antwort gilt für genau eine Karte.');
+      if(opts.geometryPrepared){const out=await base(source,opts);out.geometry=opts.geometryInfo||{prepared:true};for(const r of out.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out}
       if(mode==='multi'&&opts.layout==='auto'){
-        const regions=detectCardRects(source,{maxCards:12});if(regions.length>=2){const results=[];for(let i=0;i<regions.length;i++){opts.onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=core.canvasFrom(source,regions[i],820),r=await core.recognizeRegion(crop,opts.tcg||'pokemon');results.push({...r,index:i,slot:i+1,row:null,col:null,crop});opts.onProgress?.({index:i+1,total:regions.length,phase:'done',result:results.at(-1)})}const out={version:VERSION,mode,tcg:opts.tcg||'pokemon',layout:'auto',results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length,geometry:{freeform:true,detected:regions.length}};for(const r of results)r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out}
+        const regions=detectCardRects(source,{maxCards:12});if(regions.length>=2){const out=await base(source,{...opts,regionsOverride:regions});out.layout='auto';out.geometry={freeform:true,detected:regions.length};for(const r of out.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return out}
         const fallback=await base(source,{...opts,layout:'2x2'});fallback.geometry={freeform:true,detected:regions.length,fallback:'2x2'};for(const r of fallback.results||[])r.visionRecommended=!!window.DV_SCAN_V16_VISION?.shouldEscalate?.(r);return fallback;
       }
       if(mode==='binder'){

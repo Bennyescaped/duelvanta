@@ -111,7 +111,7 @@
     const provider=providerObservation?window.DV_SCAN_V16_PROVIDER.read(providerObservation,tcg):null;
     const q=quality(card);let identifierEvidence=null,id=provider?provider.id:identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
     const observedLanguage=provider?.language||identifierEvidence?.observedLanguage||cardObservedLanguage||null;
-    const sourceEvidence={providerReplay:!!providerReplay,...(provider?{identifierSource:'ximilar',providerEvidence:provider.evidence}:{})};
+    const sourceEvidence={providerReplay:!!providerReplay,...(provider?{identifierSource:provider.evidence.provider,providerEvidence:provider.evidence}:{})};
     if(!id)return{tcg,quality:q,id:null,identifierEvidence,observedLanguage,candidates:[],best:null,confidence:0,status:'review',failureType:'identifier_failure',variantConfidence:0,candidateGap:0,...sourceEvidence};
     let cands=[],lookupInfo;
     onProgress({phase:'catalog',tcg,identifier:id.code});
@@ -147,10 +147,11 @@
     if(!window.DV_SCAN_V16_LIVE)return null;
     try{const sample=canvasFrom(source,null,280),s=size(source),scale=sample.width/s.w,e=fitCenteredRect(sample),frame=window.DV_SCAN_V16_LIVE.inspect(sample.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sample.width,sample.height),e);return frame.presence&&frame.aligned?window.DV_SCAN_V16_LIVE.captureRect(frame.rect,scale,s.w,s.h):null}catch{return null}
   }
-  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,cardObservedLanguage,providerObservation,providerReplay=false,sourcePrepared=false}={}){
+  async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,cardObservedLanguage,providerObservation,providerObservations,providerReplay=false,sourcePrepared=false,regionsOverride}={}){
     if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
-    if(providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine KI-Antwort gilt für genau eine Karte.');
-    const regions=sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout),results=[];
+    if(providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine einzelne KI-Antwort gilt für genau eine Karte.');
+    if(regionsOverride&&(!Array.isArray(regionsOverride)||!regionsOverride.length||regionsOverride.some(r=>![r.x,r.y,r.w,r.h].every(Number.isFinite))))throw new Error('Ungültige Kartenbereiche.');
+    const regions=regionsOverride||(sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout)),results=[];
     if(!sourcePrepared&&['single','continuous'].includes(mode)){
       const s=size(source);
       // A tightly framed card already has its footer at the image edge. Do not
@@ -159,7 +160,7 @@
       else{const detected=detectedRegion(source);if(detected)Object.assign(regions[0],detected)}
     }
     for(let i=0;i<regions.length;i++){
-      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),r=await recognizeRegion(crop,tcg,{identifierOverride,cardObservedLanguage,providerObservation,providerReplay,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
+      onProgress?.({index:i,total:regions.length,phase:'recognize'});const crop=canvasFrom(source,regions[i],820),observation=Array.isArray(providerObservations)?providerObservations[i]:providerObservation,r=await recognizeRegion(crop,tcg,{identifierOverride,cardObservedLanguage,providerObservation:observation,providerReplay,onProgress:p=>onProgress?.({index:i,total:regions.length,...p})});results.push({...r,index:i,slot:regions[i].slot,row:regions[i].row,col:regions[i].col,crop});onProgress?.({index:i+1,total:regions.length,phase:'done',result:results[results.length-1]});
     }
     return{version:VERSION,mode,tcg,layout,results,ready:results.filter(x=>x.status==='ready').length,review:results.filter(x=>x.status!=='ready'&&x.best).length,empty:results.filter(x=>!x.best).length};
   }

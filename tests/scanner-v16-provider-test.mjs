@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import pilot from '../benchmark/scanner-pilot/ximilar-server.cjs';
 
 globalThis.window=globalThis;
 await import('../scanner-v16-tcg.js');
@@ -34,10 +33,8 @@ await new Promise(resolve=>setTimeout(resolve,65));
 const file=new File(['same original bytes'],'original.jpg',{type:'image/jpeg'});
 const sha256=createHash('sha256').update('same original bytes').digest('hex');
 const proposalFor=f=>{
-  const [tcg,code,language,,name,set_code,card_id]=f;
-  const [num,den]=code.split('/');
-  const raw={records:[{_objects:[{name:'Card',_ocr:{lang:language,full_text:code},_identification:{best_match:{name,card_number:tcg==='pokemon'?String(Number(num)):code.split('-')[1],out_of:tcg==='pokemon'&&set_code!=='M1S'?den:undefined,set_code,card_id,subcategory:tcg==='pokemon'?'Pokemon':'One Piece'},alternatives:[],distances:[0.1]}}]}]};
-  return {...pilot.parseResponse(raw,tcg),model:pilot.MODEL,selectedTcg:tcg,sha256,elapsedMs:2500};
+  const [tcg,code,language,,name]=f;
+  return {model:'gpt-5.4-mini',selectedTcg:tcg,sha256,elapsedMs:2500,status:'proposal',observed:{tcg,printed_code:code,name,language,set_name:null,rarity:null,variant:null,needs_review:true},usage:{inputTokens:2000,outputTokens:100},estimatedCostUsd:.00195};
 };
 for(const f of fixtureCards){
   const proposal=proposalFor(f);await DV_SCAN_V16_PROVIDER.verifyPhoto(file,proposal);
@@ -45,20 +42,22 @@ for(const f of fixtureCards){
   const r=pack.results[0];
   assert.equal(DV_SCAN_V16_TCG.idCode(r.id,f[0]),DV_SCAN_V16_TCG.idCode({code:f[1]},f[0]));
   assert.equal(r.best.name,f[3]);assert.equal(r.best.language,f[2]);
-  assert.equal(r.identifierSource,'ximilar');assert.equal(r.providerEvidence.printingId,f[6]);
+  assert.equal(r.identifierSource,'openai');assert.equal(r.providerEvidence.printingId,null);
   assert.equal(r.identifierEvidence,null,'AI recognition is not multiple OCR votes');
   assert.equal(r.status,'review');assert.equal(pack.ready,0);
   assert.equal(DV_SCAN_V16_RECOVERY.canConfirm(r,r.best),false,'replayed tests never import');
   const b=DV_SCAN_V16_BENCHMARK.load().at(-1).results[0];
-  assert.equal(b.identifier_source,'ximilar');assert.equal(b.provider_printing_id,f[6]);assert.equal(b.provider_replay,true);
+  assert.equal(b.identifier_source,'openai');assert.equal(b.provider_printing_id,null);assert.equal(b.provider_replay,true);
 }
 assert.equal(ocrCalls,0);assert.equal(DV_SCAN_V16_BENCHMARK.load().length,8);
 const p=proposalFor(fixtureCards[0]);
+const multi=await DV_SCAN_V16_CORE.analyze({width:1260,height:1760},{mode:'multi',layout:'2x2',tcg:'pokemon',providerObservations:[p,p,p,p]});
+assert.equal(multi.results.length,4);assert.ok(multi.results.every(r=>r.identifierSource==='openai'&&r.id.code==='074/084'));
 await assert.rejects(()=>DV_SCAN_V16_PROVIDER.verifyPhoto(new File(['different'],'other.jpg'),p),/anderen Foto/);
-await assert.rejects(()=>DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'one_piece',providerObservation:p}),/TCG/);
+await assert.rejects(()=>DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'one_piece',providerObservation:p}),/Kartenspiel/);
 await assert.rejects(()=>DV_SCAN_V16_CORE.analyze({width:630,height:880},{mode:'binder',tcg:'pokemon',providerObservation:p}),/genau eine Karte/);
 const before=lookups;
-const conflict=await DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'pokemon',providerObservation:{...p,identifierConflict:true}});
+const conflict=await DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'pokemon',providerObservation:{...p,status:'tcg_conflict'}});
 assert.equal(conflict.results[0].best,null);assert.equal(lookups,before);assert.equal(ocrCalls,0);
 available=false;
 const miss=(await DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'pokemon',providerObservation:p})).results[0];
@@ -69,4 +68,4 @@ assert.equal(wrong.best,null);assert.equal(wrong.failureType,'language_ambiguity
 wrongLanguage=false;
 const live=(await DV_SCAN_V16_CORE.analyze({width:630,height:880},{tcg:'pokemon',providerObservation:p})).results[0];
 assert.equal(live.status,'review');DV_SCAN_V16_RECOVERY.confirm(live,0);assert.equal(live.selected,true);
-console.log('PASS: Ximilar evidence → original V16 catalog/language/quality/result/benchmark; exact-photo replay, no invented OCR, no replay imports, conflicts and no-match recovery.');
+console.log('PASS: OpenAI evidence → original V16 catalog/language/quality/result/benchmark; exact-photo binding, no invented OCR, no replay imports, conflicts and no-match recovery.');

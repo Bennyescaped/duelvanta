@@ -53,7 +53,7 @@
         const candidates=(Array.isArray(data)?data:data?[data]:[]).filter(card=>root.DV_SCAN_V16_TCG.normalizeOnePieceCode(card.card_set_id||card.card_id||card.card_number||'')===code).map(card=>({
           catalogId:card.card_image_id||card.card_set_id||card.card_id,tcg:'one_piece',name:card.card_name||card.name,
           set:card.set_name||'',number:code,language:'EN',rarity:card.rarity||card.card_rarity||'',variant:/winner/i.test(card.card_name||'')?'Tournament / Winner':/finalist/i.test(card.card_name||'')?'Tournament / Finalist':/participant/i.test(card.card_name||'')?'Tournament / Participant':/manga/i.test(card.card_name||'')?'Manga':/alternate art|parallel/i.test(card.card_name||'')?'Parallel / Alt Art':/wanted poster/i.test(card.card_name||'')?'Wanted Poster':/\(SP\)/i.test(card.card_name||'')?'Special':/reprint/i.test(card.card_name||'')?'Reprint':card.rarity||card.card_rarity||'',
-          image:card.card_image||card.image||null,catalogConfidence:88,confidence:88,catalogVerified:true,marketEur:null,priceSource:null
+          image:card.card_image||card.image||null,catalogConfidence:88,confidence:88,catalogVerified:true,marketEur:null,marketUsd:Number.isFinite(Number(card.market_price??card.marketPrice??card.price))?Number(card.market_price??card.marketPrice??card.price):null,priceSource:null
         }));all.push(...candidates);
       }return [...new Map(all.map(card=>[[card.catalogId,card.image,card.name].join('|'),card])).values()];
     }

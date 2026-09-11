@@ -1,13 +1,13 @@
 'use strict';
 const {createHash}=require('node:crypto');
-const {provider,slabProvider}=require('./ximilar-server.cjs');
+const {provider}=require('./openai-server.cjs');
 const AUTH_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 // Existing publishable key; no privileged key and no second Auth client.
 const PUBLISHABLE_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
 const error=(status,code)=>Object.assign(new Error(code),{status,code});
 const requireThat=(value,status,code)=>{if(!value)throw error(status,code)};
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,callProvider=provider.call,callSlabProvider=slabProvider.call}={}){
+function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,callProvider=provider.call,callSlabProvider=provider.call}={}){
   async function json(url,options){
     let response;try{response=await fetchImpl(url,{...options,redirect:'error',signal:AbortSignal.timeout(8000)})}catch{throw error(503,'accounting_unavailable')}
     if(!response.ok)throw error(response.status===401?401:503,response.status===401?'sign_in_required':'accounting_unavailable');
@@ -19,7 +19,7 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       requireThat(env.VERCEL_ENV==='preview'&&env.VERCEL_GIT_COMMIT_REF==='scanner-v16',404,'scanner_unavailable');
       requireThat(['GET','POST'].includes(req.method),405,'method_not_allowed');
       if(config?.enabled!==true){if(req.method==='GET')return res.status(200).json({active:false,remaining:0});throw error(403,'scanner_closed')}
-      requireThat(typeof env.XIMILAR_API_TOKEN==='string'&&env.XIMILAR_API_TOKEN.trim(),503,'provider_unavailable');
+      requireThat(typeof env.OPENAI_API_KEY==='string'&&env.OPENAI_API_KEY.trim(),503,'provider_unavailable');
       const authorization=String(req.headers.authorization||'');requireThat(/^Bearer [A-Za-z0-9_.-]+$/.test(authorization)&&authorization.length<12000,401,'sign_in_required');
       const headers={apikey:PUBLISHABLE_KEY,Authorization:authorization,'Content-Type':'application/json'};
       // Verify the supplied access token with the existing Auth service. Never trust decoded claims alone.
@@ -45,6 +45,7 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       const [status,code]=rejection[reservation?.reason]||[429,'scan_limit_reached'];requireThat(reservation?.allowed===true,status,code);
       const result=await (kind==='slab'?callSlabProvider:callProvider)({image,tcg:body.tcg,env,fetchImpl,now});
       const {raw,...compact}=result; // raw evidence belongs in the private pilot, not every mobile response.
+      console.info(JSON.stringify({event:'dv_scanner_ai_usage',provider:'openai',model:compact.model||null,kind,tcg:body.tcg,inputTokens:compact.usage?.inputTokens??null,outputTokens:compact.usage?.outputTokens??null,estimatedCostUsd:compact.estimatedCostUsd??null,elapsedMs:compact.elapsedMs??null}));
       return res.status(200).json({...compact,selectedTcg:body.tcg,kind,sha256,slabRemaining:Math.max(0,Number(reservation.slabRemaining)||0),remaining:Math.max(0,Number(reservation.remaining)||0)});
     }catch(e){return res.status(e.status||500).json({error:e.code||'scan_failed',retryAutomatically:false})}
   };

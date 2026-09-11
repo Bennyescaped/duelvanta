@@ -46,12 +46,11 @@ This is the clearest product advantage from the pilot: OpenAI handles non-standa
 
 ## Product decision
 
-Keep Ximilar as the primary recognizer for normal cards. Add OpenAI as an explicitly bounded second stage for unresolved cards and graded slabs, especially unsupported grading companies and labels with subgrades. OpenAI output must pass the existing catalog, artwork, language, variant, and user-confirmation gates before import. Do not use OpenAI self-confidence as an import guarantee.
+**Product decision after the measured pilot:** use OpenAI as the bounded primary recognizer in the Scanner V16 preview. Keep Ximilar available as a disabled comparison/fallback, but do not call it from the normal scanner. OpenAI output must pass the existing catalog, artwork, language, variant, and user-confirmation gates before import. Do not use OpenAI self-confidence as an import guarantee.
 
 The first product implementation should therefore be:
 
-1. Ximilar for normal-card identity and candidate retrieval.
-2. OpenAI only when Ximilar/V16 cannot resolve the card or when the user selects a grading slab requiring flexible label OCR.
-3. Existing V16 catalog and artwork ranking as the verification layer.
-4. Explicit confirmation for variant, grading company, grade, certificate, and subgrades.
-5. Server-side usage accounting and an OpenAI-specific cap before beta-wide access.
+1. OpenAI observes the photographed card or grading label.
+2. Existing V16 catalog and artwork ranking independently verify the proposal.
+3. Explicit confirmation remains mandatory for uncertain printings and every grading label.
+4. Server-side authentication, duplicate prevention and weekly/global limits run before each paid request.

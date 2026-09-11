@@ -1,6 +1,6 @@
 -- V16-only usage ledger. Existing collection/Auth objects are untouched.
--- Starts CLOSED: an operator must enter the verified Ximilar billing period and
--- credits already spent before enabling the central policy. Never auto-renew.
+-- Provider-neutral V16 safety ledger. The 10/15 point weights remain
+-- conservative internal cost units after the OpenAI migration. Never auto-renew.
 begin;
 create schema dv_v16_private;
 revoke all on schema dv_v16_private from public, anon;

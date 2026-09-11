@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url),{createHandler}=require('../benchmark/scanner-pilot/recognize-server.cjs');
-const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',XIMILAR_API_TOKEN:'TEST_ONLY_NEVER_REAL'},config={enabled:true};
+const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',OPENAI_API_KEY:'TEST_ONLY_NEVER_REAL'},config={enabled:true};
 const user='00000000-0000-4000-8000-000000000001',requestId='00000000-0000-4000-8000-000000000002';
 const body={imageBase64:Buffer.from([255,216,255,1,2,3]).toString('base64'),requestId,tcg:'one_piece'};
 const req=(method='POST',b=body)=>({method,headers:{authorization:'Bearer verified-test-token','content-type':'application/json'},body:b});
@@ -22,7 +22,7 @@ const fetchImpl=async(url,options)=>{
   else{reservations.add(b.p_image_sha256);reservations.add(b.p_request_id);remaining--;events.push('reserved');result={allowed:true,remaining}}
   return{ok:true,json:async()=>result};
 };
-const callProvider=async({image,tcg})=>{assert.equal(events.at(-1),'reserved');assert.equal(tcg,'one_piece');assert.equal(image[0],255);paid++;events.push('paid');if(providerFails)throw Object.assign(new Error('secret vendor details'),{status:504,code:'provider_timeout_or_network'});return{model:'ximilar-collectibles-v2-tcg-id',observed:{tcg,printed_code:'OP17-043'},raw:{private:'removed'}}};
+const callProvider=async({image,tcg})=>{assert.equal(events.at(-1),'reserved');assert.equal(tcg,'one_piece');assert.equal(image[0],255);paid++;events.push('paid');if(providerFails)throw Object.assign(new Error('secret vendor details'),{status:504,code:'provider_timeout_or_network'});return{model:'gpt-5.4-mini',observed:{tcg,printed_code:'OP17-043'},usage:{inputTokens:100,outputTokens:20},estimatedCostUsd:.0002,raw:{private:'removed'}}};
 const make=(extra={})=>createHandler({env,config,fetchImpl,callProvider,...extra});
 assert.equal((await invoke(make({config:{enabled:false}}),req('GET'))).body.active,false);
 assert.equal((await invoke(make({config:{enabled:false}}))).statusCode,403);
@@ -45,7 +45,7 @@ console.log('PASS: verified existing Auth, closed preview gate, validation, comm
 
 // Route slab requests only to the dedicated, reserved 15-credit endpoint.
 let slabCalls=0;remaining=1;providerFails=false;
-const slabHandler=make({callSlabProvider:async()=>{slabCalls++;return{model:'ximilar-collectibles-v2-slab-id',slab:{company:'PSA'}}}});
+const slabHandler=make({callSlabProvider:async()=>{slabCalls++;return{model:'gpt-5.4-mini',observed:{tcg:'one_piece',is_graded:true,grading_company:'PSA',grade:'10'}}}});
 const slabResult=await invoke(slabHandler,req('POST',{...body,kind:'slab',requestId:'00000000-0000-4000-8000-000000000006',imageBase64:Buffer.from([255,216,255,6,7,8]).toString('base64')}));
 assert.equal(slabResult.statusCode,200);assert.equal(slabResult.body.kind,'slab');assert.equal(slabCalls,1);assert.equal(paid,2);
 assert.equal((await invoke(slabHandler,req('POST',{...body,kind:'grade'}))).statusCode,400);assert.equal(slabCalls,1);
