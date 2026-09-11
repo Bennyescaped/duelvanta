@@ -10,6 +10,7 @@ function res(){return{headers:{},setHeader(k,v){this.headers[k]=v},status(n){thi
 const mock=async(u,o)=>{calls++;assert.equal(o.redirect,'error');assert.equal(o.headers.Authorization,undefined);return new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/jpeg'}})};
 let out=res();await createHandler({env,fetchImpl:mock})({method:'GET',query:{url}},out);assert.equal(out.code,200);assert.equal(calls,1);assert.equal(out.headers['X-Content-Type-Options'],'nosniff');
 out=res();await createHandler({env:{...env,VERCEL_ENV:'production'},fetchImpl:mock})({method:'GET',query:{url}},out);assert.equal(out.code,404);assert.equal(calls,1);
+out=res();await createHandler({env:{...env,VERCEL_ENV:'production',VERCEL_GIT_COMMIT_REF:'main'},fetchImpl:mock})({method:'GET',query:{url}},out);assert.equal(out.code,200);assert.equal(calls,2);
 out=res();await createHandler({env,fetchImpl:async()=>new Response('html',{headers:{'content-type':'text/html'}})})({method:'GET',query:{url}},out);assert.equal(out.code,502);assert.equal(out.headers['Cache-Control'],'no-store');
 out=res();await createHandler({env,fetchImpl:async()=>new Response('x',{headers:{'content-type':'image/jpeg','content-length':'4000000'}})})({method:'GET',query:{url}},out);assert.equal(out.code,502);
 console.log('PASS: branch-only reference transport, fixed host/path, redirect denial, no credentials, type/size bounds, success-only caching');

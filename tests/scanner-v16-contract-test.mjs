@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host,slots,hardening,binderPages]=await Promise.all([
+const [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host,slots,hardening,binderPages,ownerSql,adminPage,recognizeServer,referenceServer]=await Promise.all([
   read('scanner-v16-tcg.js'),read('scanner-v16-core.js'),read('scanner-v16-quality.js'),read('scanner-v16-resilience.js'),read('scanner-v16-explain.js'),read('scanner-v16-guidance.js'),read('scanner-v16-ui.js'),read('scanner-v16-camera.js'),read('scanner-v16-native-camera.js'),read('scanner-v16-runtime.js'),read('scanner-v16-binder.js'),read('scanner-v16-market.js'),read('scanner-v16-overlay.js'),
   read('scanner-v16-geometry.js'),read('scanner-v16-vision.js'),read('scanner-v16-benchmark.js'),read('scanner-v16-benchmark-session.js'),read('scanner-v16-freeform-ui.js'),read('scanner-v16-loader.js'),read('scanner-v16-lab.html'),read('scanner-v16.html'),read('scanner-v16-host.js'),
-  read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql'),read('database/collect-binder-pages-v1.sql')
+  read('database/collect-scanner-v16-slots.sql'),read('database/collect-scanner-v16-slots-hardening.sql'),read('database/collect-binder-pages-v1.sql'),
+  read('database/collect-scanner-v16-owner-control.sql'),read('admin.html'),read('benchmark/scanner-pilot/recognize-server.cjs'),read('api/scanner-v16-reference.js')
 ]);
 const must=(s,n,l)=>assert.ok(s.includes(n),l+': '+n);
 const collect=await read('collect.html');
@@ -128,6 +129,38 @@ must(hardening,'old.folder_id is distinct from new.folder_id','folder-move slot 
 must(binderPages,'add column if not exists binder_pages','binder page count migration missing');
 must(binderPages,'greatest(','existing and occupied binder pages must never be truncated');
 must(binderPages,'between 2 and 100','binder page limits missing');
+must(ownerSql,'raw_weekly_limit between 0 and 50','owner raw scan maximum missing');
+must(ownerSql,'slab_weekly_limit between 0 and 10','owner slab scan maximum missing');
+must(ownerSql,"p.role = 'owner'",'owner RPC must verify the protected profile role');
+must(ownerSql,"p.account_status = 'active'",'owner RPC must reject inactive owner sessions');
+must(ownerSql,'openai_scan_policy','OpenAI limits must use a dedicated policy table');
+must(ownerSql,"'provider','openai'",'OpenAI owner settings must identify their provider');
+must(ownerSql,'scanner_v16_openai_policy_updated','OpenAI quota changes must enter the audit log');
+must(ownerSql,'monthly_budget_eur_micros','OpenAI monthly budget must use a dedicated EUR ledger');
+must(ownerSql,'openai_monthly_cost','OpenAI token costs must be isolated from historical provider credits');
+must(ownerSql,'dv_v16_settle_openai_scan','successful OpenAI calls must reconcile their reserved cost');
+must(ownerSql,"current_setting('request.headers'",'cost settlement must verify a server-only accounting header');
+assert.ok(!ownerSql.includes('credit_period'),'OpenAI controls must not use the historical Ximilar credit pool');
+must(ownerSql,'security invoker','public owner RPC wrappers must not bypass authorization');
+assert.ok(!ownerSql.includes('service_role'),'owner controls must not expose or depend on a service-role key');
+must(adminPage,'data-admin-view="scanner"','scanner controls must be integrated into the existing admin navigation');
+must(adminPage,'MAX. 50','owner scanner area must show the approved raw ceiling');
+must(adminPage,'MAX. 10','owner scanner area must show the approved slab ceiling');
+must(adminPage,'Lokale V16-Scans bleiben immer unbegrenzt','local scan boundary must be explicit');
+must(adminPage,'Ximilar ist nicht verbunden','owner area must explicitly exclude Ximilar');
+must(adminPage,'Monatsbudget','owner area must show the OpenAI monthly budget');
+must(adminPage,'25,00 €','owner area must default to the approved 25 EUR budget');
+assert.ok(!adminPage.includes('100.000'),'obsolete Ximilar credit budget must not appear in owner area');
+assert.ok(!adminPage.includes('DV_OPENAI_ACCOUNTING_KEY'),'server accounting secret must not enter the owner page');
+must(adminPage,"db.rpc('dv_v16_owner_openai_scan_settings'",'owner settings must load through the OpenAI-only RPC');
+must(adminPage,"db.rpc('dv_v16_owner_update_openai_scan_policy'",'owner changes must use the OpenAI-only RPC');
+must(recognizeServer,'dv_v16_openai_scan_budget','OpenAI transport must read the OpenAI-only allowance');
+must(recognizeServer,'dv_v16_reserve_openai_scan','OpenAI transport must reserve the OpenAI-only allowance');
+must(recognizeServer,'dv_v16_settle_openai_scan','OpenAI transport must record provider token costs');
+must(recognizeServer,"'x-dv-accounting-key':env.DV_OPENAI_ACCOUNTING_KEY",'settlement must authenticate as the server');
+assert.ok(!recognizeServer.includes("'/rest/v1/rpc/dv_v16_scan_budget'"),'OpenAI transport must not read the historical provider-neutral allowance');
+must(recognizeServer,"env.VERCEL_ENV==='production'&&env.VERCEL_GIT_COMMIT_REF==='main'",'production OpenAI route must only open for main');
+must(referenceServer,"env.VERCEL_ENV==='production'&&env.VERCEL_GIT_COMMIT_REF==='main'",'production reference transport must only open for main');
 for(const source of [tcg,core,quality,resilience,explain,guidance,ui,camera,nativeCamera,runtime,binder,market,overlay,geometry,vision,benchmark,benchmarkSession,freeform,loader,lab,route,host])assert.ok(!source.includes('service_role'),'frontend must never contain service_role');
 assert.ok(!ui.includes('createClient('),'V16 must reuse existing COLLECT Supabase client');
 console.log('PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition');

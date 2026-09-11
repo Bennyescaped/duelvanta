@@ -9,7 +9,9 @@ function allowed(value){
 }
 function createHandler({fetchImpl=fetch,env=process.env}={}){return async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
-  if(env.VERCEL_ENV!=='preview'||env.VERCEL_GIT_COMMIT_REF!=='scanner-v16')return res.status(404).end();
+  const allowedDeployment=(env.VERCEL_ENV==='preview'&&env.VERCEL_GIT_COMMIT_REF==='scanner-v16')
+    ||(env.VERCEL_ENV==='production'&&env.VERCEL_GIT_COMMIT_REF==='main');
+  if(!allowedDeployment)return res.status(404).end();
   if(req.method!=='GET')return res.status(405).end();
   const target=allowed(req.query?.url);if(!target)return res.status(400).json({error:'invalid_reference'});
   const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),6000);

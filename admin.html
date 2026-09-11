@@ -15,7 +15,7 @@
     .shell{min-height:100vh;display:grid;grid-template-columns:250px 1fr}
     aside{border-right:1px solid var(--line);background:rgba(8,10,13,.88);backdrop-filter:blur(14px);padding:28px 20px;position:sticky;top:0;height:100vh}
     .brand{display:flex;align-items:center;gap:10px;font-family:Georgia,"Times New Roman",serif;letter-spacing:.18em;color:var(--gold2);font-size:20px;font-weight:700;margin-bottom:5px}.brand img{width:34px;height:34px;display:block}.subbrand{font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
-    .nav{margin-top:36px;display:grid;gap:10px}.nav a{color:#c8ccd2;text-decoration:none;padding:12px 13px;border:1px solid transparent;border-radius:10px}.nav a.active{background:linear-gradient(180deg,rgba(199,164,93,.12),rgba(199,164,93,.05));border-color:rgba(199,164,93,.28);color:var(--gold2)}
+    .nav{margin-top:36px;display:grid;gap:10px}.nav button,.mobileNav button{width:100%;text-align:left;color:#c8ccd2;background:transparent;padding:12px 13px;border:1px solid transparent;border-radius:10px;cursor:pointer}.nav button.active,.mobileNav button.active{background:linear-gradient(180deg,rgba(199,164,93,.12),rgba(199,164,93,.05));border-color:rgba(199,164,93,.28);color:var(--gold2)}.nav button:disabled{cursor:default;color:#747b85}.mobileNav{display:none;gap:8px;margin:0 0 20px}.mobileNav button{text-align:center;background:var(--panel);border-color:var(--line)}
     .ownerbox{position:absolute;left:20px;right:20px;bottom:22px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.ownerbox .tiny{font-size:11px;color:var(--muted)}.ownerbox .email{font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
     main{padding:34px;min-width:0}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}h1{font-family:Georgia,"Times New Roman",serif;font-size:32px;margin:6px 0 4px}.lead{color:var(--muted);margin:0}
     .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}.btn:hover{border-color:#3a4351}.btn.gold{border-color:rgba(199,164,93,.48);background:linear-gradient(180deg,rgba(199,164,93,.18),rgba(199,164,93,.08));color:var(--gold2)}.btn.danger{color:#f1b3b3}.btn:disabled{opacity:.5;cursor:not-allowed}
@@ -26,8 +26,11 @@
     .statusSel{background:#0d1015;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:12px}.empty{padding:34px;color:var(--muted);text-align:center}.hidden{display:none!important}
     .login{min-height:100vh;display:grid;place-items:center;padding:24px}.loginCard{width:min(460px,100%);background:linear-gradient(180deg,#141820,#0d1015);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 28px 90px rgba(0,0,0,.45)}.loginBrand{display:flex;align-items:center;gap:12px;font-family:Georgia,"Times New Roman",serif;letter-spacing:.18em;color:var(--gold2);font-size:22px}.loginBrand img{width:42px;height:42px;display:block}.loginCard h2{font-family:Georgia,"Times New Roman",serif;margin:28px 0 8px;font-size:28px}.loginCard p{color:var(--muted);line-height:1.55}.loginCard input{width:100%;background:#0a0d12;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0 10px}.loginCard .btn{width:100%;margin-top:4px}.msg{font-size:12px;margin-top:12px;color:var(--muted);line-height:1.5}.msg.ok{color:var(--good)}.msg.err{color:var(--bad)}
     .progress{height:6px;background:#1b2028;border-radius:999px;overflow:hidden;margin-top:12px}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#8c6d32,#d8b76d);width:0}
-    @media(max-width:980px){.shell{grid-template-columns:1fr}aside{display:none}.stats{grid-template-columns:repeat(2,1fr)}main{padding:22px}.top{flex-direction:column}.actions{width:100%}.actions .btn{flex:1}.toolbar{align-items:stretch;flex-direction:column}.lefttools{display:grid;grid-template-columns:1fr 1fr}.search{max-width:none;min-width:0;grid-column:1/-1}}
-    @media(max-width:580px){.stats{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.stat .value{font-size:25px}.lefttools{grid-template-columns:1fr}.search{grid-column:auto}h1{font-size:27px}}
+    .scannerStatus{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border:1px solid rgba(143,210,168,.24);border-radius:15px;background:linear-gradient(100deg,rgba(143,210,168,.08),rgba(16,19,25,.96));margin-bottom:14px}.scannerStatus>div{display:grid;grid-template-columns:auto 1fr;column-gap:10px}.scannerStatus strong{font-size:13px;letter-spacing:.08em}.scannerStatus small{grid-column:2;color:var(--muted);margin-top:4px}.statusDot{width:10px;height:10px;margin-top:3px;border-radius:50%;background:#69717c;box-shadow:0 0 0 5px rgba(105,113,124,.1)}.statusDot.active{background:var(--good);box-shadow:0 0 0 5px rgba(143,210,168,.1)}.statusDot.off{background:var(--bad);box-shadow:0 0 0 5px rgba(216,138,138,.1)}
+    .switchLabel{display:flex;align-items:center;gap:11px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.08em}.switchLabel input{position:absolute;opacity:0;pointer-events:none}.switchLabel i{width:50px;height:28px;border:1px solid #3a414c;border-radius:999px;background:#11151b;position:relative;transition:.2s}.switchLabel i:after{content:"";position:absolute;width:20px;height:20px;top:3px;left:4px;border-radius:50%;background:#747d89;transition:.2s}.switchLabel input:checked+i{border-color:#5d9c76;background:rgba(143,210,168,.13)}.switchLabel input:checked+i:after{left:24px;background:var(--good)}
+    .scannerMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}.scannerMetric,.scannerPanel{border:1px solid var(--line);border-radius:15px;background:linear-gradient(180deg,rgba(21,25,34,.97),rgba(13,16,21,.97));box-shadow:0 18px 55px rgba(0,0,0,.16)}.scannerMetric{padding:17px}.scannerMetric>span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.scannerMetric strong{display:block;margin:8px 0 3px;color:var(--gold2);font:31px Georgia,serif}.scannerMetric small{color:#737d89}.scannerGrid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);gap:14px}.scannerPanel{padding:20px}.scannerPanel h2{font-family:Georgia,"Times New Roman",serif;font-size:25px;font-weight:400;margin:6px 0}.panelHead{display:flex;justify-content:space-between;gap:12px}.secureBadge,.maximum{align-self:flex-start;border:1px solid rgba(199,164,93,.35);border-radius:999px;padding:5px 8px;color:var(--gold2);font-size:10px;letter-spacing:.08em}.limitRow{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;align-items:center;gap:14px;padding:20px 0;border-top:1px solid var(--line)}.limitRow:first-of-type{margin-top:12px}.limitCopy strong,.limitCopy span{display:block}.limitCopy strong{font-size:15px}.limitCopy span{color:var(--muted);font-size:12px;margin-top:5px}.stepper{display:grid;grid-template-columns:40px 62px 40px;border:1px solid #343b46;border-radius:10px;overflow:hidden}.stepper button,.stepper input{height:42px;border:0;background:#0b0e13;color:var(--text);text-align:center}.stepper button{color:var(--gold2);font-size:19px;cursor:pointer}.stepper input{width:62px;border-left:1px solid #343b46;border-right:1px solid #343b46;font-weight:800;-moz-appearance:textfield}.stepper input::-webkit-inner-spin-button{appearance:none}.maximum{color:var(--muted);border-color:var(--line)}.infoRow{display:flex;gap:12px;padding:14px;border:1px solid rgba(199,164,93,.23);border-radius:12px;background:rgba(199,164,93,.05);color:var(--gold2)}.infoRow>span{font-size:22px}.infoRow p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}.infoRow strong{display:block;color:var(--text);margin-bottom:2px}.saveMessage{text-align:center;color:var(--muted);font-size:12px;margin:9px 0 0}.saveMessage.success{color:var(--good)}.saveMessage.error{color:var(--bad)}.saveButton{width:100%;margin-top:20px}.budgetValue{display:flex;align-items:baseline;gap:8px}.budgetValue strong{font:45px Georgia,serif;color:var(--gold2)}.budgetValue span{color:var(--muted)}.budgetBar{height:8px;background:#222731;border-radius:99px;overflow:hidden;margin:10px 0 18px}.budgetBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#947237,#efd18c)}.budgetList{margin:0}.budgetList div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:12px}.budgetList dt{color:var(--muted)}.budgetList dd{margin:0;text-align:right}.warning{margin-top:17px;padding:14px;border:1px solid rgba(215,181,109,.3);border-radius:12px;background:rgba(215,181,109,.06)}.warning strong,.warning span{display:block}.warning strong{color:#e2c47c;font-size:12px}.warning span{color:var(--muted);font-size:11px;line-height:1.5;margin-top:5px}
+    @media(max-width:980px){.shell{grid-template-columns:1fr}aside{display:none}.mobileNav{display:grid;grid-template-columns:1fr 1fr}.stats,.scannerMetrics{grid-template-columns:repeat(2,1fr)}.scannerGrid{grid-template-columns:1fr}main{padding:22px}.top{flex-direction:column}.actions{width:100%}.actions .btn{flex:1}.toolbar{align-items:stretch;flex-direction:column}.lefttools{display:grid;grid-template-columns:1fr 1fr}.search{max-width:none;min-width:0;grid-column:1/-1}}
+    @media(max-width:580px){.stats,.scannerMetrics{grid-template-columns:1fr 1fr;gap:10px}.card,.scannerMetric{padding:14px}.stat .value,.scannerMetric strong{font-size:25px}.lefttools{grid-template-columns:1fr}.search{grid-column:auto}h1{font-size:27px}.scannerStatus{padding:16px;align-items:flex-start}.switchLabel{flex-direction:column;align-items:flex-end}.scannerPanel{padding:16px}.limitRow{grid-template-columns:1fr auto;gap:10px}.limitCopy{grid-column:1/-1}.maximum{font-size:9px}.stepper{grid-template-columns:42px 68px 42px}.stepper input{width:68px}.budgetValue strong{font-size:39px}}
     @media(max-width:700px){
       .tablewrap{overflow:visible;border:0;background:transparent}table{min-width:0}thead{display:none}tbody{display:grid;gap:12px}tbody tr{display:block;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(20,24,31,.98),rgba(13,16,21,.98));padding:14px}tbody td{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:center;border:0!important;padding:8px 0!important;min-width:0}tbody td:before{content:attr(data-label);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#717985}tbody td:nth-child(2){word-break:break-word}tbody td:last-child{padding-top:13px!important;margin-top:5px;border-top:1px solid var(--line)!important}tbody td:last-child .btn{width:100%;min-height:44px}.statusSel{width:100%;min-width:0}.badge{white-space:normal}.empty{display:block!important;padding:20px!important}.empty:before{display:none}.toolbar{margin-top:4px}}
 
@@ -51,9 +54,10 @@
       <div class="brand"><img src="v-logo.svg" alt="DUELVANTA V"><span>DUELVANTA</span></div>
       <div class="subbrand">Control Center</div>
       <nav class="nav">
-        <a class="active" href="#">Beta Dashboard</a>
-        <a href="#" aria-disabled="true">Founder Gen I</a>
-        <a href="#" aria-disabled="true">Invites</a>
+        <button class="active" type="button" data-admin-view="beta">Beta Dashboard</button>
+        <button type="button" data-admin-view="scanner">KI Scanner</button>
+        <button type="button" disabled>Founder Gen I</button>
+        <button type="button" disabled>Invites</button>
       </nav>
       <div class="ownerbox">
         <div class="tiny">Angemeldet als Owner</div>
@@ -62,11 +66,15 @@
     </aside>
 
     <main>
+      <nav class="mobileNav" aria-label="Admin-Bereiche">
+        <button class="active" type="button" data-admin-view="beta">Beta Dashboard</button>
+        <button type="button" data-admin-view="scanner">KI Scanner</button>
+      </nav>
       <div class="top">
         <div>
           <div class="eyebrow">DUELVANTA · Internal</div>
-          <h1>Beta Control Center</h1>
-          <p class="lead">Warteliste, Founder Generation I und Beta-Status zentral verwalten.</p>
+          <h1 id="pageTitle">Beta Control Center</h1>
+          <p id="pageLead" class="lead">Warteliste, Founder Generation I und Beta-Status zentral verwalten.</p>
         </div>
         <div class="actions">
           <button id="refreshBtn" class="btn">Aktualisieren</button>
@@ -74,14 +82,52 @@
         </div>
       </div>
 
+      <div id="betaPanel">
       <section class="stats">
         <article class="card stat"><div class="label">Registrierungen</div><div id="totalStat" class="value">—</div><div class="note">Gesamt auf der Warteliste</div></article>
         <article class="card stat"><div class="label">Founder Gen I</div><div id="founderStat" class="value">— / 250</div><div class="progress"><span id="founderProgress"></span></div></article>
         <article class="card stat"><div class="label">Eingeladen</div><div id="invitedStat" class="value">—</div><div class="note">Beta-Einladung verschickt</div></article>
         <article class="card stat"><div class="label">Aktiviert</div><div id="activeStat" class="value">—</div><div class="note">Beta-Account aktiviert</div></article>
       </section>
+      </div>
 
-      <section class="card" style="padding:14px">
+      <div id="scannerPanel" class="hidden">
+        <section class="scannerStatus">
+          <div><span id="statusDot" class="statusDot"></span><strong id="statusTitle">STATUS WIRD GELADEN</strong><small id="statusText">OpenAI-Konfiguration wird geprüft.</small></div>
+          <label class="switchLabel" for="scannerEnabled"><span>OPENAI-SCANS</span><input id="scannerEnabled" type="checkbox"><i aria-hidden="true"></i></label>
+        </section>
+        <section class="scannerMetrics" aria-label="Scanner-Kennzahlen">
+          <article class="scannerMetric"><span>Karten diese Woche</span><strong id="rawUsed">—</strong><small>Aufrufe seit neuer Erfassung</small></article>
+          <article class="scannerMetric"><span>Slabs diese Woche</span><strong id="slabUsed">—</strong><small>Aufrufe seit neuer Erfassung</small></article>
+          <article class="scannerMetric"><span>Aktive Nutzer</span><strong id="weeklyUsers">—</strong><small>Seit neuer Erfassung</small></article>
+          <article class="scannerMetric"><span>Aktiver Anbieter</span><strong>OpenAI</strong><small>gpt-5.4-mini</small></article>
+        </section>
+        <div class="infoRow" style="margin-bottom:14px"><p><strong>Bisherige Scans</strong><span id="scanHistory">Die bisherigen Verbrauchsdaten werden geladen.</span></p></div>
+        <div class="scannerGrid">
+          <section class="scannerPanel">
+            <div class="panelHead"><div><div class="eyebrow">OPENAI · PRO NUTZER · PRO WOCHE</div><h2>Maximale OpenAI-Scans</h2></div><span class="secureBadge">OWNER ONLY</span></div>
+            <div class="limitRow"><div class="limitCopy"><strong>Normale Karten</strong><span>OpenAI-Erkennung einzelner Karten</span></div><div class="stepper"><button type="button" data-step="rawLimit" data-delta="-1" aria-label="Kartenlimit verringern">−</button><input id="rawLimit" type="number" min="0" max="50" inputmode="numeric" value="50" aria-label="Maximale Kartenscans"><button type="button" data-step="rawLimit" data-delta="1" aria-label="Kartenlimit erhöhen">+</button></div><span class="maximum">MAX. 50</span></div>
+            <div class="limitRow"><div class="limitCopy"><strong>Grading-Slabs</strong><span>OpenAI-Erkennung mit vollständigem Label</span></div><div class="stepper"><button type="button" data-step="slabLimit" data-delta="-1" aria-label="Slablimit verringern">−</button><input id="slabLimit" type="number" min="0" max="10" inputmode="numeric" value="10" aria-label="Maximale Slabscans"><button type="button" data-step="slabLimit" data-delta="1" aria-label="Slablimit erhöhen">+</button></div><span class="maximum">MAX. 10</span></div>
+            <div class="infoRow"><span>↻</span><p><strong>Nur OpenAI</strong>Diese Limits werden ausschließlich vom OpenAI-Scanner verwendet. Ximilar ist nicht verbunden. Reset: Montag 00:00 Uhr · Europe/Berlin. Lokale V16-Scans bleiben immer unbegrenzt.</p></div>
+            <button id="saveButton" class="btn gold saveButton" type="button">ÄNDERUNGEN SPEICHERN</button><p id="saveMessage" class="saveMessage" aria-live="polite">Noch keine Änderungen.</p>
+          </section>
+          <section class="scannerPanel">
+            <div class="panelHead"><div><div class="eyebrow">OPENAI · KALENDERMONAT</div><h2>Kostenbudget</h2></div><span class="secureBadge">GESCHÄTZT</span></div>
+            <div class="budgetValue"><strong id="budgetUsed">—</strong><span>von <b id="budgetTotal">25,00 €</b></span></div>
+            <div class="budgetBar" aria-label="Verbrauchtes OpenAI-Monatsbudget"><i id="budgetProgress"></i></div>
+            <dl class="budgetList">
+              <div><dt>Aufrufe mit Kostendaten</dt><dd id="successfulScans">—</dd></div>
+              <div><dt>Noch reserviert</dt><dd id="budgetReserved">—</dd></div>
+              <div><dt>Verfügbar</dt><dd id="budgetRemaining">—</dd></div>
+              <div><dt>Neuer Zeitraum</dt><dd id="budgetReset">—</dd></div>
+            </dl>
+            <div class="limitRow"><div class="limitCopy"><strong>Monatsbudget</strong><span>Stoppt neue Aufrufe beim erfassten Kostenbudget</span></div><div class="stepper"><button type="button" data-step="monthlyBudget" data-delta="-1" aria-label="Monatsbudget verringern">−</button><input id="monthlyBudget" type="number" min="0" max="250" inputmode="decimal" value="25" aria-label="OpenAI-Monatsbudget in Euro"><button type="button" data-step="monthlyBudget" data-delta="1" aria-label="Monatsbudget erhöhen">+</button></div><span class="maximum">MAX. 250 €</span></div>
+            <div class="warning"><strong>KOSTENSCHÄTZUNG</strong><span>Berechnet aus den von OpenAI gemeldeten Tokens einschließlich Cache-Rabatt. <span id="fxNote"></span> Ohne Steuern und Bankgebühren; die OpenAI-Abrechnung kann abweichen. Vor jedem Aufruf werden 0,50 € zurückgehalten. Fehlen danach Kostendaten, bleibt dieser Betrag reserviert und zählt zum Stopp. Nicht erfasste ältere Kosten und andere Anwendungen sind nicht enthalten.</span></div>
+          </section>
+        </div>
+      </div>
+
+      <section id="betaTablePanel" class="card" style="padding:14px">
         <div class="toolbar">
           <div class="lefttools">
             <input id="searchInput" class="search" type="search" placeholder="E-Mail durchsuchen …" />
@@ -110,10 +156,77 @@
 
     const el=id=>document.getElementById(id);
     let rows=[];
+    let currentView='beta';
+    let scannerSettings=null;
+    const numberFmt=new Intl.NumberFormat('de-DE');
+    const euroFmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
 
     function fmtDate(value){if(!value)return '—';return new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value))}
     function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
     function statusLabel(s){return ({waitlist:'Warteliste',invited:'Eingeladen',activated:'Aktiviert',declined:'Abgelehnt'})[s]||s}
+    function clamp(value,min,max){return Math.min(max,Math.max(min,Math.trunc(Number(value)||0)))}
+    function eurosFromMicros(value){return Math.max(0,Number(value)||0)/1000000}
+
+    function paintScanner(data){
+      if(data.provider!=='openai')throw new Error('unexpected_scanner_provider');
+      scannerSettings=data;
+      el('scannerEnabled').checked=!!data.enabled;
+      el('rawLimit').value=clamp(data.rawLimit,0,50);
+      el('slabLimit').value=clamp(data.slabLimit,0,10);
+      el('rawUsed').textContent=numberFmt.format(data.weeklyRawUsed||0);
+      el('slabUsed').textContent=numberFmt.format(data.weeklySlabUsed||0);
+      el('weeklyUsers').textContent=numberFmt.format(data.weeklyUsers||0);
+      el('scanHistory').textContent=`${numberFmt.format(data.historicalImportedScans||0)} belegte frühere OpenAI-Testaufrufe sind im Monatsbudget enthalten. ${numberFmt.format(data.legacyUnclassifiedAttempts||0)} ältere Scanner-Reservierungen haben keine verlässliche Anbieter- und Kostenzuordnung. Die Wochenzähler erfassen neue Aufrufe seit ${fmtDate(data.trackingStartedAt)}; die frühere Gesamtnutzung ist unvollständig.`;
+      el('fxNote').textContent=`Fester Bewertungskurs vom ${data.fxDate||'—'}: 1 USD = ${new Intl.NumberFormat('de-DE',{maximumFractionDigits:6}).format((data.eurPerUsdMicros||0)/1000000)} EUR. `;
+      const budget=eurosFromMicros(data.monthlyBudgetEurMicros),used=eurosFromMicros(data.monthlyEstimatedEurMicros),reserved=eurosFromMicros(data.monthlyReservedEurMicros),remaining=eurosFromMicros(data.monthlyRemainingEurMicros);
+      el('monthlyBudget').value=clamp(Math.round(budget),0,250);
+      el('budgetUsed').textContent=euroFmt.format(used);
+      el('budgetTotal').textContent=euroFmt.format(budget);
+      el('budgetReserved').textContent=euroFmt.format(reserved);
+      el('budgetRemaining').textContent=euroFmt.format(remaining);
+      el('successfulScans').textContent=numberFmt.format(data.monthlySuccessfulScans||0);
+      el('budgetReset').textContent=data.budgetResetsAt?new Intl.DateTimeFormat('de-DE',{dateStyle:'medium'}).format(new Date(data.budgetResetsAt)):'—';
+      el('budgetProgress').style.width=(budget>0?Math.min(100,(used+reserved)/budget*100):100)+'%';
+      const on=!!data.effectiveEnabled;
+      el('statusDot').className='statusDot '+(on?'active':'off');
+      el('statusTitle').textContent=on?'OPENAI-SCANS AKTIV':'OPENAI-SCANS GESTOPPT';
+      el('statusText').textContent=on?'Neue KI-Erkennungen werden innerhalb der Limits freigegeben.':!data.accountingReady?'Sichere Kostenabrechnung ist noch nicht aktiviert. Lokale Scans funktionieren weiter.':data.enabled?'Monatsbudget erreicht. Lokale Scans funktionieren weiter.':'Vom Owner deaktiviert. Lokale Scans funktionieren weiter.';
+      el('saveMessage').textContent='Einstellungen aktuell.';
+      el('saveMessage').className='saveMessage';
+    }
+
+    async function loadScannerSettings(){
+      el('refreshBtn').disabled=true;
+      const {data,error}=await db.rpc('dv_v16_owner_openai_scan_settings');
+      el('refreshBtn').disabled=false;
+      if(error){el('saveMessage').textContent='Scanner-Einstellungen konnten nicht geladen werden.';el('saveMessage').className='saveMessage error';return}
+      try{paintScanner(data||{})}catch{el('saveMessage').textContent='Unerwartete Scanner-Konfiguration. Es wurde nichts geändert.';el('saveMessage').className='saveMessage error'}
+    }
+
+    async function saveScannerSettings(){
+      const enabled=el('scannerEnabled').checked;
+      const raw=clamp(el('rawLimit').value,0,50),slab=clamp(el('slabLimit').value,0,10);
+      const monthlyBudget=clamp(el('monthlyBudget').value,0,250);
+      el('rawLimit').value=raw;el('slabLimit').value=slab;el('monthlyBudget').value=monthlyBudget;
+      const changed=!scannerSettings||enabled!==scannerSettings.enabled||raw!==scannerSettings.rawLimit||slab!==scannerSettings.slabLimit||monthlyBudget!==Math.round(eurosFromMicros(scannerSettings.monthlyBudgetEurMicros));
+      if(!changed){el('saveMessage').textContent='Keine Änderungen vorhanden.';return}
+      if(!confirm(`${enabled?'OpenAI-Scans freigeben':'OpenAI-Scans stoppen'}?\n\nWochenlimit pro Nutzer: ${raw} Karten und ${slab} Slabs.\nMonatsbudget: ${euroFmt.format(monthlyBudget)}.`))return;
+      el('saveButton').disabled=true;el('saveMessage').textContent='Änderungen werden sicher gespeichert …';el('saveMessage').className='saveMessage';
+      const {data,error}=await db.rpc('dv_v16_owner_update_openai_scan_policy',{p_enabled:enabled,p_raw_weekly_limit:raw,p_slab_weekly_limit:slab,p_monthly_budget_eur_cents:monthlyBudget*100});
+      el('saveButton').disabled=false;
+      if(error){el('saveMessage').textContent='Speichern fehlgeschlagen. Owner-Berechtigung erneut prüfen.';el('saveMessage').className='saveMessage error';return}
+      paintScanner(data||{});el('saveMessage').textContent='Änderungen gespeichert und sofort aktiv.';el('saveMessage').className='saveMessage success';
+    }
+
+    async function showAdminView(view){
+      currentView=view==='scanner'?'scanner':'beta';
+      const scanner=currentView==='scanner';
+      el('betaPanel').classList.toggle('hidden',scanner);el('betaTablePanel').classList.toggle('hidden',scanner);el('scannerPanel').classList.toggle('hidden',!scanner);
+      el('pageTitle').textContent=scanner?'Scanner-Steuerung':'Beta Control Center';
+      el('pageLead').textContent=scanner?'OpenAI-Zugriff und Wochenlimits zentral verwalten.':'Warteliste, Founder Generation I und Beta-Status zentral verwalten.';
+      document.querySelectorAll('[data-admin-view]').forEach(button=>button.classList.toggle('active',button.dataset.adminView===currentView));
+      if(scanner)await loadScannerSettings();
+    }
 
     async function sendMagicLink(){
       const btn=el('magicBtn'),msg=el('loginMsg'); btn.disabled=true; msg.className='msg'; msg.textContent='Login-Link wird angefordert …';
@@ -196,9 +309,12 @@
     }
 
     el('magicBtn').addEventListener('click',sendMagicLink);
-    el('refreshBtn').addEventListener('click',loadData);
+    el('refreshBtn').addEventListener('click',()=>currentView==='scanner'?loadScannerSettings():loadData());
     el('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
     el('searchInput').addEventListener('input',renderRows);el('statusFilter').addEventListener('change',renderRows);el('founderFilter').addEventListener('change',renderRows);
+    document.querySelectorAll('[data-admin-view]').forEach(button=>button.addEventListener('click',()=>showAdminView(button.dataset.adminView)));
+    document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>{const input=el(button.dataset.step);input.value=clamp(Number(input.value)+Number(button.dataset.delta),Number(input.min),Number(input.max))}));
+    el('saveButton').addEventListener('click',saveScannerSettings);
     db.auth.onAuthStateChange((_event,session)=>{if(session?.user?.email?.toLowerCase()===OWNER_EMAIL)boot()});
     boot();
   </script>
