@@ -36,7 +36,10 @@ on:
       - 'admin.html'
       - 'trade.html'
       - 'trade-*.js'
+      - 'database/market-seller-*.sql'
+      - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
       - 'tests/trade-*'
+      - 'tests/market-seller-compliance-database-test.mjs'
       - 'tests/auth-boundary-database-test.mjs'
       - 'supabase/migrations/**'
       - 'tests/scanner-v16-contract-test.mjs'
@@ -178,6 +181,7 @@ jobs:
           node tests/trade-shipping-contract-test.mjs
           node tests/trade-shipping-null-fallback-contract-test.mjs
           node tests/trade-marketplace-ux-contract-test.mjs
+          node tests/market-seller-compliance-database-test.mjs
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
       - name: Second mobile acceptance regressions

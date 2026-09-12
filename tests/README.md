@@ -56,6 +56,7 @@ node tests/trade-automation-contract-test.mjs
 node tests/trade-shipping-contract-test.mjs
 node tests/trade-resolution-contract-test.mjs
 node tests/trade-marketplace-ux-contract-test.mjs
+node tests/market-seller-compliance-database-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,
@@ -72,6 +73,12 @@ locks, bounded inventory restoration, preservation of paused/withdrawn listings,
 problem-vs-cancellation phase separation, participant RPC isolation, future provider
 refund preparation and truthful `manual_beta` wording. None of these static tests
 performs a network call.
+
+The seller-compliance database regression runs the proposed schema in a disposable
+PGlite database. It verifies legacy-safe seller backfill, private/trader
+classification, private legal-data isolation, limited public trader disclosure,
+status-change auditing and the server-side listing guard. The proposal in
+`database/market-seller-compliance-v1.sql` has not been applied to production.
 
 ## Optional real-browser local test
 
