@@ -122,6 +122,7 @@ create index if not exists seller_account_audit_seller_idx
 create table if not exists dv_market_private.marketplace_compliance_policy (
   singleton boolean primary key default true check (singleton),
   seller_onboarding_enforced boolean not null default false,
+  seller_terms_version text not null default 'seller-beta-2026-09',
   updated_at timestamptz not null default now()
 );
 
@@ -235,6 +236,226 @@ $$;
 
 revoke all on function public.set_my_market_seller_type(text) from public, anon;
 grant execute on function public.set_my_market_seller_type(text) to authenticated;
+
+create or replace function public.save_my_market_seller_legal_profile(
+  p_legal_first_name text,
+  p_legal_last_name text,
+  p_date_of_birth date,
+  p_street_line1 text,
+  p_street_line2 text,
+  p_postal_code text,
+  p_city text,
+  p_country_code text,
+  p_tax_residence_country_code text,
+  p_business_name text default null,
+  p_legal_form text default null,
+  p_representative_name text default null,
+  p_public_email text default null,
+  p_public_phone text default null,
+  p_register_name text default null,
+  p_register_number text default null,
+  p_register_court text default null,
+  p_vat_id_present boolean default false
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_account public.market_seller_accounts%rowtype;
+  v_country text := upper(trim(coalesce(p_country_code, '')));
+  v_tax_country text := upper(trim(coalesce(p_tax_residence_country_code, '')));
+  v_email text := lower(trim(coalesce(p_public_email, '')));
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+
+  select * into v_account
+  from public.market_seller_accounts
+  where seller_id = v_uid;
+
+  if not found or v_account.seller_type not in ('private','trader') then
+    raise exception 'seller_type_required';
+  end if;
+  if v_account.onboarding_status = 'suspended' then
+    raise exception 'seller_account_suspended';
+  end if;
+  if nullif(trim(coalesce(p_legal_first_name, '')), '') is null
+     or nullif(trim(coalesce(p_legal_last_name, '')), '') is null
+     or nullif(trim(coalesce(p_street_line1, '')), '') is null
+     or nullif(trim(coalesce(p_postal_code, '')), '') is null
+     or nullif(trim(coalesce(p_city, '')), '') is null then
+    raise exception 'seller_legal_profile_incomplete';
+  end if;
+  if p_date_of_birth is null
+     or p_date_of_birth > current_date - interval '18 years'
+     or p_date_of_birth < current_date - interval '120 years' then
+    raise exception 'seller_must_be_adult';
+  end if;
+  if v_country !~ '^[A-Z]{2}$' or v_tax_country !~ '^[A-Z]{2}$' then
+    raise exception 'invalid_country_code';
+  end if;
+  if length(trim(p_legal_first_name)) > 100
+     or length(trim(p_legal_last_name)) > 100
+     or length(trim(p_street_line1)) > 160
+     or length(trim(coalesce(p_street_line2, ''))) > 160
+     or length(trim(p_postal_code)) > 20
+     or length(trim(p_city)) > 120 then
+    raise exception 'seller_legal_profile_value_too_long';
+  end if;
+
+  if v_account.seller_type = 'trader' then
+    if nullif(trim(coalesce(p_business_name, '')), '') is null
+       or nullif(trim(coalesce(p_legal_form, '')), '') is null
+       or v_email !~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'
+       or length(regexp_replace(coalesce(p_public_phone, ''), '[^0-9+]', '', 'g')) < 6 then
+      raise exception 'trader_public_profile_incomplete';
+    end if;
+    if (nullif(trim(coalesce(p_register_name, '')), '') is not null
+        or nullif(trim(coalesce(p_register_number, '')), '') is not null)
+       and (nullif(trim(coalesce(p_register_name, '')), '') is null
+            or nullif(trim(coalesce(p_register_number, '')), '') is null) then
+      raise exception 'trader_register_incomplete';
+    end if;
+  end if;
+
+  insert into dv_market_private.seller_legal_profiles(
+    seller_id, legal_first_name, legal_last_name, date_of_birth,
+    business_name, legal_form, representative_name,
+    street_line1, street_line2, postal_code, city, country_code,
+    public_email, public_phone, register_name, register_number, register_court,
+    tax_residence_country_code, vat_id_present, updated_at
+  ) values (
+    v_uid, trim(p_legal_first_name), trim(p_legal_last_name), p_date_of_birth,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_business_name,'')),'') else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_legal_form,'')),'') else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_representative_name,'')),'') else null end,
+    trim(p_street_line1), nullif(trim(coalesce(p_street_line2,'')),''), trim(p_postal_code), trim(p_city), v_country,
+    case when v_account.seller_type='trader' then v_email else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_public_phone,'')),'') else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_register_name,'')),'') else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_register_number,'')),'') else null end,
+    case when v_account.seller_type='trader' then nullif(trim(coalesce(p_register_court,'')),'') else null end,
+    v_tax_country,
+    case when v_account.seller_type='trader' then coalesce(p_vat_id_present,false) else false end,
+    now()
+  )
+  on conflict (seller_id) do update set
+    legal_first_name=excluded.legal_first_name,
+    legal_last_name=excluded.legal_last_name,
+    date_of_birth=excluded.date_of_birth,
+    business_name=excluded.business_name,
+    legal_form=excluded.legal_form,
+    representative_name=excluded.representative_name,
+    street_line1=excluded.street_line1,
+    street_line2=excluded.street_line2,
+    postal_code=excluded.postal_code,
+    city=excluded.city,
+    country_code=excluded.country_code,
+    public_email=excluded.public_email,
+    public_phone=excluded.public_phone,
+    register_name=excluded.register_name,
+    register_number=excluded.register_number,
+    register_court=excluded.register_court,
+    tax_residence_country_code=excluded.tax_residence_country_code,
+    vat_id_present=excluded.vat_id_present,
+    updated_at=now();
+
+  update public.market_seller_accounts
+  set trader_display_name=case when seller_type='trader' then nullif(trim(coalesce(p_business_name,'')),'') else null end,
+      country_code=v_country,
+      onboarding_status='draft',
+      submitted_at=null,
+      verified_at=null,
+      updated_at=now()
+  where seller_id=v_uid;
+
+  return public.get_my_market_seller_onboarding();
+end
+$$;
+
+revoke all on function public.save_my_market_seller_legal_profile(
+  text,text,date,text,text,text,text,text,text,text,text,text,text,text,text,text,text,boolean
+) from public, anon;
+grant execute on function public.save_my_market_seller_legal_profile(
+  text,text,date,text,text,text,text,text,text,text,text,text,text,text,text,text,text,boolean
+) to authenticated;
+
+create or replace function public.submit_my_market_seller_onboarding(
+  p_accept_seller_terms boolean,
+  p_confirm_data_accuracy boolean,
+  p_confirm_lawful_goods boolean
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_account public.market_seller_accounts%rowtype;
+  v_legal dv_market_private.seller_legal_profiles%rowtype;
+  v_terms_version text;
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not coalesce(p_accept_seller_terms,false)
+     or not coalesce(p_confirm_data_accuracy,false)
+     or not coalesce(p_confirm_lawful_goods,false) then
+    raise exception 'seller_declarations_required';
+  end if;
+
+  select * into v_account from public.market_seller_accounts where seller_id=v_uid;
+  select * into v_legal from dv_market_private.seller_legal_profiles where seller_id=v_uid;
+  select seller_terms_version into v_terms_version
+  from dv_market_private.marketplace_compliance_policy where singleton=true;
+
+  if v_account.seller_id is null or v_account.seller_type not in ('private','trader')
+     or v_legal.seller_id is null then
+    raise exception 'seller_onboarding_incomplete';
+  end if;
+  if v_account.onboarding_status = 'suspended' then
+    raise exception 'seller_account_suspended';
+  end if;
+  if v_legal.legal_first_name is null or v_legal.legal_last_name is null
+     or v_legal.date_of_birth is null or v_legal.street_line1 is null
+     or v_legal.postal_code is null or v_legal.city is null
+     or v_legal.country_code is null or v_legal.tax_residence_country_code is null then
+    raise exception 'seller_onboarding_incomplete';
+  end if;
+  if v_account.seller_type='trader'
+     and (v_legal.business_name is null or v_legal.legal_form is null
+          or v_legal.public_email is null or v_legal.public_phone is null) then
+    raise exception 'seller_onboarding_incomplete';
+  end if;
+
+  insert into dv_market_private.seller_declarations(seller_id,declaration_kind,document_version)
+  values
+    (v_uid,'seller_terms',v_terms_version),
+    (v_uid,'data_accuracy',v_terms_version),
+    (v_uid,'lawful_goods',v_terms_version)
+  on conflict (seller_id,declaration_kind,document_version)
+  do update set accepted_at=now(),withdrawn_at=null;
+
+  update public.market_seller_accounts
+  set onboarding_status='pending_review',
+      terms_version=v_terms_version,
+      terms_accepted_at=now(),
+      submitted_at=now(),
+      verified_at=null,
+      updated_at=now()
+  where seller_id=v_uid;
+
+  return public.get_my_market_seller_onboarding();
+end
+$$;
+
+revoke all on function public.submit_my_market_seller_onboarding(boolean,boolean,boolean) from public, anon;
+grant execute on function public.submit_my_market_seller_onboarding(boolean,boolean,boolean) to authenticated;
 
 create or replace function public.get_my_market_seller_onboarding()
 returns jsonb

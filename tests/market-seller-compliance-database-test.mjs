@@ -69,12 +69,31 @@ try{
   assert.equal(mine.seller_type,'private');
   assert.equal(mine.legal_profile,null);
 
+  await assert.rejects(
+    ()=>db.query(`select public.save_my_market_seller_legal_profile(
+      p_legal_first_name=>'Private',p_legal_last_name=>'Person',p_date_of_birth=>current_date,
+      p_street_line1=>'Private street 1',p_street_line2=>null,p_postal_code=>'75100',
+      p_city=>'Private city',p_country_code=>'DE',p_tax_residence_country_code=>'DE'
+    )`),
+    /seller_must_be_adult/
+  );
+  await db.query(`select public.save_my_market_seller_legal_profile(
+    p_legal_first_name=>'Private',p_legal_last_name=>'Person',p_date_of_birth=>'1990-01-01',
+    p_street_line1=>'Private street 1',p_street_line2=>null,p_postal_code=>'75100',
+    p_city=>'Private city',p_country_code=>'DE',p_tax_residence_country_code=>'DE',
+    p_business_name=>'Must not persist',p_public_email=>'private@example.test'
+  )`);
+  await assert.rejects(
+    ()=>db.query(`select public.submit_my_market_seller_onboarding(true,false,true)`),
+    /seller_declarations_required/
+  );
+  const submittedPrivate=json((await db.query(`select public.submit_my_market_seller_onboarding(true,true,true) as value`)).rows[0].value);
+  assert.equal(submittedPrivate.onboarding_status,'pending_review');
+
   await db.exec(`reset role;
-    insert into dv_market_private.seller_legal_profiles(
-      seller_id,legal_first_name,legal_last_name,date_of_birth,street_line1,postal_code,city,country_code,public_email
-    ) values ('${B}','Private','Person','1990-01-01','Private street 1','75100','Private city','DE','private@example.test');
     update public.market_seller_accounts set onboarding_status='active' where seller_id='${B}';
   `);
+  assert.equal((await db.query(`select business_name from dv_market_private.seller_legal_profiles where seller_id='${B}'`)).rows[0].business_name,null);
   await claim(A);
   const privateDisclosure=json((await db.query(`select public.get_market_seller_disclosure('${B}') as value`)).rows[0].value);
   assert.deepEqual(privateDisclosure,{seller_id:B,seller_type:'private',onboarding_status:'active'});
@@ -84,14 +103,23 @@ try{
 
   await claim(C);
   await db.query(`select public.set_my_market_seller_type('trader')`);
+  await assert.rejects(
+    ()=>db.query(`select public.save_my_market_seller_legal_profile(
+      p_legal_first_name=>'Trade',p_legal_last_name=>'Person',p_date_of_birth=>'1985-02-03',
+      p_street_line1=>'Business street 2',p_street_line2=>null,p_postal_code=>'75200',
+      p_city=>'Business city',p_country_code=>'DE',p_tax_residence_country_code=>'DE'
+    )`),
+    /trader_public_profile_incomplete/
+  );
+  await db.query(`select public.save_my_market_seller_legal_profile(
+    p_legal_first_name=>'Trade',p_legal_last_name=>'Person',p_date_of_birth=>'1985-02-03',
+    p_street_line1=>'Business street 2',p_street_line2=>null,p_postal_code=>'75200',
+    p_city=>'Business city',p_country_code=>'DE',p_tax_residence_country_code=>'DE',
+    p_business_name=>'Card Shop',p_legal_form=>'Einzelunternehmen',
+    p_public_email=>'shop@example.test',p_public_phone=>'+4912345'
+  )`);
+  await db.query(`select public.submit_my_market_seller_onboarding(true,true,true)`);
   await db.exec(`reset role;
-    insert into dv_market_private.seller_legal_profiles(
-      seller_id,legal_first_name,legal_last_name,date_of_birth,business_name,legal_form,
-      street_line1,postal_code,city,country_code,public_email,public_phone,tax_residence_country_code
-    ) values (
-      '${C}','Trade','Person','1985-02-03','Card Shop','Einzelunternehmen',
-      'Business street 2','75200','Business city','DE','shop@example.test','+4912345','DE'
-    );
     update public.market_seller_accounts
       set onboarding_status='active',trader_display_name='Card Shop',country_code='DE'
       where seller_id='${C}';

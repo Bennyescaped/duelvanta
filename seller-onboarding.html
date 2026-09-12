@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>DUELVANTA · Verkäuferkonto</title>
+  <link rel="stylesheet" href="seller-onboarding.css?v=1.0">
+  <link rel="stylesheet" href="site-nav.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="app.html" aria-label="DUELVANTA Home">
+        <img src="v-logo.svg" alt="DUELVANTA V">
+        <span>DUELVANTA</span>
+      </a>
+      <a class="back" href="trade.html">Zurück zu TRADE</a>
+    </header>
+
+    <main id="sellerApp" class="hidden">
+      <section class="hero">
+        <div class="eyebrow">TRADE · VERKÄUFERKONTO</div>
+        <div class="heroLine">
+          <div>
+            <h1>Verkaufen mit klarer Rolle.</h1>
+            <p>Diese Angaben machst du einmal. Beim Einstellen einer Karte werden sie nicht erneut abgefragt.</p>
+          </div>
+          <span id="sellerStatus" class="status">NOCH NICHT EINGERICHTET</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="typeHeading">
+        <div class="step">SCHRITT 1</div>
+        <h2 id="typeHeading">Wie verkaufst du?</h2>
+        <p class="hint">Wähle nach deinem tatsächlichen Auftreten. Ein Gewerbeschein allein entscheidet nicht jeden Einzelfall.</p>
+        <div class="typeGrid">
+          <button id="choosePrivate" class="typeCard" type="button" data-seller-type="private">
+            <strong>Privat verkaufen</strong>
+            <span>Du verkaufst gelegentlich Karten aus deinem eigenen Bestand und handelst dabei nicht unternehmerisch.</span>
+          </button>
+          <button id="chooseTrader" class="typeCard" type="button" data-seller-type="trader">
+            <strong>Gewerblich verkaufen</strong>
+            <span>Du handelst planmäßig, dauerhaft oder im Rahmen eines Unternehmens.</span>
+          </button>
+        </div>
+        <div id="typeMsg" class="msg" aria-live="polite"></div>
+      </section>
+
+      <section id="detailsPanel" class="panel hidden" aria-labelledby="detailsHeading">
+        <div class="step">SCHRITT 2</div>
+        <h2 id="detailsHeading">Verkäuferdaten</h2>
+        <p class="privacyNote"><strong>Geschützt gespeichert:</strong> Geburtsdatum, Privatadresse und steuerliche Angaben erscheinen niemals in deinem öffentlichen Profil. Bei gewerblichen Verkäufern werden nur die gesetzlich erforderlichen Anbieterangaben veröffentlicht.</p>
+
+        <form id="sellerForm" novalidate>
+          <div class="formGrid">
+            <div class="field">
+              <label for="legalFirstName">Vorname</label>
+              <input id="legalFirstName" autocomplete="given-name" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="legalLastName">Nachname</label>
+              <input id="legalLastName" autocomplete="family-name" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="dateOfBirth">Geburtsdatum</label>
+              <input id="dateOfBirth" type="date" autocomplete="bday" required>
+            </div>
+            <div class="field">
+              <label for="taxCountry">Steuerlich ansässig in</label>
+              <select id="taxCountry" required>
+                <option value="DE">Deutschland</option>
+                <option value="AT">Österreich</option>
+                <option value="CH">Schweiz</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="street1">Straße und Hausnummer</label>
+              <input id="street1" autocomplete="address-line1" maxlength="160" required>
+            </div>
+            <div class="field full">
+              <label for="street2">Adresszusatz optional</label>
+              <input id="street2" autocomplete="address-line2" maxlength="160">
+            </div>
+            <div class="field">
+              <label for="postalCode">PLZ</label>
+              <input id="postalCode" autocomplete="postal-code" maxlength="20" required>
+            </div>
+            <div class="field">
+              <label for="city">Ort</label>
+              <input id="city" autocomplete="address-level2" maxlength="120" required>
+            </div>
+            <div class="field full">
+              <label for="countryCode">Land der Anschrift</label>
+              <select id="countryCode" autocomplete="country" required>
+                <option value="DE">Deutschland</option>
+                <option value="AT">Österreich</option>
+                <option value="CH">Schweiz</option>
+              </select>
+            </div>
+          </div>
+
+          <fieldset id="traderFields" class="traderFields hidden">
+            <legend>Öffentliche Angaben für gewerbliche Verkäufer</legend>
+            <div class="formGrid">
+              <div class="field full">
+                <label for="businessName">Geschäftsbezeichnung</label>
+                <input id="businessName" maxlength="160" placeholder="z. B. Kartenwelt Mustermann">
+              </div>
+              <div class="field">
+                <label for="legalForm">Rechtsform</label>
+                <select id="legalForm">
+                  <option value="">Bitte wählen</option>
+                  <option value="Einzelunternehmen">Einzelunternehmen</option>
+                  <option value="e.K.">eingetragener Kaufmann / e.K.</option>
+                  <option value="GbR">GbR</option>
+                  <option value="UG (haftungsbeschränkt)">UG (haftungsbeschränkt)</option>
+                  <option value="GmbH">GmbH</option>
+                  <option value="Sonstige">Sonstige</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="representativeName">Vertretungsberechtigte Person optional</label>
+                <input id="representativeName" maxlength="160">
+              </div>
+              <div class="field">
+                <label for="publicEmail">Öffentliche geschäftliche E-Mail</label>
+                <input id="publicEmail" type="email" autocomplete="email" maxlength="254">
+              </div>
+              <div class="field">
+                <label for="publicPhone">Öffentliche Telefonnummer</label>
+                <input id="publicPhone" type="tel" autocomplete="tel" maxlength="40">
+              </div>
+              <div class="field">
+                <label for="registerName">Register optional</label>
+                <input id="registerName" maxlength="120" placeholder="z. B. Handelsregister">
+              </div>
+              <div class="field">
+                <label for="registerNumber">Registernummer optional</label>
+                <input id="registerNumber" maxlength="80">
+              </div>
+              <div class="field full">
+                <label for="registerCourt">Registergericht optional</label>
+                <input id="registerCourt" maxlength="120">
+              </div>
+              <label class="check full"><input id="vatIdPresent" type="checkbox"><span>Eine Umsatzsteuer-Identifikationsnummer ist vorhanden.</span></label>
+            </div>
+          </fieldset>
+
+          <div class="taxLater">
+            <strong>Steuer-ID geschützt ergänzen</strong>
+            <span>Steueridentifikatoren werden vor der endgültigen Verkaufsfreigabe in einem getrennten, verschlüsselten Schritt erfasst – niemals im öffentlichen Profil oder in einem Inserat.</span>
+          </div>
+
+          <div class="formActions">
+            <button id="saveSeller" class="secondary" type="submit">Zwischenspeichern</button>
+          </div>
+          <div id="saveMsg" class="msg" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <section id="submitPanel" class="panel hidden" aria-labelledby="submitHeading">
+        <div class="step">SCHRITT 3</div>
+        <h2 id="submitHeading">Angaben bestätigen</h2>
+        <div class="declarations">
+          <label class="check"><input id="acceptTerms" type="checkbox"><span>Ich akzeptiere die Verkäuferbedingungen. <em>In der Entwicklungsphase noch kein Vertragsschluss.</em></span></label>
+          <label class="check"><input id="confirmAccuracy" type="checkbox"><span>Ich bestätige, dass meine Angaben vollständig und richtig sind.</span></label>
+          <label class="check"><input id="confirmGoods" type="checkbox"><span>Ich biete ausschließlich rechtmäßige Originalware an und beachte die geltenden Produktregeln.</span></label>
+        </div>
+        <button id="submitSeller" class="gold" type="button">Grunddaten zur Prüfung senden</button>
+        <div id="submitMsg" class="msg" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="seller-onboarding.js?v=1.0"></script>
+  <script src="site-nav.js"></script>
+</body>
+</html>

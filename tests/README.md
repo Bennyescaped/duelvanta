@@ -57,6 +57,7 @@ node tests/trade-shipping-contract-test.mjs
 node tests/trade-resolution-contract-test.mjs
 node tests/trade-marketplace-ux-contract-test.mjs
 node tests/market-seller-compliance-database-test.mjs
+node tests/market-seller-onboarding-contract-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,
@@ -79,6 +80,11 @@ PGlite database. It verifies legacy-safe seller backfill, private/trader
 classification, private legal-data isolation, limited public trader disclosure,
 status-change auditing and the server-side listing guard. The proposal in
 `database/market-seller-compliance-v1.sql` has not been applied to production.
+
+The onboarding contract checks the separate private/trader flow, explicit unchecked
+declarations, protected tax-data boundary, authenticated return route and mobile
+layout. The standalone onboarding page remains unlinked until the proposed database
+foundation is available in a safe review environment.
 
 ## Optional real-browser local test
 
