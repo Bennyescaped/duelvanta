@@ -58,6 +58,7 @@ node tests/trade-resolution-contract-test.mjs
 node tests/trade-marketplace-ux-contract-test.mjs
 node tests/market-seller-compliance-database-test.mjs
 node tests/market-seller-onboarding-contract-test.mjs
+node tests/trade-seller-compliance-contract-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,
@@ -85,6 +86,10 @@ The onboarding contract checks the separate private/trader flow, explicit unchec
 declarations, protected tax-data boundary, authenticated return route and mobile
 layout. The standalone onboarding page remains unlinked until the proposed database
 foundation is available in a safe review environment.
+
+The seller-disclosure contract checks the buyer-facing private/trader labels,
+restricted trader detail view, batch RPC, legacy pending state and the absence of
+birth, tax and payment data from the public disclosure module.
 
 ## Optional real-browser local test
 

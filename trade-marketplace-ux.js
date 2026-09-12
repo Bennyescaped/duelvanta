@@ -225,6 +225,12 @@
     const activeObserver = new MutationObserver(() => syncView(tabs));
     activeObserver.observe(tabs, {subtree:true,attributes:true,attributeFilter:['class']});
     window.addEventListener?.('resize', () => syncView(tabs), {passive:true});
+    if (!document.querySelector('script[data-dv-seller-compliance]')) {
+      const compliance = document.createElement('script');
+      compliance.src = 'trade-seller-compliance.js?v=1.0';
+      compliance.dataset.dvSellerCompliance = '1';
+      document.head.appendChild(compliance);
+    }
     window.DV_TRADE_MARKETPLACE_UX = {version:'1.1',sync:() => syncView(tabs)};
     return true;
   }

@@ -187,6 +187,7 @@ jobs:
           node tests/trade-marketplace-ux-contract-test.mjs
           node tests/market-seller-compliance-database-test.mjs
           node tests/market-seller-onboarding-contract-test.mjs
+          node tests/trade-seller-compliance-contract-test.mjs
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
       - name: Second mobile acceptance regressions

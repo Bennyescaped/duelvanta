@@ -131,6 +131,14 @@ try{
   assert.equal(traderDisclosure.street_line1,'Business street 2');
   assert.ok(!Object.hasOwn(traderDisclosure,'date_of_birth'));
   assert.ok(!Object.hasOwn(traderDisclosure,'tax_residence_country_code'));
+  const disclosures=json((await db.query(`select public.get_market_seller_disclosures(array['${B}'::uuid,'${C}'::uuid]) as value`)).rows[0].value);
+  assert.equal(disclosures.length,2);
+  assert.ok(disclosures.some(item=>item.seller_type==='private'));
+  assert.ok(disclosures.some(item=>item.seller_type==='trader'&&item.business_name==='Card Shop'));
+  await assert.rejects(
+    ()=>db.query(`select public.get_market_seller_disclosures(array_fill('${C}'::uuid,array[101]))`),
+    /too_many_sellers/
+  );
 
   await claim(C);
   const changedToPrivate=json((await db.query(`select public.set_my_market_seller_type('private') as value`)).rows[0].value);

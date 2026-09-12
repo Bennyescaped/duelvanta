@@ -590,6 +590,43 @@ $$;
 revoke all on function public.get_market_seller_disclosure(uuid) from public, anon;
 grant execute on function public.get_market_seller_disclosure(uuid) to authenticated;
 
+create or replace function public.get_market_seller_disclosures(p_seller_ids uuid[])
+returns jsonb
+language plpgsql
+security definer
+stable
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_result jsonb;
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+  if coalesce(cardinality(p_seller_ids), 0) > 100 then
+    raise exception 'too_many_sellers';
+  end if;
+
+  select coalesce(jsonb_agg(x.disclosure), '[]'::jsonb)
+  into v_result
+  from (
+    select public.get_market_seller_disclosure(ids.seller_id) as disclosure
+    from (
+      select distinct seller_id
+      from unnest(coalesce(p_seller_ids, array[]::uuid[])) as requested(seller_id)
+      where seller_id is not null
+    ) ids
+  ) x
+  where x.disclosure is not null;
+
+  return v_result;
+end
+$$;
+
+revoke all on function public.get_market_seller_disclosures(uuid[]) from public, anon;
+grant execute on function public.get_market_seller_disclosures(uuid[]) to authenticated;
+
 create or replace function dv_market_private.guard_market_listing_seller_status()
 returns trigger
 language plpgsql
