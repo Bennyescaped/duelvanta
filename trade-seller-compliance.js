@@ -3,10 +3,11 @@
   const cache = new Map();
   let loaded = false, unavailable = false, busy = false, lastSellerSignature = '';
   let knownSellerIds = new Set();
+  let mySellerAccount = null, sellerGateAvailable = false;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
   const style = document.createElement('style');
-  style.textContent = '.dvSellerClass{display:inline-flex;align-items:center;margin-top:7px;border:1px solid #3b424d;border-radius:999px;padding:5px 8px;color:#c2c8d0;background:#0b0e13;font-size:9px;letter-spacing:.06em}.dvSellerClass.private{color:#d8c28f;border-color:#5d4a2b}.dvSellerClass.trader{color:#91c99a;border-color:#315b3b;cursor:pointer}.dvSellerClass.pending{color:#b7bdc5}.dvLegalGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}.dvLegalItem{border:1px solid #2b313a;border-radius:10px;padding:10px;background:#0a0d12}.dvLegalItem span{display:block;color:#8e96a1;font-size:9px;text-transform:uppercase;margin-bottom:4px}.dvLegalItem strong,.dvLegalItem a{color:#f0e9de;font-size:13px;overflow-wrap:anywhere}.dvLegalNote{color:#9ba3ae;font-size:11px;line-height:1.55;margin-top:13px}@media(max-width:680px){.dvLegalGrid{grid-template-columns:1fr}}';
+  style.textContent = '.dvSellerClass{display:inline-flex;align-items:center;margin-top:7px;border:1px solid #3b424d;border-radius:999px;padding:5px 8px;color:#c2c8d0;background:#0b0e13;font-size:9px;letter-spacing:.06em}.dvSellerClass.private{color:#d8c28f;border-color:#5d4a2b}.dvSellerClass.trader{color:#91c99a;border-color:#315b3b;cursor:pointer}.dvSellerClass.pending{color:#b7bdc5}.dvLegalGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}.dvLegalItem{border:1px solid #2b313a;border-radius:10px;padding:10px;background:#0a0d12}.dvLegalItem span{display:block;color:#8e96a1;font-size:9px;text-transform:uppercase;margin-bottom:4px}.dvLegalItem strong,.dvLegalItem a{color:#f0e9de;font-size:13px;overflow-wrap:anywhere}.dvLegalNote,.dvSellerGateCopy{color:#9ba3ae;font-size:11px;line-height:1.55;margin-top:13px}.dvSellerGateAction{display:block;width:100%;margin-top:16px;text-align:center}@media(max-width:680px){.dvLegalGrid{grid-template-columns:1fr}}';
   document.head.appendChild(style);
 
   const dialog = document.createElement('dialog');
@@ -14,6 +15,12 @@
   dialog.innerHTML = '<div class="modal"><div class="modalHead"><h2>Anbieterangaben</h2><button class="close" type="button" aria-label="Anbieterangaben schließen">✕</button></div><div id="dvSellerLegalBody"></div></div>';
   document.body.appendChild(dialog);
   dialog.querySelector('.close').onclick = () => dialog.close();
+
+  const gateDialog = document.createElement('dialog');
+  gateDialog.id = 'dvSellerGateDialog';
+  gateDialog.innerHTML = '<div class="modal"><div class="modalHead"><h2>Verkäuferkonto erforderlich</h2><button class="close" type="button" aria-label="Hinweis schließen">✕</button></div><div id="dvSellerGateBody"></div><a class="btn gold dvSellerGateAction" href="seller-onboarding.html">VERKÄUFERKONTO EINRICHTEN</a></div>';
+  document.body.appendChild(gateDialog);
+  gateDialog.querySelector('.close').onclick = () => gateDialog.close();
 
   function listingFor(card) {
     const button = card.querySelector('[data-offer],[data-edit],[data-pause],[data-finish],[data-renew]');
@@ -62,6 +69,27 @@
     decorate();
   }
 
+  async function loadMySellerAccount() {
+    if (typeof db === 'undefined') return;
+    const {data,error} = await db.rpc('get_my_market_seller_onboarding');
+    if (error) return;
+    mySellerAccount = data || {seller_type:'unclassified',onboarding_status:'draft',onboarding_enforced:false};
+    sellerGateAvailable = true;
+  }
+
+  function openSellerGate() {
+    const state = mySellerAccount?.onboarding_status || 'draft';
+    const copy = {
+      pending_review:'Deine Grunddaten werden geprüft. Bis zur Freigabe können keine neuen oder pausierten Angebote aktiviert werden.',
+      rejected:'Deine Angaben müssen überarbeitet werden. Öffne dein Verkäuferkonto und reiche sie danach erneut ein.',
+      suspended:'Dein Verkäuferkonto ist gesperrt. Bitte wende dich an den DUELVANTA-Support.',
+      legacy_beta:'Bitte stufe dich einmal als privater oder gewerblicher Verkäufer ein und vervollständige die erforderlichen Angaben.'
+    }[state] || 'Bevor du ein Angebot veröffentlichen kannst, richte dein Verkäuferkonto einmal vollständig ein.';
+    document.getElementById('dvSellerGateBody').innerHTML = `<div class="eyebrow">${esc(String(state).replaceAll('_',' '))}</div><div class="dvSellerGateCopy">${esc(copy)}</div>`;
+    gateDialog.querySelector('.dvSellerGateAction').classList.toggle('hidden',state==='suspended');
+    gateDialog.showModal();
+  }
+
   function legalItem(label,value,link) {
     if (!value) return '';
     const content = link ? `<a href="${esc(link)}">${esc(value)}</a>` : `<strong>${esc(value)}</strong>`;
@@ -84,12 +112,20 @@
     event.stopPropagation();
     openTrader(button.dataset.dvTrader);
   }, true);
+  document.addEventListener('click', event => {
+    if (!event.target.closest('#sell')) return;
+    if (!sellerGateAvailable || !mySellerAccount?.onboarding_enforced || mySellerAccount.onboarding_status === 'active') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openSellerGate();
+  }, true);
   new MutationObserver(() => { decorate(); load(); }).observe(document.getElementById('grid'),{childList:true,subtree:true});
   const timer = setInterval(() => {
     if (typeof user !== 'undefined' && user && typeof listings !== 'undefined') {
       clearInterval(timer);
       load();
+      loadMySellerAccount();
     }
   },100);
-  window.DV_TRADE_SELLER_COMPLIANCE = {version:'1.0',refresh:load};
+  window.DV_TRADE_SELLER_COMPLIANCE = {version:'1.0',refresh:() => Promise.all([load(),loadMySellerAccount()])};
 })();

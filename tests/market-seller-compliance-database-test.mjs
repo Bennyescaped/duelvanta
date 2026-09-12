@@ -7,6 +7,7 @@ const db=new PGlite();
 const A='10000000-0000-4000-8000-000000000001';
 const B='10000000-0000-4000-8000-000000000002';
 const C='10000000-0000-4000-8000-000000000003';
+const D='10000000-0000-4000-8000-000000000004';
 const migration=await readFile(new URL('../database/market-seller-compliance-v1.sql',import.meta.url),'utf8');
 
 const claim=async(uid,role='authenticated')=>{
@@ -30,13 +31,20 @@ try{
     create table public.market_listings(
       id uuid primary key default gen_random_uuid(),
       seller_id uuid not null references auth.users(id),
-      status text not null default 'active'
+      status text not null default 'active',
+      updated_at timestamptz not null default now()
     );
     create table public.market_deals(
       id uuid primary key default gen_random_uuid(),
       seller_id uuid not null references auth.users(id)
     );
-    insert into auth.users(id) values ('${A}'),('${B}'),('${C}');
+    create table public.profiles(
+      id uuid primary key references auth.users(id),
+      role text,
+      account_status text
+    );
+    insert into auth.users(id) values ('${A}'),('${B}'),('${C}'),('${D}');
+    insert into public.profiles(id,role,account_status) values ('${D}','owner','active');
     insert into public.market_listings(seller_id,status) values ('${A}','active');
   `);
 
@@ -89,10 +97,22 @@ try{
   );
   const submittedPrivate=json((await db.query(`select public.submit_my_market_seller_onboarding(true,true,true) as value`)).rows[0].value);
   assert.equal(submittedPrivate.onboarding_status,'pending_review');
-
+  await assert.rejects(
+    ()=>db.query(`select public.review_market_seller_onboarding('${B}','approve',null)`),
+    /owner_access_required/
+  );
+  await claim(D);
+  await assert.rejects(
+    ()=>db.query(`select public.review_market_seller_onboarding('${B}','approve',null)`),
+    /seller_tax_identifier_required/
+  );
   await db.exec(`reset role;
-    update public.market_seller_accounts set onboarding_status='active' where seller_id='${B}';
+    update dv_market_private.marketplace_compliance_policy set tax_identifier_required_for_activation=false;
   `);
+  await claim(D);
+  const approvedPrivate=json((await db.query(`select public.review_market_seller_onboarding('${B}','approve',null) as value`)).rows[0].value);
+  assert.equal(approvedPrivate.status,'active');
+  await db.exec(`reset role;`);
   assert.equal((await db.query(`select business_name from dv_market_private.seller_legal_profiles where seller_id='${B}'`)).rows[0].business_name,null);
   await claim(A);
   const privateDisclosure=json((await db.query(`select public.get_market_seller_disclosure('${B}') as value`)).rows[0].value);
@@ -119,11 +139,9 @@ try{
     p_public_email=>'shop@example.test',p_public_phone=>'+4912345'
   )`);
   await db.query(`select public.submit_my_market_seller_onboarding(true,true,true)`);
-  await db.exec(`reset role;
-    update public.market_seller_accounts
-      set onboarding_status='active',trader_display_name='Card Shop',country_code='DE'
-      where seller_id='${C}';
-  `);
+  await claim(D);
+  const approvedTrader=json((await db.query(`select public.review_market_seller_onboarding('${C}','approve',null) as value`)).rows[0].value);
+  assert.equal(approvedTrader.status,'active');
   await claim(A);
   const traderDisclosure=json((await db.query(`select public.get_market_seller_disclosure('${C}') as value`)).rows[0].value);
   assert.equal(traderDisclosure.seller_type,'trader');
@@ -152,18 +170,24 @@ try{
       where seller_id='${C}';
   `);
 
-  await db.exec(`reset role;
-    update dv_market_private.marketplace_compliance_policy set seller_onboarding_enforced=true;
-  `);
+  await claim(D);
+  const enforcement=json((await db.query(`select public.set_marketplace_seller_onboarding_enforcement(true) as value`)).rows[0].value);
+  assert.equal(enforcement.seller_onboarding_enforced,true);
+  assert.equal(enforcement.paused_listings,1);
+  await db.exec(`reset role;`);
+  assert.equal((await db.query(`select status from public.market_listings where seller_id='${A}'`)).rows[0].status,'paused');
   await assert.rejects(
     ()=>db.query(`insert into public.market_listings(seller_id,status) values ('${A}','active')`),
     /seller_onboarding_required/
   );
+  await db.query(`update public.market_listings set status='active' where seller_id='${A}'`);
+  assert.equal((await db.query(`select status from public.market_listings where seller_id='${A}'`)).rows[0].status,'paused');
   await db.query(`insert into public.market_listings(seller_id,status) values ('${B}','active')`);
 
   await db.exec(`reset role;
     update public.market_seller_accounts set onboarding_status='suspended' where seller_id='${B}';
   `);
+  assert.equal((await db.query(`select status from public.market_listings where seller_id='${B}' order by id desc limit 1`)).rows[0].status,'paused');
   await claim(B);
   await assert.rejects(
     ()=>db.query(`select public.set_my_market_seller_type('trader')`),

@@ -122,7 +122,9 @@ create index if not exists seller_account_audit_seller_idx
 create table if not exists dv_market_private.marketplace_compliance_policy (
   singleton boolean primary key default true check (singleton),
   seller_onboarding_enforced boolean not null default false,
+  tax_identifier_required_for_activation boolean not null default true,
   seller_terms_version text not null default 'seller-beta-2026-09',
+  updated_by uuid,
   updated_at timestamptz not null default now()
 );
 
@@ -130,8 +132,37 @@ insert into dv_market_private.marketplace_compliance_policy(singleton, seller_on
 values (true, false)
 on conflict (singleton) do nothing;
 
+create table if not exists dv_market_private.seller_review_actions (
+  id bigint generated always as identity primary key,
+  seller_id uuid not null references auth.users(id) on delete cascade,
+  actor_id uuid not null references auth.users(id),
+  action text not null check (action in ('approve','reject','suspend')),
+  reason text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists seller_review_actions_seller_idx
+  on dv_market_private.seller_review_actions(seller_id, created_at desc);
+
 revoke all on all tables in schema dv_market_private from public, anon, authenticated;
 revoke all on all sequences in schema dv_market_private from public, anon, authenticated;
+
+create or replace function dv_market_private.is_market_owner_caller()
+returns boolean
+language sql
+security definer
+stable
+set search_path = pg_catalog, public
+as $$
+  select auth.uid() is not null and exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'owner'
+      and coalesce(p.account_status, 'active') = 'active'
+  )
+$$;
+
+revoke all on function dv_market_private.is_market_owner_caller() from public, anon, authenticated;
 
 create or replace function dv_market_private.audit_market_seller_account()
 returns trigger
@@ -468,10 +499,15 @@ declare
   v_uid uuid := auth.uid();
   v_account public.market_seller_accounts%rowtype;
   v_legal dv_market_private.seller_legal_profiles%rowtype;
+  v_enforced boolean := false;
 begin
   if v_uid is null then
     raise exception 'not_authenticated';
   end if;
+
+  select seller_onboarding_enforced into v_enforced
+  from dv_market_private.marketplace_compliance_policy
+  where singleton = true;
 
   select * into v_account
   from public.market_seller_accounts
@@ -480,7 +516,8 @@ begin
   if not found then
     return jsonb_build_object(
       'seller_type', 'unclassified',
-      'onboarding_status', 'draft'
+      'onboarding_status', 'draft',
+      'onboarding_enforced', coalesce(v_enforced, false)
     );
   end if;
 
@@ -497,6 +534,7 @@ begin
     'terms_accepted_at', v_account.terms_accepted_at,
     'submitted_at', v_account.submitted_at,
     'verified_at', v_account.verified_at,
+    'onboarding_enforced', coalesce(v_enforced, false),
     'legal_profile', case when v_legal.seller_id is null then null else jsonb_build_object(
       'legal_first_name', v_legal.legal_first_name,
       'legal_last_name', v_legal.legal_last_name,
@@ -627,6 +665,144 @@ $$;
 revoke all on function public.get_market_seller_disclosures(uuid[]) from public, anon;
 grant execute on function public.get_market_seller_disclosures(uuid[]) to authenticated;
 
+create or replace function public.review_market_seller_onboarding(
+  p_seller_id uuid,
+  p_decision text,
+  p_reason text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_actor uuid := auth.uid();
+  v_decision text := lower(trim(coalesce(p_decision, '')));
+  v_account public.market_seller_accounts%rowtype;
+  v_legal dv_market_private.seller_legal_profiles%rowtype;
+  v_tax_required boolean := true;
+begin
+  if not dv_market_private.is_market_owner_caller() then
+    raise exception 'owner_access_required';
+  end if;
+  if p_seller_id is null or v_decision not in ('approve','reject','suspend') then
+    raise exception 'invalid_review_decision';
+  end if;
+  if v_decision in ('reject','suspend') and nullif(trim(coalesce(p_reason,'')),'') is null then
+    raise exception 'review_reason_required';
+  end if;
+
+  select * into v_account from public.market_seller_accounts
+  where seller_id=p_seller_id for update;
+  select * into v_legal from dv_market_private.seller_legal_profiles
+  where seller_id=p_seller_id;
+  select tax_identifier_required_for_activation into v_tax_required
+  from dv_market_private.marketplace_compliance_policy where singleton=true;
+
+  if v_account.seller_id is null then raise exception 'seller_account_not_found'; end if;
+  if v_decision='approve' then
+    if v_account.onboarding_status<>'pending_review' or v_legal.seller_id is null then
+      raise exception 'seller_not_ready_for_approval';
+    end if;
+    if coalesce(v_tax_required,true) and not exists (
+      select 1 from dv_market_private.seller_tax_identifiers
+      where seller_id=p_seller_id and identifier_kind in ('tin','vat_id')
+    ) then
+      raise exception 'seller_tax_identifier_required';
+    end if;
+    update public.market_seller_accounts
+    set onboarding_status='active',verified_at=now(),suspended_at=null,updated_at=now()
+    where seller_id=p_seller_id;
+  elsif v_decision='reject' then
+    if v_account.onboarding_status<>'pending_review' then
+      raise exception 'seller_not_pending_review';
+    end if;
+    update public.market_seller_accounts
+    set onboarding_status='rejected',verified_at=null,updated_at=now()
+    where seller_id=p_seller_id;
+  else
+    update public.market_seller_accounts
+    set onboarding_status='suspended',verified_at=null,suspended_at=now(),updated_at=now()
+    where seller_id=p_seller_id;
+  end if;
+
+  insert into dv_market_private.seller_review_actions(seller_id,actor_id,action,reason)
+  values(p_seller_id,v_actor,v_decision,nullif(left(trim(coalesce(p_reason,'')),1000),''));
+
+  return jsonb_build_object('seller_id',p_seller_id,'decision',v_decision,'status',
+    case v_decision when 'approve' then 'active' when 'reject' then 'rejected' else 'suspended' end);
+end
+$$;
+
+revoke all on function public.review_market_seller_onboarding(uuid,text,text) from public, anon;
+grant execute on function public.review_market_seller_onboarding(uuid,text,text) to authenticated;
+
+create or replace function public.set_marketplace_seller_onboarding_enforcement(p_enabled boolean)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_actor uuid := auth.uid();
+  v_paused integer := 0;
+begin
+  if not dv_market_private.is_market_owner_caller() then
+    raise exception 'owner_access_required';
+  end if;
+
+  update dv_market_private.marketplace_compliance_policy
+  set seller_onboarding_enforced=coalesce(p_enabled,false),updated_by=v_actor,updated_at=now()
+  where singleton=true;
+
+  if coalesce(p_enabled,false) then
+    update public.market_listings l
+    set status='paused',updated_at=now()
+    where l.status='active'
+      and not exists (
+        select 1 from public.market_seller_accounts a
+        where a.seller_id=l.seller_id and a.onboarding_status='active'
+          and a.seller_type in ('private','trader')
+      );
+    get diagnostics v_paused = row_count;
+  end if;
+
+  return jsonb_build_object('seller_onboarding_enforced',coalesce(p_enabled,false),'paused_listings',v_paused);
+end
+$$;
+
+revoke all on function public.set_marketplace_seller_onboarding_enforcement(boolean) from public, anon;
+grant execute on function public.set_marketplace_seller_onboarding_enforcement(boolean) to authenticated;
+
+create or replace function dv_market_private.pause_listings_after_seller_restriction()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_enforced boolean := false;
+begin
+  select seller_onboarding_enforced into v_enforced
+  from dv_market_private.marketplace_compliance_policy where singleton=true;
+  if coalesce(v_enforced,false)
+     and new.onboarding_status<>'active'
+     and old.onboarding_status is distinct from new.onboarding_status then
+    update public.market_listings
+    set status='paused',updated_at=now()
+    where seller_id=new.seller_id and status='active';
+  end if;
+  return new;
+end
+$$;
+
+revoke all on function dv_market_private.pause_listings_after_seller_restriction() from public, anon, authenticated;
+
+drop trigger if exists pause_listings_after_seller_restriction_trigger on public.market_seller_accounts;
+create trigger pause_listings_after_seller_restriction_trigger
+after update of onboarding_status on public.market_seller_accounts
+for each row execute function dv_market_private.pause_listings_after_seller_restriction();
+
 create or replace function dv_market_private.guard_market_listing_seller_status()
 returns trigger
 language plpgsql
@@ -655,7 +831,10 @@ begin
       and a.onboarding_status = 'active'
       and a.seller_type in ('private','trader')
   ) then
-    raise exception 'seller_onboarding_required';
+    if tg_op='INSERT' then
+      raise exception 'seller_onboarding_required';
+    end if;
+    new.status := 'paused';
   end if;
 
   return new;

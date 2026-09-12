@@ -59,6 +59,7 @@ node tests/trade-marketplace-ux-contract-test.mjs
 node tests/market-seller-compliance-database-test.mjs
 node tests/market-seller-onboarding-contract-test.mjs
 node tests/trade-seller-compliance-contract-test.mjs
+node tests/market-seller-enforcement-contract-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,
@@ -90,6 +91,10 @@ foundation is available in a safe review environment.
 The seller-disclosure contract checks the buyer-facing private/trader labels,
 restricted trader detail view, batch RPC, legacy pending state and the absence of
 birth, tax and payment data from the public disclosure module.
+
+The seller-enforcement contract checks the disabled-by-default rollout flag,
+owner-only approval/activation, mandatory tax-identifier gate, automatic pausing
+after a restriction and the Marketplace redirect into seller onboarding.
 
 ## Optional real-browser local test
 
