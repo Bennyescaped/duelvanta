@@ -17,6 +17,8 @@ for(const id of ['acceptTerms','confirmAccuracy','confirmGoods'])must(html,`id="
 assert.ok(!/<input[^>]+(?:checked|value=["'][^"']*(?:TIN|Steuer-ID|IBAN))/i.test(html),'consent must not be preselected and tax/bank secrets must not be ordinary form values');
 must(html,'Steueridentifikatoren werden vor der endgültigen Verkaufsfreigabe in einem getrennten, verschlüsselten Schritt erfasst','secure tax step is not explained');
 must(html,'src="v-logo.svg"','original DUELVANTA logo is not reused');
+must(html,'id="stripeSandboxPanel"','Stripe sandbox panel is missing');
+must(html,'id="startStripeSandbox"','Stripe sandbox onboarding action is missing');
 
 for(const rpc of ['get_my_market_seller_onboarding','set_my_market_seller_type','save_my_market_seller_legal_profile','submit_my_market_seller_onboarding'])must(js,`db.rpc('${rpc}'`,'missing RPC wiring '+rpc);
 assert.ok(!js.includes("db.from('profiles')"),'seller compliance must not be stored in public profiles');
@@ -25,6 +27,11 @@ must(js,"location.replace('login.html?next=seller-onboarding.html')",'login retu
 must(js,"account.onboarding_status==='suspended'",'suspended seller UI guard is missing');
 must(js,"db.rpc('get_my_market_seller_onboarding')",'seller data must be refreshed after a type change');
 must(js,"$('dateOfBirth').max=adultDate.toISOString().slice(0,10)",'adult date limit is missing from the form');
+must(js,"location.hostname.endsWith('.vercel.app')&&SB_URL.includes('xhmjxrcskfhbovhitdej')",'Stripe sandbox control must be restricted to the staging preview');
+must(js,"fetch('/api/market-stripe-onboarding'",'Stripe sandbox onboarding API is not wired');
+must(js,"authorization:`Bearer ${session.access_token}`",'Stripe sandbox onboarding must use the authenticated seller session');
+must(js,"result.live_mode!==false",'Stripe sandbox onboarding must reject a live-mode response');
+must(js,"/^https:\\/\\/connect\\.stripe\\.com\\//",'Stripe onboarding redirect must be restricted to Stripe HTTPS');
 
 must(sql,"create schema if not exists dv_market_private",'private compliance schema is missing');
 must(sql,"identifier_ciphertext bytea not null",'tax identifier ciphertext boundary is missing');
