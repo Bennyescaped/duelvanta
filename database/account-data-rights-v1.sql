@@ -122,7 +122,7 @@ revoke all on function dv_market_private.json_rows(text) from public, anon, auth
 
 create or replace function public.export_my_duelvanta_data()
 returns jsonb language plpgsql security definer
-set search_path=pg_catalog,public,dv_market_private as $$
+set search_path=pg_catalog,public,dv_market_private,extensions as $$
 declare v_uid uuid:=auth.uid();v_payload jsonb;v_profile jsonb;v_seller jsonb;v_legal jsonb;v_tax jsonb;
 begin
   if v_uid is null then raise exception 'authentication_required'; end if;
@@ -146,7 +146,7 @@ begin
       'seller_legal_profile',coalesce(v_legal,'null'::jsonb),
       'tax_identifier_references',v_tax,
       'seller_declarations',dv_market_private.json_rows(format('select declaration_kind,document_version,accepted_at,withdrawn_at from dv_market_private.seller_declarations where seller_id=%L order by accepted_at,id',v_uid)),
-      'listings',dv_market_private.json_rows(format('select to_jsonb(l)-''seller_id'' row_data from public.market_listings l where seller_id=%L order by created_at,id',v_uid)),
+      'listings',dv_market_private.json_rows(format('select to_jsonb(l)-array[''seller_id'',''deal_buyer_id''] row_data from public.market_listings l where seller_id=%L order by created_at,id',v_uid)),
       'offers',dv_market_private.json_rows(format('select to_jsonb(o)-array[''seller_id'',''buyer_id''] row_data from public.market_offers o where seller_id=%L or buyer_id=%L order by created_at,id',v_uid,v_uid)),
       'orders',dv_market_private.json_rows(format('select to_jsonb(o)-array[''seller_id'',''buyer_id'',''provider_payment_ref'',''provider_payout_ref'',''provider_refund_ref''] row_data from public.market_orders o where seller_id=%L or buyer_id=%L order by created_at,id',v_uid,v_uid)),
       'deals',dv_market_private.json_rows(format('select to_jsonb(d)-array[''seller_id'',''buyer_id'',''provider_payment_ref'',''provider_payout_ref''] row_data from public.market_deals d where seller_id=%L or buyer_id=%L order by accepted_at,id',v_uid,v_uid)),
