@@ -19,6 +19,9 @@ http.createServer(async(req,res)=>{
         .replace(/<script src="(?:i18n|site-nav)\.js"><\/script>/g,'')
         .replace('</body>','<script src="/tests/trade-ui-selftest.js"></script></body>');
     }
+    if(url.pathname==='/listing-report.html'){
+      content=content.toString().replace(/<script src="https:[^"]*supabase[^"]*"><\/script>/,'<script src="/tests/market-notice-action-ui-mock.js"></script>');
+    }
     res.setHeader('Content-Type',types[extname(path)]||'text/plain');
     res.setHeader('Content-Security-Policy',"default-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data: blob:");
     res.end(content);

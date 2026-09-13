@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
+const [sql,html,js,trade,moderation,admin]=await Promise.all(['database/market-notice-action-v1.sql','listing-report.html','listing-report.js','trade-notice-action.js','trade-seller-moderation.js','admin-notice-action.js'].map(read));
+const must=(source,text,message)=>assert.ok(source.includes(text),message);
+
+for(const table of ['listing_notices','listing_notice_appeals','listing_notice_events','marketplace_message_outbox'])must(sql,table,'missing private notice table '+table);
+must(sql,'grant execute on function public.submit_marketplace_listing_notice(uuid,text,text,text,text,text,text,boolean) to anon, authenticated','public electronic reporting is not available');
+must(sql,'reporter_email_hash bytea not null','reporter email is not protected for rate limiting');
+must(sql,'access_code_hash bytea not null','tracking access code is stored in plaintext');
+must(sql,'notice_audit_is_immutable','notice audit can be mutated');
+must(sql,'seller_statement_of_reasons','seller statement of reasons is not queued');
+must(sql,"interval '6 months'",'six-month appeal access is missing');
+must(sql,'p_automated_means_used boolean default false','automated-means disclosure is missing');
+must(sql,"if not dv_market_private.notice_owner_caller()",'owner decision guard is missing');
+must(sql,'submit_my_marketplace_moderation_appeal','seller appeal is missing');
+
+for(const id of ['listingId','category','reporterName','reporterEmail','explanation','goodFaith','statusForm'])must(html,`id="${id}"`,'missing report control '+id);
+must(html,'Keine unnötigen sensiblen Daten','data minimisation guidance is missing');
+must(js,"db.rpc('submit_marketplace_listing_notice'",'notice submission RPC is not wired');
+must(js,"db.rpc('get_marketplace_notice_status'",'status retrieval is not wired');
+must(js,"db.rpc('submit_marketplace_notice_appeal'",'reporter appeal is not wired');
+must(trade,'listing-report.html?listing=','listing report link is missing');
+must(moderation,"db.rpc('get_my_marketplace_moderation_cases'",'seller moderation view is missing');
+must(moderation,"db.rpc('submit_my_marketplace_moderation_appeal'",'seller appeal UI is missing');
+must(admin,"db.rpc('get_owner_marketplace_notices'",'owner queue is missing');
+must(admin,"db.rpc('decide_marketplace_listing_notice'",'owner decision is missing');
+must(admin,'p_automated_means_used:false','human decision disclosure is missing');
+must(admin,'Nicht an den Verkäufer weitergeben','reporter privacy warning is missing');
+console.log('PASS: notice, status, reasoned decision, reporter/seller appeal and owner review contracts');

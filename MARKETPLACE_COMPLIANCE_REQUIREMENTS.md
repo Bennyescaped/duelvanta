@@ -73,14 +73,16 @@ Bereits vorhanden und zu erhalten:
 
 Noch nicht vorhanden:
 
-- belastbare Verkäuferart und Onboardingstatus.
-- getrennte private Händler-/Steuerdaten.
-- öffentliche, freigegebene Händleroffenlegung.
-- serverseitige Verkaufsfreigabe auf Basis des Onboardings.
 - PStTG/DAC7-Ereignis- und Exportmodell.
-- Notice-and-Action-Verfahren für Listings.
 - B2C/C2C-spezifischer Checkout und Dokumentensatz.
 - produktiver Zahlungsanbieter, Rechnungs- und Gebührenlogik.
+
+Im Review-Branch umgesetzt, aber noch nicht produktiv aktiviert:
+
+- Verkäuferart, Onboardingstatus, getrennte private Rechtsdaten und geprüfte Händleroffenlegung.
+- serverseitige Verkaufsfreigabe mit sicher deaktiviertem Rollout-Schalter.
+- Notice-and-Action-Verfahren: öffentliches elektronisches Meldeformular, privater Eingang, Vorgangsbestätigung, menschliche Owner-Prüfung, begründete Entscheidung, Verkäuferinformation, Einsprüche beider Seiten und unveränderbarer Audit-Verlauf.
+- Der Versand der vorbereiteten Empfangs-, Entscheidungs- und Einspruchsnachrichten benötigt vor Aktivierung noch den serverseitigen E-Mail-Dispatcher. Ohne bestätigte Zustellung wird das Verfahren nicht produktiv freigeschaltet.
 
 ## 5. Umsetzungsreihenfolge
 
@@ -101,7 +103,7 @@ Noch nicht vorhanden:
 - § 5 DDG – Anbieterinformationen des Plattformbetreibers.
 - §§ 312d, 312f und 312j BGB sowie Art. 246a EGBGB – Fernabsatzinformationen, Bestätigung und Button-Lösung.
 - PStTG, insbesondere §§ 4, 13 sowie 17 ff. – Anbieterdefinition, Melde- und Sorgfaltspflichten.
-- Verordnung (EU) 2022/2065, insbesondere Art. 16, 17, 19 sowie 29–32 – Notice-and-Action und Plattformpflichten.
+- Verordnung (EU) 2022/2065, insbesondere Art. 16, 17, 19–21 sowie 29–32 – Notice-and-Action, Begründungen, Einspruch und Plattformpflichten.
 - DSGVO, insbesondere Art. 5, 6, 12–22, 25 und 32.
 - § 25 TDDDG – Endeinrichtungszugriffe und Einwilligung.
 - ZAG und die Bedingungen des später gewählten regulierten Zahlungsdienstleisters.

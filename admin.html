@@ -35,6 +35,7 @@
       .tablewrap{overflow:visible;border:0;background:transparent}table{min-width:0}thead{display:none}tbody{display:grid;gap:12px}tbody tr{display:block;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(20,24,31,.98),rgba(13,16,21,.98));padding:14px}tbody td{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:center;border:0!important;padding:8px 0!important;min-width:0}tbody td:before{content:attr(data-label);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#717985}tbody td:nth-child(2){word-break:break-word}tbody td:last-child{padding-top:13px!important;margin-top:5px;border-top:1px solid var(--line)!important}tbody td:last-child .btn{width:100%;min-height:44px}.statusSel{width:100%;min-width:0}.badge{white-space:normal}.empty{display:block!important;padding:20px!important}.empty:before{display:none}.toolbar{margin-top:4px}}
 
   </style>
+  <link rel="stylesheet" href="admin-notice-action.css?v=1.0">
 </head>
 <body>
   <section id="loginView" class="login">
@@ -318,5 +319,6 @@
     db.auth.onAuthStateChange((_event,session)=>{if(session?.user?.email?.toLowerCase()===OWNER_EMAIL)boot()});
     boot();
   </script>
+  <script src="admin-notice-action.js?v=1.0"></script>
 </body>
 </html>

@@ -12,6 +12,25 @@
   const isMobile = () => typeof matchMedia === 'function' && matchMedia('(max-width:760px)').matches;
   const setOpen = (details,open) => open ? details.setAttribute('open','') : details.removeAttribute('open');
 
+  function loadNoticeAction() {
+    if (!document.querySelector('link[href^="trade-notice-action.css"]')) {
+      const style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.href = 'trade-notice-action.css?v=1.0';
+      document.head.appendChild(style);
+    }
+    if (!document.querySelector('script[src^="trade-notice-action.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'trade-notice-action.js?v=1.0';
+      document.body.appendChild(script);
+    }
+    if (!document.querySelector('script[src^="trade-seller-moderation.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'trade-seller-moderation.js?v=1.0';
+      document.body.appendChild(script);
+    }
+  }
+
   function activeView(tabs) {
     const active = tabs.querySelector('.btn.active');
     if (active?.id === 'dvOrdersTab') return 'orders';
@@ -188,6 +207,7 @@
     const sell = document.getElementById('sell'), automation = document.getElementById('dvTradeAutomation');
     if (!tabs || !hero || !daily || !market || !mine || !offers || !orders || !deals || !shipping || !sell || !automation) return false;
     installed = true;
+    loadNoticeAction();
 
     tabs.classList.add('dvTradeNav');
     market.textContent = 'MARKT';
