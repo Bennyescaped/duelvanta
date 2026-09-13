@@ -135,6 +135,30 @@ $$;
 
 revoke all on function dv_market_private.notice_owner_caller() from public, anon, authenticated;
 
+create or replace function dv_market_private.keep_moderated_listing_paused()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public, dv_market_private
+as $$
+begin
+  if new.status='active' and exists(
+    select 1 from dv_market_private.listing_notices n
+    where n.listing_id=new.id and n.status in ('decided_restricted','decided_removed','appealed')
+  ) then
+    new.status:='paused';
+    new.updated_at:=now();
+  end if;
+  return new;
+end
+$$;
+
+revoke all on function dv_market_private.keep_moderated_listing_paused() from public, anon, authenticated;
+drop trigger if exists keep_moderated_listing_paused_trigger on public.market_listings;
+create trigger keep_moderated_listing_paused_trigger
+before update of status on public.market_listings
+for each row execute function dv_market_private.keep_moderated_listing_paused();
+
 create or replace function public.submit_marketplace_listing_notice(
   p_listing_id uuid,
   p_category text,

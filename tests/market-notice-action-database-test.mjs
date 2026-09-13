@@ -51,6 +51,8 @@ try{
   await db.query(`select public.decide_marketplace_listing_notice('${noticeId}','remove_listing','law','§ 14 MarkenG','Die konkreten Abbildungen und Merkmale begründen den Fälschungsverdacht ausreichend.')`);
   await db.exec('reset role;');
   assert.equal((await db.query(`select status from public.market_listings where id='${LISTING}'`)).rows[0].status,'paused');
+  await db.query(`update public.market_listings set status='active' where id='${LISTING}'`);
+  assert.equal((await db.query(`select status from public.market_listings where id='${LISTING}'`)).rows[0].status,'paused','seller or internal restore cannot bypass an active moderation restriction');
   assert.equal(Number((await db.query(`select count(*) count from dv_market_private.marketplace_message_outbox where notice_id='${noticeId}'`)).rows[0].count),3);
 
   await claim(null,'anon');

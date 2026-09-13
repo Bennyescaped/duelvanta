@@ -9,6 +9,7 @@ must(sql,'grant execute on function public.submit_marketplace_listing_notice(uui
 must(sql,'reporter_email_hash bytea not null','reporter email is not protected for rate limiting');
 must(sql,'access_code_hash bytea not null','tracking access code is stored in plaintext');
 must(sql,'notice_audit_is_immutable','notice audit can be mutated');
+must(sql,'keep_moderated_listing_paused_trigger','moderated listing can be reactivated directly');
 must(sql,'seller_statement_of_reasons','seller statement of reasons is not queued');
 must(sql,"interval '6 months'",'six-month appeal access is missing');
 must(sql,'p_automated_means_used boolean default false','automated-means disclosure is missing');
