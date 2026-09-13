@@ -222,6 +222,7 @@ jobs:
           node tests/market-notice-action-database-test.mjs
           node tests/market-checkout-compliance-contract-test.mjs
           node tests/market-checkout-compliance-database-test.mjs
+          node tests/supabase-runtime-config-test.mjs
           node tests/market-tax-transparency-contract-test.mjs
           node tests/market-tax-transparency-database-test.mjs
           node tests/compliance-message-dispatch-test.mjs

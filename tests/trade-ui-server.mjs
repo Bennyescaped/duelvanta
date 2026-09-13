@@ -11,6 +11,10 @@ http.createServer(async(req,res)=>{
       res.setHeader('Content-Type','text/html');
       res.end('<!doctype html><title>TRADE local verification</title><h1>Local UI tests — no real purchases</h1><iframe title="Mobile TRADE" src="/trade.html?selftest=1" style="width:393px;height:850px;border:1px solid #aaa"></iframe>');return;
     }
+    if(url.pathname==='/api/supabase-runtime-config.js'){
+      res.setHeader('Content-Type','application/javascript');
+      res.end("window.DV_SUPABASE=Object.freeze({url:'https://example.supabase.co',key:'test-publishable-key',environment:'test'});");return;
+    }
     const path=resolve(root,'.'+url.pathname);
     if(!path.startsWith(root+'/')){res.writeHead(403);res.end();return}
     let content=await readFile(path);

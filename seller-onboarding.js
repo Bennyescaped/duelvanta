@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co',SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const {url:SB_URL,key:SB_KEY}=window.DV_SUPABASE;
 const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);let account={seller_type:'unclassified',onboarding_status:'draft'};let busy=false;
 const statusText={legacy_beta:'EINSTUFUNG ERFORDERLICH',draft:'ENTWURF',pending_review:'PRÜFUNG AUSSTEHEND',active:'VERKAUF FREIGEGEBEN',rejected:'ÜBERARBEITUNG ERFORDERLICH',suspended:'VERKAUF GESPERRT'};

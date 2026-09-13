@@ -149,9 +149,9 @@
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/api/supabase-runtime-config.js"></script>
   <script>
-    const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-    const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+    const {url:SB_URL,key:SB_KEY}=window.DV_SUPABASE;
     const OWNER_EMAIL='info@duelvanta.de';
     const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
