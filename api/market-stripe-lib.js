@@ -47,7 +47,7 @@ async function stripeRequest(path,body,{account,idempotencyKey}={}){
 
 async function stripeV2Request(path,body,{idempotencyKey}={}){
   const version=required('STRIPE_ACCOUNTS_V2_VERSION');
-  if(!/^\d{4}-\d{2}-\d{2}\.preview$/.test(version))throw new Error('stripe_accounts_v2_preview_version_required');
+  if(!/^\d{4}-\d{2}-\d{2}\.[a-z][a-z0-9_-]*$/.test(version))throw new Error('stripe_accounts_v2_version_required');
   const headers={authorization:`Bearer ${required('STRIPE_SECRET_KEY')}`,'content-type':'application/json','stripe-version':version};
   if(idempotencyKey)headers['idempotency-key']=idempotencyKey;
   const response=await fetch(`https://api.stripe.com/v2/${path}`,{method:'POST',headers,body:JSON.stringify(body)});

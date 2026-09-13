@@ -31,6 +31,7 @@ must(onboarding,"type:'account_onboarding'",'Stripe-hosted onboarding link is mi
 must(checkout,"STRIPE_CONNECT_SANDBOX_ENABLED!=='true'",'checkout is not default-off');
 must(checkout,"startsWith('sk_test_')",'checkout does not reject live secret keys');
 must(lib,"headers['stripe-account']=account",'direct charge connected-account header missing');
+must(lib,"/^\\d{4}-\\d{2}-\\d{2}\\.[a-z][a-z0-9_-]*$/",'Accounts v2 named API versions are rejected');
 must(webhook,'verifyStripeSignature','webhook signature is not verified');
 must(webhook,"event.livemode!==false",'live webhook is not rejected');
 must(refund,'confirmed:false','refund response could claim provider confirmation prematurely');

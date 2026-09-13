@@ -13,7 +13,7 @@ const UUID='90000000-0000-4000-8000-000000000001',USER='90000000-0000-4000-8000-
 try{
   Object.assign(process.env,{SUPABASE_URL:'https://project.example.test',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'service-test',
     STRIPE_SECRET_KEY:'sk_test_mock_only',STRIPE_WEBHOOK_SECRET:'whsec_mock_only',STRIPE_REFUND_WORKER_SECRET:'refund-worker-test',
-    STRIPE_ACCOUNTS_V2_VERSION:'2026-08-26.preview',DUELVANTA_PUBLIC_ORIGIN:'https://review.example.test'});
+    STRIPE_ACCOUNTS_V2_VERSION:'2026-08-26.dahlia',DUELVANTA_PUBLIC_ORIGIN:'https://review.example.test'});
   delete process.env.STRIPE_CONNECT_SANDBOX_ENABLED;
   let calls=0;global.fetch=async()=>{calls++;throw new Error('must_not_call')};
   const off=response();await checkout({method:'POST',headers:{},body:{}},off);assert.equal(off.statusCode,409);assert.equal(calls,0);
@@ -30,7 +30,7 @@ try{
   };
   const onboarded=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},onboarded);
   assert.equal(onboarded.statusCode,200);assert.equal(onboarded.body.live_mode,false);
-  const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.preview');
+  const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.dahlia');
   const accountPayload=JSON.parse(v2.options.body);assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
   assert.ok(requests.some(r=>r.url.includes('/v1/account_links')));
 

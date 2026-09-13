@@ -7,14 +7,14 @@ Stand: 13.09.2026. Interner Review-Ablauf; keine Produktionsfreigabe.
 - separates Supabase-Stagingprojekt; niemals `enifiaqsnqtbzylnfrpi`
 - Vercel-Preview-Umgebung zeigt ausschließlich auf dieses Stagingprojekt
 - Stripe-Testmodus und ein eigener Connect-Webhook für die Preview-URL
-- aktuelle Accounts-v2-Previewversion unmittelbar vor dem Test erneut gegen die Stripe-Dokumentation prüfen
+- aktuelle Accounts-v2-Version unmittelbar vor dem Test erneut gegen die Stripe-Dokumentation prüfen
 - `STRIPE_CONNECT_SANDBOX_ENABLED` und die Datenbankoption `sandbox_enabled` bleiben bis zum eigentlichen Test `false`
 
 ## Nur in Vercel Preview
 
 - `STRIPE_SECRET_KEY`: ausschließlich `sk_test_…`
 - `STRIPE_WEBHOOK_SECRET`: Test-Webhook-Geheimnis
-- `STRIPE_ACCOUNTS_V2_VERSION`: vor dem Test verifizierte Previewversion
+- `STRIPE_ACCOUNTS_V2_VERSION`: vor dem Test verifizierte benannte Accounts-v2-Version; am 13.09.2026 dokumentiert Stripe `2026-08-26.dahlia`
 - `STRIPE_REFUND_WORKER_SECRET`: eigener zufälliger interner Wert
 - `DUELVANTA_PUBLIC_ORIGIN`: HTTPS-Preview-URL
 - Supabase-URL, Publishable-/Anon-Key und Service-Role-Key ausschließlich des Stagingprojekts
