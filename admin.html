@@ -307,7 +307,7 @@
       const {data:{session}}=await db.auth.getSession();
       const user=session?.user;
       let isOwner=false;
-      if(user){const {data:profile,error}=await db.from('profiles').select('role,account_status').eq('id',user.id).maybeSingle();isOwner=!error&&profile?.role==='owner'&&profile?.account_status==='active'}
+      if(user){const {data:access,error}=await db.rpc('get_my_market_owner_access');isOwner=!error&&access?.is_owner===true}
       if(isOwner){el('loginView').classList.add('hidden');el('appView').classList.remove('hidden');el('ownerLabel').textContent='OWNER';await loadData()}
       else{if(user)await db.auth.signOut();el('appView').classList.add('hidden');el('loginView').classList.remove('hidden')}
     }

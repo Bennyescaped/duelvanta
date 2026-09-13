@@ -34,11 +34,12 @@ for(const table of ['seller_legal_profiles','seller_tax_identifiers','seller_dec
   must(sql,`alter table dv_market_private.${table} enable row level security`,'private seller table lacks RLS defense in depth: '+table);
 must(css,'@media(max-width:700px)','mobile onboarding layout is missing');
 
-must(admin,"select('role,account_status')",'admin UI must authorize the active owner role');
+must(admin,"db.rpc('get_my_market_owner_access')",'admin UI must authorize through the protected owner-access RPC');
 assert.ok(!admin.includes("user?.email?.toLowerCase()===OWNER_EMAIL"),'admin authorization must not be hardcoded to one email address');
 must(admin,'admin-seller-review.js?v=1.0','owner seller review module is missing');
 must(adminReview,"db.rpc('get_owner_market_seller_reviews'",'owner seller review queue is not loaded through its protected RPC');
 must(adminReview,"db.rpc('review_market_seller_onboarding'",'owner seller decisions are not wired');
 must(sql,'create or replace function public.get_owner_market_seller_reviews','owner seller review queue RPC is missing');
+must(sql,'create or replace function public.get_my_market_owner_access','protected owner-access RPC is missing');
 
 console.log('PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract');

@@ -672,6 +672,21 @@ $$;
 revoke all on function public.get_market_seller_disclosures(uuid[]) from public, anon;
 grant execute on function public.get_market_seller_disclosures(uuid[]) to authenticated;
 
+create or replace function public.get_my_market_owner_access()
+returns jsonb
+language sql
+security definer
+stable
+set search_path = pg_catalog, public, dv_market_private
+as $$
+  select jsonb_build_object(
+    'is_owner', dv_market_private.is_market_owner_caller()
+  )
+$$;
+
+revoke all on function public.get_my_market_owner_access() from public, anon;
+grant execute on function public.get_my_market_owner_access() to authenticated;
+
 create or replace function public.get_owner_market_seller_reviews(
   p_status text default 'pending_review'
 )

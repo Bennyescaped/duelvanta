@@ -69,6 +69,7 @@ try{
   await denied(db.query(`select * from public.market_seller_accounts`));
 
   await claim(B);
+  assert.equal(json((await db.query(`select public.get_my_market_owner_access() as value`)).rows[0].value).is_owner,false);
   await denied(db.query(`insert into public.market_seller_accounts(seller_id) values ('${B}')`));
   const selected=json((await db.query(`select public.set_my_market_seller_type('private') as value`)).rows[0].value);
   assert.equal(selected.seller_type,'private');
@@ -102,6 +103,7 @@ try{
     /owner_access_required/
   );
   await claim(D);
+  assert.equal(json((await db.query(`select public.get_my_market_owner_access() as value`)).rows[0].value).is_owner,true);
   const ownerQueueBefore=json((await db.query(`select public.get_owner_market_seller_reviews('pending_review') as value`)).rows[0].value);
   assert.equal(ownerQueueBefore.reviews.length,1);
   assert.equal(ownerQueueBefore.reviews[0].seller_id,B);
