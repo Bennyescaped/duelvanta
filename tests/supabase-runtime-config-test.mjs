@@ -3,12 +3,12 @@ import {createRequire} from 'node:module';
 import {readFile} from 'node:fs/promises';
 
 const require=createRequire(import.meta.url);
-const handler=require('../api/supabase-runtime-config.js');
+const handler=require('../api/compliance-message-dispatch.js');
 const original={VERCEL_ENV:process.env.VERCEL_ENV,SUPABASE_URL:process.env.SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY:process.env.SUPABASE_PUBLISHABLE_KEY};
 
-function invoke(method='GET'){
-  const response={statusCode:200,headers:{},body:'',status(code){this.statusCode=code;return this},setHeader(name,value){this.headers[name.toLowerCase()]=value},send(body){this.body=body;return this}};
-  handler({method},response);return response;
+function invoke(method='GET',runtime=true){
+  const response={statusCode:200,headers:{},body:'',status(code){this.statusCode=code;return this},setHeader(name,value){this.headers[name.toLowerCase()]=value},send(body){this.body=body;return this},json(body){this.body=body;return this}};
+  handler({method,query:runtime?{runtime_config:'1'}:{}},response);return response;
 }
 
 try{
@@ -37,11 +37,11 @@ try{
   assert.equal(response.statusCode,200,'production keeps its existing public configuration');
   assert.match(response.body,/enifiaqsnqtbzylnfrpi/);
 
-  assert.equal(invoke('POST').statusCode,405);
+  assert.equal(invoke('GET',false).statusCode,405);
 
   for(const file of ['trade.html','login.html','reset-password.html','app.html','seller-onboarding.html','listing-report.html','admin.html']){
     const source=await readFile(new URL('../'+file,import.meta.url),'utf8');
-    assert.ok(source.includes('/api/supabase-runtime-config.js'),`${file} does not load the guarded runtime configuration`);
+    assert.ok(source.includes('/api/compliance-message-dispatch?runtime_config=1'),`${file} does not load the guarded runtime configuration`);
   }
   for(const file of ['trade.js','login.html','reset-password.html','app.html','seller-onboarding.js','listing-report.js','admin.html']){
     const source=await readFile(new URL('../'+file,import.meta.url),'utf8');

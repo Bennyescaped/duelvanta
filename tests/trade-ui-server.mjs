@@ -11,7 +11,7 @@ http.createServer(async(req,res)=>{
       res.setHeader('Content-Type','text/html');
       res.end('<!doctype html><title>TRADE local verification</title><h1>Local UI tests — no real purchases</h1><iframe title="Mobile TRADE" src="/trade.html?selftest=1" style="width:393px;height:850px;border:1px solid #aaa"></iframe>');return;
     }
-    if(url.pathname==='/api/supabase-runtime-config.js'){
+    if(url.pathname==='/api/compliance-message-dispatch'&&url.searchParams.get('runtime_config')==='1'){
       res.setHeader('Content-Type','application/javascript');
       res.end("window.DV_SUPABASE=Object.freeze({url:'https://example.supabase.co',key:'test-publishable-key',environment:'test'});");return;
     }
