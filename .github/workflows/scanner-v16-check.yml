@@ -38,6 +38,8 @@ on:
       - 'trade-*.js'
       - 'database/market-seller-*.sql'
       - 'database/market-notice-action-*.sql'
+      - 'database/market-checkout-compliance-*.sql'
+      - 'api/compliance-message-dispatch.js'
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
       - 'tests/trade-*'
       - 'tests/market-seller-compliance-database-test.mjs'
@@ -190,6 +192,7 @@ jobs:
           node --check trade-seller-moderation.js
           node --check listing-report.js
           node --check admin-notice-action.js
+          node --check api/compliance-message-dispatch.js
           node tests/trade-automation-contract-test.mjs
           node tests/trade-resolution-contract-test.mjs
           node tests/trade-shipping-contract-test.mjs
@@ -201,6 +204,9 @@ jobs:
           node tests/market-seller-enforcement-contract-test.mjs
           node tests/market-notice-action-contract-test.mjs
           node tests/market-notice-action-database-test.mjs
+          node tests/market-checkout-compliance-contract-test.mjs
+          node tests/market-checkout-compliance-database-test.mjs
+          node tests/compliance-message-dispatch-test.mjs
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
           node tests/market-notice-action-browser-test.mjs

@@ -30,9 +30,11 @@ assert.ok(!ux.includes('db.rpc('),'Navigation and copy simplification must not m
 
 must(checkout,'id="dvBuyMinus"','Mobile quantity decrement is missing');
 must(checkout,'id="dvBuyPlus"','Mobile quantity increment is missing');
-must(checkout,'JETZT BESTELLEN','Simplified checkout action is missing');
-must(checkout,'Noch keine Onlinezahlung.','Beta payment wording is missing');
-must(checkout,"version:'1.1'",'Checkout module version mismatch');
+must(checkout,'Zahlungspflichtig bestellen','Legally explicit checkout action is missing');
+must(checkout,'Keine integrierte Onlinezahlung oder Auszahlung.','Truthful beta payment wording is missing');
+must(checkout,"db.rpc('review_market_checkout'",'Server-side seller and checkout review is missing');
+must(checkout,"db.rpc('buy_market_listing_v3'",'Hash-bound immutable checkout entrypoint is missing');
+must(checkout,"version:'1.2'",'Checkout module version mismatch');
 must(shippingOptions,'Bitte Versandkosten ergänzen.','An empty shipping price must not appear as free shipping');
 must(shippingOptions,"version:'1.2'",'Shipping options module version mismatch');
 must(css,'.dvTradePrimary','Primary Marketplace navigation styles are missing');
@@ -46,5 +48,6 @@ must(css,'.wrap:not([data-trade-view="market"]) .daily','Daily Deal must only oc
 const orders=await readFile(new URL('../trade-orders.js',import.meta.url),'utf8');
 must(orders,"version:'1.3'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
+must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
 console.log('PASS: simplified Marketplace navigation, fast selling forms, offer wording and checkout controls');

@@ -34,20 +34,22 @@
     document.querySelector('[data-offer="ui-fixed"]').click();
     assert(document.getElementById('dvBuyDialog').open,'Festpreis öffnet eigenen Kaufdialog');
     amountInput('');assert(document.getElementById('dvBuyQty').value==='','Menge darf zum Bearbeiten leer sein');assert(document.getElementById('dvBuyNow').disabled,'Leere Menge kann nicht bestellt werden');
-    amountInput('3');assert(document.getElementById('dvBuyTotals').textContent.includes('660,00'),'3 Stück verwenden Staffelpreis 220 €');
+    amountInput('3');await wait(()=>document.getElementById('dvBuyNow').disabled===false);assert(document.getElementById('dvBuyTotals').textContent.includes('660,00'),'3 Stück verwenden Staffelpreis 220 €');
+    assert(document.getElementById('dvCheckoutParty').textContent.includes('B2C')&&document.getElementById('dvCheckoutParty').textContent.includes('Local Card Shop'),'Serverprüfung zeigt Verkäuferrolle und Vertragspartner');
+    assert(document.getElementById('dvBuyNow').textContent==='Zahlungspflichtig bestellen','B2C-Abschlussbutton trägt den exakten Pflichttext');
     document.getElementById('dvBuyPlus').click();assert(document.getElementById('dvBuyQty').value==='4','Plus-Schaltfläche erhöht die Menge auf dem Handy');
     document.getElementById('dvBuyMinus').click();assert(document.getElementById('dvBuyQty').value==='3','Minus-Schaltfläche verringert die Menge auf dem Handy');
     amountInput('5');assert(document.getElementById('dvBuyTotals').textContent.includes('1.075,00'),'5 Stück verwenden Staffelpreis 215 €');
     amountInput('11');assert(document.getElementById('dvBuyNow').disabled,'Menge über Bestand gesperrt');
     amountInput('1.5');assert(document.getElementById('dvBuyNow').disabled,'Bruchmenge gesperrt');
-    amountInput('3');document.getElementById('dvBuyNow').click();document.getElementById('dvBuyNow').click();
+    amountInput('3');await wait(()=>document.getElementById('dvBuyNow').disabled===false);document.getElementById('dvBuyNow').click();document.getElementById('dvBuyNow').click();
     await wait(()=>!document.getElementById('dvBuyNow').disabled);
-    assert(TRADE_UI_FIXTURE.calls.filter(x=>x.name==='buy_market_listing_v2').length===1,'Doppelklick sendet nur eine Anfrage');
+    assert(TRADE_UI_FIXTURE.calls.filter(x=>x.name==='buy_market_listing_v3').length===1,'Doppelklick sendet nur eine Anfrage');
     assert(document.getElementById('dvBuyMsg').textContent.includes('Verbindungsabbruch'),'Netzwerkfehler sichtbar und erneut versuchbar');
     document.getElementById('dvBuyNow').click();await wait(()=>document.getElementById('dvBuyGoOrder'));
-    const attempts=TRADE_UI_FIXTURE.calls.filter(x=>x.name==='buy_market_listing_v2');
+    const attempts=TRADE_UI_FIXTURE.calls.filter(x=>x.name==='buy_market_listing_v3');
     assert(attempts[0].args.p_request_id===attempts[1].args.p_request_id,'Wiederholung verwendet identische Request-ID');
-    assert(attempts[1].args.p_quantity===3&&attempts[1].args.p_expected_updated_at,'Menge und Angebotsversion werden gesendet');
+    assert(attempts[1].args.p_quantity===3&&attempts[1].args.p_expected_updated_at&&attempts[1].args.p_checkout_hash==='review-3','Menge, Angebotsversion und geprüfter Checkout-Hash werden gesendet');
     assert(TRADE_UI_FIXTURE.purchases===1,'Nur ein erfolgreicher lokaler Kauf');
     document.getElementById('dvBuyGoOrder').click();await wait(()=>document.querySelector('.dvOrderItemTitle'));
     await wait(()=>document.getElementById('app').dataset.tradeView==='orders');
@@ -56,6 +58,10 @@
     assert(document.querySelector('.dvOrderItemTitle').textContent.includes('3 ×'),'Order zeigt Stückzahl');
     assert(document.querySelector('.dvOrderItemMeta').textContent.includes('220,00'),'Order zeigt Stückpreis');
     assert(document.querySelector('.dvOrderSummary').textContent.includes('VORLÄUFIGE SUMME'),'Ungeprüfter Versand als vorläufig gekennzeichnet');
+    assert(!!document.querySelector('[data-o-contract]'),'Order bietet den unveränderbaren Bestellnachweis an');
+    document.querySelector('[data-o-contract]').click();await wait(()=>document.getElementById('dvODDownload'));
+    assert(document.getElementById('dvODBody').textContent.includes('checkout-contract-v1'),'Bestellbestätigung zeigt die unveränderbare Dokumentversion');
+    document.getElementById('dvOrderDialog').close();
 
     TRADE_UI_FIXTURE.order.status='shipped';TRADE_UI_FIXTURE.order.shipped_at='2026-09-09T10:00:00Z';
     TRADE_UI_FIXTURE.addNotification({notification_id:'ui-note-shipped',kind:'order_shipped',title:'ORDER VERSENDET',body:'UI-LOCAL-ONLY · Tracking hinterlegt',order_id:'ui-order',offer_id:null,listing_id:null,is_unread:true,read_at:null,created_at:'2026-09-09T10:05:00Z'});
