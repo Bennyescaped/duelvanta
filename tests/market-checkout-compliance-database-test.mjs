@@ -67,7 +67,9 @@ try{
   const c2c=json((await db.query(`select public.get_my_market_order_contract_documents('${ORDER1}') value`)).rows[0].value)[0];
   const b2c=json((await db.query(`select public.get_my_market_order_contract_documents('${ORDER2}') value`)).rows[0].value)[0];
   assert.equal(c2c.contract_classification,'c2c');assert.equal(c2c.seller_party.role_label,'Privater Verkäufer');assert.equal(Number(c2c.total_price),103.5);
+  assert.match(c2c.confirmation_text,/Versand \(Brief mit Tracking\): 3\.50 EUR/);
   assert.equal(b2c.contract_classification,'b2c');assert.equal(b2c.product.title,'Shop Display');assert.equal(Number(b2c.quantity),3);assert.equal(Number(b2c.goods_total),660);assert.match(b2c.content_sha256,/^[a-f0-9]{64}$/);
+  assert.match(b2c.confirmation_text,/Versand \(Paket mit Tracking\): 6\.99 EUR/);
   await db.exec(`reset role;update public.market_listings set card_name='Später geändert',asking_price=999 where id='${LIST2}'`);
   await claim(BUYER);const unchanged=json((await db.query(`select public.get_my_market_order_contract_documents('${ORDER2}') value`)).rows[0].value)[0];assert.equal(unchanged.product.title,'Shop Display');assert.equal(Number(unchanged.goods_total),660);
   await claim(OUTSIDER);await assert.rejects(()=>db.query(`select public.get_my_market_order_contract_documents('${ORDER2}')`),/contract_document_access_denied/);

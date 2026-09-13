@@ -139,7 +139,7 @@ create or replace function dv_market_private.capture_market_tax_contract_event()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_evidence jsonb;
@@ -188,7 +188,7 @@ create or replace function public.record_market_tax_remuneration(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_snapshot dv_market_private.market_contract_snapshots%rowtype;
@@ -275,7 +275,7 @@ create or replace function public.correct_market_tax_remuneration(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_original dv_market_private.market_tax_events%rowtype;
@@ -486,7 +486,7 @@ create or replace function public.generate_market_tax_export(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_format text:=lower(trim(coalesce(p_format,'')));

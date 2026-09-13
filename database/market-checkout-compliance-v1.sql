@@ -151,7 +151,7 @@ returns jsonb
 language plpgsql
 stable
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_uid uuid:=auth.uid();
@@ -277,7 +277,7 @@ create or replace function dv_market_private.capture_market_contract_snapshot()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_listing public.market_listings%rowtype;
@@ -290,6 +290,7 @@ declare
   v_goods numeric:=round(new.amount,2);
   v_shipping numeric;
   v_total numeric;
+  v_shipping_label text;
   v_text text;
   v_snapshot uuid;
 begin
@@ -304,13 +305,20 @@ begin
   v_seller:=dv_market_private.market_checkout_seller_party(new.seller_id);
   v_product:=dv_market_private.market_checkout_product_snapshot(v_listing);
   v_type:=case when v_seller->>'seller_type'='trader' then 'b2c' else 'c2c' end;
+  v_shipping_label:=case new.shipping_method
+    when 'standard_letter' then 'Standardbrief'
+    when 'tracked_letter' then 'Brief mit Tracking'
+    when 'parcel' then 'Paket mit Tracking'
+    when 'pickup' then 'Abholung'
+    else 'Individuell / nach Absprache'
+  end;
   v_unit:=round(v_goods/v_qty,2);v_shipping:=round(new.shipping_cost,2);v_total:=round(v_goods+v_shipping,2);
   v_text:=format(
     E'DUELVANTA BESTELLBESTÄTIGUNG\nDokumentversion: checkout-contract-v1\nOrder: %s\nVertragsschluss: %s\nVertragstyp: %s\nVerkäuferrolle: %s\nVertragspartner: %s\nAnschrift: %s, %s %s, %s\nProdukt: %s\nMenge: %s\nStückpreis: %s EUR\nWarenwert: %s EUR\nVersand (%s): %s EUR\nGesamtpreis: %s EUR\nZahlungsabwicklung: manual_beta – keine integrierte Onlinezahlung oder Auszahlung.\nPlattformrolle: Benjamin Fritz – DUELVANTA vermittelt den Vertrag; DUELVANTA ist nicht Verkäufer der Ware.',
     v_order.order_number,to_char(coalesce(new.accepted_at,now()) at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'),upper(v_type),
     v_seller->>'role_label',coalesce(v_seller->>'business_name',v_seller->>'legal_name'),v_seller->>'street_line1',
     v_seller->>'postal_code',v_seller->>'city',v_seller->>'country_code',v_product->>'title',v_qty,
-    to_char(v_unit,'FM999999990.00'),to_char(v_goods,'FM999999990.00'),new.shipping_method,
+    to_char(v_unit,'FM999999990.00'),to_char(v_goods,'FM999999990.00'),v_shipping_label,
     to_char(v_shipping,'FM999999990.00'),to_char(v_total,'FM999999990.00')
   );
 

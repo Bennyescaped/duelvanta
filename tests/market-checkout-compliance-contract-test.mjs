@@ -14,6 +14,8 @@ must(sql,"contract_classification in ('c2c','b2c')",'C2C/B2C classification is n
 must(sql,'seller_party jsonb not null','contract party snapshot is missing');
 must(sql,'product_snapshot jsonb not null','product snapshot is missing');
 must(sql,'content_sha256 bytea not null','confirmation integrity hash is missing');
+must(sql,'set search_path = pg_catalog, public, dv_market_private, extensions','pgcrypto extension schema is missing from checkout hash functions');
+must(sql,"when 'parcel' then 'Paket mit Tracking'",'durable confirmation exposes an internal shipping code');
 must(sql,'zz_capture_market_contract_snapshot','accepted offers and direct purchases are not captured by the deal boundary');
 must(sql,'buy_market_listing_v3','review-bound checkout entrypoint is missing');
 must(sql,'revoke execute on function public.buy_market_listing_v2','legacy checkout can bypass the reviewed entrypoint');

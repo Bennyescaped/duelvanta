@@ -7,6 +7,7 @@ const must=(text,message)=>assert.ok(sql.includes(text),message);
 for(const table of ['market_tax_events','market_tax_exports','market_tax_export_rows'])must(table,'missing '+table);
 must("psttg_subject_type in ('unclassified','natural_person','legal_entity')",'PStTG subject type is inferred or unconstrained');
 must('market_tax_evidence_is_immutable','tax evidence mutation is not blocked');
+must('set search_path = pg_catalog, public, dv_market_private, extensions','pgcrypto extension schema is missing from tax hash functions');
 must('alter table dv_market_private.market_tax_events enable row level security','private tax ledger lacks RLS defense in depth');
 must("'contract_formed','remuneration_paid_or_credited','remuneration_correction'",'event lifecycle is incomplete');
 must("'counted_as_remuneration',false",'manual-beta contract is incorrectly treated as remuneration');
