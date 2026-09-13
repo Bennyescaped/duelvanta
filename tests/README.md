@@ -175,3 +175,5 @@ accounts only for the human/mobile acceptance pass after a useful batch of chang
 The purpose of this real pass is UX/mobile judgment, not database discovery. The
 Stripe Connect review tests use local mocks and a disposable database only; the
 sandbox stays default-off and no provider payment, payout or refund is sent.
+The controlled external acceptance sequence is documented in
+`STRIPE_CONNECT_SANDBOX_ACCEPTANCE.md` and requires an isolated Supabase project.

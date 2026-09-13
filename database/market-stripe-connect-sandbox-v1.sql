@@ -41,6 +41,20 @@ create table if not exists dv_market_private.market_stripe_accounts (
   check (onboarding_status<>'ready' or (charges_enabled and details_submitted))
 );
 
+create table if not exists dv_market_private.market_stripe_onboarding_requests (
+  id uuid primary key default gen_random_uuid(),
+  seller_id uuid not null references auth.users(id) on delete restrict,
+  request_key uuid not null,
+  state text not null default 'prepared' check (state in ('prepared','account_created','link_created','completed','failed')),
+  stripe_account_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(seller_id,request_key)
+);
+create unique index if not exists market_stripe_onboarding_one_open_idx
+  on dv_market_private.market_stripe_onboarding_requests(seller_id)
+  where state in ('prepared','account_created','link_created');
+
 create table if not exists dv_market_private.market_payment_attempts (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.market_orders(id) on delete restrict,
@@ -140,6 +154,7 @@ create table if not exists dv_market_private.market_financial_documents (
 
 alter table dv_market_private.market_payment_configuration enable row level security;
 alter table dv_market_private.market_stripe_accounts enable row level security;
+alter table dv_market_private.market_stripe_onboarding_requests enable row level security;
 alter table dv_market_private.market_payment_attempts enable row level security;
 alter table dv_market_private.market_payment_allocations enable row level security;
 alter table dv_market_private.market_stripe_events enable row level security;
@@ -176,6 +191,65 @@ end
 $$;
 revoke all on function public.get_market_payment_sandbox_status() from public, anon;
 grant execute on function public.get_market_payment_sandbox_status() to authenticated;
+
+create or replace function public.prepare_market_stripe_onboarding(p_seller_id uuid,p_request_key uuid)
+returns jsonb language plpgsql security definer
+set search_path=pg_catalog,public,dv_market_private as $$
+declare c dv_market_private.market_payment_configuration%rowtype;r dv_market_private.market_stripe_onboarding_requests%rowtype;
+  a dv_market_private.market_stripe_accounts%rowtype;s public.market_seller_accounts%rowtype;
+begin
+  if p_seller_id is null or p_request_key is null then raise exception 'stripe_onboarding_input_invalid'; end if;
+  select * into c from dv_market_private.market_payment_configuration where singleton;
+  if not found or not c.sandbox_enabled or c.live_mode then raise exception 'stripe_sandbox_disabled'; end if;
+  select * into s from public.market_seller_accounts where seller_id=p_seller_id;
+  if not found or s.onboarding_status<>'active' or s.seller_type not in ('private','trader') then raise exception 'seller_onboarding_not_approved'; end if;
+  select * into r from dv_market_private.market_stripe_onboarding_requests where seller_id=p_seller_id and request_key=p_request_key;
+  select * into a from dv_market_private.market_stripe_accounts where seller_id=p_seller_id;
+  if found and a.live_mode then raise exception 'stripe_live_account_forbidden'; end if;
+  if r.id is not null then return jsonb_build_object('onboarding_request_id',r.id,'onboarding_state',r.state,
+    'stripe_account_id',a.stripe_account_id,'seller_type',s.seller_type,'replayed',true,'live_mode',false); end if;
+  insert into dv_market_private.market_stripe_onboarding_requests(seller_id,request_key)
+  values(p_seller_id,p_request_key) returning * into r;
+  return jsonb_build_object('onboarding_request_id',r.id,'onboarding_state',r.state,'stripe_account_id',a.stripe_account_id,
+    'seller_type',s.seller_type,'replayed',false,'live_mode',false);
+end
+$$;
+revoke all on function public.prepare_market_stripe_onboarding(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.prepare_market_stripe_onboarding(uuid,uuid) to service_role;
+
+create or replace function public.register_market_stripe_test_account(
+  p_onboarding_request_id uuid,p_seller_id uuid,p_account_id text
+) returns void language plpgsql security definer
+set search_path=pg_catalog,dv_market_private as $$
+begin
+  if p_account_id !~ '^acct_[A-Za-z0-9]+$' then raise exception 'stripe_account_id_invalid'; end if;
+  if not exists(select 1 from dv_market_private.market_stripe_onboarding_requests
+    where id=p_onboarding_request_id and seller_id=p_seller_id and state in ('prepared','account_created','link_created')) then
+    raise exception 'stripe_onboarding_request_invalid';
+  end if;
+  insert into dv_market_private.market_stripe_accounts(seller_id,stripe_account_id,live_mode,onboarding_status)
+  values(p_seller_id,p_account_id,false,'not_started')
+  on conflict(seller_id) do update set stripe_account_id=excluded.stripe_account_id,updated_at=now()
+  where dv_market_private.market_stripe_accounts.stripe_account_id=excluded.stripe_account_id
+    and not dv_market_private.market_stripe_accounts.live_mode;
+  if not found then raise exception 'stripe_account_binding_conflict'; end if;
+  update dv_market_private.market_stripe_onboarding_requests set state='account_created',stripe_account_id=p_account_id,updated_at=now()
+  where id=p_onboarding_request_id;
+end
+$$;
+revoke all on function public.register_market_stripe_test_account(uuid,uuid,text) from public, anon, authenticated;
+grant execute on function public.register_market_stripe_test_account(uuid,uuid,text) to service_role;
+
+create or replace function public.mark_market_stripe_onboarding_link_created(p_onboarding_request_id uuid,p_account_id text)
+returns void language plpgsql security definer set search_path=pg_catalog,dv_market_private as $$
+begin
+  update dv_market_private.market_stripe_onboarding_requests set state='link_created',updated_at=now()
+  where id=p_onboarding_request_id and stripe_account_id=p_account_id and state in ('account_created','link_created');
+  if not found then raise exception 'stripe_onboarding_link_conflict'; end if;
+end
+$$;
+revoke all on function public.mark_market_stripe_onboarding_link_created(uuid,text) from public, anon, authenticated;
+grant execute on function public.mark_market_stripe_onboarding_link_created(uuid,text) to service_role;
 
 create or replace function public.prepare_market_stripe_payment(
   p_order_id uuid,p_buyer_id uuid,p_idempotency_key uuid
@@ -261,6 +335,32 @@ begin
   values(p_event_id,p_event_type,p_account_id,false,p_object_id,decode(p_payload_sha256,'hex'),coalesce(p_data,'{}'),p_provider_created_at)
   on conflict(stripe_event_id) do nothing;
   if not found then return jsonb_build_object('event_id',p_event_id,'replayed',true); end if;
+
+  if p_event_type='account.updated' then
+    if p_object_id<>p_account_id then raise exception 'stripe_account_event_mismatch'; end if;
+    update dv_market_private.market_stripe_accounts set
+      charges_enabled=coalesce((p_data->>'charges_enabled')::boolean,false),
+      payouts_enabled=coalesce((p_data->>'payouts_enabled')::boolean,false),
+      details_submitted=coalesce((p_data->>'details_submitted')::boolean,false),
+      requirements_due_count=greatest(coalesce((p_data->>'requirements_due_count')::integer,0),0),
+      onboarding_status=case
+        when nullif(p_data->>'disabled_reason','') is not null or coalesce((p_data->>'past_due_count')::integer,0)>0 then 'restricted'
+        when coalesce((p_data->>'charges_enabled')::boolean,false) and coalesce((p_data->>'details_submitted')::boolean,false) then 'ready'
+        when coalesce((p_data->>'requirements_due_count')::integer,0)>0 then 'requirements_due'
+        else 'pending_review' end,
+      provider_state_updated_at=coalesce(p_provider_created_at,now()),updated_at=now()
+    where stripe_account_id=p_account_id and not live_mode;
+    if not found then raise exception 'stripe_account_not_registered'; end if;
+    update dv_market_private.market_stripe_onboarding_requests set
+      state=case
+        when coalesce((p_data->>'charges_enabled')::boolean,false) and coalesce((p_data->>'details_submitted')::boolean,false) then 'completed'
+        when state='completed' then 'account_created'
+        else state end,
+      updated_at=now() where stripe_account_id=p_account_id;
+    update dv_market_private.market_stripe_events set processing_status='applied',processing_note='seller_account_status_updated',processed_at=now()
+      where stripe_event_id=p_event_id;
+    return jsonb_build_object('event_id',p_event_id,'status','applied','note','seller_account_status_updated');
+  end if;
 
   select * into a from dv_market_private.market_payment_attempts
   where stripe_account_id=p_account_id and (

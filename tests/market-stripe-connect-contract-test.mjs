@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
-const [sql,lib,checkout,webhook,refund,workflow]=await Promise.all([
-  'database/market-stripe-connect-sandbox-v1.sql','api/market-stripe-lib.js','api/market-stripe-checkout.js',
-  'api/market-stripe-webhook.js','api/market-stripe-refund.js','.github/workflows/scanner-v16-check.yml'
+const [sql,lib,onboarding,checkout,webhook,refund,workflow]=await Promise.all([
+  'database/market-stripe-connect-sandbox-v1.sql','api/market-stripe-lib.js','api/market-stripe-onboarding.js',
+  'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','.github/workflows/scanner-v16-check.yml'
 ].map(read));
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 for(const table of ['market_payment_configuration','market_stripe_accounts','market_payment_attempts','market_payment_allocations','market_stripe_events','market_refund_requests','market_invoice_authorizations','market_financial_documents'])must(sql,table,'missing '+table);
@@ -20,8 +20,14 @@ must(sql,'correct_market_tax_remuneration','refund is not linked to PStTG correc
 must(sql,'market_payment_evidence_is_immutable','provider evidence is mutable');
 must(sql,'get_my_market_payment_records','payment data access/export boundary is missing');
 must(sql,"'open_payment_processing'",'account erasure can race payment processing');
+must(sql,'market_stripe_onboarding_requests','idempotent connected-account onboarding is missing');
+must(sql,"p_event_type='account.updated'",'connected-account status webhook is missing');
 assert.ok(!/grant execute on function public\.(prepare_market_stripe_payment|apply_market_stripe_event|prepare_market_stripe_full_refund)[^;]+authenticated/.test(sql),'browser role received payment backend authority');
-for(const source of [lib,checkout,webhook,refund])assert.ok(!source.includes('sk_test_123')&&!source.includes('whsec_123'),'secret-looking test value committed');
+for(const source of [lib,onboarding,checkout,webhook,refund])assert.ok(!source.includes('sk_test_123')&&!source.includes('whsec_123'),'secret-looking test value committed');
+must(onboarding,"dashboard:'full'",'seller-owned full Stripe dashboard is not configured');
+must(onboarding,"fees_collector:'stripe'",'Stripe fee responsibility is not explicit');
+must(onboarding,"losses_collector:'stripe'",'Stripe loss responsibility is not explicit');
+must(onboarding,"type:'account_onboarding'",'Stripe-hosted onboarding link is missing');
 must(checkout,"STRIPE_CONNECT_SANDBOX_ENABLED!=='true'",'checkout is not default-off');
 must(checkout,"startsWith('sk_test_')",'checkout does not reject live secret keys');
 must(lib,"headers['stripe-account']=account",'direct charge connected-account header missing');
@@ -30,4 +36,5 @@ must(webhook,"event.livemode!==false",'live webhook is not rejected');
 must(refund,'confirmed:false','refund response could claim provider confirmation prematurely');
 must(lib,'timingSafeEqual','webhook signature comparison is not timing safe');
 must(workflow,'market-stripe-connect-contract-test.mjs','Step 9 contract test missing from CI');
+must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax is not checked in CI');
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');

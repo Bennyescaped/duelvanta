@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const lib=require('../api/market-stripe-lib.js');
+const onboarding=require('../api/market-stripe-onboarding.js');
 const checkout=require('../api/market-stripe-checkout.js');
 const webhook=require('../api/market-stripe-webhook.js');
 const refund=require('../api/market-stripe-refund.js');
@@ -11,11 +12,37 @@ const originalFetch=global.fetch,originalEnv={...process.env};
 const UUID='90000000-0000-4000-8000-000000000001',USER='90000000-0000-4000-8000-000000000002';
 try{
   Object.assign(process.env,{SUPABASE_URL:'https://project.example.test',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'service-test',
-    STRIPE_SECRET_KEY:'sk_test_mock_only',STRIPE_WEBHOOK_SECRET:'whsec_mock_only',STRIPE_REFUND_WORKER_SECRET:'refund-worker-test',DUELVANTA_PUBLIC_ORIGIN:'https://review.example.test'});
+    STRIPE_SECRET_KEY:'sk_test_mock_only',STRIPE_WEBHOOK_SECRET:'whsec_mock_only',STRIPE_REFUND_WORKER_SECRET:'refund-worker-test',
+    STRIPE_ACCOUNTS_V2_VERSION:'2026-08-26.preview',DUELVANTA_PUBLIC_ORIGIN:'https://review.example.test'});
   delete process.env.STRIPE_CONNECT_SANDBOX_ENABLED;
   let calls=0;global.fetch=async()=>{calls++;throw new Error('must_not_call')};
   const off=response();await checkout({method:'POST',headers:{},body:{}},off);assert.equal(off.statusCode,409);assert.equal(calls,0);
   process.env.STRIPE_CONNECT_SANDBOX_ENABLED='true';const requests=[];
+  global.fetch=async(url,options={})=>{
+    requests.push({url:String(url),options});
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER,email:'seller@example.test'}),{status:200});
+    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'prepared',stripe_account_id:null,seller_type:'trader'}),{status:200});
+    if(String(url).includes('/v2/core/accounts'))return new Response(JSON.stringify({id:'acct_TestSeller'}),{status:200});
+    if(String(url).includes('register_market_stripe_test_account'))return new Response('',{status:200});
+    if(String(url).includes('/v1/account_links'))return new Response(JSON.stringify({object:'account_link',url:'https://connect.stripe.test/onboard'}),{status:200});
+    if(String(url).includes('mark_market_stripe_onboarding_link_created'))return new Response('',{status:200});
+    throw new Error('unexpected_fetch_'+url);
+  };
+  const onboarded=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},onboarded);
+  assert.equal(onboarded.statusCode,200);assert.equal(onboarded.body.live_mode,false);
+  const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.preview');
+  const accountPayload=JSON.parse(v2.options.body);assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
+  assert.ok(requests.some(r=>r.url.includes('/v1/account_links')));
+
+  let completedCalls=0;global.fetch=async url=>{
+    completedCalls++;
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER,email:'seller@example.test'}),{status:200});
+    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'completed',stripe_account_id:'acct_TestSeller',seller_type:'trader'}),{status:200});
+    throw new Error('completed_onboarding_must_not_call_stripe');
+  };
+  const completed=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},completed);
+  assert.equal(completed.statusCode,200);assert.equal(completed.body.status,'stripe_test_onboarding_complete');assert.equal(completedCalls,2);
+
   global.fetch=async(url,options={})=>{
     requests.push({url:String(url),options});
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
@@ -38,6 +65,16 @@ try{
   assert.equal(accepted.statusCode,200);assert.equal(accepted.body.received,true);
   const rpcBody=JSON.parse(requests.at(-1).options.body);assert.equal(rpcBody.p_live_mode,false);assert.equal(rpcBody.p_data.amount_cents,10500);
   assert.equal(lib.verifyStripeSignature(raw,`t=${timestamp},v1=${sig}`,process.env.STRIPE_WEBHOOK_SECRET,timestamp),true);
+  const accountUpdated={id:'evt_TestAccountUpdated',type:'account.updated',livemode:false,account:'acct_TestSeller',created:1789308001,
+    data:{object:{id:'acct_TestSeller',charges_enabled:false,payouts_enabled:false,details_submitted:true,
+      requirements:{currently_due:['business_profile.url'],past_due:['external_account'],disabled_reason:'requirements.past_due'}}}};
+  const accountRaw=Buffer.from(JSON.stringify(accountUpdated));
+  const accountSig=crypto.createHmac('sha256',process.env.STRIPE_WEBHOOK_SECRET).update(`${timestamp}.`).update(accountRaw).digest('hex');
+  const accountResponse=response();await webhook({method:'POST',headers:{'stripe-signature':`t=${timestamp},v1=${accountSig}`},rawBody:accountRaw},accountResponse);
+  assert.equal(accountResponse.statusCode,200);
+  const accountRpcBody=JSON.parse(requests.at(-1).options.body);assert.equal(accountRpcBody.p_object_id,'acct_TestSeller');
+  assert.deepEqual(accountRpcBody.p_data,{attempt_id:null,charges_enabled:false,payouts_enabled:false,details_submitted:true,
+    requirements_due_count:1,past_due_count:1,disabled_reason:'requirements.past_due'});
   global.fetch=async(url)=>{
     if(String(url).includes('prepare_market_stripe_full_refund'))return new Response(JSON.stringify({request_id:UUID,attempt_id:UUID,stripe_account_id:'acct_TestSeller',payment_intent_id:'pi_TestIntent',amount_cents:10500}),{status:200});
     if(String(url).includes('/v1/refunds'))return new Response(JSON.stringify({id:'re_TestRefund',status:'pending'}),{status:200});

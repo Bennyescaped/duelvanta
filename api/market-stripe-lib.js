@@ -45,6 +45,17 @@ async function stripeRequest(path,body,{account,idempotencyKey}={}){
   return result;
 }
 
+async function stripeV2Request(path,body,{idempotencyKey}={}){
+  const version=required('STRIPE_ACCOUNTS_V2_VERSION');
+  if(!/^\d{4}-\d{2}-\d{2}\.preview$/.test(version))throw new Error('stripe_accounts_v2_preview_version_required');
+  const headers={authorization:`Bearer ${required('STRIPE_SECRET_KEY')}`,'content-type':'application/json','stripe-version':version};
+  if(idempotencyKey)headers['idempotency-key']=idempotencyKey;
+  const response=await fetch(`https://api.stripe.com/v2/${path}`,{method:'POST',headers,body:JSON.stringify(body)});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(`stripe_v2_${response.status}_${result.error?.code||'request_failed'}`);
+  return result;
+}
+
 async function rawBody(req){
   if(Buffer.isBuffer(req.rawBody))return req.rawBody;
   if(typeof req.rawBody==='string')return Buffer.from(req.rawBody,'utf8');
@@ -63,4 +74,4 @@ function verifyStripeSignature(payload,header,secret,nowSeconds=Math.floor(Date.
   return signatures.some(value=>{if(!/^[a-f0-9]{64}$/i.test(value))return false;return crypto.timingSafeEqual(Buffer.from(expected,'hex'),Buffer.from(value,'hex'))});
 }
 
-module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeRequest,verifyStripeSignature};
+module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeRequest,stripeV2Request,verifyStripeSignature};

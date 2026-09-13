@@ -84,7 +84,7 @@ Im Review-Branch umgesetzt, aber noch nicht produktiv aktiviert:
 - unveränderbare C2C/B2C-Vertragssnapshots, Bestellbestätigung und standardmäßig deaktivierter Nachrichten-Dispatcher.
 - PStTG/DAC7-Ereignisledger sowie prüfbarer Jahres-/Quartalsexport; Vertragsbildung zählt unter `manual_beta` nicht als Vergütung.
 - eigener JSON-Datenexport, Löschblocker, sofortige Verarbeitungssperre und ein standardmäßig deaktivierter Lösch-Worker für Storage/Auth. Gesetzlich oder vertraglich gebundene Daten werden kategorienbezogen gesperrt; Fristen mit Einzelfallprüfung bleiben vor Produktivstart rechtlich zu bestätigen.
-- standardmäßig deaktiviertes Stripe-Connect-Sandboxfundament für Direct Charges: private Provider-Kennungen, serverseitige Betrags-/Gebühren-Snapshots, signierte und idempotente Webhooks, PStTG-Zahlungs-/Refund-Korrekturen sowie strikt getrennte Belegketten. Teilrefunds, Verkäuferrechnungen ohne Berechtigung und ungeklärte Gebührensteuer werden blockiert.
+- standardmäßig deaktiviertes Stripe-Connect-Sandboxfundament für Direct Charges: Accounts-v2-Testkonto mit vollem Stripe-Dashboard und Stripe-gehostetem Onboarding, private Provider-Kennungen, synchronisierter `account.updated`-Status, serverseitige Betrags-/Gebühren-Snapshots, signierte und idempotente Webhooks, PStTG-Zahlungs-/Refund-Korrekturen sowie strikt getrennte Belegketten. Teilrefunds, Verkäuferrechnungen ohne Berechtigung und ungeklärte Gebührensteuer werden blockiert.
 
 ## 5. Umsetzungsreihenfolge
 
