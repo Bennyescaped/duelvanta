@@ -1,6 +1,6 @@
 # DUELVANTA Marketplace Compliance Requirements
 
-Stand: 12.09.2026
+Stand: 13.09.2026
 
 Betreiberziel: Benjamin Fritz – DUELVANTA, Einzelunternehmen
 
@@ -73,8 +73,6 @@ Bereits vorhanden und zu erhalten:
 
 Noch nicht vorhanden:
 
-- PStTG/DAC7-Ereignis- und Exportmodell.
-- B2C/C2C-spezifischer Checkout und Dokumentensatz.
 - produktiver Zahlungsanbieter, Rechnungs- und Gebührenlogik.
 
 Im Review-Branch umgesetzt, aber noch nicht produktiv aktiviert:
@@ -82,7 +80,9 @@ Im Review-Branch umgesetzt, aber noch nicht produktiv aktiviert:
 - Verkäuferart, Onboardingstatus, getrennte private Rechtsdaten und geprüfte Händleroffenlegung.
 - serverseitige Verkaufsfreigabe mit sicher deaktiviertem Rollout-Schalter.
 - Notice-and-Action-Verfahren: öffentliches elektronisches Meldeformular, privater Eingang, Vorgangsbestätigung, menschliche Owner-Prüfung, begründete Entscheidung, Verkäuferinformation, Einsprüche beider Seiten und unveränderbarer Audit-Verlauf.
-- Der Versand der vorbereiteten Empfangs-, Entscheidungs- und Einspruchsnachrichten benötigt vor Aktivierung noch den serverseitigen E-Mail-Dispatcher. Ohne bestätigte Zustellung wird das Verfahren nicht produktiv freigeschaltet.
+- unveränderbare C2C/B2C-Vertragssnapshots, Bestellbestätigung und standardmäßig deaktivierter Nachrichten-Dispatcher.
+- PStTG/DAC7-Ereignisledger sowie prüfbarer Jahres-/Quartalsexport; Vertragsbildung zählt unter `manual_beta` nicht als Vergütung.
+- eigener JSON-Datenexport, Löschblocker, sofortige Verarbeitungssperre und ein standardmäßig deaktivierter Lösch-Worker für Storage/Auth. Gesetzlich oder vertraglich gebundene Daten werden kategorienbezogen gesperrt; Fristen mit Einzelfallprüfung bleiben vor Produktivstart rechtlich zu bestätigen.
 
 ## 5. Umsetzungsreihenfolge
 

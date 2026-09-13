@@ -40,9 +40,15 @@ on:
       - 'database/market-notice-action-*.sql'
       - 'database/market-checkout-compliance-*.sql'
       - 'database/market-tax-transparency-*.sql'
+      - 'database/account-data-rights-*.sql'
       - 'api/compliance-message-dispatch.js'
+      - 'api/account-data-erasure.js'
+      - 'profile.html'
+      - 'profile.css'
+      - 'profile-data-rights.js'
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
       - 'tests/trade-*'
+      - 'tests/account-data-*'
       - 'tests/market-seller-compliance-database-test.mjs'
       - 'tests/market-seller-onboarding-contract-test.mjs'
       - 'seller-onboarding.html'
@@ -194,6 +200,8 @@ jobs:
           node --check listing-report.js
           node --check admin-notice-action.js
           node --check api/compliance-message-dispatch.js
+          node --check api/account-data-erasure.js
+          node --check profile-data-rights.js
           node tests/trade-automation-contract-test.mjs
           node tests/trade-resolution-contract-test.mjs
           node tests/trade-shipping-contract-test.mjs
@@ -210,6 +218,10 @@ jobs:
           node tests/market-tax-transparency-contract-test.mjs
           node tests/market-tax-transparency-database-test.mjs
           node tests/compliance-message-dispatch-test.mjs
+          node tests/account-data-rights-contract-test.mjs
+          node tests/account-data-rights-database-test.mjs
+          node tests/account-data-erasure-worker-test.mjs
+          node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
           node tests/market-notice-action-browser-test.mjs
