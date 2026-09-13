@@ -39,6 +39,7 @@ on:
       - 'database/market-seller-*.sql'
       - 'database/market-notice-action-*.sql'
       - 'database/market-checkout-compliance-*.sql'
+      - 'database/market-tax-transparency-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
       - 'tests/trade-*'
@@ -206,6 +207,8 @@ jobs:
           node tests/market-notice-action-database-test.mjs
           node tests/market-checkout-compliance-contract-test.mjs
           node tests/market-checkout-compliance-database-test.mjs
+          node tests/market-tax-transparency-contract-test.mjs
+          node tests/market-tax-transparency-database-test.mjs
           node tests/compliance-message-dispatch-test.mjs
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
