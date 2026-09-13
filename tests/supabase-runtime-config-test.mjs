@@ -14,8 +14,8 @@ function invoke(method='GET',runtime=true){
 try{
   process.env.VERCEL_ENV='preview';delete process.env.SUPABASE_URL;delete process.env.SUPABASE_PUBLISHABLE_KEY;
   let response=invoke();
-  assert.equal(response.statusCode,503,'preview must fail closed without staging configuration');
-  assert.match(response.body,/not safely configured/);
+  assert.equal(response.statusCode,200,'preview must use its embedded public staging configuration');
+  assert.match(response.body,/xhmjxrcskfhbovhitdej/);
 
   process.env.SUPABASE_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';process.env.SUPABASE_PUBLISHABLE_KEY='public-test';
   response=invoke();
@@ -52,4 +52,4 @@ try{
   for(const [name,value] of Object.entries(original))value===undefined?delete process.env[name]:process.env[name]=value;
 }
 
-console.log('PASS: marketplace previews fail closed and cannot fall back to production Supabase');
+console.log('PASS: marketplace previews are locked to the isolated staging Supabase project');

@@ -6,11 +6,12 @@ const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<
 const PRODUCTION_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 const PRODUCTION_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
 const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
+const STAGING_KEY='sb_publishable_KNlm6LzvSxCaGwLc_1mPbA_-z1we46N';
 
 function runtimeConfig(res){
   const environment=process.env.VERCEL_ENV||'development',production=environment==='production';
-  const url=production?PRODUCTION_URL:process.env.SUPABASE_URL;
-  const key=production?PRODUCTION_KEY:process.env.SUPABASE_PUBLISHABLE_KEY;
+  const url=production?PRODUCTION_URL:(environment==='preview'?(process.env.SUPABASE_URL||STAGING_URL):process.env.SUPABASE_URL);
+  const key=production?PRODUCTION_KEY:(environment==='preview'?(process.env.SUPABASE_PUBLISHABLE_KEY||STAGING_KEY):process.env.SUPABASE_PUBLISHABLE_KEY);
   res.setHeader('Content-Type','application/javascript; charset=utf-8');
   res.setHeader('Cache-Control','private, no-store, max-age=0');
   res.setHeader('X-Content-Type-Options','nosniff');
