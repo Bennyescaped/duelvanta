@@ -11,14 +11,14 @@ const value=async sql=>{const result=(await db.query(sql)).rows[0].value;return 
 
 try{
   await db.exec(`
-    create role anon;create role authenticated;create role service_role;create schema auth;
+    create role anon;create role authenticated;create role service_role;create schema auth;create schema extensions;create extension if not exists pgcrypto with schema extensions;
     create table auth.users(id uuid primary key,email text);
     create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
     grant usage on schema auth,public to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;
     create table public.profiles(id uuid primary key references auth.users(id) on delete cascade,email text not null,display_name text,username text,role text,account_status text,safety_restricted boolean default false,avatar_path text,collection_visibility text default 'private',created_at timestamptz default now(),updated_at timestamptz default now());
     create table public.collection_folders(id uuid primary key default gen_random_uuid(),user_id uuid not null,name text,created_at timestamptz default now());
     create table public.collection_items(id uuid primary key default gen_random_uuid(),user_id uuid not null,folder_id uuid,image_path text,card_name text,purchase_price numeric,notes text,created_at timestamptz default now());
-    create table public.market_listings(id uuid primary key default gen_random_uuid(),seller_id uuid not null references auth.users(id) on delete cascade,collection_item_id uuid,status text not null,listing_type text,pricing_mode text,asking_price numeric,quantity_available int,minimum_purchase_quantity int,quantity_pricing jsonb default '[]',active_until timestamptz,shipping_method text,shipping_cost numeric,tcg text,card_name text,set_name text,card_number text,language text,variant text,condition text,grading_company text,grade text,product_kind text,sealed_category text,sealed_condition text,package_contents text,units_per_container int,seller_note text,image_path text,seller_display_name text,created_at timestamptz default now(),updated_at timestamptz default now());
+    create table public.market_listings(id uuid primary key default gen_random_uuid(),seller_id uuid not null references auth.users(id) on delete cascade,collection_item_id uuid,status text not null,listing_type text,pricing_mode text,asking_price numeric,quantity_available int,minimum_purchase_quantity int,quantity_pricing jsonb default '[]',active_until timestamptz,shipping_method text,shipping_cost numeric,tcg text,card_name text,set_name text,card_number text,language text,variant text,condition text,grading_company text,grade text,product_kind text,sealed_category text,sealed_condition text,package_contents text,units_per_container int,seller_note text,image_path text,seller_display_name text,deal_buyer_id uuid,created_at timestamptz default now(),updated_at timestamptz default now());
     create table public.market_listing_images(id uuid primary key default gen_random_uuid(),listing_id uuid,seller_id uuid,storage_path text,created_at timestamptz default now());
     create table public.market_offers(id uuid primary key default gen_random_uuid(),seller_id uuid,buyer_id uuid,listing_id uuid,status text,created_at timestamptz default now());
     create table public.market_orders(id uuid primary key default gen_random_uuid(),order_number text,seller_id uuid,buyer_id uuid,status text default 'completed',payment_provider text default 'manual_beta',created_at timestamptz default now());
@@ -39,7 +39,8 @@ try{
     insert into public.collection_items(user_id,image_path,card_name,purchase_price,notes) values('${USER}','${USER}/card.webp','Testkarte',12.50,'eigene Notiz');
     insert into public.market_seller_accounts(seller_id,seller_type,onboarding_status,terms_version,verified_at,psttg_subject_type) values('${USER}','private','active','seller-v1',now(),'natural_person');
     insert into dv_market_private.seller_legal_profiles(seller_id,legal_first_name,legal_last_name,date_of_birth,street_line1,postal_code,city,country_code,tax_residence_country_code) values('${USER}','Data','User','1990-01-01','Testweg 1','12345','Testort','DE','DE');
-    insert into dv_market_private.seller_tax_identifiers(seller_id,identifier_kind,issuing_country_code,identifier_ciphertext,identifier_hash) values('${USER}','tin','DE',decode('010203','hex'),digest('secret-tax-value','sha256'));
+    insert into dv_market_private.seller_tax_identifiers(seller_id,identifier_kind,issuing_country_code,identifier_ciphertext,identifier_hash) values('${USER}','tin','DE',decode('010203','hex'),extensions.digest('secret-tax-value','sha256'));
+    insert into public.market_listings(seller_id,status,listing_type,pricing_mode,asking_price,quantity_available,minimum_purchase_quantity,shipping_method,shipping_cost,tcg,card_name,language,condition,product_kind,deal_buyer_id) values('${USER}','sold','sale','fixed',10,0,1,'letter',1,'pokemon','Exportierte Karte','Deutsch','mint','single','${OTHER}');
   `);
   await claim(USER);
   const exported=await value(`select public.export_my_duelvanta_data() value`);
