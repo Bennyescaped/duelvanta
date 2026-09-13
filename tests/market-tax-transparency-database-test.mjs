@@ -114,6 +114,16 @@ try{
   assert.equal(privateQ1.identity.tax_identifiers_remain_encrypted,true);
   assert.ok(!annual.payload.includes('private-tax-test')&&!annual.payload.includes('trader-tax-test'));
 
+  await db.query(`select public.correct_market_tax_remuneration('${p1.event_id}','correct-private-cent','2027-01-06T10:00:00Z',0.01,0,0,0,false,'verified one-cent correction')`);
+  const belowAmount=json((await db.query(`select public.generate_market_tax_export(2026,null,'json') value`)).rows[0].value);
+  const belowAmountPayload=JSON.parse(belowAmount.payload);
+  const privateBelowAmount=belowAmountPayload.rows.find(row=>row.seller_id===PRIVATE&&Number(row.reporting_quarter)===1);
+  assert.equal(Number(privateBelowAmount.annual.activity_count),2);assert.equal(Number(privateBelowAmount.annual.remuneration),1999.99);
+  assert.equal(privateBelowAmount.goods_threshold.less_than_30_activities,true);
+  assert.equal(privateBelowAmount.goods_threshold.less_than_2000_eur_remuneration,true);
+  assert.equal(privateBelowAmount.goods_threshold.exactly_2000_eur_remuneration,false);
+  assert.equal(privateBelowAmount.goods_threshold.threshold_result,'exempt_below_both_thresholds');
+
   await db.query(`select public.correct_market_tax_remuneration('${traderSecond.event_id}','void-trader-02','2026-06-01T10:00:00Z',10,0,0,0,true,'verified second reversal')`);
   const below=json((await db.query(`select public.generate_market_tax_export(2026,null,'json') value`)).rows[0].value);
   const belowPayload=JSON.parse(below.payload);
