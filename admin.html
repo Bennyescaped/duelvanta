@@ -36,6 +36,7 @@
 
   </style>
   <link rel="stylesheet" href="admin-notice-action.css?v=1.0">
+  <link rel="stylesheet" href="admin-seller-review.css?v=1.0">
 </head>
 <body>
   <section id="loginView" class="login">
@@ -305,20 +306,23 @@
     async function boot(){
       const {data:{session}}=await db.auth.getSession();
       const user=session?.user;
-      if(user?.email?.toLowerCase()===OWNER_EMAIL){el('loginView').classList.add('hidden');el('appView').classList.remove('hidden');el('ownerLabel').textContent=user.email;await loadData()}
+      let isOwner=false;
+      if(user){const {data:profile,error}=await db.from('profiles').select('role,account_status').eq('id',user.id).maybeSingle();isOwner=!error&&profile?.role==='owner'&&profile?.account_status==='active'}
+      if(isOwner){el('loginView').classList.add('hidden');el('appView').classList.remove('hidden');el('ownerLabel').textContent='OWNER';await loadData()}
       else{if(user)await db.auth.signOut();el('appView').classList.add('hidden');el('loginView').classList.remove('hidden')}
     }
 
     el('magicBtn').addEventListener('click',sendMagicLink);
-    el('refreshBtn').addEventListener('click',()=>currentView==='scanner'?loadScannerSettings():loadData());
+    el('refreshBtn').addEventListener('click',()=>currentView==='scanner'?loadScannerSettings():currentView==='seller'&&window.DV_ADMIN_LOAD_SELLER_REVIEWS?window.DV_ADMIN_LOAD_SELLER_REVIEWS():currentView==='notice'&&window.DV_ADMIN_LOAD_NOTICES?window.DV_ADMIN_LOAD_NOTICES():loadData());
     el('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
     el('searchInput').addEventListener('input',renderRows);el('statusFilter').addEventListener('change',renderRows);el('founderFilter').addEventListener('change',renderRows);
     document.querySelectorAll('[data-admin-view]').forEach(button=>button.addEventListener('click',()=>showAdminView(button.dataset.adminView)));
     document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>{const input=el(button.dataset.step);input.value=clamp(Number(input.value)+Number(button.dataset.delta),Number(input.min),Number(input.max))}));
     el('saveButton').addEventListener('click',saveScannerSettings);
-    db.auth.onAuthStateChange((_event,session)=>{if(session?.user?.email?.toLowerCase()===OWNER_EMAIL)boot()});
+    db.auth.onAuthStateChange((_event,session)=>{if(session?.user)setTimeout(boot,0)});
     boot();
   </script>
   <script src="admin-notice-action.js?v=1.0"></script>
+  <script src="admin-seller-review.js?v=1.0"></script>
 </body>
 </html>

@@ -102,6 +102,11 @@ try{
     /owner_access_required/
   );
   await claim(D);
+  const ownerQueueBefore=json((await db.query(`select public.get_owner_market_seller_reviews('pending_review') as value`)).rows[0].value);
+  assert.equal(ownerQueueBefore.reviews.length,1);
+  assert.equal(ownerQueueBefore.reviews[0].seller_id,B);
+  assert.equal(ownerQueueBefore.reviews[0].tax_identifier_present,false);
+  assert.ok(!JSON.stringify(ownerQueueBefore).includes('identifier_ciphertext'));
   await assert.rejects(
     ()=>db.query(`select public.review_market_seller_onboarding('${B}','approve',null)`),
     /seller_tax_identifier_required/

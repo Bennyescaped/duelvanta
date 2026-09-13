@@ -4,6 +4,8 @@ import {readFile} from 'node:fs/promises';
 const html=await readFile(new URL('../seller-onboarding.html',import.meta.url),'utf8');
 const js=await readFile(new URL('../seller-onboarding.js',import.meta.url),'utf8');
 const css=await readFile(new URL('../seller-onboarding.css',import.meta.url),'utf8');
+const admin=await readFile(new URL('../admin.html',import.meta.url),'utf8');
+const adminReview=await readFile(new URL('../admin-seller-review.js',import.meta.url),'utf8');
 const sql=await readFile(new URL('../database/market-seller-compliance-v1.sql',import.meta.url),'utf8');
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
@@ -31,5 +33,12 @@ must(sql,"raise exception 'seller_onboarding_required'",'server-side listing gua
 for(const table of ['seller_legal_profiles','seller_tax_identifiers','seller_declarations','seller_account_audit','marketplace_compliance_policy','seller_review_actions'])
   must(sql,`alter table dv_market_private.${table} enable row level security`,'private seller table lacks RLS defense in depth: '+table);
 must(css,'@media(max-width:700px)','mobile onboarding layout is missing');
+
+must(admin,"select('role,account_status')",'admin UI must authorize the active owner role');
+assert.ok(!admin.includes("user?.email?.toLowerCase()===OWNER_EMAIL"),'admin authorization must not be hardcoded to one email address');
+must(admin,'admin-seller-review.js?v=1.0','owner seller review module is missing');
+must(adminReview,"db.rpc('get_owner_market_seller_reviews'",'owner seller review queue is not loaded through its protected RPC');
+must(adminReview,"db.rpc('review_market_seller_onboarding'",'owner seller decisions are not wired');
+must(sql,'create or replace function public.get_owner_market_seller_reviews','owner seller review queue RPC is missing');
 
 console.log('PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract');

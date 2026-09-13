@@ -672,6 +672,82 @@ $$;
 revoke all on function public.get_market_seller_disclosures(uuid[]) from public, anon;
 grant execute on function public.get_market_seller_disclosures(uuid[]) to authenticated;
 
+create or replace function public.get_owner_market_seller_reviews(
+  p_status text default 'pending_review'
+)
+returns jsonb
+language plpgsql
+security definer
+stable
+set search_path = pg_catalog, public, dv_market_private
+as $$
+declare
+  v_status text := nullif(lower(trim(coalesce(p_status,''))), '');
+  v_tax_required boolean := true;
+  v_reviews jsonb;
+begin
+  if not dv_market_private.is_market_owner_caller() then
+    raise exception 'owner_access_required';
+  end if;
+  if v_status is not null and v_status not in
+    ('legacy_beta','draft','pending_review','active','rejected','suspended') then
+    raise exception 'invalid_review_status';
+  end if;
+
+  select tax_identifier_required_for_activation into v_tax_required
+  from dv_market_private.marketplace_compliance_policy where singleton=true;
+
+  select coalesce(jsonb_agg(review order by review.submitted_at asc nulls last), '[]'::jsonb)
+  into v_reviews
+  from (
+    select
+      a.seller_id,
+      a.seller_type,
+      a.onboarding_status,
+      a.trader_display_name,
+      a.submitted_at,
+      a.verified_at,
+      jsonb_build_object(
+        'legal_first_name', l.legal_first_name,
+        'legal_last_name', l.legal_last_name,
+        'date_of_birth', l.date_of_birth,
+        'street_line1', l.street_line1,
+        'street_line2', l.street_line2,
+        'postal_code', l.postal_code,
+        'city', l.city,
+        'country_code', l.country_code,
+        'tax_residence_country_code', l.tax_residence_country_code,
+        'business_name', l.business_name,
+        'legal_form', l.legal_form,
+        'representative_name', l.representative_name,
+        'public_email', l.public_email,
+        'public_phone', l.public_phone,
+        'register_name', l.register_name,
+        'register_number', l.register_number,
+        'register_court', l.register_court,
+        'vat_id_present', l.vat_id_present
+      ) as legal_profile,
+      exists (
+        select 1 from dv_market_private.seller_tax_identifiers t
+        where t.seller_id=a.seller_id and t.identifier_kind in ('tin','vat_id')
+      ) as tax_identifier_present
+    from public.market_seller_accounts a
+    join dv_market_private.seller_legal_profiles l on l.seller_id=a.seller_id
+    where v_status is null or a.onboarding_status=v_status
+    order by a.submitted_at asc nulls last
+    limit 100
+  ) review;
+
+  return jsonb_build_object(
+    'tax_identifier_required_for_activation', coalesce(v_tax_required,true),
+    'reviews', v_reviews
+  );
+end
+$$;
+
+revoke all on function public.get_owner_market_seller_reviews(text) from public, anon;
+grant execute on function public.get_owner_market_seller_reviews(text) to authenticated;
+
 create or replace function public.review_market_seller_onboarding(
   p_seller_id uuid,
   p_decision text,
