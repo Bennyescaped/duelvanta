@@ -41,8 +41,10 @@ on:
       - 'database/market-checkout-compliance-*.sql'
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
+      - 'database/market-stripe-connect-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
+      - 'api/market-stripe-*.js'
       - 'profile.html'
       - 'profile.css'
       - 'profile-data-rights.js'
@@ -201,6 +203,10 @@ jobs:
           node --check admin-notice-action.js
           node --check api/compliance-message-dispatch.js
           node --check api/account-data-erasure.js
+          node --check api/market-stripe-lib.js
+          node --check api/market-stripe-checkout.js
+          node --check api/market-stripe-webhook.js
+          node --check api/market-stripe-refund.js
           node --check profile-data-rights.js
           node tests/trade-automation-contract-test.mjs
           node tests/trade-resolution-contract-test.mjs
@@ -222,6 +228,9 @@ jobs:
           node tests/account-data-rights-database-test.mjs
           node tests/account-data-erasure-worker-test.mjs
           node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
+          node tests/market-stripe-connect-contract-test.mjs
+          node tests/market-stripe-connect-api-test.mjs
+          node tests/market-stripe-connect-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
           node tests/market-notice-action-browser-test.mjs

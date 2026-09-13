@@ -172,5 +172,6 @@ accounts only for the human/mobile acceptance pass after a useful batch of chang
    and buyer's acceptance notification opens the resulting Order directly. If that
    Order is later cancelled by agreement, the offer must display `STORNIERT`.
 
-The purpose of this real pass is UX/mobile judgment, not database discovery. No
-Stripe payment, payout or automatic refund/payment confirmation is enabled.
+The purpose of this real pass is UX/mobile judgment, not database discovery. The
+Stripe Connect review tests use local mocks and a disposable database only; the
+sandbox stays default-off and no provider payment, payout or refund is sent.

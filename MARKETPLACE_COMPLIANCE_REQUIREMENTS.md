@@ -13,6 +13,7 @@ Status: Verbindliche Entwicklungsgrundlage; kein Ersatz für die anwaltliche und
 - Die Vertrags- und Informationspflichten richten sich nach der konkreten Verkäufer-/Käufer-Konstellation. Ein B2C-Ablauf darf nicht pauschal auf C2C übertragen werden.
 - Zahlungsdienste und Auszahlungen werden später ausschließlich über einen zugelassenen Marketplace-Zahlungsdienstleister umgesetzt. DUELVANTA nimmt keine Kundengelder auf einem eigenen Konto entgegen und bezeichnet seine Leistung nicht als Escrow oder Treuhand.
 - `payment_provider = manual_beta` bleibt bis zur gesonderten Zahlungsintegration bestehen. Es werden keine ausgeführten Zahlungen, Auszahlungen oder Erstattungen behauptet.
+- Der Review-Entwurf für Stripe Connect verwendet ausschließlich deaktivierte Testmodus-Grenzen und Direct Charges im Verkäuferkonto. Eine Sandbox- oder Produktivaktivierung ist damit nicht freigegeben.
 - Das originale `v-logo.svg` sowie der Slogan `COLLECT. TRADE. BATTLE.` bleiben unverändert.
 - Scanner, COLLECT, BATTLE und bestehende stabile Handelsfunktionen werden außerhalb eines nachgewiesenen Fehlers nicht verändert.
 - Entwicklung, Migrationen und Tests bleiben bis zur Gesamtfreigabe außerhalb der Produktion. Keine echten Käufe, E-Mails oder Zahlungen zu Testzwecken.
@@ -83,6 +84,7 @@ Im Review-Branch umgesetzt, aber noch nicht produktiv aktiviert:
 - unveränderbare C2C/B2C-Vertragssnapshots, Bestellbestätigung und standardmäßig deaktivierter Nachrichten-Dispatcher.
 - PStTG/DAC7-Ereignisledger sowie prüfbarer Jahres-/Quartalsexport; Vertragsbildung zählt unter `manual_beta` nicht als Vergütung.
 - eigener JSON-Datenexport, Löschblocker, sofortige Verarbeitungssperre und ein standardmäßig deaktivierter Lösch-Worker für Storage/Auth. Gesetzlich oder vertraglich gebundene Daten werden kategorienbezogen gesperrt; Fristen mit Einzelfallprüfung bleiben vor Produktivstart rechtlich zu bestätigen.
+- standardmäßig deaktiviertes Stripe-Connect-Sandboxfundament für Direct Charges: private Provider-Kennungen, serverseitige Betrags-/Gebühren-Snapshots, signierte und idempotente Webhooks, PStTG-Zahlungs-/Refund-Korrekturen sowie strikt getrennte Belegketten. Teilrefunds, Verkäuferrechnungen ohne Berechtigung und ungeklärte Gebührensteuer werden blockiert.
 
 ## 5. Umsetzungsreihenfolge
 
