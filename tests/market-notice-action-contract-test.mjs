@@ -5,6 +5,8 @@ const [sql,html,js,trade,moderation,admin]=await Promise.all(['database/market-n
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 for(const table of ['listing_notices','listing_notice_appeals','listing_notice_events','marketplace_message_outbox'])must(sql,table,'missing private notice table '+table);
+for(const table of ['listing_notices','listing_notice_appeals','listing_notice_events','marketplace_message_outbox'])
+  must(sql,`alter table dv_market_private.${table} enable row level security`,'private notice table lacks RLS defense in depth: '+table);
 must(sql,'grant execute on function public.submit_marketplace_listing_notice(uuid,text,text,text,text,text,text,boolean) to anon, authenticated','public electronic reporting is not available');
 must(sql,'reporter_email_hash bytea not null','reporter email is not protected for rate limiting');
 must(sql,'access_code_hash bytea not null','tracking access code is stored in plaintext');

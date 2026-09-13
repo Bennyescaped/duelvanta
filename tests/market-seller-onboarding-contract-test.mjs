@@ -28,6 +28,8 @@ must(sql,"create schema if not exists dv_market_private",'private compliance sch
 must(sql,"identifier_ciphertext bytea not null",'tax identifier ciphertext boundary is missing');
 must(sql,"seller_onboarding_enforced boolean not null default false",'safe rollout flag is missing');
 must(sql,"raise exception 'seller_onboarding_required'",'server-side listing guard is missing');
+for(const table of ['seller_legal_profiles','seller_tax_identifiers','seller_declarations','seller_account_audit','marketplace_compliance_policy','seller_review_actions'])
+  must(sql,`alter table dv_market_private.${table} enable row level security`,'private seller table lacks RLS defense in depth: '+table);
 must(css,'@media(max-width:700px)','mobile onboarding layout is missing');
 
 console.log('PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract');

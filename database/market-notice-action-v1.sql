@@ -98,6 +98,11 @@ create table if not exists dv_market_private.marketplace_message_outbox (
 create index if not exists marketplace_message_outbox_pending_idx
   on dv_market_private.marketplace_message_outbox(delivery_status, created_at);
 
+alter table dv_market_private.listing_notices enable row level security;
+alter table dv_market_private.listing_notice_appeals enable row level security;
+alter table dv_market_private.listing_notice_events enable row level security;
+alter table dv_market_private.marketplace_message_outbox enable row level security;
+
 revoke all on all tables in schema dv_market_private from public, anon, authenticated;
 revoke all on all sequences in schema dv_market_private from public, anon, authenticated;
 

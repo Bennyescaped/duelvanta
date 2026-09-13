@@ -7,6 +7,8 @@ const [sql,checkout,orders,dispatcher]=await Promise.all([
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 for(const table of ['market_contract_snapshots','marketplace_message_delivery_events'])must(sql,table,'missing compliance table '+table);
+for(const table of ['market_contract_snapshots','marketplace_message_delivery_events'])
+  must(sql,`alter table dv_market_private.${table} enable row level security`,'private checkout table lacks RLS defense in depth: '+table);
 must(sql,'market_contract_snapshot_is_immutable','contract snapshot mutation is not blocked');
 must(sql,"contract_classification in ('c2c','b2c')",'C2C/B2C classification is not constrained');
 must(sql,'seller_party jsonb not null','contract party snapshot is missing');

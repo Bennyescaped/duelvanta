@@ -48,6 +48,7 @@ create index if not exists market_contract_snapshots_seller_idx
   on dv_market_private.market_contract_snapshots(seller_id, contract_formed_at desc);
 
 revoke all on table dv_market_private.market_contract_snapshots from public, anon, authenticated;
+alter table dv_market_private.market_contract_snapshots enable row level security;
 
 create or replace function dv_market_private.block_market_contract_snapshot_mutation()
 returns trigger
@@ -262,6 +263,8 @@ create table if not exists dv_market_private.marketplace_message_delivery_events
   error_summary text,
   created_at timestamptz not null default now()
 );
+
+alter table dv_market_private.marketplace_message_delivery_events enable row level security;
 revoke all on table dv_market_private.marketplace_message_delivery_events from public, anon, authenticated;
 revoke all on sequence dv_market_private.marketplace_message_delivery_events_id_seq from public, anon, authenticated;
 

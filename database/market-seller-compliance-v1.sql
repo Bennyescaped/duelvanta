@@ -144,6 +144,13 @@ create table if not exists dv_market_private.seller_review_actions (
 create index if not exists seller_review_actions_seller_idx
   on dv_market_private.seller_review_actions(seller_id, created_at desc);
 
+alter table dv_market_private.seller_legal_profiles enable row level security;
+alter table dv_market_private.seller_tax_identifiers enable row level security;
+alter table dv_market_private.seller_declarations enable row level security;
+alter table dv_market_private.seller_account_audit enable row level security;
+alter table dv_market_private.marketplace_compliance_policy enable row level security;
+alter table dv_market_private.seller_review_actions enable row level security;
+
 revoke all on all tables in schema dv_market_private from public, anon, authenticated;
 revoke all on all sequences in schema dv_market_private from public, anon, authenticated;
 
