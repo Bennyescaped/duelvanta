@@ -22,7 +22,7 @@ module.exports=async function handler(req,res){
         configuration:{merchant:{capabilities:{card_payments:{requested:true}}}},
         defaults:{currency:'eur',responsibilities:{fees_collector:'stripe',losses_collector:'stripe'},locales:['de-DE']},
         include:['configuration.merchant','requirements']
-      },{idempotencyKey:`duelvanta-account-${requestKey}`});
+      },{idempotencyKey:`duelvanta-account-${prepared.onboarding_request_id}`});
       accountId=account.id;
       if(!/^acct_[A-Za-z0-9]+$/.test(accountId||''))throw new Error('stripe_test_account_invalid');
       await rpc('register_market_stripe_test_account',{p_onboarding_request_id:prepared.onboarding_request_id,p_seller_id:user.id,p_account_id:accountId});

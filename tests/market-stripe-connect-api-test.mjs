@@ -33,6 +33,12 @@ try{
   const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.dahlia');
   const accountPayload=JSON.parse(v2.options.body);assert.deepEqual(accountPayload.identity,{country:'DE'});assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
   assert.ok(requests.some(r=>r.url.includes('/v1/account_links')));
+  const retried=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:USER}},retried);
+  assert.equal(retried.statusCode,200);
+  const accountCalls=requests.filter(r=>r.url.includes('/v2/core/accounts'));
+  assert.equal(accountCalls.length,2);
+  assert.equal(accountCalls[0].options.headers['idempotency-key'],`duelvanta-account-${UUID}`);
+  assert.equal(accountCalls[1].options.headers['idempotency-key'],accountCalls[0].options.headers['idempotency-key']);
 
 
   for(const country_code of [undefined,'','Germany','de']){

@@ -45,6 +45,8 @@ try{
   assert.equal(onboarding.country_code,'AT');
   const onboardingReplay=json((await db.query(`select public.prepare_market_stripe_onboarding('${SELLER}','98000000-0000-4000-8000-000000000001') value`)).rows[0].value);
   assert.equal(onboardingReplay.country_code,'AT');assert.equal(onboardingReplay.replayed,true);
+  const resumed=json((await db.query(`select public.prepare_market_stripe_onboarding('${SELLER}','98000000-0000-4000-8000-000000000002') value`)).rows[0].value);
+  assert.equal(resumed.onboarding_request_id,onboarding.onboarding_request_id);assert.equal(resumed.replayed,true);
   await db.query(`select public.register_market_stripe_test_account('${onboarding.onboarding_request_id}','${SELLER}','acct_TestSeller')`);
   const accountEvent=json((await db.query(`select public.apply_market_stripe_event('evt_TestAccount','account.updated','acct_TestSeller',false,'acct_TestSeller',repeat('c',64),now(),'{"charges_enabled":true,"payouts_enabled":true,"details_submitted":true,"requirements_due_count":0,"past_due_count":0}'::jsonb) value`)).rows[0].value);
   assert.equal(accountEvent.status,'applied');

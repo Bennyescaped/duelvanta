@@ -201,9 +201,13 @@ begin
   if p_seller_id is null or p_request_key is null then raise exception 'stripe_onboarding_input_invalid'; end if;
   select * into c from dv_market_private.market_payment_configuration where singleton;
   if not found or not c.sandbox_enabled or c.live_mode then raise exception 'stripe_sandbox_disabled'; end if;
-  select * into s from public.market_seller_accounts where seller_id=p_seller_id;
+  select * into s from public.market_seller_accounts where seller_id=p_seller_id for update;
   if not found or s.onboarding_status<>'active' or s.seller_type not in ('private','trader') then raise exception 'seller_onboarding_not_approved'; end if;
   select * into r from dv_market_private.market_stripe_onboarding_requests where seller_id=p_seller_id and request_key=p_request_key;
+  if r.id is null then
+    select * into r from dv_market_private.market_stripe_onboarding_requests
+      where seller_id=p_seller_id and state in ('prepared','account_created','link_created') for update;
+  end if;
   select * into a from dv_market_private.market_stripe_accounts where seller_id=p_seller_id;
   if found and a.live_mode then raise exception 'stripe_live_account_forbidden'; end if;
   if r.id is not null then return jsonb_build_object('onboarding_request_id',r.id,'onboarding_state',r.state,
