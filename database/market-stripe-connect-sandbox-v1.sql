@@ -207,11 +207,11 @@ begin
   select * into a from dv_market_private.market_stripe_accounts where seller_id=p_seller_id;
   if found and a.live_mode then raise exception 'stripe_live_account_forbidden'; end if;
   if r.id is not null then return jsonb_build_object('onboarding_request_id',r.id,'onboarding_state',r.state,
-    'stripe_account_id',a.stripe_account_id,'seller_type',s.seller_type,'replayed',true,'live_mode',false); end if;
+    'stripe_account_id',a.stripe_account_id,'seller_type',s.seller_type,'country_code',s.country_code,'replayed',true,'live_mode',false); end if;
   insert into dv_market_private.market_stripe_onboarding_requests(seller_id,request_key)
   values(p_seller_id,p_request_key) returning * into r;
   return jsonb_build_object('onboarding_request_id',r.id,'onboarding_state',r.state,'stripe_account_id',a.stripe_account_id,
-    'seller_type',s.seller_type,'replayed',false,'live_mode',false);
+    'seller_type',s.seller_type,'country_code',s.country_code,'replayed',false,'live_mode',false);
 end
 $$;
 revoke all on function public.prepare_market_stripe_onboarding(uuid,uuid) from public, anon, authenticated;

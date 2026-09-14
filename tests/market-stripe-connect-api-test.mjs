@@ -21,7 +21,7 @@ try{
   global.fetch=async(url,options={})=>{
     requests.push({url:String(url),options});
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER,email:'seller@example.test'}),{status:200});
-    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'prepared',stripe_account_id:null,seller_type:'trader'}),{status:200});
+    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'prepared',stripe_account_id:null,seller_type:'trader',country_code:'DE'}),{status:200});
     if(String(url).includes('/v2/core/accounts'))return new Response(JSON.stringify({id:'acct_TestSeller'}),{status:200});
     if(String(url).includes('register_market_stripe_test_account'))return new Response('',{status:200});
     if(String(url).includes('/v1/account_links'))return new Response(JSON.stringify({object:'account_link',url:'https://connect.stripe.test/onboard'}),{status:200});
@@ -31,13 +31,26 @@ try{
   const onboarded=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},onboarded);
   assert.equal(onboarded.statusCode,200);assert.equal(onboarded.body.live_mode,false);
   const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.dahlia');
-  const accountPayload=JSON.parse(v2.options.body);assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
+  const accountPayload=JSON.parse(v2.options.body);assert.deepEqual(accountPayload.identity,{country:'DE'});assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
   assert.ok(requests.some(r=>r.url.includes('/v1/account_links')));
+
+
+  for(const country_code of [undefined,'','Germany','de']){
+    let providerCalls=0;
+    global.fetch=async url=>{
+      if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
+      if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'prepared',stripe_account_id:null,seller_type:'private',country_code}),{status:200});
+      providerCalls++;throw new Error('must_not_reach_provider');
+    };
+    const invalidCountry=response();
+    await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID,country_code:'DE'}},invalidCountry);
+    assert.equal(invalidCountry.statusCode,409);assert.equal(invalidCountry.body.error,'seller_country_required');assert.equal(providerCalls,0);
+  }
 
   let completedCalls=0;global.fetch=async url=>{
     completedCalls++;
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER,email:'seller@example.test'}),{status:200});
-    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'completed',stripe_account_id:'acct_TestSeller',seller_type:'trader'}),{status:200});
+    if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'completed',stripe_account_id:'acct_TestSeller',seller_type:'trader',country_code:'DE'}),{status:200});
     throw new Error('completed_onboarding_must_not_call_stripe');
   };
   const completed=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},completed);

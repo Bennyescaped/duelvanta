@@ -14,8 +14,11 @@ module.exports=async function handler(req,res){
     if(prepared.onboarding_state==='completed')return json(res,200,{status:'stripe_test_onboarding_complete',live_mode:false});
     let accountId=prepared.stripe_account_id;
     if(!accountId){
+      const country=String(prepared.country_code||'');
+      if(!/^[A-Z]{2}$/.test(country))throw new Error('seller_country_required');
       const account=await stripeV2Request('core/accounts',{
         contact_email:user.email,display_name:prepared.seller_type==='trader'?'DUELVANTA Händler':'DUELVANTA Privatverkäufer',dashboard:'full',
+        identity:{country},
         configuration:{merchant:{capabilities:{card_payments:{requested:true}}}},
         defaults:{currency:'eur',responsibilities:{fees_collector:'stripe',losses_collector:'stripe'},locales:['de-DE']},
         include:['configuration.merchant','requirements']

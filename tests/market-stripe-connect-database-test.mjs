@@ -14,7 +14,7 @@ try{
     create table auth.users(id uuid primary key,email text);grant usage on schema auth,public to anon,authenticated,service_role;
     create function auth.uid() returns uuid language sql stable as $$select null::uuid$$;
     create table public.profiles(id uuid primary key,role text);
-    create table public.market_seller_accounts(seller_id uuid primary key,seller_type text,onboarding_status text);
+    create table public.market_seller_accounts(seller_id uuid primary key,seller_type text,onboarding_status text,country_code text);
     create table public.market_listings(id uuid primary key,seller_id uuid,status text);
     create table public.market_offers(id uuid primary key,seller_id uuid,buyer_id uuid,status text);
     create table public.market_orders(id uuid primary key,order_number text,seller_id uuid,buyer_id uuid,status text,shipped_at timestamptz,
@@ -32,7 +32,7 @@ try{
     create function public.correct_market_tax_remuneration(uuid,text,timestamptz,numeric,numeric,numeric,numeric,boolean,text,jsonb) returns jsonb
       language plpgsql security definer as $$declare v uuid;begin insert into dv_market_private.tax_test_corrections(original_id,event_key) values($1,$2) returning id into v;return jsonb_build_object('event_id',v);end$$;
     insert into auth.users values('${BUYER}','buyer@example.test'),('${SELLER}','seller@example.test');
-    insert into public.market_seller_accounts values('${SELLER}','trader','active');
+    insert into public.market_seller_accounts values('${SELLER}','trader','active','AT');
     insert into public.market_orders values('${ORDER}','DV-TEST','${SELLER}','${BUYER}','open',null,'confirmed','manual_beta','not_required',0,105,'EUR',null,null,0,0,'not_required',0,null,now());
     insert into public.market_deals values('${DEAL1}','${ORDER}','${SELLER}','${BUYER}','manual_beta','not_required',null,null,now()),
       ('${DEAL2}','${ORDER}','${SELLER}','${BUYER}','manual_beta','not_required',null,null,now());
@@ -42,6 +42,9 @@ try{
   assert.equal(json((await db.query('select public.get_market_payment_sandbox_status() value')).rows[0].value).sandbox_enabled,false);
   await db.exec(`update dv_market_private.market_payment_configuration set sandbox_enabled=true,platform_fee_bps=200,platform_fee_fixed_cents=40;set role service_role;`);
   const onboarding=json((await db.query(`select public.prepare_market_stripe_onboarding('${SELLER}','98000000-0000-4000-8000-000000000001') value`)).rows[0].value);
+  assert.equal(onboarding.country_code,'AT');
+  const onboardingReplay=json((await db.query(`select public.prepare_market_stripe_onboarding('${SELLER}','98000000-0000-4000-8000-000000000001') value`)).rows[0].value);
+  assert.equal(onboardingReplay.country_code,'AT');assert.equal(onboardingReplay.replayed,true);
   await db.query(`select public.register_market_stripe_test_account('${onboarding.onboarding_request_id}','${SELLER}','acct_TestSeller')`);
   const accountEvent=json((await db.query(`select public.apply_market_stripe_event('evt_TestAccount','account.updated','acct_TestSeller',false,'acct_TestSeller',repeat('c',64),now(),'{"charges_enabled":true,"payouts_enabled":true,"details_submitted":true,"requirements_due_count":0,"past_due_count":0}'::jsonb) value`)).rows[0].value);
   assert.equal(accountEvent.status,'applied');
