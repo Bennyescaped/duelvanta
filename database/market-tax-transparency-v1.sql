@@ -161,7 +161,7 @@ begin
   ) values (
     'contract:'||new.id::text,'contract_formed',new.seller_id,new.deal_id,new.id,new.contract_formed_at,
     extract(year from v_local)::integer,extract(quarter from v_local)::integer,new.currency,
-    'contract_snapshot',new.id::text,v_evidence,extensions.digest(v_evidence::text,'sha256')
+    'contract_snapshot',new.id::text,v_evidence,digest(v_evidence::text,'sha256')
   ) on conflict (event_key) do nothing;
   return new;
 end
@@ -234,7 +234,7 @@ begin
     v_snapshot.id,p_occurred_at,extract(year from v_local)::integer,
     extract(quarter from v_local)::integer,'EUR',v_gross,v_fee,v_commission,v_tax,v_net,1,
     p_source_type,nullif(left(trim(coalesce(p_source_reference,'')),500),''),
-    v_evidence,extensions.digest(v_evidence::text,'sha256'),auth.uid()
+    v_evidence,digest(v_evidence::text,'sha256'),auth.uid()
   ) returning * into v_event;
 
   return jsonb_build_object('event_id',v_event.id,'event_type',v_event.event_type,
@@ -342,7 +342,7 @@ begin
     -v_gross,-v_fee,-v_commission,-v_tax,-v_net,
     case when coalesce(p_void_activity,false) then -1 else 0 end,
     'system_correction',nullif(left(trim(coalesce(p_source_reference,'')),500),''),
-    v_evidence,extensions.digest(v_evidence::text,'sha256'),auth.uid()
+    v_evidence,digest(v_evidence::text,'sha256'),auth.uid()
   ) returning * into v_event;
   return jsonb_build_object('event_id',v_event.id,'event_type',v_event.event_type,
     'reporting_year',v_event.reporting_year,'reporting_quarter',v_event.reporting_quarter,
@@ -551,18 +551,18 @@ begin
     source_event_count,row_count,payload_text,payload_sha256
   ) values (
     p_reporting_year,p_reporting_quarter,v_format,v_kind,auth.uid(),v_events,v_rows,
-    v_payload,extensions.digest(convert_to(v_payload,'UTF8'),'sha256')
+    v_payload,digest(convert_to(v_payload,'UTF8'),'sha256')
   ) returning id into v_export_id;
 
   insert into dv_market_private.market_tax_export_rows(export_id,seller_id,reporting_quarter,row_payload,row_sha256)
-  select v_export_id,seller_id,reporting_quarter,row_payload,extensions.digest(row_payload::text,'sha256')
+  select v_export_id,seller_id,reporting_quarter,row_payload,digest(row_payload::text,'sha256')
   from pg_temp.dv_market_tax_export_work order by seller_id,reporting_quarter;
 
   return jsonb_build_object(
     'export_id',v_export_id,'export_kind',v_kind,'format',v_format,
     'reporting_year',p_reporting_year,'reporting_quarter',p_reporting_quarter,
     'row_count',v_rows,'source_event_count',v_events,
-    'sha256',encode(extensions.digest(convert_to(v_payload,'UTF8'),'sha256'),'hex'),
+    'sha256',encode(digest(convert_to(v_payload,'UTF8'),'sha256'),'hex'),
     'status','review_evidence_not_bzst_submission','payload',v_payload
   );
 end

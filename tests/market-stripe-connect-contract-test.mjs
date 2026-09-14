@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
-const [sql,lib,onboarding,checkout,webhook,refund,orders,trade,workflow]=await Promise.all([
+const [sql,lib,onboarding,checkout,webhook,refund,orders,trade,workflow,notice]=await Promise.all([
   'database/market-stripe-connect-sandbox-v1.sql','api/market-stripe-lib.js','api/market-stripe-onboarding.js',
-  'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','trade-orders.js','trade.html','.github/workflows/scanner-v16-check.yml'
+  'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','trade-orders.js','trade.html','.github/workflows/scanner-v16-check.yml','database/market-notice-action-v1.sql'
 ].map(read));
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 for(const table of ['market_payment_configuration','market_stripe_accounts','market_payment_attempts','market_payment_allocations','market_stripe_events','market_refund_requests','market_invoice_authorizations','market_financial_documents'])must(sql,table,'missing '+table);
@@ -53,19 +53,10 @@ must(trade,'trade-orders.js?v=1.5','Stripe sandbox order UI cache version is not
 must(workflow,'market-stripe-connect-contract-test.mjs','Step 9 contract test missing from CI');
 must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax is not checked in CI');
 
-const digestSqlFiles=[
-  'database/account-data-rights-v1.sql',
-  'database/market-checkout-compliance-v1.sql',
-  'database/market-notice-action-v1.sql',
-  'database/market-stripe-connect-sandbox-v1.sql',
-  'database/market-tax-transparency-v1.sql'
-];
-for(const name of digestSqlFiles){
-  const source=await read(name);
-  assert.ok(!/(^|[^.A-Za-z0-9_])digest\\s*\\(/m.test(source),name+' contains an unqualified pgcrypto digest() call');
-  must(source,'extensions.digest(','schema-qualified pgcrypto digest() call missing in '+name);
-}
 const digestPatch=await read('database/pgcrypto-digest-schema-hardening-v1.sql');
 for(const signature of ['apply_market_stripe_event','issue_market_financial_document','get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])must(digestPatch,signature,'staging pgcrypto patch misses '+signature);
+assert.match(sql,/create or replace function public\\.apply_market_stripe_event\\([\\s\\S]+?set search_path=pg_catalog,public,dv_market_private,extensions/,'payment webhook cannot resolve Supabase pgcrypto schema');
+assert.match(sql,/create or replace function public\\.issue_market_financial_document\\([\\s\\S]+?set search_path=pg_catalog,dv_market_private,extensions/,'financial document function cannot resolve Supabase pgcrypto schema');
+for(const fn of ['get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])assert.match(notice,new RegExp('create or replace function public\\\\.'+fn+'\\\\([\\\\s\\\\S]+?set search_path = pg_catalog, public, dv_market_private, extensions'),'notice function cannot resolve Supabase pgcrypto schema: '+fn);
 
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');

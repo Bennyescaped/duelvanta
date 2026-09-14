@@ -144,7 +144,7 @@ create or replace function dv_market_private.keep_moderated_listing_paused()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 begin
   if new.status='active' and exists(
@@ -177,7 +177,7 @@ create or replace function public.submit_marketplace_listing_notice(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare
   v_listing public.market_listings%rowtype;
@@ -212,7 +212,7 @@ begin
 
   select count(*) into v_recent
   from dv_market_private.listing_notices n
-  where n.reporter_email_hash=extensions.digest(convert_to(v_email,'UTF8'),'sha256')
+  where n.reporter_email_hash=digest(convert_to(v_email,'UTF8'),'sha256')
     and n.submitted_at > now()-interval '1 hour';
   if v_recent >= 5 then raise exception 'notice_rate_limit'; end if;
 
@@ -222,7 +222,7 @@ begin
     good_faith_confirmed,acknowledged_at
   ) values (
     v_reference,v_listing.id,to_jsonb(v_listing),auth.uid(),v_name,v_email,
-    extensions.digest(convert_to(v_email,'UTF8'),'sha256'),extensions.digest(convert_to(v_access_code,'UTF8'),'sha256'),
+    digest(convert_to(v_email,'UTF8'),'sha256'),digest(convert_to(v_access_code,'UTF8'),'sha256'),
     v_category,v_explanation,v_legal_basis,v_url,true,now()
   ) returning * into v_notice;
 
@@ -252,14 +252,14 @@ create or replace function public.get_marketplace_notice_status(p_case_reference
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_notice dv_market_private.listing_notices%rowtype; v_appeals jsonb;
 begin
   select * into v_notice
   from dv_market_private.listing_notices n
   where n.case_reference=upper(trim(coalesce(p_case_reference,'')))
-    and n.access_code_hash=extensions.digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256');
+    and n.access_code_hash=digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256');
   if not found then raise exception 'notice_access_denied'; end if;
 
   select coalesce(jsonb_agg(jsonb_build_object(
@@ -292,13 +292,13 @@ create or replace function public.submit_marketplace_notice_appeal(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_notice dv_market_private.listing_notices%rowtype; v_appeal dv_market_private.listing_notice_appeals%rowtype; v_grounds text:=trim(coalesce(p_grounds,''));
 begin
   select * into v_notice from dv_market_private.listing_notices n
   where n.case_reference=upper(trim(coalesce(p_case_reference,'')))
-    and n.access_code_hash=extensions.digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256')
+    and n.access_code_hash=digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256')
   for update;
   if not found then raise exception 'notice_access_denied'; end if;
   if v_notice.decided_at is null then raise exception 'notice_not_decided'; end if;
@@ -326,7 +326,7 @@ create or replace function public.get_owner_marketplace_notices(p_status text de
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_result jsonb;
 begin
@@ -356,7 +356,7 @@ create or replace function public.decide_marketplace_listing_notice(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_notice dv_market_private.listing_notices%rowtype; v_action text:=lower(trim(coalesce(p_action,''))); v_basis text:=lower(trim(coalesce(p_basis_kind,''))); v_reason text:=trim(coalesce(p_reason,'')); v_seller uuid;
 begin
@@ -410,7 +410,7 @@ create or replace function public.review_marketplace_notice_appeal(
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_appeal dv_market_private.listing_notice_appeals%rowtype; v_notice dv_market_private.listing_notices%rowtype; v_outcome text:=lower(trim(coalesce(p_outcome,''))); v_reason text:=trim(coalesce(p_reason,''));
 begin
@@ -453,7 +453,7 @@ create or replace function public.get_my_marketplace_moderation_cases()
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_uid uuid:=auth.uid(); v_result jsonb;
 begin
@@ -479,7 +479,7 @@ create or replace function public.submit_my_marketplace_moderation_appeal(p_noti
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public, dv_market_private
+set search_path = pg_catalog, public, dv_market_private, extensions
 as $$
 declare v_uid uuid:=auth.uid(); v_notice dv_market_private.listing_notices%rowtype; v_appeal dv_market_private.listing_notice_appeals%rowtype; v_grounds text:=trim(coalesce(p_grounds,''));
 begin

@@ -13,7 +13,7 @@ alter table public.market_orders add column if not exists provider_payment_ref t
 alter table public.market_orders add column if not exists paid_at timestamptz;
 alter table public.market_orders add column if not exists platform_fee_amount numeric;
 alter table public.market_orders add column if not exists seller_net_amount numeric;
-do $
+do $duelvanta_columns$
 begin
   if not exists(select 1 from pg_constraint where conname='market_orders_platform_fee_nonnegative' and conrelid='public.market_orders'::regclass) then
     alter table public.market_orders add constraint market_orders_platform_fee_nonnegative
@@ -24,7 +24,7 @@ begin
       check (seller_net_amount is null or seller_net_amount>=0);
   end if;
 end
-$;
+$duelvanta_columns$;
 
 create table if not exists dv_market_private.market_payment_configuration (
   singleton boolean primary key default true check (singleton),
@@ -349,7 +349,7 @@ create or replace function public.apply_market_stripe_event(
   p_event_id text,p_event_type text,p_account_id text,p_live_mode boolean,p_object_id text,
   p_payload_sha256 text,p_provider_created_at timestamptz,p_data jsonb
 ) returns jsonb language plpgsql security definer
-set search_path=pg_catalog,public,dv_market_private as $$
+set search_path=pg_catalog,public,dv_market_private,extensions as $
 declare a dv_market_private.market_payment_attempts%rowtype;v_status text:='ignored';v_note text:='event_not_actionable';
   v_amount integer:=coalesce((p_data->>'amount_cents')::integer,0);r record;v_tax jsonb;
 begin
@@ -416,7 +416,7 @@ begin
     insert into dv_market_private.market_financial_documents(attempt_id,seller_id,document_kind,document_status,issuer_role,currency,gross_cents,tax_treatment,immutable_snapshot,content_sha256,issued_at)
     values(a.id,a.seller_id,'provider_payment_evidence','issued','payment_provider','EUR',v_amount,'provider_event',
       jsonb_build_object('provider','stripe_connect','event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount,'currency','EUR','live_mode',false),
-      extensions.digest(convert_to(jsonb_build_object('event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount)::text,'UTF8'),'sha256'),coalesce(p_provider_created_at,now()))
+      digest(convert_to(jsonb_build_object('event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount)::text,'UTF8'),'sha256'),coalesce(p_provider_created_at,now()))
     on conflict(attempt_id,document_kind) do nothing;
     v_status:='applied';v_note:='payment_confirmed_by_provider';
   elsif p_event_type='payment_intent.payment_failed' then
@@ -488,7 +488,7 @@ grant execute on function public.mark_market_stripe_refund_submitted(uuid,text) 
 create or replace function public.issue_market_financial_document(
   p_attempt_id uuid,p_document_kind text,p_snapshot jsonb,p_net_cents integer,p_tax_cents integer,p_gross_cents integer
 ) returns uuid language plpgsql security definer
-set search_path=pg_catalog,dv_market_private as $$
+set search_path=pg_catalog,dv_market_private,extensions as $
 declare a dv_market_private.market_payment_attempts%rowtype;c dv_market_private.market_payment_configuration%rowtype;
   v_auth dv_market_private.market_invoice_authorizations%rowtype;v_id uuid;v_issuer text;v_version text;
 begin
@@ -507,7 +507,7 @@ begin
   insert into dv_market_private.market_financial_documents(attempt_id,seller_id,document_kind,document_status,issuer_role,
     authorization_version,net_cents,tax_cents,gross_cents,tax_treatment,immutable_snapshot,content_sha256,issued_at)
   values(a.id,a.seller_id,p_document_kind,'issued',v_issuer,v_version,p_net_cents,p_tax_cents,p_gross_cents,c.platform_fee_tax_treatment,
-    p_snapshot,extensions.digest(convert_to(p_snapshot::text,'UTF8'),'sha256'),now()) returning id into v_id;
+    p_snapshot,digest(convert_to(p_snapshot::text,'UTF8'),'sha256'),now()) returning id into v_id;
   return v_id;
 end
 $$;

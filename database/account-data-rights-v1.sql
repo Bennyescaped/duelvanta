@@ -162,7 +162,7 @@ begin
     'scope_note','Enthält eigene Daten und Vertragsdokumente. Fremde interne Kennungen, Zustellprotokolle und verschlüsselte Steuerwerte sind ausgeschlossen.'
   );
   insert into dv_market_private.user_data_export_events(user_id_hash,export_format,export_version,content_sha256)
-  values(extensions.digest(v_uid::text,'sha256'),'application/json','duelvanta-data-export-v1',extensions.digest(v_payload::text,'sha256'));
+  values(digest(v_uid::text,'sha256'),'application/json','duelvanta-data-export-v1',digest(v_payload::text,'sha256'));
   return v_payload;
 end
 $$;
