@@ -65,7 +65,10 @@
     TRADE_UI_FIXTURE.order.has_address=true;TRADE_UI_FIXTURE.order.shipping_quote_status='confirmed';
     await DV_TRADE_ORDERS.render();
     assert(!!document.querySelector('[data-o-stripe]')&&document.querySelector('[data-o-stripe-msg]').textContent.includes('Keine echte Abbuchung'),'Bestätigte Testorder zeigt ausschließlich den Stripe-Testmodus');
-    TRADE_UI_FIXTURE.order.has_address=false;TRADE_UI_FIXTURE.order.shipping_quote_status='review_required';
+    TRADE_UI_FIXTURE.order.payment_provider='stripe_connect';TRADE_UI_FIXTURE.order.payment_status='pending';
+    await DV_TRADE_ORDERS.render();
+    assert(!document.querySelector('[data-o-stripe]')&&document.getElementById('grid').textContent.includes('Bitte nicht erneut starten'),'Ausstehende Testzahlung kann nicht doppelt gestartet werden');
+    TRADE_UI_FIXTURE.order.payment_provider='manual_beta';TRADE_UI_FIXTURE.order.payment_status='not_required';TRADE_UI_FIXTURE.order.has_address=false;TRADE_UI_FIXTURE.order.shipping_quote_status='review_required';
 
     TRADE_UI_FIXTURE.order.status='shipped';TRADE_UI_FIXTURE.order.shipped_at='2026-09-09T10:00:00Z';
     TRADE_UI_FIXTURE.addNotification({notification_id:'ui-note-shipped',kind:'order_shipped',title:'ORDER VERSENDET',body:'UI-LOCAL-ONLY · Tracking hinterlegt',order_id:'ui-order',offer_id:null,listing_id:null,is_unread:true,read_at:null,created_at:'2026-09-09T10:05:00Z'});

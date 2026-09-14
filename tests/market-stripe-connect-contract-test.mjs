@@ -42,7 +42,9 @@ must(orders,'authorization:`Bearer ${session.access_token}`','order UI does not 
 must(orders,"target.hostname!=='checkout.stripe.com'",'order UI does not restrict the redirect to Stripe Checkout');
 must(orders,"result.live_mode!==false",'order UI does not reject a live-mode checkout response');
 must(orders,"sessionStorage.getItem(key)",'order UI does not preserve its checkout idempotency key');
-must(trade,'trade-orders.js?v=1.4','Stripe sandbox order UI cache version is not loaded');
+must(orders,"['not_required','failed'].includes(o.payment_status)",'pending payments can incorrectly start again');
+must(orders,'STRIPE-TESTZAHLUNG WIRD GEPRÜFT','pending payment status is not explained');
+must(trade,'trade-orders.js?v=1.5','Stripe sandbox order UI cache version is not loaded');
 must(workflow,'market-stripe-connect-contract-test.mjs','Step 9 contract test missing from CI');
 must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax is not checked in CI');
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');
