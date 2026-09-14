@@ -210,6 +210,7 @@ jobs:
           node --check api/market-stripe-refund.js
           node --check profile-data-rights.js
           node tests/trade-automation-contract-test.mjs
+          node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs
           node tests/trade-shipping-contract-test.mjs
           node tests/trade-shipping-null-fallback-contract-test.mjs
