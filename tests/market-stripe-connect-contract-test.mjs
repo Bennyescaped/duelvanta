@@ -55,8 +55,15 @@ must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax 
 
 const digestPatch=await read('database/pgcrypto-digest-schema-hardening-v1.sql');
 for(const signature of ['apply_market_stripe_event','issue_market_financial_document','get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])must(digestPatch,signature,'staging pgcrypto patch misses '+signature);
-assert.match(sql,/create or replace function public\\.apply_market_stripe_event\\([\\s\\S]+?set search_path=pg_catalog,public,dv_market_private,extensions/,'payment webhook cannot resolve Supabase pgcrypto schema');
-assert.match(sql,/create or replace function public\\.issue_market_financial_document\\([\\s\\S]+?set search_path=pg_catalog,dv_market_private,extensions/,'financial document function cannot resolve Supabase pgcrypto schema');
-for(const fn of ['get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])assert.match(notice,new RegExp('create or replace function public\\\\.'+fn+'\\\\([\\\\s\\\\S]+?set search_path = pg_catalog, public, dv_market_private, extensions'),'notice function cannot resolve Supabase pgcrypto schema: '+fn);
+const functionBlock=(source,name)=>{
+  const begin=source.indexOf('create or replace function public.'+name+'(');
+  assert.notEqual(begin,-1,'missing function '+name);
+  const finish=source.indexOf('\n$$;',begin);
+  assert.notEqual(finish,-1,'unterminated function '+name);
+  return source.slice(begin,finish+4);
+};
+must(functionBlock(sql,'apply_market_stripe_event'),'set search_path=pg_catalog,public,dv_market_private,extensions','payment webhook cannot resolve Supabase pgcrypto schema');
+must(functionBlock(sql,'issue_market_financial_document'),'set search_path=pg_catalog,dv_market_private,extensions','financial document function cannot resolve Supabase pgcrypto schema');
+for(const fn of ['get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])must(functionBlock(notice,fn),'set search_path = pg_catalog, public, dv_market_private, extensions','notice function cannot resolve Supabase pgcrypto schema: '+fn);
 
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');
