@@ -24,6 +24,7 @@
       return {data:{order_id:order.order_id,quantity:args.p_quantity,item_total:660,contract_snapshot_id:'ui-contract',contract_classification:'b2c',confirmation_sha256:'abc123'},error:null};
     }
     if(name==='get_my_market_orders')return {data:[order],error:null};
+    if(name==='get_market_payment_sandbox_status')return {data:{provider:'stripe_connect',charge_model:'direct_charge',sandbox_enabled:true,live_mode:false},error:null};
     if(name==='get_market_order_items')return {data:[{item_title:'Display UI-Prüfung',product_kind:'sealed',sealed_category:'display',quantity:3,item_amount:660,weight_grams:1800,deal_status:order.status==='completed'?'completed':'accepted'}],error:null};
     if(name==='get_my_market_order_contract_documents')return {data:[{snapshot_id:'ui-contract',snapshot_version:'checkout-contract-v1',contract_classification:'b2c',confirmation_text:'DUELVANTA BESTELLBESTÄTIGUNG\nOrder: UI-LOCAL-ONLY',content_sha256:'abc123'}],error:null};
     if(name==='get_my_trade_actions')return {data:actions(),error:null};

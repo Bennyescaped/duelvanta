@@ -62,6 +62,10 @@
     document.querySelector('[data-o-contract]').click();await wait(()=>document.getElementById('dvODDownload'));
     assert(document.getElementById('dvODBody').textContent.includes('checkout-contract-v1'),'Bestellbestätigung zeigt die unveränderbare Dokumentversion');
     document.getElementById('dvOrderDialog').close();
+    TRADE_UI_FIXTURE.order.has_address=true;TRADE_UI_FIXTURE.order.shipping_quote_status='confirmed';
+    await DV_TRADE_ORDERS.render();
+    assert(!!document.querySelector('[data-o-stripe]')&&document.querySelector('[data-o-stripe-msg]').textContent.includes('Keine echte Abbuchung'),'Bestätigte Testorder zeigt ausschließlich den Stripe-Testmodus');
+    TRADE_UI_FIXTURE.order.has_address=false;TRADE_UI_FIXTURE.order.shipping_quote_status='review_required';
 
     TRADE_UI_FIXTURE.order.status='shipped';TRADE_UI_FIXTURE.order.shipped_at='2026-09-09T10:00:00Z';
     TRADE_UI_FIXTURE.addNotification({notification_id:'ui-note-shipped',kind:'order_shipped',title:'ORDER VERSENDET',body:'UI-LOCAL-ONLY · Tracking hinterlegt',order_id:'ui-order',offer_id:null,listing_id:null,is_unread:true,read_at:null,created_at:'2026-09-09T10:05:00Z'});

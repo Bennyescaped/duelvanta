@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
-const [sql,lib,onboarding,checkout,webhook,refund,workflow]=await Promise.all([
+const [sql,lib,onboarding,checkout,webhook,refund,orders,trade,workflow]=await Promise.all([
   'database/market-stripe-connect-sandbox-v1.sql','api/market-stripe-lib.js','api/market-stripe-onboarding.js',
-  'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','.github/workflows/scanner-v16-check.yml'
+  'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','trade-orders.js','trade.html','.github/workflows/scanner-v16-check.yml'
 ].map(read));
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 for(const table of ['market_payment_configuration','market_stripe_accounts','market_payment_attempts','market_payment_allocations','market_stripe_events','market_refund_requests','market_invoice_authorizations','market_financial_documents'])must(sql,table,'missing '+table);
@@ -36,6 +36,13 @@ must(webhook,'verifyStripeSignature','webhook signature is not verified');
 must(webhook,"event.livemode!==false",'live webhook is not rejected');
 must(refund,'confirmed:false','refund response could claim provider confirmation prematurely');
 must(lib,'timingSafeEqual','webhook signature comparison is not timing safe');
+must(orders,"db.rpc('get_market_payment_sandbox_status')",'order UI does not check the database sandbox switch');
+must(orders,"fetch('/api/market-stripe-checkout'",'order UI is not wired to the authenticated Stripe checkout API');
+must(orders,'authorization:`Bearer ${session.access_token}`','order UI does not authenticate the test buyer');
+must(orders,"target.hostname!=='checkout.stripe.com'",'order UI does not restrict the redirect to Stripe Checkout');
+must(orders,"result.live_mode!==false",'order UI does not reject a live-mode checkout response');
+must(orders,"sessionStorage.getItem(key)",'order UI does not preserve its checkout idempotency key');
+must(trade,'trade-orders.js?v=1.4','Stripe sandbox order UI cache version is not loaded');
 must(workflow,'market-stripe-connect-contract-test.mjs','Step 9 contract test missing from CI');
 must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax is not checked in CI');
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');

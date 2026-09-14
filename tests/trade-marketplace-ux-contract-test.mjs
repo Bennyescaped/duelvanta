@@ -11,7 +11,7 @@ const must=(source,text,message)=>assert.ok(source.includes(text),message);
 must(html,'trade-marketplace-ux.css?v=1.1','Marketplace UX stylesheet is not loaded');
 must(html,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not loaded');
 must(html,'trade-checkout.js?v=1.1','Checkout cache version is stale');
-must(html,'trade-orders.js?v=1.3','Orders cache version is stale');
+must(html,'trade-orders.js?v=1.4','Orders cache version is stale');
 must(html,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
 for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
 for(const view of ['market','mine','offers','orders','deals','shipping_profiles'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
@@ -46,7 +46,7 @@ must(css,'.dvShippingReuse','Reused shipping feedback is missing');
 must(css,'.wrap:not([data-trade-view="market"]) .daily','Daily Deal must only occupy the Marketplace view');
 
 const orders=await readFile(new URL('../trade-orders.js',import.meta.url),'utf8');
-must(orders,"version:'1.3'",'Orders module version mismatch');
+must(orders,"version:'1.4'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
