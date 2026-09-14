@@ -31,5 +31,5 @@ module.exports=async function handler(req,res){
       p_live_mode:event.livemode,p_object_id:objectId,p_payload_sha256:crypto.createHash('sha256').update(bytes).digest('hex'),
       p_provider_created_at:event.created?new Date(event.created*1000).toISOString():null,p_data:data});
     return json(res,200,{received:true,supported:supported.includes(event.type),result});
-  }catch(error){return json(res,400,{error:String(error.message||error).slice(0,180)})}
+  }catch(error){const message=String(error.message||error).slice(0,180);console.error('MARKET_STRIPE_WEBHOOK',message);return json(res,400,{error:message})}
 };
