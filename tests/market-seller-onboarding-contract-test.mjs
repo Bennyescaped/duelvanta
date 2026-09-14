@@ -42,7 +42,7 @@ must(js,"location.hostname.endsWith('.vercel.app')&&SB_URL.includes('xhmjxrcskfh
 must(js,"fetch('/api/market-stripe-onboarding'",'Stripe sandbox onboarding API is not wired');
 must(js,"authorization:`Bearer ${session.access_token}`",'Stripe sandbox onboarding must use the authenticated seller session');
 must(js,"result.live_mode!==false",'Stripe sandbox onboarding must reject a live-mode response');
-must(js,"/^https:\\/\\/connect\\.stripe\\.com\\//",'Stripe onboarding redirect must be restricted to Stripe HTTPS');
+must(js,"/^https:\\/\\/(connect|accounts)\\.stripe\\.com\\//",'Stripe onboarding redirect must be restricted to Stripe HTTPS');
 
 must(sql,"create schema if not exists dv_market_private",'private compliance schema is missing');
 must(sql,"identifier_ciphertext bytea not null",'tax identifier ciphertext boundary is missing');

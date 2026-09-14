@@ -22,9 +22,9 @@ try{
     requests.push({url:String(url),options});
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER,email:'seller@example.test'}),{status:200});
     if(String(url).includes('prepare_market_stripe_onboarding'))return new Response(JSON.stringify({onboarding_request_id:UUID,onboarding_state:'prepared',stripe_account_id:null,seller_type:'trader',country_code:'DE'}),{status:200});
-    if(String(url).includes('/v2/core/accounts'))return new Response(JSON.stringify({id:'acct_TestSeller'}),{status:200});
+    if(String(url).includes('/v2/core/accounts'))return new Response(JSON.stringify({id:'acct_TestSeller',livemode:false}),{status:200});
     if(String(url).includes('register_market_stripe_test_account'))return new Response('',{status:200});
-    if(String(url).includes('/v1/account_links'))return new Response(JSON.stringify({object:'account_link',url:'https://connect.stripe.test/onboard'}),{status:200});
+    if(String(url).includes('/v2/core/account_links'))return new Response(JSON.stringify({object:'v2.core.account_link',livemode:false,url:'https://accounts.stripe.com/onboard'}),{status:200});
     if(String(url).includes('mark_market_stripe_onboarding_link_created'))return new Response('',{status:200});
     throw new Error('unexpected_fetch_'+url);
   };
@@ -32,13 +32,44 @@ try{
   assert.equal(onboarded.statusCode,200);assert.equal(onboarded.body.live_mode,false);
   const v2=requests.find(r=>r.url.includes('/v2/core/accounts'));assert.equal(v2.options.headers['stripe-version'],'2026-08-26.dahlia');
   const accountPayload=JSON.parse(v2.options.body);assert.deepEqual(accountPayload.identity,{country:'DE'});assert.equal(accountPayload.dashboard,'full');assert.equal(accountPayload.defaults.responsibilities.losses_collector,'stripe');
-  assert.ok(requests.some(r=>r.url.includes('/v1/account_links')));
+  assert.ok(requests.some(r=>r.url.includes('/v2/core/account_links')));
   const retried=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:USER}},retried);
   assert.equal(retried.statusCode,200);
   const accountCalls=requests.filter(r=>r.url.includes('/v2/core/accounts'));
   assert.equal(accountCalls.length,2);
   assert.equal(accountCalls[0].options.headers['idempotency-key'],`duelvanta-account-${UUID}`);
   assert.equal(accountCalls[1].options.headers['idempotency-key'],accountCalls[0].options.headers['idempotency-key']);
+  const linkCall=requests.find(r=>r.url.includes('/v2/core/account_links'));
+  assert.equal(linkCall.options.headers['stripe-version'],'2026-08-26.dahlia');
+  assert.deepEqual(JSON.parse(linkCall.options.body).use_case,{type:'account_onboarding',account_onboarding:{configurations:['merchant'],refresh_url:'https://review.example.test/seller-onboarding.html?stripe=refresh',return_url:'https://review.example.test/seller-onboarding.html?stripe=return'}});
+  const healthyFetch=global.fetch;
+  for(const failures of [1,2]){
+    let attempts=0,providerCalls=0;const bodies=[];
+    global.fetch=async(url,options)=>{
+      if(String(url).includes('prepare_market_stripe_onboarding')){attempts++;bodies.push(options.body);if(attempts<=failures)return new Response('',{status:504})}
+      if(String(url).includes('api.stripe.com'))providerCalls++;
+      return healthyFetch(url,options);
+    };
+    const retriedTimeout=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},retriedTimeout);
+    assert.equal(attempts,2);assert.equal(bodies[0],bodies[1]);assert.equal(retriedTimeout.statusCode,failures===1?200:409);
+    if(failures===2)assert.equal(providerCalls,0);
+  }
+  global.fetch=async()=>{throw new Error('configuration_checks_must_not_call_network')};
+  const configNames=['SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','DUELVANTA_PUBLIC_ORIGIN'];
+  const savedConfig=Object.fromEntries(configNames.map(name=>[name,process.env[name]]));
+  for(const name of configNames)delete process.env[name];
+  const configResponse=response();await onboarding({method:'POST',headers:{},body:{}},configResponse);
+  assert.equal(configResponse.statusCode,503);assert.deepEqual(configResponse.body.missing,configNames);
+  Object.assign(process.env,savedConfig);
+  for(const badLink of [
+    {object:'v2.core.account_link',livemode:true,url:'https://accounts.stripe.com/onboard'},
+    {object:'v2.core.account_link',livemode:false,url:'https://accounts.stripe.com.evil.test/onboard'},
+    {object:'account_link',livemode:false,url:'https://accounts.stripe.com/onboard'}
+  ]){
+    global.fetch=async(url,options)=>String(url).includes('/v2/core/account_links')?new Response(JSON.stringify(badLink),{status:200}):healthyFetch(url,options);
+    const bad=response();await onboarding({method:'POST',headers:{authorization:'Bearer seller-token'},body:{request_key:UUID}},bad);
+    assert.equal(bad.statusCode,409);assert.equal(bad.body.error,'stripe_account_link_invalid');
+  }
 
 
   for(const country_code of [undefined,'','Germany','de']){
