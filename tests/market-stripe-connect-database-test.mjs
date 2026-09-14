@@ -33,7 +33,8 @@ try{
       language plpgsql security definer as $$declare v uuid;begin insert into dv_market_private.tax_test_corrections(original_id,event_key) values($1,$2) returning id into v;return jsonb_build_object('event_id',v);end$$;
     insert into auth.users values('${BUYER}','buyer@example.test'),('${SELLER}','seller@example.test');
     insert into public.market_seller_accounts values('${SELLER}','trader','active','AT');
-    insert into public.market_orders values('${ORDER}','DV-TEST','${SELLER}','${BUYER}','open',null,'confirmed','manual_beta','not_required',0,105,'EUR',null,null,0,0,'not_required',0,null,now());
+    insert into public.market_orders(id,order_number,seller_id,buyer_id,status,shipped_at,shipping_quote_status,payment_provider,payment_status,paid_amount,total_amount,currency,refund_status,refund_amount,provider_refund_ref,updated_at)
+      values('${ORDER}','DV-TEST','${SELLER}','${BUYER}','open',null,'confirmed','manual_beta','not_required',0,105,'EUR','not_required',0,null,now());
     insert into public.market_deals values('${DEAL1}','${ORDER}','${SELLER}','${BUYER}','manual_beta','not_required',null,null,now()),
       ('${DEAL2}','${ORDER}','${SELLER}','${BUYER}','manual_beta','not_required',null,null,now());
     insert into dv_market_private.market_contract_snapshots(id,deal_id,order_id,goods_total) values('${SNAP1}','${DEAL1}','${ORDER}',40),('${SNAP2}','${DEAL2}','${ORDER}',60);
