@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 
 const html=await readFile(new URL('../seller-onboarding.html',import.meta.url),'utf8');
@@ -8,6 +9,16 @@ const admin=await readFile(new URL('../admin.html',import.meta.url),'utf8');
 const adminReview=await readFile(new URL('../admin-seller-review.js',import.meta.url),'utf8');
 const sql=await readFile(new URL('../database/market-seller-compliance-v1.sql',import.meta.url),'utf8');
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
+
+// Exercise the actual visibility function: both approved seller types qualify,
+// while non-staging previews and unapproved accounts stay hidden.
+const paintSource=js.split('\n').find(line=>line.startsWith('function paint()'));
+for(const preview of [true,false])for(const seller_type of ['private','trader','unclassified'])for(const onboarding_status of ['active','draft','pending_review','rejected','suspended']){
+  let hidden;
+  const context={stripeSandboxPreview:preview,account:{onboarding_status},sellerType:()=>seller_type,status:()=>{},document:{querySelectorAll:()=>[]},$:id=>({classList:{toggle:(name,value)=>{if(id==='stripeSandboxPanel')hidden=value}},querySelectorAll:()=>[]})};
+  vm.runInNewContext(paintSource+';paint();',context);
+  assert.equal(hidden,!(preview&&['private','trader'].includes(seller_type)&&onboarding_status==='active'),`sandbox visibility: ${preview}/${seller_type}/${onboarding_status}`);
+}
 
 must(html,'data-seller-type="private"','private seller choice is missing');
 must(html,'data-seller-type="trader"','trader seller choice is missing');
