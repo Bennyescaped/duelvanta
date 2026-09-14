@@ -47,4 +47,20 @@ must(orders,'STRIPE-TESTZAHLUNG WIRD GEPRÜFT','pending payment status is not ex
 must(trade,'trade-orders.js?v=1.5','Stripe sandbox order UI cache version is not loaded');
 must(workflow,'market-stripe-connect-contract-test.mjs','Step 9 contract test missing from CI');
 must(workflow,'node --check api/market-stripe-onboarding.js','onboarding syntax is not checked in CI');
+
+const digestSqlFiles=[
+  'database/account-data-rights-v1.sql',
+  'database/market-checkout-compliance-v1.sql',
+  'database/market-notice-action-v1.sql',
+  'database/market-stripe-connect-sandbox-v1.sql',
+  'database/market-tax-transparency-v1.sql'
+];
+for(const name of digestSqlFiles){
+  const source=await read(name);
+  assert.ok(!/(^|[^.A-Za-z0-9_])digest\\s*\\(/m.test(source),name+' contains an unqualified pgcrypto digest() call');
+  must(source,'extensions.digest(','schema-qualified pgcrypto digest() call missing in '+name);
+}
+const digestPatch=await read('database/pgcrypto-digest-schema-hardening-v1.sql');
+for(const signature of ['apply_market_stripe_event','issue_market_financial_document','get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])must(digestPatch,signature,'staging pgcrypto patch misses '+signature);
+
 console.log('PASS: Stripe Connect stays test-only, backend-bound and financially truthful');

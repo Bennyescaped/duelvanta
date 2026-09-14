@@ -211,7 +211,7 @@ begin
     'payment_notice','Keine integrierte Onlinezahlung. Die Bestellung begründet dennoch eine Zahlungspflicht gegenüber dem Verkäufer.'
   );
   return v_review || jsonb_build_object(
-    'checkout_hash',encode(digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex')
+    'checkout_hash',encode(extensions.digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex')
   );
 end
 $$;
@@ -332,7 +332,7 @@ begin
     v_seller,jsonb_build_object('role','Marketplace-Vermittler','name','Benjamin Fritz – DUELVANTA',
       'street_line1','Landhausstraße 12','postal_code','75399','city','Unterreichenbach','country_code','DE','email','info@duelvanta.de'),
     v_product,v_qty,v_unit,v_goods,new.shipping_method,v_shipping,v_total,'EUR','manual_beta',coalesce(new.accepted_at,now()),
-    v_text,digest(convert_to(v_text,'UTF8'),'sha256')
+    v_text,extensions.digest(convert_to(v_text,'UTF8'),'sha256')
   ) returning id into v_snapshot;
 
   insert into dv_market_private.marketplace_message_outbox(

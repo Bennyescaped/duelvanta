@@ -212,7 +212,7 @@ begin
 
   select count(*) into v_recent
   from dv_market_private.listing_notices n
-  where n.reporter_email_hash=digest(convert_to(v_email,'UTF8'),'sha256')
+  where n.reporter_email_hash=extensions.digest(convert_to(v_email,'UTF8'),'sha256')
     and n.submitted_at > now()-interval '1 hour';
   if v_recent >= 5 then raise exception 'notice_rate_limit'; end if;
 
@@ -222,7 +222,7 @@ begin
     good_faith_confirmed,acknowledged_at
   ) values (
     v_reference,v_listing.id,to_jsonb(v_listing),auth.uid(),v_name,v_email,
-    digest(convert_to(v_email,'UTF8'),'sha256'),digest(convert_to(v_access_code,'UTF8'),'sha256'),
+    extensions.digest(convert_to(v_email,'UTF8'),'sha256'),extensions.digest(convert_to(v_access_code,'UTF8'),'sha256'),
     v_category,v_explanation,v_legal_basis,v_url,true,now()
   ) returning * into v_notice;
 
@@ -259,7 +259,7 @@ begin
   select * into v_notice
   from dv_market_private.listing_notices n
   where n.case_reference=upper(trim(coalesce(p_case_reference,'')))
-    and n.access_code_hash=digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256');
+    and n.access_code_hash=extensions.digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256');
   if not found then raise exception 'notice_access_denied'; end if;
 
   select coalesce(jsonb_agg(jsonb_build_object(
@@ -298,7 +298,7 @@ declare v_notice dv_market_private.listing_notices%rowtype; v_appeal dv_market_p
 begin
   select * into v_notice from dv_market_private.listing_notices n
   where n.case_reference=upper(trim(coalesce(p_case_reference,'')))
-    and n.access_code_hash=digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256')
+    and n.access_code_hash=extensions.digest(convert_to(upper(trim(coalesce(p_access_code,''))),'UTF8'),'sha256')
   for update;
   if not found then raise exception 'notice_access_denied'; end if;
   if v_notice.decided_at is null then raise exception 'notice_not_decided'; end if;

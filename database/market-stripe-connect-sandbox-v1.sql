@@ -397,7 +397,7 @@ begin
     insert into dv_market_private.market_financial_documents(attempt_id,seller_id,document_kind,document_status,issuer_role,currency,gross_cents,tax_treatment,immutable_snapshot,content_sha256,issued_at)
     values(a.id,a.seller_id,'provider_payment_evidence','issued','payment_provider','EUR',v_amount,'provider_event',
       jsonb_build_object('provider','stripe_connect','event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount,'currency','EUR','live_mode',false),
-      digest(convert_to(jsonb_build_object('event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount)::text,'UTF8'),'sha256'),coalesce(p_provider_created_at,now()))
+      extensions.digest(convert_to(jsonb_build_object('event_id',p_event_id,'payment_intent_id',p_object_id,'amount_cents',v_amount)::text,'UTF8'),'sha256'),coalesce(p_provider_created_at,now()))
     on conflict(attempt_id,document_kind) do nothing;
     v_status:='applied';v_note:='payment_confirmed_by_provider';
   elsif p_event_type='payment_intent.payment_failed' then
@@ -488,7 +488,7 @@ begin
   insert into dv_market_private.market_financial_documents(attempt_id,seller_id,document_kind,document_status,issuer_role,
     authorization_version,net_cents,tax_cents,gross_cents,tax_treatment,immutable_snapshot,content_sha256,issued_at)
   values(a.id,a.seller_id,p_document_kind,'issued',v_issuer,v_version,p_net_cents,p_tax_cents,p_gross_cents,c.platform_fee_tax_treatment,
-    p_snapshot,digest(convert_to(p_snapshot::text,'UTF8'),'sha256'),now()) returning id into v_id;
+    p_snapshot,extensions.digest(convert_to(p_snapshot::text,'UTF8'),'sha256'),now()) returning id into v_id;
   return v_id;
 end
 $$;
