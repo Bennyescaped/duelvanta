@@ -349,7 +349,7 @@ create or replace function public.apply_market_stripe_event(
   p_event_id text,p_event_type text,p_account_id text,p_live_mode boolean,p_object_id text,
   p_payload_sha256 text,p_provider_created_at timestamptz,p_data jsonb
 ) returns jsonb language plpgsql security definer
-set search_path=pg_catalog,public,dv_market_private,extensions as $
+set search_path=pg_catalog,public,dv_market_private,extensions as $$
 declare a dv_market_private.market_payment_attempts%rowtype;v_status text:='ignored';v_note text:='event_not_actionable';
   v_amount integer:=coalesce((p_data->>'amount_cents')::integer,0);r record;v_tax jsonb;
 begin
@@ -488,7 +488,7 @@ grant execute on function public.mark_market_stripe_refund_submitted(uuid,text) 
 create or replace function public.issue_market_financial_document(
   p_attempt_id uuid,p_document_kind text,p_snapshot jsonb,p_net_cents integer,p_tax_cents integer,p_gross_cents integer
 ) returns uuid language plpgsql security definer
-set search_path=pg_catalog,dv_market_private,extensions as $
+set search_path=pg_catalog,dv_market_private,extensions as $$
 declare a dv_market_private.market_payment_attempts%rowtype;c dv_market_private.market_payment_configuration%rowtype;
   v_auth dv_market_private.market_invoice_authorizations%rowtype;v_id uuid;v_issuer text;v_version text;
 begin
