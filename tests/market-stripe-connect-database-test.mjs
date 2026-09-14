@@ -18,8 +18,8 @@ try{
     create table public.market_listings(id uuid primary key,seller_id uuid,status text);
     create table public.market_offers(id uuid primary key,seller_id uuid,buyer_id uuid,status text);
     create table public.market_orders(id uuid primary key,order_number text,seller_id uuid,buyer_id uuid,status text,shipped_at timestamptz,
-      shipping_quote_status text,payment_provider text,payment_status text,paid_amount numeric,total_amount numeric,currency text,provider_payment_ref text,
-      paid_at timestamptz,platform_fee_amount numeric,seller_net_amount numeric,refund_status text,refund_amount numeric,provider_refund_ref text,updated_at timestamptz);
+      shipping_quote_status text,payment_provider text,payment_status text,paid_amount numeric,total_amount numeric,currency text,
+      refund_status text,refund_amount numeric,provider_refund_ref text,updated_at timestamptz);
     create table public.market_deals(id uuid primary key,order_id uuid,seller_id uuid,buyer_id uuid,payment_provider text,payment_status text,
       provider_payment_ref text,paid_at timestamptz,updated_at timestamptz);
     create table public.market_order_cases(id uuid primary key,order_id uuid,status text);

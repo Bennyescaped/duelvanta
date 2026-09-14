@@ -21,6 +21,11 @@ must(sql,'market_payment_evidence_is_immutable','provider evidence is mutable');
 must(sql,'get_my_market_payment_records','payment data access/export boundary is missing');
 must(sql,"'open_payment_processing'",'account erasure can race payment processing');
 must(sql,'market_stripe_onboarding_requests','idempotent connected-account onboarding is missing');
+must(sql,'alter table public.market_orders add column if not exists provider_payment_ref text','order provider payment reference column is missing');
+must(sql,'alter table public.market_orders add column if not exists paid_at timestamptz','order paid timestamp column is missing');
+must(sql,'alter table public.market_orders add column if not exists platform_fee_amount numeric','order platform fee column is missing');
+must(sql,'alter table public.market_orders add column if not exists seller_net_amount numeric','order seller net column is missing');
+
 must(sql,"p_event_type='account.updated'",'connected-account status webhook is missing');
 assert.ok(!/grant execute on function public\.(prepare_market_stripe_payment|apply_market_stripe_event|prepare_market_stripe_full_refund)[^;]+authenticated/.test(sql),'browser role received payment backend authority');
 for(const source of [lib,onboarding,checkout,webhook,refund])assert.ok(!source.includes('sk_test_123')&&!source.includes('whsec_123'),'secret-looking test value committed');

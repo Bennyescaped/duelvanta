@@ -7,6 +7,25 @@ create extension if not exists pgcrypto;
 create schema if not exists dv_market_private;
 revoke all on schema dv_market_private from public, anon, authenticated;
 
+-- Public order fields written only after a verified provider success event.
+-- They are additive because the base order schema predates the Stripe sandbox review.
+alter table public.market_orders add column if not exists provider_payment_ref text;
+alter table public.market_orders add column if not exists paid_at timestamptz;
+alter table public.market_orders add column if not exists platform_fee_amount numeric;
+alter table public.market_orders add column if not exists seller_net_amount numeric;
+do $
+begin
+  if not exists(select 1 from pg_constraint where conname='market_orders_platform_fee_nonnegative' and conrelid='public.market_orders'::regclass) then
+    alter table public.market_orders add constraint market_orders_platform_fee_nonnegative
+      check (platform_fee_amount is null or platform_fee_amount>=0);
+  end if;
+  if not exists(select 1 from pg_constraint where conname='market_orders_seller_net_nonnegative' and conrelid='public.market_orders'::regclass) then
+    alter table public.market_orders add constraint market_orders_seller_net_nonnegative
+      check (seller_net_amount is null or seller_net_amount>=0);
+  end if;
+end
+$;
+
 create table if not exists dv_market_private.market_payment_configuration (
   singleton boolean primary key default true check (singleton),
   provider text not null default 'stripe_connect' check (provider='stripe_connect'),
