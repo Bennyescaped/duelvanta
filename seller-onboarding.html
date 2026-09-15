@@ -51,6 +51,7 @@
         <div class="step">SCHRITT 2</div>
         <h2 id="detailsHeading">Verkäuferdaten</h2>
         <p class="privacyNote"><strong>Geschützt gespeichert:</strong> Geburtsdatum, Privatadresse und steuerliche Angaben erscheinen niemals in deinem öffentlichen Profil. Bei gewerblichen Verkäufern werden nur die gesetzlich erforderlichen Anbieterangaben veröffentlicht.</p>
+        <p class="privacyNote"><strong>Release 1:</strong> Verkäufer müssen ihren Wohnsitz bzw. Unternehmenssitz in Deutschland haben.</p>
 
         <form id="sellerForm" novalidate>
           <div class="formGrid">
@@ -94,8 +95,6 @@
               <label for="countryCode">Land der Anschrift</label>
               <select id="countryCode" autocomplete="country" required>
                 <option value="DE">Deutschland</option>
-                <option value="AT">Österreich</option>
-                <option value="CH">Schweiz</option>
               </select>
             </div>
           </div>
@@ -183,7 +182,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/api/compliance-message-dispatch?runtime_config=1"></script>
-  <script src="seller-onboarding.js?v=1.0"></script>
+  <script src="seller-onboarding.js?v=1.1"></script>
   <script src="site-nav.js"></script>
 </body>
 </html>
