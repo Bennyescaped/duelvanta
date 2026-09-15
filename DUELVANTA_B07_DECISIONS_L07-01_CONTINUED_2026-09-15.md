@@ -155,4 +155,31 @@ Zwingend anwaltlich zu prüfen bleiben insbesondere:
 - Verhältnis von Sofortmaßnahmen zu Vorankündigung, Anhörung und nachgelagerter Begründung;
 - Auswirkungen von Sperre oder Beendigung auf laufende Verträge, Zahlungen, Refunds, Datenzugang und Aufbewahrung.
 
+## Entscheidung L07-01/14 – Laufzeit und Beendigung des Plattformvertrags
+
+**Betreiberentscheidung:**
+
+- Der DUELVANTA-Plattformvertrag soll im ersten kommerziellen Marketplace-Release unbefristet laufen.
+- Nutzer sollen ihren Plattformvertrag beziehungsweise ihr DUELVANTA-Konto grundsätzlich jederzeit beenden können; konkrete Form, Wirksamkeitszeitpunkt und gegebenenfalls rechtlich erforderliche Kündigungsmechanismen bleiben extern freizugeben.
+- Eine Kündigung oder Kontolöschung beseitigt bereits entstandene Kauf-, Tausch-, Zahlungs-, Provisions-, Rückabwicklungs-, Beschwerde- oder sonstige gesetzliche beziehungsweise vertragliche Ansprüche nicht.
+- Aktive, noch nicht vertraglich gebundene Verkaufs- und Tauschangebote sollen bei Wirksamwerden der Beendigung deaktiviert beziehungsweise beendet werden.
+- Bereits geschlossene Kauf- oder Tauschverträge müssen trotz Kontobeendigung ordnungsgemäß weiter abgewickelt werden können.
+- Offene DUELVANTA-Provisionen sowie sonstige bereits entstandene Zahlungs- und Abwicklungspflichten bleiben bestehen.
+- Vertrags-, Steuer-, Zahlungs-, Moderations- und sonstige Daten dürfen beziehungsweise müssen trotz Kontobeendigung soweit und solange weiter gespeichert werden, wie dies nach dem später freigegebenen Rechts-, Steuer- und Aufbewahrungsmodell erforderlich ist.
+- DUELVANTA darf den Plattformvertrag nach den freigegebenen Moderations-, Sperr- und Beendigungsregeln ebenfalls ordentlich beziehungsweise bei wichtigem Grund außerordentlich beenden. Die konkreten Voraussetzungen, Fristen, Vorankündigungen und Begründungspflichten werden nicht durch diese Betreiberentscheidung vorweggenommen.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die vorhandene Konto-/Datenlösch- und Retention-Architektur kann als technische Grundlage erhalten bleiben. Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release müssen Kontobeendigung, Angebotsdeaktivierung, laufende Vertragsabwicklung, Datenaufbewahrung und spätere endgültige Löschung konsistent mit dem extern freigegebenen Modell umgesetzt und nachgewiesen werden.
+
+### Externer Freigabepunkt
+
+Zwingend extern zu prüfen bleiben insbesondere:
+
+- Form, Zeitpunkt und Wirksamkeit der Nutzerkündigung sowie gegebenenfalls gesetzlich erforderliche elektronische Kündigungsmechanismen;
+- zulässige ordentliche und außerordentliche Beendigung durch DUELVANTA;
+- besondere Anforderungen bei gewerblichen Verkäufern, insbesondere eine mögliche P2B-Anwendbarkeit und daraus folgende Frist-/Begründungsregeln;
+- Auswirkungen einer Beendigung auf aktive Listings, laufende Verträge, Zahlungen, Provisionen, Refunds und Beschwerden;
+- datenschutz-, steuer- und handelsrechtliche Aufbewahrung nach Kontobeendigung sowie anschließende Löschung beziehungsweise Anonymisierung.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
