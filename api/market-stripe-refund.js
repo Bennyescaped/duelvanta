@@ -10,7 +10,7 @@ module.exports=async function handler(req,res){
   if(!/^[0-9a-f-]{36}$/i.test(orderId)||!/^[0-9a-f-]{36}$/i.test(requestKey))return json(res,400,{error:'invalid_request'});
   try{
     const prepared=await rpc('prepare_market_stripe_full_refund',{p_order_id:orderId,p_request_key:requestKey,p_reason:reason});
-    if(prepared?.live_mode!==mode.liveMode)throw new Error('stripe_database_mode_mismatch');
+    if(mode.liveMode?prepared?.live_mode!==true:prepared?.live_mode===true)throw new Error('stripe_database_mode_mismatch');
     const refund=await stripeRequest('refunds',{payment_intent:prepared.payment_intent_id,reason:'requested_by_customer',metadata:{duelvanta_refund_request_id:prepared.request_id}},
       {account:prepared.stripe_account_id,idempotencyKey:`duelvanta-refund-${requestKey}`});
     await rpc('mark_market_stripe_refund_submitted',{p_request_id:prepared.request_id,p_refund_id:refund.id});
