@@ -64,7 +64,9 @@ try{
   await assert.rejects(()=>db.query(`select public.prepare_market_stripe_payment('${ORDER}','${BUYER}','87000000-0000-4000-8000-000000000001')`),/stripe_provider_disabled/);
 
   const wrongMode=json((await db.query(`select public.apply_market_stripe_event('evt_TestAgainstLive','payment_intent.payment_failed','acct_LiveSeller',false,'pi_LiveIntent',repeat('c',64),now(),'${JSON.stringify({attempt_id:prepared.attempt_id})}'::jsonb) value`)).rows[0].value);
-  assert.deepEqual({status:wrongMode.status,note:wrongMode.note},{status:'ignored',note:'attempt_not_found'});
+  assert.equal(wrongMode.status,'ignored');
+  const wrongModeNote=(await db.query(`select processing_note from dv_market_private.market_stripe_events where stripe_event_id='evt_TestAgainstLive'`)).rows[0].processing_note;
+  assert.equal(wrongModeNote,'attempt_not_found','wrong-mode provider event must be durably recorded as unmatched');
   const attemptAfterWrong=(await db.query(`select state,live_mode from dv_market_private.market_payment_attempts where id='${prepared.attempt_id}'`)).rows[0];
   assert.deepEqual(attemptAfterWrong,{state:'processing',live_mode:true});
 
