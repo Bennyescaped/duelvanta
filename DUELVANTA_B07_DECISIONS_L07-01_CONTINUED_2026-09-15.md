@@ -33,4 +33,29 @@ Zwingend anwaltlich beziehungsweise für Zahlungsfolgen zusätzlich steuerlich/z
 - die Rolle von DUELVANTA bei Beschwerden, Streitfällen und Rückabwicklungen;
 - die spätere technische Refund-/Chargeback-Architektur, ohne DUELVANTA unbeabsichtigt eine weitergehende Verkäufer- oder Zahlungsdiensterolle zuzuweisen.
 
-**B07-Status nach dieser Entscheidung: unverändert OFFEN / BLOCKIERT.**
+## Entscheidung L07-01/09 – Verkäuferidentität und anonymer Verkauf
+
+**Betreiberentscheidung:**
+
+- Anonymes Verkaufen ist im ersten kommerziellen Marketplace-Release ausgeschlossen.
+- Jeder Verkäufer muss DUELVANTA gegenüber vor Verkaufsfreigabe seine echte Identität und eine belastbare Anschrift hinterlegen.
+- Ein öffentlicher Anzeigename oder Nickname darf weiterhin verwendet werden, ersetzt aber nicht die interne Identifizierung des Verkäufers.
+- Bei privaten Verkäufern werden Identitäts- und Anschriftdaten nicht pauschal öffentlich angezeigt; eine Offenlegung erfolgt nur soweit dies nach dem final freigegebenen Rechts- und Prozessmodell erforderlich ist.
+- Gewerbliche Verkäufer müssen zusätzlich die für ihren Händlerstatus erforderlichen Unternehmens-/Anbieterangaben hinterlegen und den dafür vorgesehenen Prüfprozess durchlaufen.
+- Verkaufsfreigabe erfolgt erst nach abgeschlossenem Verkäufer-Onboarding und der jeweils erforderlichen Prüfung; interne Owner-/Staff-Rollen ersetzen diese Verkäuferprüfung nicht.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die bestehende Architektur mit getrennten privaten Verkäuferdaten, Verkäuferstatus und serverseitiger Verkaufsfreigabe entspricht diesem Zielmodell grundsätzlich. Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release muss der tatsächliche Identitäts-, Änderungs-, Prüf- und Sperrprozess gegen das freigegebene Modell abgenommen werden.
+
+### Externer Freigabepunkt
+
+Zwingend extern zu prüfen bleiben insbesondere:
+
+- welche Identitäts- und Adressdaten je privatem beziehungsweise gewerblichem Verkäufer tatsächlich erhoben werden müssen;
+- welche Prüfintensität und Nachweise für private und gewerbliche Verkäufer erforderlich sind;
+- welche Verkäuferdaten gegenüber Käufern oder öffentlich offengelegt werden müssen oder dürfen;
+- DSA-, Datenschutz- und PStTG-Anforderungen an Erhebung, Verifikation, Speicherung, Aktualisierung und Offenlegung;
+- der Umgang mit Falschangaben, Statusänderungen und gesperrten beziehungsweise nicht mehr verifizierten Verkäufern.
+
+**B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
