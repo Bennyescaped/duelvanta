@@ -1,21 +1,24 @@
 # DUELVANTA – Masterhandout V7
 
-Stand: 15.09.2026, nach vollständigem Abschluss von B01 und B02. Dieses Dokument ist der verbindliche Einstieg für die weitere Arbeit und ersetzt widersprechende Statusangaben älterer Handouts. V4/V5/V6 bleiben Detailreferenzen, soweit V7 sie nicht ausdrücklich aktualisiert.
+Stand: 15.09.2026, nach vollständigem Abschluss von B01, B02 und B03. Dieses Dokument ist der verbindliche Einstieg für die weitere Arbeit und ersetzt widersprechende Statusangaben älterer Handouts. V4/V5/V6 bleiben Detailreferenzen, soweit V7 sie nicht ausdrücklich aktualisiert.
 
 ## 1. Verbindlicher Repository-Stand
 
 - Repository: `Bennyescaped/duelvanta`
 - Entwicklungsbranch: `marketplace-ux-v1`
-- Technischer B02-Abschluss-Head: `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
-- PR #5: offen, **Draft**, nicht gemergt; bei B02-Abschluss Head `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
+- Technischer B03-Abschluss-Head: `c8a8a02fa4f5b21813ba253e66767a8ee61d95b7`
+- PR #5: offen, **Draft**, nicht gemergt; bei B03-Abschluss Head `c8a8a02fa4f5b21813ba253e66767a8ee61d95b7`
 - main: `50f88213571be13255bb52eb489cc28cca660001`, unverändert
 - Technischer B01-Codecheckpoint: `d108eba6033ea2d94d3a06e639202260e2d69717`
 - V6-B01-Abschlussdokumentation: Commit `d28d6c5777bb8120ae6fa373be419b55f49b63ea`
-- B02 SQL-Fixdatei ursprünglich hinzugefügt: Commit `8188ccaca6ea36e03f359f7d39ff215cf2be0f5d`
-- B02 Real-Trigger-Test ursprünglich hinzugefügt: Commit `571be2855537ff791ca5cd70cbe26db0ede2cf23`
-- B02 CI-Wiring: Commit `cdf0592b9544c0a25da064148564ac878dff2127`
 - B02 finale SECURITY-DEFINER-Korrektur: Commit `bfa428e189b3515c44adb0c5bd4194fac03f6e3f`
 - B02 final gehärteter Real-Trigger-/ACL-Test: Commit `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
+- B03 zentrale Provider-/Live-Gates begonnen: Commit `a4705ae9e120b1878e8dea8053c9e17791b0de77`
+- B03 DB-Live-Mode-Migration: Commit `b5ac1b15f24eac42fdbe241c0af2597b3abdc504`
+- B03 Live-Mode-Tests: Commits `e72f4932fc0e8ffbe223a0d33255f042304be823` und `3812a5af134a7c50c82e3f9749464bcc2ced5a16`
+- B03 CI-Wiring: Commit `1fae27518269540c2139e1465100152b5b161170`
+- B03 Stripe-Test-Pathfilter: Commit `db56e35d840c3c04e754863c2bdfcffe2ffceef3`
+- B03 finaler Testfix / technischer Abschluss-Head: `c8a8a02fa4f5b21813ba253e66767a8ee61d95b7`
 
 ## 2. B01 – GESCHLOSSEN
 
@@ -96,7 +99,7 @@ Datei:
 
 `tests/account-data-erasure-username-guard-test.mjs`
 
-Der isolierte PGlite-Test bildet das echte Triggerverhalten ab und prüft nun zusätzlich die relevante Rollen-/Owner-Semantik:
+Der isolierte PGlite-Test bildet das echte Triggerverhalten ab und prüft zusätzlich die relevante Rollen-/Owner-Semantik:
 
 - normale direkte Username-Änderung bleibt blockiert;
 - `authenticated` besitzt kein EXECUTE auf `prepare_account_deletion_data`;
@@ -109,52 +112,124 @@ Der isolierte PGlite-Test bildet das echte Triggerverhalten ab und prüft nun zu
 - dieser Fehler rollt die Username-Änderung vollständig zurück;
 - auch nach dem Fehler ist `duelvanta.username_rpc` wieder leer und der globale Trigger weiterhin wirksam.
 
-Die Verwendung eines zweiten Testdatensatzes beseitigt außerdem die frühere Testschwäche, bei der der Test selbst einen geschützten Username zurücksetzen wollte.
-
-## 6. B02 CI-Abschluss
-
-`.github/workflows/scanner-v16-check.yml` enthält weiterhin minimal:
-
-- PR-Pfadfilter zusätzlich `database/account-data-erasure-*.sql`;
-- im bestehenden Schritt `Trade contracts and mobile order flow` zusätzlich:
-
-```bash
-node tests/account-data-erasure-username-guard-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
-```
-
-Finaler automatischer Run für Head `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`:
-
-- Scanner V16 Check Run #228
-- Run-ID: `34964941036`
-- Gesamtergebnis: **success**
-- `quota_database`: success
-- `validate`: success
-- `Trade contracts and mobile order flow`: success einschließlich des finalen B02-Real-Trigger-/ACL-Tests
-- übrige ausgeführte Scanner-, Auth-Boundary-, Marketplace-, Compliance-, Runtime-, Tax-, Data-Rights-, Browser- und Erasure-Worker-Regressionen: success
-- die regulär bedingten Schritte `Real complex-card reference recognition and recovery` und `Read-only live catalog availability` waren skipped, nicht failed.
-
-Der frühere fehlgeschlagene Run #225 / `34964129105` bleibt nur historische Fehlerreferenz und ist durch Run #228 ersetzt.
+Finaler B02-CI-Lauf: Scanner V16 Check Run #228 / `34964941036`, vollständig **success**.
 
 **B02 ist geschlossen.** Nicht erneut bearbeiten, solange kein neuer konkreter Befund entsteht.
 
+## 6. B03 – GESCHLOSSEN: expliziter, standardmäßig deaktivierter Stripe-Live-Modus
+
+Ausgangslage: Der bestehende Stripe-Connect-Pfad war absichtlich sandbox-only. Checkout, Onboarding, Refund und Webhook waren an `STRIPE_CONNECT_SANDBOX_ENABLED` und Test-Schlüssel/-Events gebunden. Ein separater, sicherer späterer Live-Modus fehlte. Ziel von B03 war, einen Live-Schlüsselwechsel allein technisch wirkungslos zu machen und trotzdem keinen zweiten Payment-/Refundpfad zu schaffen.
+
+### 6.1 Zentraler Provider-Modus
+
+`api/market-stripe-lib.js` enthält jetzt `stripeMode(action)` mit folgenden Grenzen:
+
+- Sandbox bleibt über `STRIPE_CONNECT_SANDBOX_ENABLED=true` explizit aktivierbar.
+- Live besitzt einen separaten Master-Schalter `STRIPE_CONNECT_LIVE_ENABLED=true`.
+- Sandbox und Live gleichzeitig führen fail-closed zu `stripe_mode_conflict`.
+- Sind beide Modi aus, bleibt Stripe deaktiviert.
+- Sandbox verlangt weiterhin einen `sk_test_...`-Schlüssel.
+- Live verlangt einen `sk_live_...`-Schlüssel.
+- Ein Live-Key allein aktiviert **keine** Live-Aktion.
+- Live braucht zusätzlich pro Aktionsklasse einen eigenen Schalter:
+  - `STRIPE_CONNECT_LIVE_PAYMENTS_ENABLED=true`
+  - `STRIPE_CONNECT_LIVE_ONBOARDING_ENABLED=true`
+  - `STRIPE_CONNECT_LIVE_REFUNDS_ENABLED=true`
+  - `STRIPE_CONNECT_LIVE_WEBHOOKS_ENABLED=true`
+
+Checkout, Onboarding, Refund und Webhook verwenden weiterhin ihre bisherigen API-Routen und Providerpfade; es wurde kein paralleler Zahlungs- oder Refundpfad geschaffen.
+
+### 6.2 API-Grenzen
+
+- `api/market-stripe-checkout.js`: `stripeMode('payments')`; Live verlangt zusätzlich `prepared.live_mode===true`; Session-Präfix wird auf `cs_live_` bzw. `cs_test_` gebunden.
+- `api/market-stripe-onboarding.js`: `stripeMode('onboarding')`; Provider-Account und Account-Link müssen denselben `livemode` besitzen. Sandbox nutzt aus Kompatibilitätsgründen weiterhin den bestehenden Testkonto-RPC, Live den generischen mode-bound RPC.
+- `api/market-stripe-refund.js`: bestehender Refundpfad bleibt erhalten; `stripeMode('refunds')` plus DB-Modusbindung. Kein zweiter Refundpfad.
+- `api/market-stripe-webhook.js`: `stripeMode('webhooks')`; `event.livemode` muss zum konfigurierten Provider-Modus passen. Der Webhook-Schalter ist absichtlich unabhängig vom Schalter für neue Zahlungen, damit bereits ausgelöste Providerereignisse noch verarbeitet werden können, nachdem neue Payments gestoppt wurden.
+
+Die bestehende Sandbox-Oberfläche bleibt weiterhin sandbox-only und lehnt Live-Checkoutantworten ab. B03 stellt nur die sichere Backend-Grenze für eine spätere Freigabe her. B12 bleibt die separate tatsächliche Live-Stripe-/Connect-Freigabe.
+
+### 6.3 DB-Migration – REVIEW ONLY, NICHT angewendet
+
+Neue Datei:
+
+`database/market-stripe-live-mode-v1.sql`
+
+Sie wurde ausschließlich in isolierten PGlite-Tests ausgeführt und **nicht** auf Staging oder Produktion angewendet.
+
+Wesentliche Grenzen:
+
+- `market_payment_configuration` erlaubt nie gleichzeitig Sandbox und Live; Standard bleibt beides aus.
+- `live_mode` wird auf Onboarding-Requests und Payment-Attempts gespeichert, Default `false`.
+- Stripe-Accounts werden nach `(seller_id, live_mode)` getrennt, sodass Sandbox-/Live-Konten nicht vermischt werden.
+- `prepare_market_stripe_payment` bindet Verkäuferkonto, Idempotency und Payment-Attempt an den DB-Modus.
+- `bind_market_stripe_checkout_session` akzeptiert je Attempt nur das passende `cs_test_`- oder `cs_live_`-Präfix.
+- `apply_market_stripe_event` bindet Event, Account und Attempt an denselben Modus, ist aber bewusst nicht vom aktuellen Neuzahlungs-Schalter abhängig. Dadurch können in-flight Webhooks nach einem Payment-Stop noch verarbeitet werden.
+- Steuer-/Providerbelege enthalten den verwendeten `live_mode`.
+- `prepare_market_stripe_full_refund` bleibt der einzige Refund-Vorbereitungspfad und gibt den mode-bound Attempt zurück.
+- Backend-RPCs bleiben für `public`, `anon` und `authenticated` entzogen und nur für `service_role` ausführbar.
+
+### 6.4 B03 Tests
+
+Neue Tests:
+
+- `tests/market-stripe-live-mode-api-test.mjs`
+- `tests/market-stripe-live-mode-database-test.mjs`
+
+Zusätzlich wurde `tests/market-stripe-connect-contract-test.mjs` um die Live-Grenzen erweitert.
+
+Nachgewiesen wird unter anderem:
+
+- Live-Key ohne Live-Master-Schalter führt zu keiner Provideraktion.
+- Live-Master-Schalter ohne aktionsspezifischen Schalter führt zu keiner Provideraktion.
+- falscher Key-Typ wird vor Providerzugriff blockiert.
+- API- und DB-Modus müssen übereinstimmen.
+- Sandbox und Live können nicht gleichzeitig aktiv sein.
+- falsche Test-/Live-Checkout-Session-Präfixe werden blockiert.
+- Wrong-mode Webhooks verändern den Live-Attempt nicht und werden als unmatched/ignored protokolliert.
+- bereits bestehende Live-Providerereignisse können nach Deaktivierung neuer Payments noch verarbeitet werden.
+- Refund verwendet weiterhin denselben mode-bound Providerpfad.
+- direkte private Evidenzabfragen sind unter `service_role` nicht freigegeben; Testverifikation erfolgt nach `RESET ROLE` im isolierten Testowner-Kontext.
+
+Die CI-Pfadfilter enthalten jetzt zusätzlich `tests/market-stripe-*.mjs`, sodass reine Stripe-Teständerungen den PR-Workflow ebenfalls auslösen.
+
+### 6.5 B03 CI-Abschluss
+
+Finaler automatischer Lauf für Head `c8a8a02fa4f5b21813ba253e66767a8ee61d95b7`:
+
+- Scanner V16 Check Run **#245**
+- Run-ID: `34966761267`
+- Gesamtergebnis: **success**
+- `quota_database`: success
+- `validate`: success
+- `Trade contracts and mobile order flow`: success
+- beide neuen B03 Live-Mode-Tests: success
+- bestehende Stripe-Sandbox-, API-, DB-, Refund-, Webhook-, Marketplace-, Compliance-, Auth-, Browser- und Scanner-Regressionen: success
+- die PR-bedingt nicht ausgeführten Live-Catalog-/Real-Card-Schritte waren skipped, nicht failed.
+
+Historische Zwischenläufe mit Testmodell-/Assertionfehlern sind durch Run #245 ersetzt und keine offenen Produktfehler.
+
+Es wurde im gesamten B03 **keine** Stripe-Sandbox reaktiviert, kein Live-Schlüssel gesetzt, keine Live-/Testzahlung ausgelöst, keine Erstattung oder Auszahlung gestartet, kein Stripe-Account erzeugt, keine Staging-DDL ausgeführt und Produktion nicht verändert.
+
+**B03 ist geschlossen.** Nicht erneut bearbeiten, solange kein neuer konkreter Befund entsteht.
+
 ## 7. Exakter nächster Arbeitsauftrag
 
-Nächster Block ist ausschließlich **B03**: eigener standardmäßig deaktivierter Live-Paymentmodus; ein bloßer Wechsel von Sandbox- auf Live-Schlüsseln darf keine Live-Zahlungsfähigkeit freischalten.
+Nächster Block ist ausschließlich **B04**: wirksamer Schutz von `main` mit PR-/CI-Pflicht, Force-Push-/Delete-Sperre und einem klar definierten Notfallweg.
 
-1. Branch-Head, PR #5 Draftstatus und main vor Änderungen erneut lesen. Nichts zurücksetzen.
-2. Bestehende Payment-/Stripe-Konfiguration, API-Routen, Worker und Environment-Gates vollständig auf die aktuelle Sandbox-/Live-Trennung prüfen.
-3. Einen expliziten, standardmäßig deaktivierten Live-Paymentmodus entwerfen und nur minimal implementieren. Live-Schlüssel allein dürfen nicht genügen.
-4. Bestehende Sandbox-, Payment-, Refund-, Connect- und Webhook-Sicherheitsgrenzen unverändert erhalten; keinen zweiten Zahlungs- oder Refundpfad schaffen.
-5. Ausschließlich Mocks/isolierte Tests verwenden. Keine Live-Zahlung, Live-Erstattung, Live-Auszahlung oder Stripe-Sandbox-Reaktivierung ausführen.
-6. Automatische CI laufen lassen; bereits grüne, unveränderte Abnahmen nicht manuell wiederholen.
-7. B03 erst schließen, wenn der Modus technisch fail-closed ist, die Regressionen grün sind und ein versehentlicher Schlüsselwechsel allein nachweislich keine Live-Aktion aktivieren kann.
-8. Danach V7 aktualisieren; erst anschließend B04 beginnen.
+1. Branch-Head, PR #5 Draftstatus und `main` vor Änderungen erneut lesen. Nichts zurücksetzen.
+2. Aktuellen GitHub-Branch-/Ruleset-Schutz für `main` read-only ermitteln; bestehende Regeln nicht ungeprüft überschreiben.
+3. Zielzustand festlegen: Änderungen an `main` nur über PR, erfolgreicher verpflichtender CI-Check, keine Force-Pushes, kein Branch-Delete, keine stillen Bypässe.
+4. Einen eng begrenzten Notfallweg dokumentieren, der nicht den normalen Schutz dauerhaft abschaltet und dessen Nutzung nachvollziehbar ist.
+5. Schutz nur dann direkt konfigurieren, wenn die verbundene GitHub-Berechtigung die erforderliche Repository-Administration ausdrücklich erlaubt. Andernfalls den exakten erforderlichen GitHub-UI-/Ruleset-Schritt dokumentieren, ohne Schutzwirkung vorzutäuschen.
+6. Nach Konfiguration den effektiven Schutz read-only erneut prüfen. Keine absichtlichen Force-Push-/Delete-Versuche gegen `main` ausführen.
+7. B04 erst schließen, wenn die wirksame Konfiguration nachgewiesen ist; eine bloße Dokumentation ohne aktivierten Schutz reicht nicht.
+8. Danach V7 aktualisieren; erst anschließend B05 beginnen.
 
-## 8. Releaseblocker nach B02
+## 8. Releaseblocker nach B03
 
 - **B01 GESCHLOSSEN:** PROFILE-Preview-Isolation vollständig nachgewiesen.
 - **B02 GESCHLOSSEN:** Username-Triggerkonflikt im Erasure-RPC behoben; Rollen-/Bypassgrenze und Rollback isoliert getestet, CI #228 vollständig grün.
-- **B03 OFFEN:** eigener standardmäßig deaktivierter Live-Paymentmodus; Schlüsselwechsel allein genügt nicht.
+- **B03 GESCHLOSSEN:** expliziter fail-closed Live-Paymentmodus; Schlüsselwechsel allein reicht nicht; DB/API-Modusbindung und unabhängiger Webhook-Gate isoliert getestet, CI #245 vollständig grün.
 - **B04 OFFEN:** wirksamer main-Schutz mit PR-/CI-Pflicht, Force-Push-/Delete-Sperre und Notfallweg.
 - **B05 OFFEN:** `.gitignore`, aktueller/historischer Secret- und Supply-Chain-Scan; echte Treffer gegebenenfalls rotieren.
 - **B06 OFFEN:** Produktions-Auth-/Berechtigungsprüfung einschließlich MFA/Step-up, Sessions, Recovery und begründeter Advisor-Ausnahmen.
@@ -185,8 +260,9 @@ F03 und F04 aus V5 bleiben unverändert. Alle in V4 abgeschlossenen Abnahmen ble
 - Kein zweiter Refundpfad.
 - `v-logo.svg` und **COLLECT. TRADE. BATTLE.** unverändert lassen.
 - Kein echter Account-Löschlauf zur Diagnose von B02.
+- B03 stellt keine Live-Freigabe dar; alle neuen Live-Schalter bleiben bis zur späteren ausdrücklichen B12-Freigabe aus.
 
-V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Rollbackplan. B01-/B02-Abschluss erteilt keine Produktionsfreigabe. **NO-GO für Produktion und Live-Payments bleibt bestehen.**
+V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Rollbackplan. B01-/B02-/B03-Abschluss erteilt keine Produktionsfreigabe. **NO-GO für Produktion und Live-Payments bleibt bestehen.**
 
 ## 10. Dauerhafte Referenzen
 
@@ -199,7 +275,10 @@ V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Roll
 - B02 finale SQL-Korrektur: `bfa428e189b3515c44adb0c5bd4194fac03f6e3f`
 - B02 technischer Abschluss-Head / finaler Test: `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
 - B02 erfolgreicher CI-Run: #228 / `34964941036`
-- B02 historischer fehlgeschlagener CI-Run: #225 / `34964129105`
+- B03 zentrale Live-Gates: `a4705ae9e120b1878e8dea8053c9e17791b0de77`
+- B03 DB-Migration: `b5ac1b15f24eac42fdbe241c0af2597b3abdc504`
+- B03 technischer Abschluss-Head: `c8a8a02fa4f5b21813ba253e66767a8ee61d95b7`
+- B03 erfolgreicher CI-Run: #245 / `34966761267`
 - Staging Supabase: `xhmjxrcskfhbovhitdej`
 - Produktion Supabase: `enifiaqsnqtbzylnfrpi`
 
