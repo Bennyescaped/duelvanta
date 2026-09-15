@@ -87,4 +87,22 @@ Zwingend extern beziehungsweise steuerlich zu prüfen bleiben insbesondere:
 - Zahlungsdienst-/ZAG-Einordnung des tatsächlichen späteren Geldflusses;
 - Stripe-Connect-, Gebühren-, Refund-, Chargeback- und Auszahlungskonfiguration vor Stripe Live.
 
+### Entscheidung L07-01/04 – Länderumfang des ersten Marketplace-Releases
+
+**Betreiberentscheidung:**
+
+- Der erste kommerzielle Marketplace-Release wird auf Deutschland beschränkt.
+- Käufer müssen für diesen Release eine deutsche Wohn-/Lieferadresse verwenden.
+- Private und gewerbliche Verkäufer werden im ersten Release nur mit Wohnsitz beziehungsweise Sitz in Deutschland zugelassen.
+- Österreich und die Schweiz bleiben technisch mögliche, aber nicht für Release 1 freigegebene spätere Erweiterungen.
+- Grenzüberschreitende Verkäufe, Käufe und Versandkonstellationen gehören nicht zum freizugebenden Scope des ersten Releases.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die vorhandenen DACH-Auswahlmöglichkeiten im Verkäufer-Onboarding bleiben vorerst als technische Vorbereitung bestehen. Vor einem kommerziellen Release muss jedoch nachgewiesen werden, dass der tatsächlich freigegebene Produktivbetrieb Release 1 auf Deutschland begrenzt und nicht unbeabsichtigt AT-/CH- oder sonstige grenzüberschreitende Konstellationen zulässt. Diese Festlegung löst in diesem Dokumentationsschritt noch keine Produktcodeänderung aus.
+
+### Externer Freigabepunkt
+
+Für Release 1 extern freizugeben bleibt die konkrete deutsche Vertrags-, Plattform-, Verbraucher-, Datenschutz-, Steuer- und Zahlungsarchitektur. Österreich, Schweiz und sonstige grenzüberschreitende Konstellationen werden ausdrücklich nicht in die erste Freigabe einbezogen und benötigen vor späterer Aktivierung eine eigene rechtliche, steuerliche und technische Scope-Prüfung.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
