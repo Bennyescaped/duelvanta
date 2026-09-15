@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 const {PGlite}=await import(process.argv[2]?pathToFileURL(process.argv[2]).href:'@electric-sql/pglite');
 const db=new PGlite();
-const H='10000000-0000-4000-8000-000000000001',G='10000000-0000-4000-8000-000000000002',X='10000000-0000-4000-8000-000000000003',M='20000000-0000-4000-8000-000000000001';
+const H='10000000-0000-4000-8000-000000000001',G='10000000-0000-4000-8000-000000000002',X='10000000-0000-4000-8000-000000000003',M='20000000-0000-4000-8000-000000000001',S='30000000-0000-4000-8000-000000000001';
 const read=path=>readFile(new URL('../'+path,import.meta.url),'utf8');
 try{
  await db.exec(`create role anon; create role authenticated; create role service_role; create schema auth;
@@ -34,5 +34,45 @@ try{
  await claim(H);await db.query(`select public.start_battle_match('${M}')`);await db.query(`select public.report_battle_result('${M}','host')`);
  await claim(G);await db.query(`select public.report_battle_result('${M}','host')`);
  await db.exec('reset role');assert.equal((await db.query(`select status from public.battle_matches where id='${M}'`)).rows[0].status,'completed');
- console.log('PASS: anonymous NULL bypass reproduced then blocked; participant/active-account guards, protected profile restriction and full two-player match pass');
+
+ const stepDb=new PGlite();
+ try{
+  await stepDb.exec(`create role anon; create role authenticated; create role service_role; create schema auth;
+  grant usage on schema auth,public to anon,authenticated,service_role;
+  create table auth.sessions(id uuid primary key,user_id uuid not null);
+  create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
+  create function auth.uid() returns uuid language sql stable as $$select nullif(auth.jwt()->>'sub','')::uuid$$;
+  create function public.join_battle_as_moderator(uuid) returns uuid language sql security definer as $$select $1$$;
+  create function public.leave_battle_moderation(uuid,text default null) returns text language sql security definer as $$select 'left'::text$$;
+  create function public.moderate_battle_report(uuid,text,text default null) returns text language sql security definer as $$select $2$$;
+  create function public.review_battle_report(uuid,text,text default null) returns text language sql security definer as $$select $2$$;
+  create function public.review_staff_application(uuid,text,text default null) returns text language sql security definer as $$select $2$$;
+  create function public.set_battle_moderation_pause(uuid,boolean,text default null) returns text language sql security definer as $$select case when $2 then 'paused' else 'resumed' end$$;
+  create function public.set_staff_permission(uuid,text,boolean) returns boolean language sql security definer as $$select $3$$;
+  create function public.set_staff_role(uuid,text,text default null) returns text language sql security definer as $$select $2$$;
+  create function public.assign_founder_generation_i() returns trigger language plpgsql security definer as $$begin return new;end$$;
+  create function public.guard_profile_username_direct_update() returns trigger language plpgsql security definer as $$begin return new;end$$;
+  create function public.handle_duelvanta_new_user() returns trigger language plpgsql security definer as $$begin return new;end$$;
+  create function public.prevent_duelvanta_owner_delete() returns trigger language plpgsql security definer as $$begin return old;end$$;
+  create function public.protect_duelvanta_owner_profile() returns trigger language plpgsql security definer as $$begin return new;end$$;
+  create function public.has_staff_permission(text,uuid default auth.uid()) returns boolean language sql security definer as $$select false$$;
+  create function public.is_duelvanta_admin(uuid default auth.uid()) returns boolean language sql security definer as $$select false$$;
+  create function public.is_duelvanta_owner(uuid default auth.uid()) returns boolean language sql security definer as $$select false$$;
+  create function public.get_my_battle_history(integer) returns integer language sql security definer as $$select 0$$;
+  create function public.get_my_market_deals() returns integer language sql security definer as $$select 0$$;
+  grant execute on all functions in schema public to anon,authenticated,service_role;
+  insert into auth.sessions(id,user_id) values ('${S}','${H}');`);
+  await stepDb.exec(await read('database/auth-privileged-step-up-v1.sql'));
+  const stepClaim=async({sub=H,aal='aal1',session=S,role='authenticated'}={})=>{const claims=JSON.stringify({sub,aal,session_id:session,role}).replaceAll("'","''");await stepDb.exec(`reset role;select set_config('request.jwt.claims','${claims}',false);set role ${role};`)};
+  const stepBlocked=async(sql,pattern)=>assert.rejects(()=>stepDb.query(sql),pattern);
+  await stepClaim();await stepBlocked(`select public.set_staff_role('${X}','admin','test')`,/mfa_step_up_required/);
+  await stepClaim({aal:'aal2',session:'30000000-0000-4000-8000-000000000099'});await stepBlocked(`select public.set_staff_role('${X}','admin','test')`,/session_revoked/);
+  await stepClaim({aal:'aal2'});assert.equal((await stepDb.query(`select public.set_staff_role('${X}','admin','test') as role`)).rows[0].role,'admin');
+  await stepClaim({aal:'aal2',role:'anon'});await stepBlocked(`select public.set_staff_role('${X}','admin','test')`,/permission denied/);
+  await stepClaim({sub:'',aal:'aal1',session:'',role:'service_role'});assert.equal((await stepDb.query(`select public.set_staff_permission('${X}','reports_review',true) as enabled`)).rows[0].enabled,true);
+  await stepDb.exec('reset role');
+  const acl=(await stepDb.query(`select has_function_privilege('anon','public.is_duelvanta_owner(uuid)','execute') as owner_anon,has_function_privilege('anon','public.get_my_market_deals()','execute') as deals_anon,has_function_privilege('authenticated','public.guard_profile_username_direct_update()','execute') as trigger_auth`)).rows[0];
+  assert.deepEqual(acl,{owner_anon:false,deals_anon:false,trigger_auth:false});
+ }finally{await stepDb.close()}
+ console.log('PASS: auth boundary blocks anonymous/null bypasses and privileged RPCs require AAL2 plus a live session');
 }finally{await db.close()}

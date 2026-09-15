@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
+const [sql,html,ui,worker,workflow]=await Promise.all(['database/account-data-rights-v1.sql','profile.html','profile-data-rights.js','api/account-data-erasure.js','.github/workflows/scanner-v16-check.yml'].map(read));
+assert.match(sql,/export_my_duelvanta_data/);assert.match(sql,/request_my_account_deletion/);assert.match(sql,/account_deletion_blockers/);
+assert.match(sql,/export_my_duelvanta_data\(\)[\s\S]*set search_path=pg_catalog,public,dv_market_private,extensions/);
+assert.match(sql,/to_jsonb\(l\)-array\[''seller_id'',''deal_buyer_id''\]/);
+assert.match(sql,/grant execute on function public\.claim_account_deletion_requests\(integer,uuid\) to service_role/);assert.match(sql,/revoke all on all tables in schema dv_market_private/);assert.match(sql,/account_data_rights_audit_is_immutable/);
+assert.match(sql,/eight|acht/i);assert.match(sql,/zehn Jahre/i);assert.match(sql,/psttg_record/);
+assert.doesNotMatch(sql,/identifier_ciphertext.*jsonb_build_object/s);assert.match(html,/MEINE DATEN EXPORTIEREN/);assert.match(html,/KONTO LÖSCHEN/);
+assert.match(ui,/crypto\.randomUUID/);assert.match(ui,/signOut\(\{scope:'global'\}\)/);assert.match(worker,/ACCOUNT_DATA_ERASURE_ENABLED/);
+assert.match(worker,/storage\/v1\/object/);assert.match(worker,/auth\/v1\/admin\/users/);assert.match(workflow,/account-data-rights-database-test/);
+console.log('PASS: data-rights UI, private RPC boundaries, disabled worker and CI wiring are present');
