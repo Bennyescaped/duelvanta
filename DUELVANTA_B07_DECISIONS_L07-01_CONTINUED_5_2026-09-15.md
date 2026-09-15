@@ -56,4 +56,28 @@ Zwingend anwaltlich zu prüfen bleiben insbesondere:
 - Folgen bei technischem Zahlungsfehler, Systemstörung oder abgebrochenem Checkout innerhalb der Reservierungsfrist;
 - zulässige Regeln für vorzeitige Aufhebung, erneute Preisverhandlung und Wiederfreigabe des Artikels.
 
+## Entscheidung L07-01/24 – Versandkosten und Kostendarstellung
+
+**Betreiberentscheidung:**
+
+- Bei entgeltlichen Versandverkäufen im ersten kommerziellen Marketplace-Release trägt grundsätzlich der Käufer die vor Vertragsschluss klar ausgewiesenen Versandkosten.
+- Warenpreis und Versandkosten werden im Angebot beziehungsweise spätestens im vollständigen Checkout getrennt und transparent dargestellt.
+- Der Verkäufer darf nur die für den freigegebenen Versandweg vorgesehenen Versandkosten berechnen; versteckte Versand-, Verpackungs- oder Bearbeitungsaufschläge außerhalb der ausgewiesenen Kosten sind nicht vorgesehen.
+- Versandkosten gehören nach Entscheidung L07-01/20 nicht zur Berechnungsbasis der DUELVANTA-Verkäuferprovision.
+- Bei persönlicher Abholung fallen keine Versandkosten an.
+- Die konkrete Behandlung von Rücksendekosten, Hinsendekosten und Erstattungen bei B2C-Widerruf, Mängelfällen oder sonstiger Rückabwicklung richtet sich nach dem später rechtlich freigegebenen Modell und wird mit dieser Betreiberentscheidung nicht vorweggenommen.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release müssen Warenpreis, Versandkosten und DUELVANTA-Provision technisch getrennt geführt und im Checkout sowie im Vertrags-/Zahlungsnachweis eindeutig ausgewiesen werden. Zulässige Versandarten und deren Kostenmodell können serverseitig begrenzt beziehungsweise vorgegeben werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich beziehungsweise steuerlich und prozessbezogen zu prüfen bleiben insbesondere:
+
+- die konkrete Preis- und Versandkostendarstellung vor Vertragsschluss;
+- die Behandlung von Versandkosten bei B2C-Widerruf, Mängeln, Teilrückabwicklungen und Erstattungen;
+- zulässige Vorgaben für Versandpreise, Verpackungskosten und Abholung;
+- die korrekte Trennung von Warenpreis, Versandkosten und DUELVANTA-Provision in Abrechnung und Zahlungsfluss.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
