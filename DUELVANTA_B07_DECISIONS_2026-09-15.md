@@ -149,4 +149,25 @@ Die vorhandenen Marketplace-Strukturen für Karten, Slabs und Sealed-Produkte bi
 
 Für Release 1 extern zu prüfen bleiben insbesondere die auf diesen konkreten TCG-Warenumfang anwendbaren Produkt-, Informations- und Marketplace-Pflichten, einschließlich der bereits offenen GPSR-Fragen. Nicht freigegebene Produktgruppen sind ausdrücklich nicht Bestandteil der ersten anwaltlichen Produktfreigabe.
 
+### Entscheidung L07-01/07 – Mindestalter für TRADE
+
+**Betreiberentscheidung:**
+
+- Kaufen, Verkaufen und C2C-Tauschen über TRADE ist im ersten kommerziellen Marketplace-Release ausschließlich volljährigen Nutzern ab 18 Jahren gestattet.
+- Minderjährige dürfen im ersten Release keine Warenkauf-, Verkaufs- oder Tauschverträge über TRADE abschließen.
+- Diese Altersgrenze betrifft den Marketplace-/TRADE-Vertragsschluss. Die Alters- und Zugangsregeln anderer DUELVANTA-Bereiche wie COLLECT oder BATTLE werden damit nicht vorweggenommen.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Aus der Betreiberentscheidung folgt noch keine unmittelbare Produktcodeänderung. Vor kommerziellem Release muss jedoch ein rechtlich und technisch freigegebenes Verfahren sicherstellen, dass der TRADE-Vertragsschluss auf volljährige Nutzer beschränkt ist. Bestehende Altersdaten dürfen nicht ohne eigene Datenschutz-/Zweckprüfung zweckfremd verwendet werden.
+
+### Externer Freigabepunkt
+
+Zwingend extern zu prüfen bleiben insbesondere:
+
+- wie die Volljährigkeit für den konkreten Marketplace-Scope angemessen und datenschutzkonform nachgewiesen beziehungsweise vertraglich abgesichert wird;
+- welche Erklärung, Prüfung oder Altersverifikationsstufe erforderlich ist;
+- der Umgang mit Falschangaben und nachträglich festgestellter Minderjährigkeit;
+- die Abstimmung der Altersprüfung mit Verkäufer-Onboarding, Käuferstatus und späterem Zahlungsdienstleister.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
