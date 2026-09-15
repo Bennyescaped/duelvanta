@@ -56,4 +56,29 @@ Zwingend anwaltlich beziehungsweise zahlungsdienstlich zu prüfen bleiben insbes
 - vollständige B2C-Pflichtinformationen und Button-Lösung;
 - der belastbare technische Nachweis des Vertragsschlusses und die Verhinderung von Doppelverkäufen.
 
+## Entscheidung L07-01/28 – Höhe der Verkäuferprovision
+
+**Betreiberentscheidung:**
+
+- DUELVANTA erhebt im ersten kommerziellen Marketplace-Release eine Verkäuferprovision von **4 %** auf den tatsächlich erfolgreich bezahlten Warenpreis.
+- Versandkosten bleiben vollständig außerhalb der Provisionsbasis.
+- Die Provision entsteht nur nach Maßgabe der bereits dokumentierten Entscheidung L07-01/20; bei vollständigen oder teilweisen Erstattungen wird sie entsprechend korrigiert.
+- Reine private C2C-Tauschgeschäfte Ware gegen Ware bleiben im ersten Release provisionsfrei.
+- Zahlungsdienstkosten des später freigegebenen Zahlungsdienstleisters sind **nicht automatisch Bestandteil der 4-%-DUELVANTA-Provision**. Deren wirtschaftliche und vertragliche Zuordnung wird separat festgelegt und vor kommerziellem Release geprüft.
+- Die 4-%-Provision ist eine Geschäftsmodellentscheidung für Release 1 und keine rechtliche oder steuerliche Freigabe.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Diese Entscheidung aktiviert keine Zahlungs- oder Gebührenfunktion. Stripe Live, echte Payments, Refunds und Payouts bleiben deaktiviert. Vor Release muss die Gebührenlogik 4 % ausschließlich auf den tatsächlich bezahlten Warenpreis berechnen, Versandkosten ausschließen und Refund-/Teilrefund-Korrekturen revisionsfähig abbilden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich, steuerlich und zahlungsdienstlich zu prüfen bleiben insbesondere:
+
+- transparente und wirksame Einbeziehung der 4-%-Verkäuferprovision in die Verkäufer-/TRADE-Bedingungen;
+- Umsatzsteuer- und Rechnungsbehandlung der DUELVANTA-Provision gegenüber privaten und gewerblichen Verkäufern;
+- konkrete Behandlung und Zuordnung von Zahlungsdienst-, Chargeback- und sonstigen Transaktionskosten;
+- Abgleich der Gebührenlogik mit dem final freigegebenen Stripe-Connect-/Zahlungsfluss;
+- korrekte Behandlung von Stornos, vollständigen Refunds und Teilrefunds.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
