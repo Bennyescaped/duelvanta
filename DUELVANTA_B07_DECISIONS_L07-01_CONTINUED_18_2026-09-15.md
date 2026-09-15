@@ -21,4 +21,11 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - DUELVANTA darf solche Inhalte nach den später rechtlich freigegebenen Moderationsregeln prüfen und moderieren.
 - Darstellung, Gegendarstellung, Löschung und Moderation bleiben extern rechtlich zu prüfen.
 
+## Entscheidung L07-01/46 – Bewertungsfrist
+
+- Bewertungen sind innerhalb von 30 Tagen nach Abschluss der zugrunde liegenden Kauf- oder Tauschtransaktion möglich.
+- Pro Nutzer und Transaktion ist genau eine Bewertung vorgesehen.
+- Nach Ablauf der 30-Tage-Frist wird die Bewertungsmöglichkeit für diese Transaktion geschlossen.
+- Die konkrete technische Umsetzung sowie Moderations- und Berichtigungsprozesse bleiben vor Release rechtlich zu prüfen.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
