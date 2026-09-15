@@ -42,7 +42,7 @@ on:
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
       - 'database/account-data-erasure-*.sql'
-      - 'database/market-stripe-connect-*.sql'
+      - 'database/market-stripe-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
       - 'api/market-stripe-*.js'
@@ -238,6 +238,8 @@ jobs:
           node tests/market-stripe-connect-contract-test.mjs
           node tests/market-stripe-connect-api-test.mjs
           node tests/market-stripe-connect-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
+          node tests/market-stripe-live-mode-api-test.mjs
+          node tests/market-stripe-live-mode-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
           node tests/market-notice-action-browser-test.mjs
