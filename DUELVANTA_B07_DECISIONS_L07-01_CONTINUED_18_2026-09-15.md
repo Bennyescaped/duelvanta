@@ -67,4 +67,16 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Bei auffälliger Häufung verlorener ungetrackter Sendungen darf DUELVANTA für das betreffende Konto künftig Tracking verpflichtend machen.
 - Die konkrete Haftungsverteilung, Nachweisbewertung und Fristenlogik bleiben vor Release extern rechtlich zu prüfen.
 
+## Entscheidung L07-01/51 – Tracking zeigt zugestellt, Käufer bestreitet Erhalt
+
+- Bestreitet der Käufer den Erhalt trotz Trackingstatus „zugestellt“, wird ein Problemfall eröffnet.
+- Der betroffene Transaktionsbetrag bleibt bis zur Klärung gesperrt; übriges Verkäuferguthaben bleibt unberührt.
+- Der Trackingstatus allein führt weder automatisch zur Verkäuferfreigabe noch zur Ablehnung des Käuferfalls.
+- Der Käufer muss den Nicht-Erhalt im Problemfall konkret bestätigen.
+- Der Verkäufer muss gültige Tracking- und vorhandene Zustellinformationen bereitstellen.
+- Käufer und Verkäufer müssen bei einer erforderlichen Nachforschung oder Reklamation gegenüber dem Versanddienstleister mitwirken.
+- Soweit praktisch und vom Versanddienstleister vorgesehen, soll die Nachforschung innerhalb von 7 Tagen nach Eröffnung des Problemfalls angestoßen werden.
+- Die weitere technische Bearbeitung richtet sich nach den verfügbaren Zustell- und Nachforschungsergebnissen; DUELVANTA trifft keine abschließende zivilrechtliche Haftungsentscheidung.
+- Zwingende C2C-/B2C-Haftungsregeln bleiben maßgeblich und werden vor Release extern rechtlich geprüft.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
