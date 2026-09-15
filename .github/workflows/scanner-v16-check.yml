@@ -41,6 +41,7 @@ on:
       - 'database/market-checkout-compliance-*.sql'
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
+      - 'database/account-data-erasure-*.sql'
       - 'database/market-stripe-connect-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
@@ -232,6 +233,7 @@ jobs:
           node tests/account-data-rights-contract-test.mjs
           node tests/account-data-rights-database-test.mjs
           node tests/account-data-erasure-worker-test.mjs
+          node tests/account-data-erasure-username-guard-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/market-stripe-connect-contract-test.mjs
           node tests/market-stripe-connect-api-test.mjs
