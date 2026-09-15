@@ -45,6 +45,16 @@ async function stripeRequest(path,body,{account,idempotencyKey}={}){
   return result;
 }
 
+async function stripeGetRequest(path,query,{account}={}){
+  const headers={authorization:`Bearer ${required('STRIPE_SECRET_KEY')}`};
+  if(account)headers['stripe-account']=account;
+  const params=encodeForm(query).toString();
+  const response=await fetch(`https://api.stripe.com/v1/${path}${params?`?${params}`:''}`,{method:'GET',headers});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(`stripe_${response.status}_${result.error?.code||'request_failed'}`);
+  return result;
+}
+
 async function stripeV2Request(path,body,{idempotencyKey}={}){
   const version=required('STRIPE_ACCOUNTS_V2_VERSION');
   if(!/^\d{4}-\d{2}-\d{2}\.[a-z][a-z0-9_-]*$/.test(version))throw new Error('stripe_accounts_v2_version_required');
@@ -74,4 +84,4 @@ function verifyStripeSignature(payload,header,secret,nowSeconds=Math.floor(Date.
   return signatures.some(value=>{if(!/^[a-f0-9]{64}$/i.test(value))return false;return crypto.timingSafeEqual(Buffer.from(expected,'hex'),Buffer.from(value,'hex'))});
 }
 
-module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeRequest,stripeV2Request,verifyStripeSignature};
+module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeGetRequest,stripeRequest,stripeV2Request,verifyStripeSignature};
