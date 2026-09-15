@@ -80,4 +80,29 @@ Zwingend anwaltlich beziehungsweise steuerlich und prozessbezogen zu prüfen ble
 - zulässige Vorgaben für Versandpreise, Verpackungskosten und Abholung;
 - die korrekte Trennung von Warenpreis, Versandkosten und DUELVANTA-Provision in Abrechnung und Zahlungsfluss.
 
+## Entscheidung L07-01/25 – Versandfrist nach bestätigter Zahlung
+
+**Betreiberentscheidung:**
+
+- Bei entgeltlichen Versandverkäufen muss der Verkäufer die Ware spätestens innerhalb von **3 Werktagen** nach bestätigter erfolgreicher Zahlung versenden.
+- Innerhalb derselben Frist muss der Verkäufer die Sendungsnummer beziehungsweise den nach dem freigegebenen Versandmodell vorgesehenen Tracking-Nachweis im DUELVANTA-Auftrag hinterlegen.
+- Erfolgt der Versand beziehungsweise die Hinterlegung des erforderlichen Versandnachweises nicht fristgerecht, darf der Käufer einen Problemfall über den vorgesehenen DUELVANTA-Prozess eröffnen.
+- Wiederholte oder erhebliche Verstöße gegen die Versandfrist dürfen nach dem später freigegebenen Moderationsmodell bei Verkäufermaßnahmen berücksichtigt werden.
+- Eine verspätete Versendung führt nicht automatisch ohne weitere Prüfung zu einer verbindlichen zivilrechtlichen Anspruchsentscheidung durch DUELVANTA.
+- Abweichende längere Regellieferzeiten sind im ersten Release nicht vorgesehen; gesetzlich zwingende Rechte und individuell erforderliche Sonderbehandlung bleiben unberührt.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release müssen Zahlungsbestätigung, Fristbeginn, Werktagsberechnung, Versand-/Trackingzeitpunkt, Fristüberschreitung und Problemfalleröffnung technisch nachvollziehbar miteinander verknüpft werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich beziehungsweise prozessbezogen zu prüfen bleiben insbesondere:
+
+- die zulässige und hinreichend klare vertragliche Ausgestaltung der Drei-Werktage-Versandfrist;
+- die konkrete Definition von Werktagen und der Beginn der Frist nach Zahlungsbestätigung;
+- der Umgang mit Feiertagen, nachweisbaren Versanddienststörungen, Krankheit oder sonstigen atypischen Fällen;
+- Verhältnis der Plattform-Versandfrist zu gesetzlichen Liefer-, Verzugs- und Verbraucherrechten;
+- zulässige Moderationsfolgen bei wiederholten Fristverstößen.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
