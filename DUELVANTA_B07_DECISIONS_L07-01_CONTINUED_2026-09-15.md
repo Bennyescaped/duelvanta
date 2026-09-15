@@ -58,4 +58,27 @@ Zwingend extern zu prüfen bleiben insbesondere:
 - DSA-, Datenschutz- und PStTG-Anforderungen an Erhebung, Verifikation, Speicherung, Aktualisierung und Offenlegung;
 - der Umgang mit Falschangaben, Statusänderungen und gesperrten beziehungsweise nicht mehr verifizierten Verkäufern.
 
+## Entscheidung L07-01/10 – Registrierungspflicht und kein Gast-Checkout
+
+**Betreiberentscheidung:**
+
+- Im ersten kommerziellen Marketplace-Release können nur registrierte und eingeloggte DUELVANTA-Nutzer über TRADE kaufen, verkaufen oder C2C-Tauschgeschäfte durchführen.
+- Ein Gast-Checkout beziehungsweise Vertragsschluss ohne DUELVANTA-Konto wird im ersten Release nicht angeboten.
+- Ein Käufer benötigt keinen Verkäuferstatus, solange er ausschließlich kauft; für Verkauf und C2C-Tausch gelten zusätzlich die dafür vorgesehenen Verkäufer-/Identitätsanforderungen.
+- Das Nutzerkonto selbst darf kostenlos sein; aus der Registrierung entsteht keine Käufer-Transaktionsgebühr.
+- Bestell-, Vertrags-, Kommunikations-, Alters-, Adress- und Beschwerdeprozesse werden einem authentifizierten Nutzerkonto zugeordnet.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Das bestehende authentifizierte TRADE-Modell entspricht dieser Zielentscheidung grundsätzlich. Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release muss technisch nachgewiesen werden, dass Kauf-, Verkaufs- und Tauschvertragsschlüsse ohne gültige authentifizierte Session nicht möglich sind und dass die später freigegebenen Alters-/Käuferstatusanforderungen am Konto beziehungsweise vor Vertragsschluss wirksam durchgesetzt werden.
+
+### Externer Freigabepunkt
+
+Zwingend extern zu prüfen bleiben insbesondere:
+
+- die wirksame Einbeziehung der Plattformbedingungen bei Registrierung beziehungsweise erstmaliger Marketplace-Nutzung;
+- Umfang und Zeitpunkt der erforderlichen Konto-, Alters-, Käufer- und Adressangaben;
+- die zulässige Verknüpfung von Vertragsnachweisen, Kommunikation und Aufbewahrung mit dem Nutzerkonto;
+- Folgen von Kontosperre oder Kontolöschung für laufende und abgeschlossene Verträge sowie gesetzliche Aufbewahrungspflichten.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
