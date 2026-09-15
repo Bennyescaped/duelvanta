@@ -79,4 +79,13 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Die weitere technische Bearbeitung richtet sich nach den verfügbaren Zustell- und Nachforschungsergebnissen; DUELVANTA trifft keine abschließende zivilrechtliche Haftungsentscheidung.
 - Zwingende C2C-/B2C-Haftungsregeln bleiben maßgeblich und werden vor Release extern rechtlich geprüft.
 
+## Entscheidung L07-01/52 – Frist im Problemfall
+
+- Nach Eröffnung eines Problemfalls haben beide Seiten grundsätzlich 7 Tage Zeit, zu antworten und angeforderte Nachweise einzureichen.
+- Reagiert eine Seite innerhalb dieser Frist nicht, darf DUELVANTA den Plattformprozess auf Basis der vorhandenen Informationen fortführen.
+- Eine laufende Nachforschung beim Versanddienstleister kann den Problemfall über die 7-Tage-Frist hinaus offen halten.
+- Der betroffene Transaktionsbetrag bleibt bis zur technischen Klärung gesperrt; sonstiges Verkäuferguthaben bleibt unberührt.
+- DUELVANTA trifft dadurch keine abschließende zivilrechtliche Schuld- oder Haftungsentscheidung.
+- Die genaue Eskalations-, Erinnerungs- und Abschlusslogik wird vor Release extern rechtlich und technisch finalisiert.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
