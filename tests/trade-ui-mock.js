@@ -16,6 +16,9 @@
   }
   const db={auth:{getSession:async()=>({data:{session:{user:{id:'ui-buyer'}}}}),onAuthStateChange:()=>({}),signOut:async()=>({})},from:query,storage:{from:()=>({createSignedUrl:async()=>({data:{signedUrl:null}})})},rpc:async(name,args)=>{
     calls.push({name,args});
+    if(name==='get_my_market_trade_eligibility')return {data:{eligible:true,buyer_eligible:true,residence_country_code:'DE',private_buyer_confirmed:true},error:null};
+    if(name==='get_my_market_swaps_v1')return {data:[],error:null};
+    if(name==='get_my_market_order_b07_status')return {data:[],error:null};
     if(name==='get_my_market_offers_v2')return {data:[{id:'ui-offer',listing_id:'ui-vb',seller_id:'ui-seller',buyer_id:'ui-buyer',requested_quantity:3,status:'pending',amount:600,listed_total_snapshot:660,listed_unit_price_snapshot:220,historical_price:true,listing_snapshot:{card_name:'Display UI-Prüfung',sealed_category:'display'},message:'<img src=x onerror=alert(1)>'},{id:'ui-old',seller_id:'ui-seller',buyer_id:'ui-buyer',requested_quantity:1,status:'accepted',amount:240,historical_price:false,listing_snapshot:{card_name:'Älteres Angebot'}}],error:null};
     if(name==='review_market_checkout')return {data:checkoutReview(args.p_quantity),error:null};
     if(name==='buy_market_listing_v3'){
