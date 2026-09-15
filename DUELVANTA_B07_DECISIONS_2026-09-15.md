@@ -132,4 +132,21 @@ Zwingend extern beziehungsweise steuerlich zu klären bleiben insbesondere:
 - die erforderliche Wert-/Nachweislogik, falls eine steuerliche oder regulatorische Erfassung notwendig ist;
 - die klare Abgrenzung zu gewerblichen Tauschgeschäften und Mischgeschäften mit Geldanteil.
 
+### Entscheidung L07-01/06 – Warenumfang des ersten Marketplace-Releases
+
+**Betreiberentscheidung:**
+
+- Der erste kommerzielle Marketplace-Release wird auf Trading-Card-Produkte beschränkt.
+- Zulässig sind Einzelkarten, professionell gegradete Karten/Slabs und original versiegelte TCG-Produkte wie Booster, Displays, Boxen, ETBs und vergleichbare Sealed-Produkte.
+- Zubehör, selbst hergestellte Produkte, 3D-Druck-Produkte, Kleidung, Elektronik, Lebensmittel, sonstiges Merchandise und andere nicht ausdrücklich freigegebene Produktkategorien gehören nicht zum ersten Release.
+- Die Erweiterung um weitere Produktkategorien bleibt möglich, benötigt aber vor Aktivierung eine gesonderte rechtliche, technische und gegebenenfalls steuerliche Produkt-Scope-Prüfung.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die vorhandenen Marketplace-Strukturen für Karten, Slabs und Sealed-Produkte bilden den vorgesehenen Release-Scope ab. Aus dieser Betreiberentscheidung folgt in diesem Dokumentationsschritt keine Produktcodeänderung. Vor Release muss jedoch sichergestellt werden, dass nicht freigegebene Produktkategorien nicht unbeabsichtigt angeboten werden können.
+
+### Externer Freigabepunkt
+
+Für Release 1 extern zu prüfen bleiben insbesondere die auf diesen konkreten TCG-Warenumfang anwendbaren Produkt-, Informations- und Marketplace-Pflichten, einschließlich der bereits offenen GPSR-Fragen. Nicht freigegebene Produktgruppen sind ausdrücklich nicht Bestandteil der ersten anwaltlichen Produktfreigabe.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
