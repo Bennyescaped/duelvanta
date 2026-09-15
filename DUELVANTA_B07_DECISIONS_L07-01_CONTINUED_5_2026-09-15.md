@@ -31,4 +31,29 @@ Zwingend anwaltlich beziehungsweise datenschutz- und prozessbezogen zu prüfen b
 - die datenschutzkonforme Verarbeitung und Aufbewahrung von Versand-/Trackingdaten;
 - der geeignete Nachweisprozess bei persönlicher Abholung.
 
-**B07-Status nach dieser Entscheidung: unverändert OFFEN / BLOCKIERT.**
+## Entscheidung L07-01/23 – Zwei-Stunden-Reservierung nach angenommenem Preisvorschlag
+
+**Betreiberentscheidung:**
+
+- Nimmt der Verkäufer einen Preisvorschlag an, entsteht dadurch weiterhin noch kein Warenkaufvertrag.
+- Der betroffene Artikel wird nach der Verkäuferannahme für **2 Stunden** exklusiv für den Käufer reserviert, dessen Preisvorschlag angenommen wurde.
+- Während dieser Reservierungszeit kann der Artikel nicht von einem anderen Nutzer gekauft werden.
+- Der Käufer muss innerhalb der Zwei-Stunden-Frist den vollständigen Checkout durchlaufen und die Zahlung erfolgreich abschließen.
+- Erfolgt innerhalb der Frist kein erfolgreicher Checkout mit Zahlung, verfällt die Reservierung automatisch und der Artikel wird wieder für andere Nutzer verfügbar.
+- Bis zum erfolgreichen finalen Checkout entstehen weder Kaufvertrag noch DUELVANTA-Verkaufsprovision.
+- Die Reservierungsdauer ist Bestandteil des Marketplace-Zielmodells; die genaue rechtliche Einordnung der Reservierung und erforderliche Nutzerkommunikation bleiben extern freizugeben.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Diese Entscheidung löst aktuell noch keine Produktcodeänderung aus. Bei der späteren B07-Minimalkorrektur des Verhandlungsflows muss die Zwei-Stunden-Reservierung serverseitig nachvollziehbar abgebildet werden, einschließlich Startzeitpunkt, Ablauf, Exklusivität und automatischer Freigabe. Der bestehende R0-Befund zum unmittelbaren Deal nach Verkäuferannahme bleibt bis zu dieser Korrektur offen.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich zu prüfen bleiben insbesondere:
+
+- die rechtliche Qualität der Verkäuferannahme und der anschließenden zeitlich begrenzten Reservierung;
+- die Darstellung der Zwei-Stunden-Frist gegenüber Käufer und Verkäufer;
+- Folgen bei technischem Zahlungsfehler, Systemstörung oder abgebrochenem Checkout innerhalb der Reservierungsfrist;
+- zulässige Regeln für vorzeitige Aufhebung, erneute Preisverhandlung und Wiederfreigabe des Artikels.
+
+**B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
