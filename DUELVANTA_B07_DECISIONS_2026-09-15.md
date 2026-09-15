@@ -35,4 +35,26 @@ Zwingend extern freizugeben bleiben insbesondere:
 - die Plattform- und Verkäuferbedingungen;
 - die später gesondert zu prüfende Architektur für DUELVANTA-Eigenverkäufe.
 
-**B07-Status nach dieser Entscheidung: unverändert OFFEN / BLOCKIERT.**
+### Entscheidung L07-01/02 – Käuferkreis des ersten Marketplace-Releases
+
+**Betreiberentscheidung:**
+
+- Der erste kommerzielle Marketplace-Release richtet sich auf Käuferseite ausschließlich an private Käufer/Verbraucher.
+- Gewerbliche beziehungsweise unternehmerische Käufe werden im ersten Release nicht angeboten und gehören nicht zum freizugebenden Release-Scope.
+- Damit werden für den ersten Release auf Warenkaufebene nur die Zielkonstellationen C2C (privater Verkäufer → privater Käufer) und B2C (gewerblicher Verkäufer → privater Käufer) vorgesehen.
+- B2B-Käufe bleiben eine mögliche spätere Ausbaustufe und müssen vor Aktivierung gesondert technisch, vertraglich, steuerlich und rechtlich geprüft und extern freigegeben werden.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Der bestehende Checkout klassifiziert derzeit im Wesentlichen nach Verkäuferart. Diese Betreiberentscheidung legt nun den Ziel-Scope fest, ersetzt aber noch nicht die notwendige rechtliche und technische Abnahme, wie der Käuferstatus vor Vertragsschluss wirksam erhoben beziehungsweise der Käuferkreis verbindlich auf Verbraucher beschränkt wird. Eine Produktcodeänderung wird in diesem Schritt nicht vorgenommen.
+
+### Externer Freigabepunkt
+
+Zwingend extern freizugeben bleiben insbesondere:
+
+- die rechtssichere vertragliche Beschränkung des Käuferkreises auf Verbraucher;
+- die erforderliche Käufererklärung beziehungsweise das notwendige Prüf-/Hinweismodell vor Vertragsschluss;
+- der Umgang mit Falschangaben oder tatsächlich unternehmerisch handelnden Käufern;
+- die korrekte C2C-/B2C-Zuordnung und die daraus folgenden Pflichtinformationen.
+
+**B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
