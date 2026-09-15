@@ -4,7 +4,9 @@ import {pathToFileURL} from 'node:url';
 
 const pgliteUrl=process.argv[2]?pathToFileURL(process.argv[2]).href:import.meta.resolve('@electric-sql/pglite');
 const {PGlite}=await import(pgliteUrl);
-const db=new PGlite(),USER='94000000-0000-4000-8000-000000000001',REQ='94000000-0000-4000-8000-000000000002',LOCK='94000000-0000-4000-8000-000000000003';
+const db=new PGlite();
+const USER='94000000-0000-4000-8000-000000000001',REQ='94000000-0000-4000-8000-000000000002',LOCK='94000000-0000-4000-8000-000000000003';
+const USER2='94000000-0000-4000-8000-000000000011',REQ2='94000000-0000-4000-8000-000000000012',LOCK2='94000000-0000-4000-8000-000000000013';
 const patch=await readFile(new URL('../database/account-data-erasure-username-guard-v1.sql',import.meta.url),'utf8');
 const blocked=async(sql,pattern)=>assert.rejects(()=>db.query(sql),pattern);
 const flag=async()=>String((await db.query(`select coalesce(current_setting('duelvanta.username_rpc',true),'') value`)).rows[0].value||'');
@@ -33,16 +35,30 @@ try{
     create function dv_market_private.account_deletion_blockers(uuid) returns jsonb language sql stable as $$select '[]'::jsonb$$;
     create function public.guard_profile_username_direct_update() returns trigger language plpgsql security definer set search_path='' as $$begin if new.username is distinct from old.username and coalesce(current_setting('duelvanta.username_rpc',true),'')<>'allowed' then raise exception 'Username changes must use the protected profile function'; end if;return new;end$$;
     create trigger guard_profile_username_direct_update before update of username on public.profiles for each row execute function public.guard_profile_username_direct_update();
-    insert into public.profiles values('${USER}','user@example.test','User','protected.name',null,'private',now());
-    insert into public.market_seller_accounts values('${USER}','active',null,'User',now());
-    insert into dv_market_private.account_deletion_requests values('${REQ}','${USER}','processing','${LOCK}',null);
+    insert into public.profiles values
+      ('${USER}','user@example.test','User','protected.name',null,'private',now()),
+      ('${USER2}','user2@example.test','User 2','protected.failure',null,'private',now());
+    insert into public.market_seller_accounts values
+      ('${USER}','active',null,'User',now()),
+      ('${USER2}','active',null,'User 2',now());
+    insert into dv_market_private.account_deletion_requests values
+      ('${REQ}','${USER}','processing','${LOCK}',null),
+      ('${REQ2}','${USER2}','processing','${LOCK2}',null);
     grant usage on schema public to authenticated,service_role;grant select,update on public.profiles to authenticated,service_role;
   `);
   await db.exec(patch);
 
+  const acl=(await db.query(`select
+    has_function_privilege('authenticated','public.prepare_account_deletion_data(uuid,uuid)','EXECUTE') authenticated,
+    has_function_privilege('service_role','public.prepare_account_deletion_data(uuid,uuid)','EXECUTE') service_role`)).rows[0];
+  assert.equal(acl.authenticated,false,'authenticated must not have EXECUTE on erasure RPC');
+  assert.equal(acl.service_role,true,'service_role must have EXECUTE on erasure RPC');
+  const owner=(await db.query(`select pg_get_userbyid(proowner) owner from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='prepare_account_deletion_data'`)).rows[0].owner;
+  assert.notEqual(owner,'service_role','SECURITY DEFINER owner must not be mistaken for the service_role caller');
+
   await db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${USER}',false);`);
   await blocked(`update public.profiles set username='direct.change' where id='${USER}'`,/Username changes must use the protected profile function/);
-  await blocked(`select public.prepare_account_deletion_data('${REQ}','${LOCK}')`,/permission denied|service_role_required/);
+  await blocked(`select public.prepare_account_deletion_data('${REQ}','${LOCK}')`,/permission denied/);
   await db.exec('reset role');
 
   await db.exec(`set role service_role;select set_config('request.jwt.claim.sub','',false);`);
@@ -52,15 +68,16 @@ try{
   assert.equal(await flag(),'','successful erasure must clear the transaction-local username bypass');
   await blocked(`update public.profiles set username='after.erasure' where id='${USER}'`,/Username changes must use the protected profile function/);
 
-  await db.exec(`reset role;update public.profiles set username='protected.again' where id='${USER}';update dv_market_private.account_deletion_requests set status='processing',lock_token='${LOCK}' where id='${REQ}';
+  await db.exec(`reset role;
     create function dv_market_private.fail_after_username_clear() returns trigger language plpgsql as $$begin raise exception 'forced_audit_failure';end$$;
-    create trigger force_audit_failure before insert on dv_market_private.account_data_rights_audit for each row execute function dv_market_private.fail_after_username_clear();set role service_role;`);
-  await blocked(`select public.prepare_account_deletion_data('${REQ}','${LOCK}')`,/forced_audit_failure/);
+    create trigger force_audit_failure before insert on dv_market_private.account_data_rights_audit for each row execute function dv_market_private.fail_after_username_clear();
+    set role service_role;`);
+  await blocked(`select public.prepare_account_deletion_data('${REQ2}','${LOCK2}')`,/forced_audit_failure/);
   assert.equal(await flag(),'','failed erasure must clear the transaction-local username bypass');
   await db.exec('reset role');
-  assert.equal((await db.query(`select username from public.profiles where id='${USER}'`)).rows[0].username,'protected.again','failed erasure must roll back username clearing');
+  assert.equal((await db.query(`select username from public.profiles where id='${USER2}'`)).rows[0].username,'protected.failure','failed erasure must roll back username clearing');
   await db.exec('set role service_role');
-  await blocked(`update public.profiles set username='still.blocked' where id='${USER}'`,/Username changes must use the protected profile function/);
+  await blocked(`update public.profiles set username='still.blocked' where id='${USER2}'`,/Username changes must use the protected profile function/);
 
   console.log('PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure');
 }finally{await db.close()}
