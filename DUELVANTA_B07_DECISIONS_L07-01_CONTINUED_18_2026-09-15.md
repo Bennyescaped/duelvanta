@@ -88,4 +88,17 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - DUELVANTA trifft dadurch keine abschließende zivilrechtliche Schuld- oder Haftungsentscheidung.
 - Die genaue Eskalations-, Erinnerungs- und Abschlusslogik wird vor Release extern rechtlich und technisch finalisiert.
 
+## Entscheidung L07-01/53 – Verkäufer-Sanktionsleiter
+
+- 1. zurechenbarer Verkäuferstorno innerhalb von 90 Tagen: 4-%-Stornogebühr und Verwarnung.
+- 2. zurechenbarer Verkäuferstorno innerhalb von 90 Tagen: zusätzlich 14 Tage Verkaufssperre.
+- 3. zurechenbarer Verkäuferstorno innerhalb von 90 Tagen: 60 Tage Verkaufssperre und manuelle Kontoprüfung.
+- Ab dem 4. zurechenbaren Verkäuferstorno innerhalb der maßgeblichen Eskalationshistorie ist grundsätzlich eine dauerhafte Marketplace-Verkaufssperre vorgesehen, vorbehaltlich Überprüfung.
+- Nach 180 Tagen ohne weiteren zurechenbaren Verkäuferstorno wird die Eskalationsstufe um eine Stufe reduziert; sie fällt nicht automatisch vollständig auf null zurück.
+- Bei schweren Verstößen gilt die Stufenleiter nicht zwingend. Begründeter Verdacht auf Fälschungen, Betrug, manipulierte Versandnachweise, falsche Identität, systematische Zahlungsumgehung oder vergleichbare schwere Verstöße kann eine sofortige vorläufige Verkaufssperre auslösen.
+- Bestätigte gravierende Verstöße können bereits beim ersten Fall zu einer dauerhaften Marketplace-Sperre führen.
+- Laufende Bestellungen, Rückzahlungen, Problemfälle und notwendige Kommunikationsfunktionen bleiben trotz Verkaufssperre zugänglich.
+- Betroffene Nutzer erhalten den konkreten Grund der Maßnahme und einen geeigneten Überprüfungs-/Beschwerdeweg, soweit rechtlich erforderlich.
+- Die genaue rechtliche Ausgestaltung, Verhältnismäßigkeit, Dokumentation und Beschwerdelogik wird vor Release extern geprüft.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
