@@ -107,4 +107,26 @@ Zwingend extern beziehungsweise steuerlich/zahlungsdienstlich zu prüfen bleiben
 - die vertragliche Behandlung unzulässiger externer Zahlungsumgehungen und deren Folgen;
 - die zulässige Gestaltung einer Abholung bei weiterhin integrierter Onlinezahlung.
 
+## Entscheidung L07-01/12 – Keine eigene DUELVANTA-Käuferschutzgarantie
+
+**Betreiberentscheidung:**
+
+- DUELVANTA gibt im ersten kommerziellen Marketplace-Release keine eigene Geld-zurück-, Beschaffenheits-, Liefer- oder sonstige Käuferschutzgarantie für vermittelte Drittverkäufe.
+- Gesetzliche und vertragliche Ansprüche aus dem Warenkauf richten sich grundsätzlich gegen den jeweiligen Verkäufer nach der konkret anwendbaren C2C- oder B2C-Konstellation.
+- DUELVANTA darf einen technischen Problemfall-, Beschwerde-, Rückabwicklungs- und späteren Refund-Prozess bereitstellen, ohne dadurch eine eigene Garantie oder Verkäuferhaftung zu übernehmen.
+- Eine spätere freiwillige DUELVANTA-Käuferschutzleistung bleibt möglich, gehört aber nicht zum ersten Release und muss vor Einführung gesondert rechtlich, wirtschaftlich, steuerlich und technisch freigegeben werden.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die bestehende Order-/Resolution-Architektur kann für technische Streit- und Rückabwicklungsprozesse als Grundlage erhalten bleiben. Es darf vor Release keine UI-, Werbe- oder Vertragsdarstellung geben, die einen eigenen DUELVANTA-Käuferschutz oder eine eigene Garantie suggeriert, solange eine solche Leistung nicht ausdrücklich eingeführt und freigegeben wurde. Diese Entscheidung löst aktuell keine Produktcodeänderung aus.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich beziehungsweise für Zahlungsfolgen zusätzlich zahlungsdienstlich zu prüfen bleiben insbesondere:
+
+- die zulässige Abgrenzung zwischen technischer Streit-/Refund-Unterstützung und eigener Garantie- oder Einstandspflicht;
+- die konkreten Plattformbedingungen zu Beschwerden, Rückabwicklung und Zahlungsproblemen;
+- Formulierungen in UI, Werbung und Bestellkommunikation, damit keine weitergehende Käuferschutzleistung versprochen wird;
+- die Rechte und Pflichten des Zahlungsdienstleisters bei Refunds und Chargebacks.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
