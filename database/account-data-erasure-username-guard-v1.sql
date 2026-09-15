@@ -6,7 +6,6 @@ returns jsonb language plpgsql security definer
 set search_path=pg_catalog,public,dv_market_private as $$
 declare v_request dv_market_private.account_deletion_requests%rowtype;v_has_holds boolean;v_until timestamptz;
 begin
-  if current_user<>'service_role' then raise exception 'service_role_required'; end if;
   select * into v_request from dv_market_private.account_deletion_requests
   where id=p_request_id and status='processing' and lock_token=p_lock_token for update;
   if not found then raise exception 'deletion_request_lock_invalid'; end if;
@@ -43,8 +42,9 @@ begin
   update public.market_seller_accounts set onboarding_status='suspended',suspended_at=coalesce(suspended_at,now()),
     trader_display_name=null,updated_at=now() where seller_id=v_request.user_id;
 
+  -- SECURITY DEFINER runs as the function owner, so the service-role caller boundary is enforced by EXECUTE ACL below.
   -- The existing trigger permits username mutation only while this transaction-local flag is allowed.
-  -- The function itself is service_role-only and requires the already-claimed request/lock pair above.
+  -- The already-claimed request/lock pair above keeps the bypass inside the locked erasure path.
   perform set_config('duelvanta.username_rpc','allowed',true);
   update public.profiles set email='deleted-'||gen_random_uuid()::text||'@invalid.local',
     display_name='Gelöschtes Mitglied',username=null,avatar_path=null,collection_visibility='private',
