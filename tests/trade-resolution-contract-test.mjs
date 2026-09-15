@@ -85,7 +85,8 @@ must(swapMigration,'market_swap_evidence_is_immutable','C2C immutable evidence g
 mustNot(swapMigration,'insert into dv_market_private.market_tax_events','B07 C2C must not create tax ledger events');
 mustNot(swapMigration,'record_market_tax_remuneration(','B07 C2C must not book tax remuneration');
 mustNot(swapMigration,'platform_fee_collected','B07 C2C must not introduce swap fees');
-for(const rpc of ['create_market_swap_proposal_v1','propose_market_swap_revision_v1','confirm_market_swap_revision_v1','close_market_swap_thread_v1','mark_market_swap_shipped_v1','confirm_market_swap_received_v1','get_my_market_swaps_v1'])must(swapUi,`db.rpc('${rpc}'`,'C2C UI RPC wiring missing');
+for(const rpc of ['create_market_swap_proposal_v1','propose_market_swap_revision_v1','confirm_market_swap_revision_v1','close_market_swap_thread_v1','mark_market_swap_shipped_v1','confirm_market_swap_received_v1','get_my_market_swaps_v1'])must(swapUi,`'${rpc}'`,'C2C UI RPC action name missing');
+must(swapUi,'db.rpc(name,args)','central C2C action wrapper RPC call missing');
 must(swapUi,'TAUSCH VORSCHLAGEN','C2C market CTA missing');
 must(swapUi,'FINALEN TAUSCHSTAND BESTÄTIGEN','explicit final C2C confirmation missing');
 must(swapUi,'GEGENVORSCHLAG / ÄNDERN','C2C revision flow missing');
