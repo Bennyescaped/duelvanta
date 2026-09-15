@@ -33,4 +33,35 @@ Zwingend anwaltlich zu prüfen bleiben insbesondere:
 - vollständige B2C-Pflichtinformationen und Button-Lösung beim finalen Checkout;
 - die identische Behandlung von Vertragsnachweis, Widerruf, Bestellbestätigung und Zahlung nach Festpreis- und Verhandlungskauf.
 
-**B07-Status nach dieser Entscheidung: unverändert OFFEN / BLOCKIERT.**
+## Entscheidung L07-01/16 – Zweistufiges Bedingungsmodell
+
+**Betreiberentscheidung:**
+
+- Alle registrierten Nutzer, die DUELVANTA verwenden, akzeptieren allgemeine DUELVANTA-Plattformbedingungen in der jeweils freigegebenen und versionierten Fassung.
+- Nutzer, die über TRADE verkaufen oder einen privaten C2C-Tausch anbieten beziehungsweise durchführen wollen, akzeptieren zusätzlich gesonderte Verkäufer-/TRADE-Bedingungen in der jeweils freigegebenen und versionierten Fassung.
+- Käufer, die nicht verkaufen oder tauschen, benötigen keinen Verkäuferstatus und keine Verkäuferbedingungen; für ihre Marketplace-Nutzung gelten die allgemeinen Plattformbedingungen sowie die konkret vor Vertragsschluss erforderlichen TRADE-/Checkout-Informationen.
+- Der Warenkauf- beziehungsweise Tauschvertrag wird nicht mit DUELVANTA, sondern unmittelbar zwischen den beteiligten Nutzern geschlossen. Bei gewerblichen Verkäufern kommen die jeweils erforderlichen Händler- und Verbraucherinformationen des konkreten Verkäufers hinzu.
+- Zustimmung, Fassungskennung und Zeitpunkt sollen beweissicher gespeichert werden. Eine neue Zustimmung soll nur verlangt werden, wenn eine rechtlich beziehungsweise inhaltlich relevante neue Fassung dies erfordert.
+- Die vorhandene technische Zustimmung zu `seller-beta-2026-09` ist keine Rechtsfreigabe und darf erst dann produktiv als Vertragsgrundlage verwendet werden, wenn ihr ein eindeutig zugeordneter, erreichbarer und extern freigegebener Bedingungstext entspricht.
+
+### Vertragsbeziehungen aus dieser Entscheidung
+
+- DUELVANTA ↔ Käufer/Nutzer: Plattformnutzungsvertrag auf Grundlage der allgemeinen Plattformbedingungen.
+- DUELVANTA ↔ Verkäufer/Tauschender: Plattformnutzungsvertrag plus zusätzliche Verkäufer-/TRADE-Bedingungen.
+- Verkäufer ↔ Käufer beziehungsweise Tauschpartner ↔ Tauschpartner: eigenständiger Warenkauf- oder Tauschvertrag zwischen den Nutzern; DUELVANTA bleibt Vermittler.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die bereits vorhandene Versionierungs- und Zustimmungsvorbereitung kann als Grundlage erhalten bleiben. In diesem Entscheidungsschritt wird keine Produktcodeänderung vorgenommen. Vor Release müssen die tatsächlich freigegebenen Dokumentfassungen dauerhaft erreichbar sein und technisch eindeutig mit der gespeicherten Zustimmungsversion verknüpft werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich zu prüfen und freizugeben bleiben insbesondere:
+
+- die vollständigen allgemeinen Plattformbedingungen einschließlich Betreiber-/Vermittlerrolle, Leistungsumfang, Moderation, Sperren, Beendigung, Beschwerden und Datenzugang;
+- die zusätzlichen Verkäufer-/TRADE-Bedingungen einschließlich Verkäuferpflichten, Gebühren, Statusangaben, Zahlungsweg, Versand, Rückabwicklung und Tauschregeln;
+- die Abgrenzung zwischen Plattformvertrag und Warenkauf-/Tauschvertrag;
+- wirksame Einbeziehung, Änderungsmechanismus, Versionierung und erneute Zustimmung;
+- besondere Anforderungen für gewerbliche Verkäufer einschließlich einer möglichen P2B-Anwendbarkeit.
+
+**B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
