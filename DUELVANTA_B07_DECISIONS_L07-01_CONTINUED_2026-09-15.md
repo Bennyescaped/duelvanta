@@ -129,4 +129,30 @@ Zwingend anwaltlich beziehungsweise für Zahlungsfolgen zusätzlich zahlungsdien
 - Formulierungen in UI, Werbung und Bestellkommunikation, damit keine weitergehende Käuferschutzleistung versprochen wird;
 - die Rechte und Pflichten des Zahlungsdienstleisters bei Refunds und Chargebacks.
 
+## Entscheidung L07-01/13 – Moderation, Angebotsentfernung und Kontosperren
+
+**Betreiberentscheidung:**
+
+- DUELVANTA darf im ersten kommerziellen Marketplace-Release rechtswidrige oder gegen die freigegebenen Plattform-/Marketplace-Regeln verstoßende Angebote entfernen, ausblenden oder deren Veröffentlichung verhindern.
+- DUELVANTA darf Marketplace-Funktionen eines Nutzers vorübergehend beschränken oder ein Nutzerkonto beziehungsweise Verkäuferkonto vorübergehend oder dauerhaft sperren, wenn hierfür ein sachlicher und nach dem später freigegebenen Regelwerk zulässiger Grund besteht.
+- Moderations- und Sperrmaßnahmen sollen grundsätzlich nachvollziehbar begründet und, soweit gesetzlich beziehungsweise nach dem freigegebenen Verfahren erforderlich, dem Betroffenen mitgeteilt werden.
+- Für betroffene Nutzer wird ein geeigneter Einspruchs-/Beschwerdeweg vorgesehen, soweit dies nach dem anwendbaren Rechts- und Plattformmodell erforderlich oder vorgesehen ist.
+- Bei schweren, offensichtlichen oder akut sicherheits-/rechtsrelevanten Fällen dürfen technisch sofortige Schutzmaßnahmen vorgesehen werden; die nachgelagerte Begründungs- und Prüfpflicht bleibt davon unberührt.
+- Eine Kontosperre oder Angebotsentfernung beseitigt bereits entstandene Kauf-, Tausch-, Zahlungs-, Rückabwicklungs-, Nachweis- oder sonstige gesetzliche beziehungsweise vertragliche Ansprüche nicht automatisch.
+- Offene Bestellungen, laufende Streitfälle, Vertragsnachweise und gesetzlich aufzubewahrende Daten müssen trotz Kontosperre nach dem später freigegebenen Prozess korrekt weiterbehandelt werden.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die bereits vorbereitete Notice-and-Action-, Moderations-, Verkäuferfreigabe- und Audit-Architektur kann als technische Grundlage erhalten bleiben. Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release müssen konkrete Sperrgründe, Maßnahmenstufen, Begründungen, Benachrichtigungen, Einspruchswege und die Behandlung laufender Transaktionen gegen das rechtlich freigegebene Regelwerk abgenommen werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich zu prüfen bleiben insbesondere:
+
+- zulässige und hinreichend bestimmte Moderations-, Sperr- und Kündigungsgründe;
+- DSA-Anforderungen an Bedingungen, Begründungen, Beschwerde-/Einspruchsverfahren und gegebenenfalls weitere Plattformpflichten;
+- die Behandlung gewerblicher Verkäufer einschließlich einer möglichen P2B-Anwendbarkeit und dortiger Beschränkungs-/Beendigungsanforderungen;
+- Verhältnis von Sofortmaßnahmen zu Vorankündigung, Anhörung und nachgelagerter Begründung;
+- Auswirkungen von Sperre oder Beendigung auf laufende Verträge, Zahlungen, Refunds, Datenzugang und Aufbewahrung.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
