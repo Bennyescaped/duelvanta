@@ -76,11 +76,11 @@ try{
 
   assert.equal(invoke('GET',false).statusCode,405);
 
-  for(const file of [...(profileOnly?[]:['trade.html','login.html','reset-password.html','app.html','seller-onboarding.html','listing-report.html','admin.html']),'profile.html']){
+  for(const file of [...(profileOnly?[]:['trade.html','login.html','reset-password.html','app.html','seller-onboarding.html','listing-report.html','admin.html','mfa.html','control-center.html']),'profile.html']){
     const source=await readFile(new URL('../'+file,import.meta.url),'utf8');
     assert.ok(source.includes('/api/compliance-message-dispatch?runtime_config=1'),`${file} does not load the guarded runtime configuration`);
   }
-  for(const file of [...(profileOnly?[]:['trade.js','login.html','reset-password.html','app.html','seller-onboarding.js','listing-report.js','admin.html']),'profile.js']){
+  for(const file of [...(profileOnly?[]:['trade.js','login.html','reset-password.html','app.html','seller-onboarding.js','listing-report.js','admin.html','mfa.js','control-center-auth-preflight.js']),'profile.js']){
     const source=await readFile(new URL('../'+file,import.meta.url),'utf8');
     assert.ok(source.includes('DV_SUPABASE'),`${file} does not consume the guarded runtime configuration`);
     assert.ok(!source.includes(PRODUCTION_URL),`${file} still hardcodes production Supabase`);
@@ -97,7 +97,7 @@ try{
   assert.ok(runtimeIndex>=0&&runtimeIndex<profileIndex&&profileIndex<rightsIndex,'runtime must execute before PROFILE and its dependent modules');
   for(const index of [runtimeIndex,profileIndex,rightsIndex])assert.doesNotMatch(scripts[index].attributes,/\b(?:async|defer|type)\s*(?:=|\s|$)/i,'PROFILE bootstrap scripts must remain parser-blocking classic scripts');
   assert.equal(scripts[profileIndex].src,'profile.js?v=1.2','the changed profile resource needs its new cache version');
-  assert.equal(scripts[rightsIndex].src,'profile-data-rights.js?v=1','unchanged data-rights resource must keep its cache version');
+  assert.equal(scripts[rightsIndex].src,'profile-data-rights.js?v=2','the changed data-rights resource needs its new cache version');
   assert.match(profileHtml,/profile\.css\?v=1\.1/,'unchanged CSS must keep its cache version');
   assert.equal((profileSource.match(/createClient\(/g)||[]).length,1,'PROFILE must have exactly one guarded client factory');
   assert.match(rightsSource,/db=window\.__dvAppDb/);
@@ -189,11 +189,33 @@ try{
   runInContext(profileSource,local.context);await flushMicrotasks();
   assert.equal(local.clients[0].url,STAGING_URL,'local development stays staging-only');
 
+  const mfaHtml=await readFile(new URL('../mfa.html',import.meta.url),'utf8');
+  const mfaSource=await readFile(new URL('../mfa.js',import.meta.url),'utf8');
+  const controlHtml=await readFile(new URL('../control-center.html',import.meta.url),'utf8');
+  const controlPreflight=await readFile(new URL('../control-center-auth-preflight.js',import.meta.url),'utf8');
+  const resetSource=await readFile(new URL('../reset-password.html',import.meta.url),'utf8');
+  assert.doesNotThrow(()=>new Function(mfaSource),'MFA script must parse');
+  assert.doesNotThrow(()=>new Function(controlPreflight),'control-center auth preflight must parse');
+  assert.match(mfaSource,/getAuthenticatorAssuranceLevel/);
+  assert.match(mfaSource,/mfa\.enroll/);
+  assert.match(mfaSource,/mfa\.challenge/);
+  assert.match(mfaSource,/mfa\.verify/);
+  assert.match(mfaSource,/\['owner','admin','moderator','judge'\]/,'MFA enrollment must stay limited to privileged roles');
+  assert.ok(mfaHtml.indexOf('/api/compliance-message-dispatch?runtime_config=1')<mfaHtml.indexOf('mfa.js?v=1'),'MFA runtime config must load before MFA logic');
+  assert.ok(controlHtml.indexOf('/api/compliance-message-dispatch?runtime_config=1')<controlHtml.indexOf('control-center-auth-preflight.js?v=1'),'control-center runtime config must load before its auth gate');
+  assert.match(controlPreflight,/aal\.currentLevel!==['"]aal2['"]/,'control center must require AAL2 before loading its legacy management scripts');
+  assert.doesNotMatch(controlPreflight,PRODUCTION_URL,'control center preflight must not contain a direct production URL fallback');
+  assert.match(resetSource,/signOut\(\{scope:'global'\}\)/,'password recovery must revoke all refresh sessions');
+  assert.match(rightsSource,/\['owner','admin','moderator','judge'\]/,'profile MFA management must be limited to privileged roles');
+  assert.match(rightsSource,/getAuthenticatorAssuranceLevel/,'password changes must honor an enrolled MFA factor');
+
   const workflow=await readFile(new URL('../.github/workflows/scanner-v16-check.yml',import.meta.url),'utf8');
   const paths=workflow.split('  pull_request:')[1]?.split('  workflow_dispatch:')[0]||'';
-  for(const file of ['profile.html','profile.js','profile-data-rights.js','api/compliance-message-dispatch.js','tests/supabase-runtime-config-test.mjs'])assert.ok(paths.includes(`- '${file}'`),`${file} must trigger the existing CI workflow`);
+  for(const file of ['profile.html','profile.js','profile-data-rights.js','api/compliance-message-dispatch.js','tests/supabase-runtime-config-test.mjs','mfa.html','mfa.js','reset-password.html','control-center.html','control-center-auth-preflight.js','database/auth-*.sql','DUELVANTA_MASTERHANDOUT_V*.md'])assert.ok(paths.includes(`- '${file}'`),`${file} must trigger the existing CI workflow`);
+  assert.match(workflow,/^\s+node --check mfa\.js\s*$/m,'CI must syntax-check MFA logic');
+  assert.match(workflow,/^\s+node --check control-center-auth-preflight\.js\s*$/m,'CI must syntax-check the control-center auth gate');
   assert.match(workflow,/^\s+node tests\/supabase-runtime-config-test\.mjs\s*$/m,'CI must execute the full test without --profile-only');
-  console.log(`PASS: PROFILE runtime ordering, shared client, ${invalidConfigs.length} invalid configurations, failed/mislabeled runtime, staging-only previews and four local production aliases`);
+  console.log(`PASS: PROFILE/runtime isolation plus privileged MFA, AAL2 control-center gate and recovery session revocation; ${invalidConfigs.length} invalid runtime configurations rejected`);
 }finally{
   for(const [name,value] of Object.entries(original))value===undefined?delete process.env[name]:process.env[name]=value;
   globalThis.fetch=originalFetch;
