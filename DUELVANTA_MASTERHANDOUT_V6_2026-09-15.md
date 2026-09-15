@@ -1,6 +1,6 @@
 # DUELVANTA – Masterhandout V6
 
-Stand: 15.09.2026. B01 / PROFILE-Preview-Isolation: gezielte Korrektur implementiert, lokal geprüft und auf dem Entwicklungsbranch gesichert; automatische CI erfolgreich. **B01 bleibt offen, weil die Prüfung der tatsächlich ausgelieferten statischen PROFILE-Dateien am Vercel-Zugriffsschutz ausstand. NO-GO für Produktion und Live-Payments bleibt bestehen.**
+Stand: 15.09.2026. B01 / PROFILE-Preview-Isolation: gezielte Korrektur implementiert, lokal geprüft und auf dem Entwicklungsbranch gesichert; automatische CI erfolgreich. Ein ergänzender statischer Auslieferungscheck bestätigte die Schutzlogik in `profile.js?v=1.2`, konnte `profile.html` aber weiterhin nicht als unveränderten Rohtext prüfen. **B01 bleibt deshalb offen. NO-GO für Produktion und Live-Payments bleibt bestehen.**
 
 ## 1. Verbindlichkeit und exakter Arbeitsstand
 
@@ -17,7 +17,7 @@ Dieses Dokument ersetzt widersprechende B01-Statusangaben aus V5. V5 bleibt die 
 | V4-Dokumentationscommit | `30d372aee483705565288cd00a71a282482d4ad4` |
 | Branch-Head unmittelbar vor Ablage V6 | `d108eba6033ea2d94d3a06e639202260e2d69717` |
 | V6-Datei im Stammverzeichnis | `DUELVANTA_MASTERHANDOUT_V6_2026-09-15.md` |
-| V6-Dokumentationscommit | Separater, nach dem technischen Checkpoint erzeugter Commit; über die Dateihistorie und die Ablagebestätigung ermitteln. Der obige technische SHA ist NICHT der V6-Dokumentationscommit. |
+| V6-Dokumentationscommit vor diesem Nachtrag | `3375024a787949fbb5fdf4f0e0aa889214542908`; der technische SHA ist NICHT der V6-Dokumentationscommit. |
 | PR #5 | Offen, Draft, nicht gemergt; nach dem technischen Push erneut gelesen |
 | main | `50f88213571be13255bb52eb489cc28cca660001`; nach dem technischen Push direkt erneut gelesen und unverändert |
 | Technisches B01-Preview | `dpl_A1ow6bsPtSttqWJK4skuvmwbnmtK`, READY, Git-SHA exakt `d108eba6033ea2d94d3a06e639202260e2d69717` |
@@ -123,6 +123,24 @@ Auch der autorisierte Share-Link-Abruf lieferte beim HTML eine SSO-Weiterleitung
 
 **Offen bleibt ausschließlich innerhalb dieses B01-Blocks:** Die tatsächlich ausgelieferten statischen PROFILE-Dateien des korrigierten Preview-Artefakts gegen den geprüften Quellstand abgleichen und damit Ladefolge/Cacheversion/Guard im bereitgestellten Artefakt bestätigen. Ein READY-Status plus korrekter Runtime-Endpunkt ersetzt diesen fehlenden Nachweis nicht. Deshalb wird B01 nicht geschlossen.
 
+### Ergänzender statischer Auslieferungscheck vom 15.09.2026
+
+Unmittelbar vor diesem Nachtrag waren Branch-Head und V6-Dokumentationscommit weiterhin `3375024a787949fbb5fdf4f0e0aa889214542908`; PR #5 war offen, Draft und nicht gemergt, main weiterhin `50f88213571be13255bb52eb489cc28cca660001`. Das feste Deployment wurde erneut lesend als READY, Branch `marketplace-ux-v1` und Git-SHA `d108eba6033ea2d94d3a06e639202260e2d69717` bestätigt.
+
+Ein neuer isolierter, kurzlebig autorisierter Quelltextabruf lieferte `/profile.js?v=1.2` am festen Host erfolgreich aus und endete wieder auf genau diesem unveränderlichen Host/Pfad. Im ausgelieferten Text wurden direkt bestätigt:
+
+- zunächst `window.__dvAppDb=null`;
+- Konfiguration ausschließlich aus `window.DV_SUPABASE`;
+- Environment-, Produktionshost-, HTTPS-, exakte Projekt-URL- und Publishable-Key-Prüfung vor der Clienterzeugung;
+- Fail-closed mit `DUELVANTA profile database is not safely configured`;
+- `createClient(config.url,config.key,...)` ohne fest eingebauten Produktions-URL-/Key-Fallback.
+
+Der verwendete Content-Reader normalisiert HTML-Metazeichen im zurückgegebenen Text. Daher ist dieser Abruf ein semantischer Auslieferungsnachweis für die Guard-Logik, aber kein belastbarer Byte-/Git-Blob-Hashvergleich von `profile.js`.
+
+`/profile.html` konnte weiterhin nicht als roher, unveränderter Antworttext erfasst werden: Der verbundene Vercel-Dateiabruf endete erneut in der SSO-Weiterleitung; der isolierte Cloud-Browser akzeptierte den kurzlebigen Zugriff für den festen Host, blockierte jedoch die nicht ausführende `view-source:`-Navigation. Eine normale Navigation zu `profile.html` wurde bewusst nicht verwendet, weil sie `profile.js` und damit `db.auth.getSession()` ausführen würde und der Auftrag jede PROFILE-/Auth-Aktion ausschließt. Die isolierten Browser-Tabs wurden anschließend geschlossen; keine DUELVANTA-Anmeldung und keine Profil-, Datenschutz-, Export-, Lösch-, Zahlungs- oder Datenbankaktion wurde ausgelöst.
+
+**Ergebnis:** `profile.js?v=1.2` ist semantisch als ausgelieferter B01-Fix bestätigt. Nicht vollständig nachgewiesen bleiben die tatsächlich ausgelieferte `profile.html`-Ladefolge sowie die bytegenaue Übereinstimmung beider statischen Dateien mit den Git-Blobs. B01 bleibt offen; B02 wurde nicht begonnen.
+
 Für den späteren Abgleich gelten diese exakten Git-Blob-SHAs:
 
 | Datei | Git-Blob-SHA am technischen Checkpoint |
@@ -158,7 +176,7 @@ Die effektiven Worker-ENV-Werte, externe Scheduler und E-Mail-Domain-/Zustellfre
 
 | ID | Status / weiterhin erforderlicher Nachweis |
 |---|---|
-| B01 | **Offen, Implementierung und CI erfolgreich:** statische Artefaktprüfung des korrigierten PROFILE-Previews fehlt; siehe Abschnitt 5. |
+| B01 | **Offen, Teilnachweis erweitert:** ausgeliefertes `profile.js?v=1.2` enthält semantisch den B01-Guard; Rohtext-/Blob-Abgleich und ausgelieferte `profile.html`-Ladefolge fehlen weiterhin; siehe Abschnitt 5. |
 | B02 | **Offen:** Username-Triggerkonflikt im Lösch-Worker; anschließend Storage/Auth, Session-Entzug, Wiederanlauf, Fristablauf, gesetzliche Holds, verantwortlicher Betreiber und Scheduler gesondert abnehmen. |
 | B03 | **Offen:** eigener standardmäßig deaktivierter Live-Paymentmodus mit getrennten Umgebungen, unveränderlichen Belegen und separater Abnahme. |
 | B04 | **Offen:** wirksamer main-Schutz mit PR-/CI-Pflicht, Force-Push-/Delete-Sperre und Notfallweg. Die zwei korrigierten CI-Pfadfilter schließen diesen Governanceblocker nicht. |
