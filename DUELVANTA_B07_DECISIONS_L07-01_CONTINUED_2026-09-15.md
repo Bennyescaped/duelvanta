@@ -81,4 +81,30 @@ Zwingend extern zu prüfen bleiben insbesondere:
 - die zulässige Verknüpfung von Vertragsnachweisen, Kommunikation und Aufbewahrung mit dem Nutzerkonto;
 - Folgen von Kontosperre oder Kontolöschung für laufende und abgeschlossene Verträge sowie gesetzliche Aufbewahrungspflichten.
 
+## Entscheidung L07-01/11 – Integrierter Zahlungsweg für entgeltliche Verkäufe
+
+**Betreiberentscheidung:**
+
+- Entgeltliche Verkäufe im ersten kommerziellen Marketplace-Release werden ausschließlich über den später rechtlich, steuerlich und zahlungsdienstlich freigegebenen integrierten Zahlungsdienstleister abgewickelt.
+- Externe Zahlungen außerhalb des DUELVANTA-Marketplace-Prozesses, insbesondere private Banküberweisung an den Verkäufer, PayPal-Freunde-Zahlungen, Barzahlung oder sonstige individuell vereinbarte externe Zahlungswege, werden für abgeschlossene Marketplace-Verkäufe im ersten Release nicht vorgesehen.
+- DUELVANTA nimmt Kundengelder nicht auf einem eigenen Konto entgegen und bezeichnet den Zahlungsfluss nicht als Treuhand oder Escrow, sofern dies nicht später ausdrücklich rechtlich freigegeben wird.
+- Die Verkäuferprovision von DUELVANTA soll im später freigegebenen integrierten Zahlungsmodell technisch nachvollziehbar zugeordnet beziehungsweise abgerechnet werden.
+- Eine Abholung der Ware kann als Übergabeart möglich bleiben; auch in diesem Fall soll die entgeltliche Zahlung über den freigegebenen integrierten Zahlungsweg erfolgen.
+- Reine C2C-Tauschgeschäfte Ware gegen Ware nach Entscheidung L07-01/05 bleiben ohne Geldzahlung und werden von dieser Zahlungsentscheidung nicht erfasst.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Für diese Geschäftsmodellentscheidung wird jetzt keine Zahlungsfunktion aktiviert. `manual_beta`, Stripe Live, echte Payments, Refunds und Payouts bleiben unverändert deaktiviert beziehungsweise verboten. Die vorhandene Stripe-Connect-Vorbereitung ist erst nach finaler externer Freigabe des End-to-End-Geldflusses gegen dieses Zielmodell abzugleichen und darf vorher nicht produktiv aktiviert werden.
+
+### Externer Freigabepunkt
+
+Zwingend extern beziehungsweise steuerlich/zahlungsdienstlich zu prüfen bleiben insbesondere:
+
+- der konkrete End-to-End-Geldfluss zwischen Käufer, Zahlungsdienstleister, Verkäufer und DUELVANTA;
+- ZAG-/Zahlungsdiensterolle und die konkrete Stripe-Connect-Konfiguration;
+- Einzug, Berechnung, Fälligkeit und steuerliche Behandlung der DUELVANTA-Provision;
+- Refunds, Chargebacks, Stornos, Rückabwicklungen und Auszahlungen;
+- die vertragliche Behandlung unzulässiger externer Zahlungsumgehungen und deren Folgen;
+- die zulässige Gestaltung einer Abholung bei weiterhin integrierter Onlinezahlung.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
