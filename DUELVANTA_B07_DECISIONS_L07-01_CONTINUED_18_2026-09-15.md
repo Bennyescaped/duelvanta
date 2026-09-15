@@ -28,4 +28,12 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Nach Ablauf der 30-Tage-Frist wird die Bewertungsmöglichkeit für diese Transaktion geschlossen.
 - Die konkrete technische Umsetzung sowie Moderations- und Berichtigungsprozesse bleiben vor Release rechtlich zu prüfen.
 
+## Entscheidung L07-01/47 – Bewertungsmodell
+
+- Release 1 verwendet eine 5-Sterne-Gesamtbewertung.
+- Zusätzlich kann ein kurzer Kommentar freiwillig abgegeben werden.
+- Es gibt keine frei bewertbaren Unterkategorien wie Versand, Kommunikation oder Zustand.
+- Interne objektive Transaktionssignale dürfen separat für Trust-, Risiko- und Moderationszwecke verarbeitet werden, soweit dies später rechtlich und datenschutzrechtlich freigegeben ist.
+- Die genaue Darstellung des Bewertungsdurchschnitts, Mindestanzahl von Bewertungen sowie Moderation und Transparenz bleiben vor Release extern rechtlich zu prüfen.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
