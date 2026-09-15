@@ -7,6 +7,17 @@ on:
       - 'scanner-v16-*.js'
       - 'collect.html'
       - 'site-nav.js'
+      - 'index.html'
+      - 'welcome.html'
+      - 'battle.html'
+      - 'battle-*.js'
+      - 'staff.html'
+      - 'staff-admin.html'
+      - 'ranking.html'
+      - 'ranking.js'
+      - 'u.html'
+      - 'public-battle-profile.js'
+      - 'tests/runtime-routing-contract-test.mjs'
       - 'tests/scanner-v16-collect-e2e.mjs'
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
@@ -157,6 +168,9 @@ jobs:
           node --check scanner-v16-recovery.js
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
+          node --check site-nav.js
+          node --check ranking.js
+          node --check public-battle-profile.js
           node --check mfa.js
           node --check control-center.js
           node --check control-center-permissions.js
@@ -229,6 +243,7 @@ jobs:
           node --check api/market-stripe-webhook.js
           node --check api/market-stripe-refund.js
           node --check profile-data-rights.js
+          node tests/runtime-routing-contract-test.mjs
           node tests/trade-automation-contract-test.mjs
           node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs
