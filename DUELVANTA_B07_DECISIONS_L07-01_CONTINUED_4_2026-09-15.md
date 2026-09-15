@@ -57,4 +57,29 @@ Zwingend anwaltlich, steuerlich und zahlungsdienstlich zu prüfen bleiben insbes
 - Behandlung von Teilrefunds, Chargebacks, nachträglichen Preisnachlässen und sonstigen Rückabwicklungen;
 - Abgleich der Provisionslogik mit dem final freigegebenen Stripe-Connect-/Zahlungsfluss.
 
+## Entscheidung L07-01/21 – Rolle von DUELVANTA bei Streitfällen
+
+**Betreiberentscheidung:**
+
+- DUELVANTA stellt im ersten kommerziellen Marketplace-Release einen technischen und organisatorischen Problemfall-/Beschwerdeprozess für Käufer und Verkäufer bereit.
+- DUELVANTA darf zur Prüfung eines gemeldeten Falls Informationen und Nachweise anfordern sowie die eigenen Plattform-, Moderations- und Verkäuferregeln durchsetzen.
+- DUELVANTA darf nach dem später rechtlich und zahlungsdienstlich freigegebenen Prozess technische Zahlungs-, Refund- oder Sperrmaßnahmen veranlassen beziehungsweise unterstützen.
+- DUELVANTA entscheidet jedoch nicht verbindlich und abschließend über zivilrechtliche Ansprüche zwischen Käufer und Verkäufer und übernimmt keine Schiedsgerichts- oder gerichtliche Funktion.
+- Eine interne Plattformentscheidung über Moderation, Accountmaßnahmen oder einen technischen Abwicklungsprozess schließt die anderweitige Geltendmachung gesetzlicher oder vertraglicher Ansprüche durch Käufer oder Verkäufer nicht aus.
+- Die Rollenabgrenzung gilt auch für C2C-Tauschgeschäfte: DUELVANTA kann Plattformregeln durchsetzen und den technischen Streitprozess unterstützen, entscheidet aber nicht abschließend über Eigentums-, Herausgabe-, Schadensersatz- oder sonstige zivilrechtliche Ansprüche der Tauschpartner.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Die bestehende Order-/Resolution- und Moderationsarchitektur kann als Grundlage erhalten bleiben. Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release müssen Problemfallstatus, Nachweisanforderungen, interne Moderationsentscheidungen und spätere Zahlungsaktionen so gestaltet sein, dass sie nicht als verbindliche gerichtliche oder schiedsgerichtliche Entscheidung dargestellt werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich beziehungsweise für Zahlungsfolgen zusätzlich zahlungsdienstlich zu prüfen bleiben insbesondere:
+
+- die zulässige Rolle von DUELVANTA bei interner Streitmoderation und Beweisanforderung;
+- die Abgrenzung zwischen Plattformentscheidung, technischer Zahlungsmaßnahme und verbindlicher Entscheidung über zivilrechtliche Ansprüche;
+- Formulierungen in Plattform-/Verkäuferbedingungen, UI und Kommunikation;
+- die Abstimmung mit Refunds, Chargebacks und den Entscheidungsrechten des späteren Zahlungsdienstleisters;
+- gesetzlich erforderliche Beschwerde-, Rechtsbehelfs- oder außergerichtliche Streitbeilegungsverfahren, soweit sie auf DUELVANTA beziehungsweise einzelne Nutzergruppen anwendbar sind.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
