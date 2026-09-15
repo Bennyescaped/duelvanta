@@ -2,7 +2,7 @@
 
 Stand: 15.09.2026
 Status: **B07 OFFEN / BLOCKIERT – keine Rechts-, Steuer- oder Paymentfreigabe**
-Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /53.
+Grundlage: `DUELVANTA_MASTERHANDOUT_V14_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /53.
 
 ## 1. Festgelegtes Release-1-Geschäftsmodell
 
@@ -221,8 +221,9 @@ Diese Punkte werden nicht durch weitere frei gestaltete L07-01-Entscheidungen er
 
 Für die externe Prüfung vorzulegen:
 
-- Masterhandout V13;
+- Masterhandout V14;
 - sämtliche L07-01-Entscheidungsdateien /01–/53;
+- `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md`;
 - Seller-Onboarding-Screens/Code;
 - Checkout-Screens/Code;
 - Payment-Flow-Dokumentation;
@@ -231,5 +232,19 @@ Für die externe Prüfung vorzulegen:
 - Entwurf der Datenschutzerklärung;
 - geplantes Stripe-Connect-Flussdiagramm;
 - Screens der Verkäuferstatus-, Preis-, Versand-, Abhol-, Storno-, Problemfall-, Sanktions- und Bewertungsanzeigen.
+
+## 17. Technischer Soll-Ist-Befund nach V14
+
+Der am 15.09.2026 durchgeführte vollständige Phase-1-/Phase-2-Abgleich ist in `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md` dokumentiert. Er trennt jeden Befund in A/B/C/D und ist ab jetzt die technische Änderungsliste für Phase 3.
+
+Wesentliche bestätigte Lücken:
+
+- Preisvorschlagsannahme erzeugt derzeit zu früh einen Deal; 2-Stunden-Checkout-Reservierung fehlt.
+- DE-only ist in Seller-/Shipping-Pfaden nicht konsistent erzwungen.
+- 25-EUR-Trackinggrenze, 3-Werktage-Frist und 72-Stunden-Abschlusslogik fehlen als vollständige serverseitige Regeln.
+- QR-/Übergabecode für Abholung und echter Waren-gegen-Waren-C2C-Tausch fehlen.
+- 7-Tage-Nachweisfristen und Verkäuferstorno-Grenzen sind unvollständig.
+- 5-Sterne-/Blind-Review und Release-1-Share/Public-Listing-Pfad fehlen.
+- reale Zahlungen, Refunds, Payouts, Stornogebühr, Sanktionsaktivierung und materielle Bedingungen-Neuakzeptanz bleiben Kategorie C und werden nicht produktiv aktiviert.
 
 **Hinweis:** Dieses Dokument ist ein interner Prüfkatalog und keine Rechts-, Steuer- oder Zahlungsdienstfreigabe. B07 bleibt bis zu den vorgesehenen externen Freigaben und den daraus folgenden Implementierungs-/Nachweisarbeiten offen/blockiert.
