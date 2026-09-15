@@ -100,10 +100,11 @@ revoke execute on function public.guard_profile_username_direct_update() from pu
 revoke execute on function public.handle_duelvanta_new_user() from public, anon, authenticated;
 revoke execute on function public.prevent_duelvanta_owner_delete() from public, anon, authenticated;
 revoke execute on function public.protect_duelvanta_owner_profile() from public, anon, authenticated;
-revoke execute on function public.has_staff_permission(text,uuid) from anon;
-revoke execute on function public.is_duelvanta_admin(uuid) from anon;
-revoke execute on function public.is_duelvanta_owner(uuid) from anon;
-revoke execute on function public.get_my_battle_history(integer) from anon;
-revoke execute on function public.get_my_market_deals() from anon;
+revoke execute on function public.has_staff_permission(text,uuid) from public, anon;
+revoke execute on function public.is_duelvanta_admin(uuid) from public, anon;
+revoke execute on function public.is_duelvanta_owner(uuid) from public, anon;
+revoke execute on function public.get_my_battle_history(integer) from public, anon;
+revoke execute on function public.get_my_market_deals() from public, anon;
+grant execute on function public.has_staff_permission(text,uuid),public.is_duelvanta_admin(uuid),public.is_duelvanta_owner(uuid),public.get_my_battle_history(integer),public.get_my_market_deals() to authenticated, service_role;
 
 commit;
