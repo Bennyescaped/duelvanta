@@ -56,13 +56,15 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Versandart und Trackingnummer werden soweit vorhanden der Transaktion zugeordnet.
 - Konkrete zugelassene Versandprodukte, Haftungsgrenzen und Risikokriterien werden vor Release technisch und rechtlich finalisiert.
 
-## Entscheidung L07-01/50 – Nicht-Erhalt bei ungetracktem Versand
+## Entscheidung L07-01/50 – Nicht-Erhalt bei ungetracktem C2C-Versand
 
-- Bei privatem C2C-Verkauf mit zulässigem ungetracktem Versand bis 25 EUR kann der Käufer frühestens 14 Tage nach Versand einen Nicht-Erhalt-Problemfall eröffnen.
-- DUELVANTA entscheidet bei fehlendem Tracking nicht automatisch zugunsten des Käufers oder Verkäufers, sondern fordert die verfügbaren Nachweise an und unterstützt den Problemprozess.
-- Die zivilrechtliche Haftungs- und Gefahrtragungsfrage bleibt zwischen den Vertragsparteien und wird für C2C vor Release rechtlich korrekt abgebildet.
-- Bei B2C gelten die zwingenden Verbraucherregeln gesondert; ein Versandrisiko wird nicht pauschal auf den Käufer verlagert.
-- Wiederholt auffällige Verlustmeldungen oder Versandprobleme dürfen dazu führen, dass DUELVANTA für das betreffende Konto künftig auch unter 25 EUR nachverfolgbaren Versand verlangt.
-- Die genaue Nachweis-, Eskalations- und Abschlusslogik wird vor Release rechtlich und technisch finalisiert.
+- Bei privatem C2C-Versand bis einschließlich 25 EUR darf der Käufer einen Nicht-Erhalt frühestens 14 Tage nach Versand als Problemfall melden.
+- Bei ungetracktem Versand gibt es keinen automatischen Zustellnachweis und keine automatische Entscheidung zugunsten des Käufers.
+- DUELVANTA eröffnet einen Problemfall und fordert vorhandene Versand- und Kommunikationsnachweise an.
+- Käufer und Verkäufer sollen zunächst eine einvernehmliche Lösung versuchen; DUELVANTA unterstützt den Prozess organisatorisch, entscheidet aber zivilrechtliche Ansprüche nicht abschließend.
+- Die Haftungs- und Gefahrtragungsregeln sind für C2C und B2C getrennt umzusetzen.
+- Für B2C gilt diese C2C-Regel nicht; zwingendes Verbraucherrecht bleibt maßgeblich.
+- Bei auffälliger Häufung verlorener ungetrackter Sendungen darf DUELVANTA für das betreffende Konto künftig Tracking verpflichtend machen.
+- Die konkrete Haftungsverteilung, Nachweisbewertung und Fristenlogik bleiben vor Release extern rechtlich zu prüfen.
 
 B07-Status: unverändert OFFEN / BLOCKIERT.
