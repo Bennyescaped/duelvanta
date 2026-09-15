@@ -1,1 +1,53 @@
-.env.local
+# Local environment and provider state
+.env
+.env.*
+!.env.example
+!.env.*.example
+.vercel/
+
+# Dependencies, generated output and test evidence
+node_modules
+dist/
+build/
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*~
+
+# Local databases, dumps and private exports
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.sql.gz
+exports/
+dumps/
+backups/
+
+# Private keys and certificate bundles
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local OS/editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

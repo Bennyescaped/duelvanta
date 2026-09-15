@@ -24,11 +24,11 @@ test users or purchases to run these checks.
 
 ## Local DOM integration
 
-Install `linkedom@0.18.12` into a temporary directory (no production dependency),
-then run:
+Install the locked CI-only dependencies without lifecycle scripts, then run:
 
 ```sh
-node tests/trade-dom-test.mjs /absolute/path/to/node_modules/linkedom/esm/index.js
+npm ci --ignore-scripts --prefix .github/ci
+node tests/trade-dom-test.mjs "$PWD/.github/ci/node_modules/linkedom/esm/index.js"
 ```
 
 The runner loads the existing TRADE page scripts against local fixtures. It models

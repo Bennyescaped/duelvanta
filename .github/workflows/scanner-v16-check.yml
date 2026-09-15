@@ -81,6 +81,7 @@ on:
       - 'tests/scanner-v16-browser-e2e.mjs'
       - 'tests/scanner-v16-real-card-matrix.mjs'
       - 'tests/fixtures/**'
+      - '.github/ci/**'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -192,8 +193,10 @@ jobs:
       - name: Install Chromium browser test runtime
         id: browser_runtime
         run: |
-          npm install --no-save --no-package-lock playwright@1.55.0 linkedom@0.18.12 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0 @electric-sql/pglite@0.5.8
-          npx playwright install chromium
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          npm audit --audit-level=high --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+          .github/ci/node_modules/.bin/playwright install chromium
       - name: Battle and profile database access boundaries
         run: node tests/auth-boundary-database-test.mjs
       - name: Trade contracts and mobile order flow
