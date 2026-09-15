@@ -19,7 +19,7 @@ must(migration,"case when l.status='reserved' then 'active' else l.status end",'
 must(migration,'quantity_available=least(l.stock_quantity,l.quantity_available+r.qty)','inventory restoration bound missing');
 must(migration,"c.case_type='cancellation' and c.status in ('open','accepted_refund_pending')",'shipping cancellation guard missing');
 must(migration,"refund_status=case when payment_provider='manual_beta' then 'external_payment_unknown'",'manual beta refund truthfulness missing');
-must(migration,"status='accepted_refund_pending'",'future provider refund preparation missing');
+must(migration,"status='accepted_refund_pending'",'provider refund preparation missing');
 must(migration,"if o.shipped_at is null or o.status not in ('shipped','received')",'problem-vs-cancellation phase separation missing');
 for(const kind of ['cancellation_requested','cancellation_accepted','cancellation_declined','cancellation_withdrawn','problem_opened','problem_withdrawn'])must(migration,`'${kind}'`,'resolution notification kind missing');
 must(hardening,"'problem_response'",'problem response notification missing');
@@ -27,7 +27,11 @@ must(hardening,"'STORNO PRÜFEN'",'cancellation required action missing');
 must(hardening,"'PROBLEM PRÜFEN'",'problem required action missing');
 for(const rpc of ['request_market_order_cancellation','respond_market_order_cancellation','withdraw_market_order_cancellation','open_market_order_problem_v2','respond_market_order_problem','withdraw_market_order_problem'])must(ui,`db.rpc('${rpc}'`,'resolution UI RPC wiring missing');
 assert.ok(!ui.includes('createClient('),'resolution module must reuse the existing Supabase client');
-must(ui,'keine automatische Rückzahlung','UI must not claim automatic refunds');
-must(html,'trade-order-resolution.js?v=1.0','resolution module not loaded');
+assert.ok(!ui.includes('In der aktuellen Beta verarbeitet DUELVANTA keine Zahlung'),'resolution UI must not deny integrated provider payments');
+assert.ok(!ui.includes('bis eine spätere sichere Zahlungsintegration'),'resolution UI must describe the existing provider refund path');
+must(ui,'bestehende Provider-Erstattung','provider refund status copy missing');
+must(ui,'bestehende serverseitige Refundpfad','cancellation provider path copy missing');
+must(ui,'Er löst selbst <b>keine Erstattung</b> aus.','problem flow must not promise an automatic refund');
+must(html,'trade-order-resolution.js?v=1.1','resolution module cache version not updated');
 
-console.log('PASS: order cancellation/problem contract, inventory restoration, refund truthfulness and RPC isolation');
+console.log('PASS: order cancellation/problem contract, provider-aware refund UX, inventory restoration and RPC isolation');
