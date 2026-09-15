@@ -7,6 +7,9 @@ on:
       - 'scanner-v16-*.js'
       - 'collect.html'
       - 'site-nav.js'
+      - 'app.html'
+      - 'i18n.js'
+      - 'tests/account-home-battle-live-test.mjs'
       - 'index.html'
       - 'welcome.html'
       - 'battle.html'
@@ -244,6 +247,7 @@ jobs:
           node --check api/market-stripe-refund.js
           node --check profile-data-rights.js
           node tests/runtime-routing-contract-test.mjs
+          node tests/account-home-battle-live-test.mjs
           node tests/trade-automation-contract-test.mjs
           node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs
