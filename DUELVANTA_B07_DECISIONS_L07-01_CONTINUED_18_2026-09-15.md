@@ -45,4 +45,15 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Meldung und Moderation rechtswidriger oder missbräuchlicher Inhalte bleiben möglich.
 - Die genaue rechtliche Ausgestaltung von Löschung, Berichtigung, Gegendarstellung und Moderation bleibt vor Release extern zu prüfen.
 
+## Entscheidung L07-01/49 – Risikobasierte Versandarten
+
+- Maßgeblich ist der gesamte Warenwert der Bestellung, nicht der Einzelkartenpreis.
+- Bis einschließlich 25 EUR Warenwert darf ungetrackter Versand angeboten werden.
+- Der Käufer darf freiwillig eine nachverfolgbare Versandart wählen und trägt die vor Checkout transparent angezeigten Versandkosten.
+- Über 25 EUR Warenwert ist nachverfolgbarer Versand verpflichtend.
+- DUELVANTA darf bei Risikofällen auch unterhalb von 25 EUR Tracking verlangen, etwa bei neuen Verkäufern oder auffälligen Versandproblemen.
+- Bei höherwertigen Bestellungen muss zusätzlich eine zum Warenwert passende Haftung oder Versicherung vorgesehen werden.
+- Versandart und Trackingnummer werden soweit vorhanden der Transaktion zugeordnet.
+- Konkrete zugelassene Versandprodukte, Haftungsgrenzen und Risikokriterien werden vor Release technisch und rechtlich finalisiert.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
