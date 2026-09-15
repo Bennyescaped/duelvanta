@@ -1,6 +1,7 @@
 -- DUELVANTA Stripe refund evidence hardening V1
--- Repairs provider refund references only for an already-applied, fully refunded
--- Stripe Connect test event. No payment or refund is initiated here.
+-- Repairs mutable provider refund references only for an already-applied, fully refunded
+-- Stripe Connect test event. Immutable provider/tax ledgers are never rewritten.
+-- No payment or refund is initiated here.
 
 create or replace function public.reconcile_market_stripe_refund_evidence(
   p_event_id text,p_account_id text,p_charge_id text,p_refund_id text
@@ -61,10 +62,9 @@ begin
       and source_reference is not null and source_reference<>p_refund_id
   ) then raise exception 'stripe_tax_refund_reference_mismatch'; end if;
 
-  update dv_market_private.market_stripe_events
-  set normalized_data=jsonb_set(coalesce(normalized_data,'{}'::jsonb),'{refund_id}',to_jsonb(p_refund_id),true)
-  where stripe_event_id=p_event_id;
-
+  -- market_stripe_events and market_tax_events are immutable audit evidence.
+  -- Keep the original signed event and PStTG correction untouched; attach the
+  -- provider refund reference only to the mutable operational records.
   update public.market_orders
   set provider_refund_ref=p_refund_id,updated_at=now()
   where id=a.order_id and payment_status='refunded' and refund_status='refunded';
@@ -73,12 +73,7 @@ begin
   update dv_market_private.market_refund_requests
   set stripe_refund_id=p_refund_id,updated_at=now()
   where attempt_id=a.id and status='succeeded';
-
-  update dv_market_private.market_tax_events
-  set source_reference=p_refund_id
-  where event_key like 'stripe-refund:'||p_event_id||':%'
-    and event_type='remuneration_correction'
-    and correction_of is not null;
+  if not found then raise exception 'stripe_refund_request_not_found'; end if;
 
   return jsonb_build_object('event_id',p_event_id,'status','reconciled','refund_id',p_refund_id);
 end
