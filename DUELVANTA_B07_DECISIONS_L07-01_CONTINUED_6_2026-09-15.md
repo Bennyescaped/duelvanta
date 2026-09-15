@@ -31,4 +31,29 @@ Zwingend anwaltlich beziehungsweise datenschutz- und prozessbezogen zu prüfen b
 - die Rechte der Tauschpartner bei Rückabwicklung oder Scheitern des Tauschs;
 - die datenschutzkonforme Verarbeitung und Aufbewahrung der Versand- und Übergabenachweise.
 
-**B07-Status nach dieser Entscheidung: unverändert OFFEN / BLOCKIERT.**
+## Entscheidung L07-01/27 – Vertragsschluss beim Festpreis
+
+**Betreiberentscheidung:**
+
+- Ein veröffentlichtes Festpreisangebot des Verkäufers bildet im Zielmodell die Grundlage für den Kauf zum angegebenen Preis; allein durch Veröffentlichung entsteht noch kein Kaufvertrag mit einem bestimmten Käufer.
+- Der Käufer wird vor dem verbindlichen Vertragsschluss durch den vollständigen Checkout geführt, in dem insbesondere Verkäuferrolle, Warenpreis, Versandkosten und die jeweils erforderlichen Pflichtinformationen angezeigt werden.
+- Der Kaufvertrag soll erst entstehen, wenn ein berechtigter Käufer den vollständigen Checkout abschließt und dort die verbindliche Bestellerklärung über den freigegebenen eindeutigen Bestellbutton, derzeit Zielbezeichnung `Zahlungspflichtig bestellen`, abgibt.
+- Ein zusätzliches manuelles Verkäufer-Akzeptieren nach der verbindlichen Käuferbestellung ist im Festpreismodell nicht vorgesehen.
+- Für nur einmal vorhandene Artikel muss technisch verhindert werden, dass derselbe Artikel gleichzeitig mehrfach wirksam verkauft wird.
+- Das Zusammenspiel von verbindlicher Bestellerklärung, Zahlungsautorisierung, erfolgreicher Zahlung und technischen Zahlungsfehlern ist noch rechtlich und zahlungsdienstlich final festzulegen.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Diese Entscheidung löst aktuell keine Produktcodeänderung aus. Vor Release muss der Festpreisflow technisch eindeutig denselben finalen Checkout-, Pflichtinformations- und Vertragsnachweisprozess verwenden, der für den freigegebenen Vertragsschluss vorgesehen ist. Die Verfügbarkeit einmaliger Artikel muss serverseitig gegen Doppelverkauf abgesichert werden.
+
+### Externer Freigabepunkt
+
+Zwingend anwaltlich beziehungsweise zahlungsdienstlich zu prüfen bleiben insbesondere:
+
+- die genaue rechtliche Einordnung des veröffentlichten Festpreisangebots und der Käufererklärung;
+- der exakte Zeitpunkt des Vertragsschlusses im Zusammenspiel mit Zahlungsautorisierung und erfolgreicher Zahlung;
+- die Behandlung abgebrochener oder technisch fehlgeschlagener Zahlungen nach Abgabe der Bestellerklärung;
+- vollständige B2C-Pflichtinformationen und Button-Lösung;
+- der belastbare technische Nachweis des Vertragsschlusses und die Verhinderung von Doppelverkäufen.
+
+**B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
