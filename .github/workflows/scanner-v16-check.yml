@@ -43,15 +43,24 @@ on:
       - 'database/account-data-rights-*.sql'
       - 'database/account-data-erasure-*.sql'
       - 'database/market-stripe-*.sql'
+      - 'database/auth-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
       - 'api/market-stripe-*.js'
       - 'profile.html'
       - 'profile.js'
-      - 'tests/supabase-runtime-config-test.mjs'
       - 'profile.css'
       - 'profile-data-rights.js'
+      - 'mfa.html'
+      - 'mfa.js'
+      - 'reset-password.html'
+      - 'control-center.html'
+      - 'control-center.js'
+      - 'control-center-permissions.js'
+      - 'control-center-auth-preflight.js'
+      - 'tests/supabase-runtime-config-test.mjs'
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
+      - 'DUELVANTA_MASTERHANDOUT_V*.md'
       - 'tests/trade-*'
       - 'tests/account-data-*'
       - 'tests/market-stripe-*.mjs'
@@ -148,6 +157,10 @@ jobs:
           node --check scanner-v16-recovery.js
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
+          node --check mfa.js
+          node --check control-center.js
+          node --check control-center-permissions.js
+          node --check control-center-auth-preflight.js
       - name: Scanner V16 contract
         run: |
           node tests/scanner-v16-contract-test.mjs
