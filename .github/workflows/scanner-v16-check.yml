@@ -46,6 +46,8 @@ on:
       - 'api/account-data-erasure.js'
       - 'api/market-stripe-*.js'
       - 'profile.html'
+      - 'profile.js'
+      - 'tests/supabase-runtime-config-test.mjs'
       - 'profile.css'
       - 'profile-data-rights.js'
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
