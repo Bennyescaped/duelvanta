@@ -204,7 +204,7 @@ try{
   assert.ok(mfaHtml.indexOf('/api/compliance-message-dispatch?runtime_config=1')<mfaHtml.indexOf('mfa.js?v=1'),'MFA runtime config must load before MFA logic');
   assert.ok(controlHtml.indexOf('/api/compliance-message-dispatch?runtime_config=1')<controlHtml.indexOf('control-center-auth-preflight.js?v=1'),'control-center runtime config must load before its auth gate');
   assert.match(controlPreflight,/aal\.currentLevel!==['"]aal2['"]/,'control center must require AAL2 before loading its legacy management scripts');
-  assert.doesNotMatch(controlPreflight,PRODUCTION_URL,'control center preflight must not contain a direct production URL fallback');
+  assert.ok(!controlPreflight.includes(PRODUCTION_URL),'control center preflight must not contain a direct production URL fallback');
   assert.match(resetSource,/signOut\(\{scope:'global'\}\)/,'password recovery must revoke all refresh sessions');
   assert.match(rightsSource,/\['owner','admin','moderator','judge'\]/,'profile MFA management must be limited to privileged roles');
   assert.match(rightsSource,/getAuthenticatorAssuranceLevel/,'password changes must honor an enrolled MFA factor');
