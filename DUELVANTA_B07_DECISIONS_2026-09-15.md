@@ -105,4 +105,31 @@ Die vorhandenen DACH-Auswahlmöglichkeiten im Verkäufer-Onboarding bleiben vore
 
 Für Release 1 extern freizugeben bleibt die konkrete deutsche Vertrags-, Plattform-, Verbraucher-, Datenschutz-, Steuer- und Zahlungsarchitektur. Österreich, Schweiz und sonstige grenzüberschreitende Konstellationen werden ausdrücklich nicht in die erste Freigabe einbezogen und benötigen vor späterer Aktivierung eine eigene rechtliche, steuerliche und technische Scope-Prüfung.
 
+### Entscheidung L07-01/05 – Privater C2C-Tausch im ersten Marketplace-Release
+
+**Betreiberentscheidung:**
+
+- Der erste kommerzielle Marketplace-Release darf neben C2C- und B2C-Verkäufen auch reine Tauschgeschäfte zwischen privaten Nutzern enthalten.
+- Zulässig ist in diesem Scope ausschließlich C2C-Tausch Ware gegen Ware zwischen privaten Nutzern.
+- Gewerbliche beziehungsweise unternehmerische Tauschgeschäfte gehören nicht zum ersten Release.
+- Mischgeschäfte mit zusätzlicher Geldzahlung, Aufpreis oder sonstigem Geldanteil neben der getauschten Ware gehören nicht zum ersten Release.
+- Auf reine C2C-Tauschgeschäfte erhebt DUELVANTA im ersten Release keine Verkaufsprovision; ein späteres Gebührenmodell für Tauschgeschäfte ist nicht vorweggenommen.
+
+### Vertragsbeziehung aus dieser Entscheidung
+
+Beim reinen C2C-Tausch besteht der Tauschvertrag unmittelbar zwischen den beiden privaten Nutzern. DUELVANTA stellt die Plattform- und Vermittlungsfunktion bereit und wird nicht selbst Partei des Tauschvertrags.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Der bereits vorhandene `trade`-Listing-Typ darf als technische Grundlage erhalten bleiben. Aus dieser Betreiberentscheidung folgt in diesem Dokumentationsschritt noch keine Codeänderung. Vor Release muss technisch sichergestellt werden, dass der freigegebene C2C-Tausch-Scope nicht unbeabsichtigt gewerbliche Tauschangebote oder Karte-plus-Geld-Konstellationen zulässt.
+
+### Externer Freigabepunkt
+
+Zwingend extern beziehungsweise steuerlich zu klären bleiben insbesondere:
+
+- die konkrete vertragsrechtliche Abbildung des C2C-Tauschs und die anwendbaren Informations-/Plattformpflichten;
+- PStTG-/DAC7-Einordnung reiner Ware-gegen-Ware-Tauschvorgänge einschließlich der Frage, ob und wie eine Vergütung beziehungsweise ein Wert für Reportingzwecke zu erfassen ist;
+- die erforderliche Wert-/Nachweislogik, falls eine steuerliche oder regulatorische Erfassung notwendig ist;
+- die klare Abgrenzung zu gewerblichen Tauschgeschäften und Mischgeschäften mit Geldanteil.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
