@@ -20,7 +20,7 @@ module.exports=async function handler(req,res){
       if(!/^database_prepare_market_stripe_onboarding_(502|503|504)$/.test(error.message))throw error;
       prepared=await prepare();
     }
-    if(prepared?.live_mode!==mode.liveMode)throw new Error('stripe_database_mode_mismatch');
+    if(mode.liveMode?prepared?.live_mode!==true:prepared?.live_mode===true)throw new Error('stripe_database_mode_mismatch');
     if(prepared.onboarding_state==='completed')return json(res,200,{status:mode.liveMode?'stripe_live_onboarding_complete':'stripe_test_onboarding_complete',live_mode:mode.liveMode});
     let accountId=prepared.stripe_account_id;
     if(!accountId){
@@ -36,7 +36,11 @@ module.exports=async function handler(req,res){
       accountId=account.id;
       if(account.livemode!==mode.liveMode)throw new Error('stripe_account_mode_mismatch');
       if(!/^acct_[A-Za-z0-9]+$/.test(accountId||''))throw new Error('stripe_account_invalid');
-      await rpc('register_market_stripe_account',{p_onboarding_request_id:prepared.onboarding_request_id,p_seller_id:user.id,p_account_id:accountId,p_live_mode:mode.liveMode});
+      if(mode.liveMode){
+        await rpc('register_market_stripe_account',{p_onboarding_request_id:prepared.onboarding_request_id,p_seller_id:user.id,p_account_id:accountId,p_live_mode:true});
+      }else{
+        await rpc('register_market_stripe_test_account',{p_onboarding_request_id:prepared.onboarding_request_id,p_seller_id:user.id,p_account_id:accountId});
+      }
     }
     const link=await stripeV2Request('core/account_links',{account:accountId,use_case:{type:'account_onboarding',account_onboarding:{configurations:['merchant'],
       refresh_url:`${origin}/seller-onboarding.html?stripe=refresh`,return_url:`${origin}/seller-onboarding.html?stripe=return`}}},
