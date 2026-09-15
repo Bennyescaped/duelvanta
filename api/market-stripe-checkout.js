@@ -10,7 +10,7 @@ module.exports=async function handler(req,res){
   if(!/^[0-9a-f-]{36}$/i.test(orderId)||!/^[0-9a-f-]{36}$/i.test(requestKey))return json(res,400,{error:'invalid_request'});
   try{
     const prepared=await rpc('prepare_market_stripe_payment',{p_order_id:orderId,p_buyer_id:user.id,p_idempotency_key:requestKey});
-    if(prepared?.live_mode!==mode.liveMode)throw new Error('stripe_database_mode_mismatch');
+    if(mode.liveMode?prepared?.live_mode!==true:prepared?.live_mode===true)throw new Error('stripe_database_mode_mismatch');
     const origin=required('DUELVANTA_PUBLIC_ORIGIN').replace(/\/$/,'');
     if(!/^https:\/\//.test(origin))throw new Error('secure_public_origin_required');
     const intentData={metadata:{duelvanta_attempt_id:prepared.attempt_id}};
