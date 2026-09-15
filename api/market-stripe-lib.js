@@ -3,6 +3,22 @@
 const crypto=require('node:crypto');
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
 const json=(res,status,body)=>res.status(status).json(body);
+const liveActionEnv={onboarding:'STRIPE_CONNECT_LIVE_ONBOARDING_ENABLED',payments:'STRIPE_CONNECT_LIVE_PAYMENTS_ENABLED',refunds:'STRIPE_CONNECT_LIVE_REFUNDS_ENABLED',webhooks:'STRIPE_CONNECT_LIVE_WEBHOOKS_ENABLED'};
+
+function stripeMode(action){
+  const sandbox=process.env.STRIPE_CONNECT_SANDBOX_ENABLED==='true';
+  const live=process.env.STRIPE_CONNECT_LIVE_ENABLED==='true';
+  if(sandbox&&live)throw new Error('stripe_mode_conflict');
+  if(!sandbox&&!live)throw new Error('stripe_sandbox_disabled');
+  if(live){
+    const gate=liveActionEnv[action];
+    if(!gate)throw new Error('stripe_live_action_invalid');
+    if(process.env[gate]!=='true')throw new Error(`stripe_live_${action}_disabled`);
+  }
+  const key=required('STRIPE_SECRET_KEY');
+  if(live?!String(key).startsWith('sk_live_'):!String(key).startsWith('sk_test_'))throw new Error(live?'stripe_live_key_required':'stripe_test_key_required');
+  return {liveMode:live,mode:live?'live':'sandbox'};
+}
 
 async function rpc(name,body,accessToken){
   const base=required('SUPABASE_URL').replace(/\/$/,'');
@@ -84,4 +100,4 @@ function verifyStripeSignature(payload,header,secret,nowSeconds=Math.floor(Date.
   return signatures.some(value=>{if(!/^[a-f0-9]{64}$/i.test(value))return false;return crypto.timingSafeEqual(Buffer.from(expected,'hex'),Buffer.from(value,'hex'))});
 }
 
-module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeGetRequest,stripeRequest,stripeV2Request,verifyStripeSignature};
+module.exports={authenticatedUser,encodeForm,json,rawBody,required,rpc,stripeGetRequest,stripeMode,stripeRequest,stripeV2Request,verifyStripeSignature};
