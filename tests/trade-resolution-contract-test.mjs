@@ -1,11 +1,14 @@
-// Static regression for order cancellation, problem cases and refund preparation.
+// Static regression for order cancellation, problem cases and B07 lifecycle preparation.
 // No network, no Supabase connection and no user data.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const migration=await readFile(new URL('../database/trade-order-resolution-v1.sql',import.meta.url),'utf8');
 const hardening=await readFile(new URL('../database/trade-order-resolution-v1-hardening.sql',import.meta.url),'utf8');
+const lifecycle=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1.sql',import.meta.url),'utf8');
+const lifecycleHardening=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1-hardening.sql',import.meta.url),'utf8');
 const ui=await readFile(new URL('../trade-order-resolution.js',import.meta.url),'utf8');
+const lifecycleUi=await readFile(new URL('../trade-b07-order-lifecycle.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
 const must=(source,needle,label)=>assert.ok(source.includes(needle),label+': '+needle);
 
@@ -34,4 +37,19 @@ must(ui,'bestehende serverseitige Refundpfad','cancellation provider path copy m
 must(ui,'Er löst selbst <b>keine Erstattung</b> aus.','problem flow must not promise an automatic refund');
 must(html,'trade-order-resolution.js?v=1.1','resolution module cache version not updated');
 
-console.log('PASS: order cancellation/problem contract, provider-aware refund UX, inventory restoration and RPC isolation');
+must(lifecycle,"o.subtotal>25 or o.risk_tracking_required",'B07 25 EUR tracking threshold missing');
+must(lifecycle,"b07_add_workdays_de(now(),3)",'B07 3-workday shipping deadline missing');
+must(lifecycle,"v_at+interval '72 hours'",'B07 72-hour delivery window missing');
+must(lifecycle,"now()+interval '7 days'",'B07 case evidence deadline missing');
+must(lifecycle,"c2c_untracked_not_received_wait_14_days",'B07 C2C untracked wait missing');
+must(lifecycleHardening,"case when s.contract_classification is not null then s.contract_classification='c2c' else a.seller_type='private' end",'legacy C2C fallback missing');
+must(lifecycle,'create_market_pickup_handover_code_b07','pickup handover code missing');
+must(lifecycleHardening,'pickup_code_attempt_limit','pickup brute-force guard missing');
+must(lifecycle,'grant execute on function public.advance_market_order_lifecycle_b07() to service_role','72h lifecycle advance must remain server only');
+must(lifecycleHardening,"received_at=case when p_reason in ('buyer_received_ok','pickup_bilateral_handover')",'72h technical completion must not fake buyer receipt');
+must(lifecycleUi,'function mutationAddsOrderCard(mutation)','lifecycle render-loop guard missing');
+must(lifecycleUi,'if(!mutations.some(mutationAddsOrderCard))return;','lifecycle observer must ignore own decoration mutations');
+assert.ok(!lifecycleUi.includes('new MutationObserver(()=>{clearTimeout'),'old recursive lifecycle observer must not return');
+must(html,'trade-b07-order-lifecycle.js?v=1.0','B07 lifecycle module missing');
+
+console.log('PASS: order resolution plus B07 tracking, deadlines, pickup and non-recursive lifecycle UI');
