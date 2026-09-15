@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
-const [sql,lib,onboarding,checkout,webhook,refund,orders,trade,workflow,notice]=await Promise.all([
-  'database/market-stripe-connect-sandbox-v1.sql','api/market-stripe-lib.js','api/market-stripe-onboarding.js',
+const [sql,ordering,lib,onboarding,checkout,webhook,refund,orders,trade,workflow,notice]=await Promise.all([
+  'database/market-stripe-connect-sandbox-v1.sql','database/market-stripe-event-ordering-hardening-v1.sql',
+  'api/market-stripe-lib.js','api/market-stripe-onboarding.js',
   'api/market-stripe-checkout.js','api/market-stripe-webhook.js','api/market-stripe-refund.js','trade-orders.js','trade.html','.github/workflows/scanner-v16-check.yml','database/market-notice-action-v1.sql'
 ].map(read));
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
@@ -63,6 +64,11 @@ const functionBlock=(source,name)=>{
   return source.slice(begin,finish+4);
 };
 must(functionBlock(sql,'apply_market_stripe_event'),'set search_path=pg_catalog,public,dv_market_private,extensions','payment webhook cannot resolve Supabase pgcrypto schema');
+const orderingBlock=functionBlock(ordering,'apply_market_stripe_event');
+for(const guard of ['checkout_state_preserved','payment_already_confirmed','post_payment_state_preserved','refund_already_confirmed','stripe_checkout_session_mismatch','stripe_payment_intent_mismatch','stripe_charge_mismatch'])
+  must(orderingBlock,guard,'event-ordering migration misses '+guard);
+must(ordering,'revoke all on function public.apply_market_stripe_event(text,text,text,boolean,text,text,timestamptz,jsonb) from public, anon, authenticated','event-ordering migration exposes webhook RPC');
+must(ordering,'grant execute on function public.apply_market_stripe_event(text,text,text,boolean,text,text,timestamptz,jsonb) to service_role','event-ordering migration does not restore backend access');
 must(functionBlock(sql,'issue_market_financial_document'),'set search_path=pg_catalog,dv_market_private,extensions','financial document function cannot resolve Supabase pgcrypto schema');
 for(const fn of ['get_marketplace_notice_status','submit_marketplace_listing_notice','submit_marketplace_notice_appeal'])must(functionBlock(notice,fn),'set search_path = pg_catalog, public, dv_market_private, extensions','notice function cannot resolve Supabase pgcrypto schema: '+fn);
 
