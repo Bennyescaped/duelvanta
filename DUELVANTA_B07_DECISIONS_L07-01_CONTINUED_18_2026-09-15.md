@@ -36,4 +36,13 @@ Status: B07 OFFEN / BLOCKIERT – interne Geschäftsmodellfestlegung, keine Rech
 - Interne objektive Transaktionssignale dürfen separat für Trust-, Risiko- und Moderationszwecke verarbeitet werden, soweit dies später rechtlich und datenschutzrechtlich freigegeben ist.
 - Die genaue Darstellung des Bewertungsdurchschnitts, Mindestanzahl von Bewertungen sowie Moderation und Transparenz bleiben vor Release extern rechtlich zu prüfen.
 
+## Entscheidung L07-01/48 – Blind-Review-Modell
+
+- Abgegebene Bewertungen bleiben zunächst für die andere Transaktionspartei verborgen.
+- Sobald beide Seiten bewertet haben, werden beide Bewertungen gleichzeitig veröffentlicht.
+- Bewertet nur eine Seite, wird deren Bewertung nach Ablauf der 30-Tage-Bewertungsfrist sichtbar.
+- Eine abgegebene Sternebewertung kann durch den Nutzer grundsätzlich nicht nachträglich geändert werden.
+- Meldung und Moderation rechtswidriger oder missbräuchlicher Inhalte bleiben möglich.
+- Die genaue rechtliche Ausgestaltung von Löschung, Berichtigung, Gegendarstellung und Moderation bleibt vor Release extern zu prüfen.
+
 B07-Status: unverändert OFFEN / BLOCKIERT.
