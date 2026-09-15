@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto=require('node:crypto');
-const {json,rawBody,required,rpc,stripeGetRequest,verifyStripeSignature}=require('./market-stripe-lib');
+const {json,rawBody,required,rpc,stripeGetRequest,stripeMode,verifyStripeSignature}=require('./market-stripe-lib');
 
 function normalized(event){
   const o=event.data?.object||{},type=event.type,data={attempt_id:o.metadata?.duelvanta_attempt_id||null};
@@ -30,12 +30,12 @@ async function resolveRefundEvidence(event,objectId,data){
 
 module.exports=async function handler(req,res){
   if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'});
-  if(process.env.STRIPE_CONNECT_SANDBOX_ENABLED!=='true')return json(res,409,{error:'stripe_sandbox_disabled'});
+  let mode;try{mode=stripeMode('webhooks')}catch(error){const code=String(error.message||error);return json(res,code==='stripe_sandbox_disabled'?409:503,{error:code})}
   try{
     const bytes=await rawBody(req),secret=required('STRIPE_WEBHOOK_SECRET');
     if(!verifyStripeSignature(bytes,req.headers['stripe-signature'],secret))return json(res,400,{error:'invalid_signature'});
     const event=JSON.parse(bytes.toString('utf8'));
-    if(!event.id||!event.type||event.livemode!==false||!event.account)return json(res,400,{error:'invalid_connect_test_event'});
+    if(!event.id||!event.type||event.livemode!==mode.liveMode||!event.account)return json(res,400,{error:'invalid_connect_event'});
     const supported=['account.updated','checkout.session.completed','checkout.session.async_payment_succeeded','payment_intent.succeeded','payment_intent.payment_failed','charge.refunded'];
     const objectId=event.data?.object?.id||null,data=await resolveRefundEvidence(event,objectId,normalized(event));
     const result=await rpc('apply_market_stripe_event',{p_event_id:event.id,p_event_type:event.type,p_account_id:event.account,
@@ -45,6 +45,6 @@ module.exports=async function handler(req,res){
     if(event.type==='charge.refunded'&&result?.replayed===true&&data.refund_id){
       reconciliation=await rpc('reconcile_market_stripe_refund_evidence',{p_event_id:event.id,p_account_id:event.account,p_charge_id:objectId,p_refund_id:data.refund_id});
     }
-    return json(res,200,{received:true,supported:supported.includes(event.type),result,reconciliation});
+    return json(res,200,{received:true,supported:supported.includes(event.type),live_mode:mode.liveMode,result,reconciliation});
   }catch(error){const message=String(error.message||error).slice(0,180);console.error('MARKET_STRIPE_WEBHOOK',message);return json(res,400,{error:message})}
 };
