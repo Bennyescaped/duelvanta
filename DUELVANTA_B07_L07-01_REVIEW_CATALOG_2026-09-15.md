@@ -2,7 +2,7 @@
 
 Stand: 15.09.2026
 Status: **B07 OFFEN / BLOCKIERT – keine Rechts-, Steuer- oder Paymentfreigabe**
-Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /48.
+Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /53.
 
 ## 1. Festgelegtes Release-1-Geschäftsmodell
 
@@ -41,9 +41,14 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 
 ## 4. Versand, Zustellung und Auszahlung
 
-- Verkäufer muss bezahlte Versandbestellungen grundsätzlich innerhalb von 3 Werktagen versenden und Tracking hinterlegen.
-- Versand soll grundsätzlich nachverfolgbar sein; konkrete zugelassene Versandarten bleiben noch festzulegen.
-- Nach nachgewiesener Zustellung gilt eine 72-Stunden-Problemfrist.
+- Verkäufer muss bezahlte Versandbestellungen grundsätzlich innerhalb von 3 Werktagen versenden.
+- Maßgeblich für die Versandpflicht ist der gesamte Warenwert der Bestellung.
+- Bis einschließlich 25 EUR Warenwert darf ungetrackter Versand angeboten werden.
+- Käufer dürfen freiwillig eine nachverfolgbare Versandart wählen und tragen die vor Checkout transparent ausgewiesenen Versandkosten.
+- Über 25 EUR Warenwert ist nachverfolgbarer Versand verpflichtend.
+- DUELVANTA darf bei Risikofällen auch unter 25 EUR Tracking verpflichtend machen.
+- Bei höherwertigen Bestellungen muss zusätzlich eine zum Warenwert passende Haftung/Versicherung vorgesehen werden.
+- Nach nachgewiesener Zustellung gilt grundsätzlich eine 72-Stunden-Problemfrist.
 - Bestätigt der Käufer vorher aktiv „Erhalten – alles in Ordnung“, wird der Betrag sofort auszahlbar.
 - Ohne Problemfall wird der Betrag spätestens nach Ablauf der 72 Stunden auszahlbar.
 - Ein offener Problemfall sperrt nur den Betrag der betroffenen Transaktion, nicht das übrige Verkäuferguthaben.
@@ -77,7 +82,7 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 - Zustand, Sprache, Edition, Grading und relevante Mängel müssen zutreffend beschrieben werden.
 - Verkäuferstatus privat/gewerblich muss wahrheitsgemäß angegeben und bei Änderungen aktualisiert werden.
 
-## 8. Storno und Problemfälle
+## 8. Storno, Problemfälle und Sanktionen
 
 - DUELVANTA stellt einen technischen/organisatorischen Problem- und Beschwerdeprozess bereit, ist aber keine Schiedsstelle und entscheidet zivilrechtliche Ansprüche nicht abschließend.
 - Verkäufer darf nach verbindlichem bezahltem Kauf nicht frei stornieren.
@@ -86,8 +91,30 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 - Käufer kann bei C2C nach Vertragsschluss nur eine Stornoanfrage stellen; einseitiges freies Storno ist nicht vorgesehen.
 - Stimmt der private Verkäufer zu, erfolgt vollständige Rückabwicklung und die DUELVANTA-Provision wird zurückgerechnet.
 - Gesetzliche Verbraucherrechte bei gewerblichen Verkäufern bleiben unberührt und müssen separat korrekt umgesetzt werden.
+- Nach Eröffnung eines Problemfalls haben beide Seiten grundsätzlich 7 Tage für Antworten und angeforderte Nachweise.
+- Reagiert eine Seite nicht, darf DUELVANTA den Plattformprozess mit den vorhandenen Informationen fortführen.
+- Laufende Versanddienstleister-Nachforschungen dürfen den Fall länger offen halten.
+- 1. zurechenbarer Verkäuferstorno innerhalb von 90 Tagen: 4-%-Stornogebühr und Verwarnung.
+- 2. zurechenbarer Verkäuferstorno: zusätzlich 14 Tage Verkaufssperre.
+- 3. zurechenbarer Verkäuferstorno: 60 Tage Verkaufssperre und manuelle Kontoprüfung.
+- Ab dem 4. zurechenbaren Verkäuferstorno ist grundsätzlich eine dauerhafte Marketplace-Verkaufssperre vorgesehen, vorbehaltlich Überprüfung.
+- Nach 180 Tagen ohne neuen Verkäuferstorno wird die Eskalationsstufe um eine Stufe reduziert, nicht vollständig zurückgesetzt.
+- Schwere Verstöße wie Fälschungen, Betrug, manipulierte Versandnachweise, falsche Identität oder systematische Zahlungsumgehung können sofortige vorläufige Sperren auslösen; bestätigte gravierende Verstöße können bereits beim ersten Fall dauerhaft sanktioniert werden.
+- Laufende Bestellungen, Rückzahlungen, Problemfälle und notwendige Kommunikation bleiben trotz Verkaufssperre zugänglich.
 
-## 9. Plattformregeln und Kommunikation
+## 9. Sonderfälle Nicht-Erhalt
+
+- Bei privatem C2C-ungetracktem Versand bis einschließlich 25 EUR kann Nicht-Erhalt frühestens 14 Tage nach Versand als Problemfall gemeldet werden.
+- Ungetrackter Versand führt weder automatisch zu Käufererstattung noch zu Verkäuferfreigabe; vorhandene Nachweise werden geprüft.
+- Für B2C gilt diese C2C-Regel nicht; zwingendes Verbraucherrecht bleibt maßgeblich.
+- Häufen sich verlorene ungetrackte Sendungen bei einem Konto, darf DUELVANTA künftig Tracking verpflichtend machen.
+- Zeigt Tracking „zugestellt“, bestreitet der Käufer aber den Erhalt, wird ein Problemfall eröffnet und der betroffene Betrag gesperrt.
+- Trackingstatus oder Käuferbehauptung entscheiden nicht automatisch.
+- Verkäufer stellt Tracking-/Zustellinformationen bereit; Käufer bestätigt den Nicht-Erhalt konkret.
+- Beide Seiten wirken bei erforderlicher Nachforschung/Reklamation mit; soweit vorgesehen soll sie innerhalb von 7 Tagen angestoßen werden.
+- DUELVANTA unterstützt den Prozess organisatorisch, trifft aber keine abschließende zivilrechtliche Haftungsentscheidung.
+
+## 10. Plattformregeln und Kommunikation
 
 - Nutzer akzeptieren versionierte allgemeine DUELVANTA-Plattformbedingungen.
 - Verkauf/Tausch erfordert zusätzlich versionierte Verkäufer-/TRADE-Bedingungen.
@@ -102,7 +129,7 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 - Erst nach verbindlicher Transaktion werden nur die für Versand oder Abholung erforderlichen Daten zwischen den Parteien freigegeben.
 - Kündigung des Plattformkontos beendet offene Transaktionen, Gebühren-, Beschwerde- oder Aufbewahrungspflichten nicht automatisch.
 
-## 10. Share-Funktion als Release-1-Anforderung
+## 11. Share-Funktion als Release-1-Anforderung
 
 - Angebote müssen teilbar sein.
 - Native Share-Funktion für unterstützte Geräte/Apps.
@@ -112,7 +139,7 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 - Keine privaten Verkäuferdaten in Share-Metadaten.
 - Share-Funktion darf nicht zur Umgehung des DUELVANTA-Zahlungswegs führen.
 
-## 11. Bewertungsmodell
+## 12. Bewertungsmodell
 
 - Bewertungen sind nur nach tatsächlich abgeschlossener Kauf- oder Tauschtransaktion möglich.
 - Jede Bewertung wird der konkreten Transaktion zugeordnet.
@@ -126,7 +153,7 @@ Grundlage: `DUELVANTA_MASTERHANDOUT_V13_2026-09-15.md` sowie die dokumentierten 
 - Meldung und Moderation rechtswidriger, beleidigender oder missbräuchlicher Inhalte bleibt möglich.
 - Interne objektive Transaktionssignale dürfen separat für Trust-, Risiko- und Moderationszwecke verarbeitet werden, soweit dies später rechtlich und datenschutzrechtlich freigegeben ist.
 
-## 12. Sicher zu behandelnde gesetzliche Themen
+## 13. Sicher zu behandelnde gesetzliche Themen
 
 Diese Punkte sind keine frei gestaltbaren Produktoptionen und müssen vor Release korrekt umgesetzt sein:
 
@@ -139,7 +166,7 @@ Diese Punkte sind keine frei gestaltbaren Produktoptionen und müssen vor Releas
 - zulässige Zahlungsabwicklung ohne unerlaubte eigene Zahlungsdienst-/Treuhandtätigkeit;
 - produkt-/sicherheitsbezogene Informationspflichten für die angebotenen Waren, soweit anwendbar.
 
-## 13. Externe Freigabepunkte
+## 14. Externe Freigabepunkte
 
 ### Rechtsprüfung
 
@@ -149,12 +176,14 @@ Diese Punkte sind keine frei gestaltbaren Produktoptionen und müssen vor Releas
 4. Vertragsschluss Festpreis und Preisverhandlung inklusive 2-Stunden-Reservierung.
 5. C2C- und B2C-Storno-/Rückabwicklungsregeln.
 6. Verkäufer-Stornogebühr in Höhe von 4 %.
-7. 72-Stunden-Auszahlungs-/Problemfenster und sofortige Freigabe bei Käuferbestätigung bzw. Abholung.
-8. Moderation, Kontosperren, Begründungs- und Beschwerdeverfahren.
-9. Anti-Circumvention-Regel und Grenzen der internen Kommunikation/Kontaktdatenfreigabe.
-10. Händlerstatus, öffentliche Anbieterinformationen und Identitätsprüfung.
-11. Pflichtinformationen im Checkout und auf Angeboten.
-12. Bewertungsmodell einschließlich Blind-Review, Löschung, Berichtigung, Gegendarstellung und Moderation.
+7. Versandmodell bis/über 25 EUR, Haftung/Versicherung und C2C-/B2C-Gefahrtragung.
+8. Nicht-Erhalt, Zustellstreit, Nachforschung und Problemfallfristen.
+9. 72-Stunden-Auszahlungs-/Problemfenster und sofortige Freigabe bei Käuferbestätigung bzw. Abholung.
+10. Verkäufer-Sanktionsleiter, Sofortsperren, Begründungs- und Beschwerdeverfahren.
+11. Anti-Circumvention-Regel und Grenzen der internen Kommunikation/Kontaktdatenfreigabe.
+12. Händlerstatus, öffentliche Anbieterinformationen und Identitätsprüfung.
+13. Pflichtinformationen im Checkout und auf Angeboten.
+14. Bewertungsmodell einschließlich Blind-Review, Löschung, Berichtigung, Gegendarstellung und Moderation.
 
 ### Steuerprüfung
 
@@ -174,22 +203,26 @@ Diese Punkte sind keine frei gestaltbaren Produktoptionen und müssen vor Releas
 6. Refund-/Chargeback-Fähigkeit nach bereits erfolgter Auszahlung.
 7. Sicherstellung, dass DUELVANTA keine unzulässige eigene Treuhand-/Zahlungsdienstrolle übernimmt.
 
-## 14. Noch offen innerhalb L07-01
+## 15. Status des internen L07-01-Entscheidungsteils
 
-Vor Abschluss des internen L07-01-Entscheidungsteils bleiben insbesondere:
+Der interne Geschäftsmodell- und Regelteil von L07-01 ist mit den Entscheidungen /01 bis /53 **inhaltlich weitgehend entschieden**.
 
-- genaue zugelassene Tracking-/Versandarten und mögliche Ausnahmen;
-- Verhalten bei Tracking „zugestellt“, Käufer bestreitet aber Erhalt;
-- konkreter Ablauf/Fristen des Problem- und Nachweisprozesses;
-- konkrete Folgen wiederholter Verkäuferstornos bzw. schwerer Regelverstöße;
-- exakte Darstellung von Paymentkosten, sobald das Paymentmodell feststeht.
+Nicht als freie interne Produktentscheidung abschließbar bleiben insbesondere:
 
-## 15. Evidenz für spätere Prüfung
+- konkrete zugelassene Versandprodukte, Haftungsgrenzen und technische Carrier-Integration;
+- genaue rechtliche C2C-/B2C-Haftungsverteilung bei Verlust/Nicht-Erhalt;
+- exakte Darstellung und wirtschaftliche Tragung von Payment-/Connect-/Refund-/Chargebackkosten;
+- rechtliche Finalisierung der Verkäufer-Stornogebühr und Sanktionsleiter;
+- endgültige Vertrags-, Datenschutz-, DSA-/P2B-, Steuer- und Zahlungsdienstfreigabe.
+
+Diese Punkte werden nicht durch weitere frei gestaltete L07-01-Entscheidungen ersetzt, sondern gehören in die externen Freigaben und anschließende Implementierung.
+
+## 16. Evidenz für spätere Prüfung
 
 Für die externe Prüfung vorzulegen:
 
 - Masterhandout V13;
-- sämtliche L07-01-Entscheidungsdateien /01–/48;
+- sämtliche L07-01-Entscheidungsdateien /01–/53;
 - Seller-Onboarding-Screens/Code;
 - Checkout-Screens/Code;
 - Payment-Flow-Dokumentation;
@@ -197,6 +230,6 @@ Für die externe Prüfung vorzulegen:
 - Entwurf der Verkäufer-/TRADE-Bedingungen;
 - Entwurf der Datenschutzerklärung;
 - geplantes Stripe-Connect-Flussdiagramm;
-- Screens der Verkäuferstatus-, Preis-, Versand-, Abhol-, Storno-, Problemfall- und Bewertungsanzeigen.
+- Screens der Verkäuferstatus-, Preis-, Versand-, Abhol-, Storno-, Problemfall-, Sanktions- und Bewertungsanzeigen.
 
 **Hinweis:** Dieses Dokument ist ein interner Prüfkatalog und keine Rechts-, Steuer- oder Zahlungsdienstfreigabe. B07 bleibt bis zu den vorgesehenen externen Freigaben und den daraus folgenden Implementierungs-/Nachweisarbeiten offen/blockiert.
