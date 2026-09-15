@@ -54,6 +54,7 @@ on:
       - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
       - 'tests/trade-*'
       - 'tests/account-data-*'
+      - 'tests/market-stripe-*.mjs'
       - 'tests/market-seller-compliance-database-test.mjs'
       - 'tests/market-seller-onboarding-contract-test.mjs'
       - 'seller-onboarding.html'
