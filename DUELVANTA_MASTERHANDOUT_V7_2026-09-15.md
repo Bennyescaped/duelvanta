@@ -1,19 +1,21 @@
 # DUELVANTA – Masterhandout V7
 
-Stand: 15.09.2026, Übergabe nach vollständigem Abschluss von B01 und begonnenem, noch NICHT abgeschlossenen B02-Fix. Dieses Dokument ist der verbindliche Einstieg für den nächsten Chat und ersetzt widersprechende Statusangaben älterer Handouts. V4/V5/V6 bleiben Detailreferenzen, soweit V7 sie nicht ausdrücklich aktualisiert.
+Stand: 15.09.2026, nach vollständigem Abschluss von B01 und B02. Dieses Dokument ist der verbindliche Einstieg für die weitere Arbeit und ersetzt widersprechende Statusangaben älterer Handouts. V4/V5/V6 bleiben Detailreferenzen, soweit V7 sie nicht ausdrücklich aktualisiert.
 
 ## 1. Verbindlicher Repository-Stand
 
 - Repository: `Bennyescaped/duelvanta`
 - Entwicklungsbranch: `marketplace-ux-v1`
-- Aktueller Branch-Head bei Erstellung dieses Handouts: `cdf0592b9544c0a25da064148564ac878dff2127`
-- PR #5: offen, **Draft**, nicht gemergt; Head bei letzter Prüfung exakt `cdf0592b9544c0a25da064148564ac878dff2127`
+- Technischer B02-Abschluss-Head: `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
+- PR #5: offen, **Draft**, nicht gemergt; bei B02-Abschluss Head `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
 - main: `50f88213571be13255bb52eb489cc28cca660001`, unverändert
 - Technischer B01-Codecheckpoint: `d108eba6033ea2d94d3a06e639202260e2d69717`
 - V6-B01-Abschlussdokumentation: Commit `d28d6c5777bb8120ae6fa373be419b55f49b63ea`
-- B02 SQL-Fixdatei hinzugefügt: Commit `8188ccaca6ea36e03f359f7d39ff215cf2be0f5d`
-- B02 Real-Trigger-Test hinzugefügt: Commit `571be2855537ff791ca5cd70cbe26db0ede2cf23`
-- B02 CI-Wiring / aktueller technischer Head: `cdf0592b9544c0a25da064148564ac878dff2127`
+- B02 SQL-Fixdatei ursprünglich hinzugefügt: Commit `8188ccaca6ea36e03f359f7d39ff215cf2be0f5d`
+- B02 Real-Trigger-Test ursprünglich hinzugefügt: Commit `571be2855537ff791ca5cd70cbe26db0ede2cf23`
+- B02 CI-Wiring: Commit `cdf0592b9544c0a25da064148564ac878dff2127`
+- B02 finale SECURITY-DEFINER-Korrektur: Commit `bfa428e189b3515c44adb0c5bd4194fac03f6e3f`
+- B02 final gehärteter Real-Trigger-/ACL-Test: Commit `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
 
 ## 2. B01 – GESCHLOSSEN
 
@@ -41,7 +43,7 @@ Damit ist die ausgelieferte PROFILE-Ladefolge des festen technischen Artefakts n
 
 **B01 bleibt geschlossen.**
 
-## 3. B02 / F02 – begonnen, noch OFFEN
+## 3. B02 / F02 – GESCHLOSSEN
 
 Ausgangsfehler: `public.prepare_account_deletion_data(...)` setzt bei der Erasure-Vorbereitung `public.profiles.username=null`. Auf Staging existiert jedoch der Trigger:
 
@@ -54,47 +56,64 @@ FOR EACH ROW EXECUTE FUNCTION guard_profile_username_direct_update()
 Die zugehörige Staging-Funktion blockiert jede Username-Änderung, solange
 `current_setting('duelvanta.username_rpc', true) <> 'allowed'`.
 
-Der bestehende geschützte Profil-RPC `public.set_my_public_profile(...)` setzt diesen Wert transaktionslokal mit `set_config(..., true)`, führt die geschützte Änderung aus und setzt ihn anschließend zurück. Der ursprüngliche Erasure-RPC in `database/account-data-rights-v1.sql` tat dies nicht. Dadurch kollidiert der Löschpfad mit dem globalen Username-Schutz.
+Der bestehende geschützte Profil-RPC `public.set_my_public_profile(...)` setzt diesen Wert transaktionslokal mit `set_config(..., true)`, führt die geschützte Änderung aus und setzt ihn anschließend zurück. Der ursprüngliche Erasure-RPC in `database/account-data-rights-v1.sql` tat dies nicht. Dadurch kollidierte der Löschpfad mit dem globalen Username-Schutz.
 
-Wichtig: Der globale Username-Trigger darf NICHT entfernt, gelockert oder browserseitig umgehbar gemacht werden.
+Der globale Username-Trigger wurde NICHT entfernt, gelockert oder browserseitig umgehbar gemacht.
 
-## 4. Bereits implementierter B02-Fix
+## 4. Finaler B02-Fix und Rollen-/Bypassgrenze
 
-Neue Datei:
+Datei:
 
 `database/account-data-erasure-username-guard-v1.sql`
 
-Sie ersetzt ausschließlich `public.prepare_account_deletion_data(uuid,uuid)` und lässt den globalen Trigger unverändert. Der neue RPC:
+Sie ersetzt ausschließlich `public.prepare_account_deletion_data(uuid,uuid)` und lässt den globalen Trigger unverändert. Der finale RPC:
 
-- verlangt explizit `current_user='service_role'`;
 - verlangt weiterhin die bereits geclaimte Löschanforderung mit passender `p_request_id` + `p_lock_token`;
 - setzt unmittelbar vor dem Username-Clear transaktionslokal `duelvanta.username_rpc=allowed`;
 - setzt nach dem Profilupdate den Wert wieder leer;
 - besitzt einen `exception when others`-Pfad, der den Wert ebenfalls leert und den Fehler erneut wirft;
 - behält die bisherigen Retention-Holds, Lösch-/Anonymisierungsschritte, Audit- und `auth_action`-Logik bei;
-- `revoke all` für public/anon/authenticated und `grant execute ... to service_role` bleiben bestehen.
+- `revoke all` für public/anon/authenticated und `grant execute ... to service_role` bleiben die RPC-Aufrufgrenze.
 
-Der bestehende Worker `api/account-data-erasure.js` wurde NICHT geändert. Er ist weiterhin standardmäßig deaktiviert und würde erst bei expliziter Aktivierung den Service-Role-RPC verwenden. Kein realer Löschlauf wurde gestartet.
+Die zwischenzeitlich eingeführte Prüfung `current_user='service_role'` wurde in Commit `bfa428e189b3515c44adb0c5bd4194fac03f6e3f` wieder entfernt. Grund: `prepare_account_deletion_data` ist `SECURITY DEFINER`; auf dem realen Staging gehört die Funktion `postgres`. Innerhalb einer SECURITY-DEFINER-Funktion repräsentiert `current_user` daher den Funktionsowner und nicht den aufrufenden PostgREST-RPC-Rollenprincipal. Eine Prüfung auf `current_user='service_role'` war strukturell falsch.
 
-## 5. Neuer B02-Test
+Read-only auf Staging verifiziert:
 
-Neue Datei:
+- Owner `prepare_account_deletion_data(uuid,uuid)`: `postgres`;
+- `SECURITY DEFINER`: aktiv;
+- `anon`: kein EXECUTE;
+- `authenticated`: kein EXECUTE;
+- `service_role`: EXECUTE;
+- `postgres`: EXECUTE.
+
+Damit besteht die belastbare Grenze aus der EXECUTE-ACL plus dem bereits geclaimten Request-/Lock-Token. Der transaktionslokale Username-Bypass wird erst hinter dieser Grenze gesetzt.
+
+Der bestehende Worker `api/account-data-erasure.js` wurde NICHT geändert. Er bleibt standardmäßig deaktiviert und würde erst bei expliziter Aktivierung den Service-Role-RPC verwenden. Kein realer Account-, Storage- oder Auth-Löschlauf wurde gestartet.
+
+## 5. Finaler B02-Test
+
+Datei:
 
 `tests/account-data-erasure-username-guard-test.mjs`
 
-Ziel des Tests ist eine isolierte PGlite-Datenbank mit dem **echten Triggerverhalten**. Geprüft werden sollen:
+Der isolierte PGlite-Test bildet das echte Triggerverhalten ab und prüft nun zusätzlich die relevante Rollen-/Owner-Semantik:
 
 - normale direkte Username-Änderung bleibt blockiert;
-- authenticated kann `prepare_account_deletion_data` nicht ausführen;
+- `authenticated` besitzt kein EXECUTE auf `prepare_account_deletion_data`;
+- `service_role` besitzt EXECUTE;
+- SECURITY-DEFINER-Owner wird nicht mit dem Service-Role-Aufrufer gleichgesetzt;
 - der kontrollierte Service-Role-Erasure-Pfad kann Username auf null setzen;
 - nach erfolgreichem Lauf ist `duelvanta.username_rpc` wieder leer;
 - nach dem Lauf bleibt eine direkte Username-Änderung blockiert;
-- ein absichtlich nach dem Username-Clear erzeugter Auditfehler rollt die Änderung zurück;
+- ein separater zweiter Testdatensatz erzwingt nach dem Username-Clear einen Auditfehler;
+- dieser Fehler rollt die Username-Änderung vollständig zurück;
 - auch nach dem Fehler ist `duelvanta.username_rpc` wieder leer und der globale Trigger weiterhin wirksam.
 
-## 6. CI-Stand – WICHTIG: aktueller Fehler ist im neuen Test
+Die Verwendung eines zweiten Testdatensatzes beseitigt außerdem die frühere Testschwäche, bei der der Test selbst einen geschützten Username zurücksetzen wollte.
 
-`.github/workflows/scanner-v16-check.yml` wurde minimal ergänzt:
+## 6. B02 CI-Abschluss
+
+`.github/workflows/scanner-v16-check.yml` enthält weiterhin minimal:
 
 - PR-Pfadfilter zusätzlich `database/account-data-erasure-*.sql`;
 - im bestehenden Schritt `Trade contracts and mobile order flow` zusätzlich:
@@ -103,48 +122,38 @@ Ziel des Tests ist eine isolierte PGlite-Datenbank mit dem **echten Triggerverha
 node tests/account-data-erasure-username-guard-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
 ```
 
-Automatischer Run für Head `cdf0592b9544c0a25da064148564ac878dff2127`:
+Finaler automatischer Run für Head `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`:
 
-- Scanner V16 Check Run #225
-- Run-ID: `34964129105`
-- Gesamtergebnis: **failure**
+- Scanner V16 Check Run #228
+- Run-ID: `34964941036`
+- Gesamtergebnis: **success**
 - `quota_database`: success
-- `validate`: failure ausschließlich im Schritt `Trade contracts and mobile order flow`
-- alle davor gelaufenen Scanner-, Auth-Boundary-, Marketplace-, Compliance-, Runtime-, Tax-, Data-Rights- und Erasure-Worker-Tests waren bis zum neuen B02-Test grün.
+- `validate`: success
+- `Trade contracts and mobile order flow`: success einschließlich des finalen B02-Real-Trigger-/ACL-Tests
+- übrige ausgeführte Scanner-, Auth-Boundary-, Marketplace-, Compliance-, Runtime-, Tax-, Data-Rights-, Browser- und Erasure-Worker-Regressionen: success
+- die regulär bedingten Schritte `Real complex-card reference recognition and recovery` und `Read-only live catalog availability` waren skipped, nicht failed.
 
-Exakter Fehler des neuen Tests:
+Der frühere fehlgeschlagene Run #225 / `34964129105` bleibt nur historische Fehlerreferenz und ist durch Run #228 ersetzt.
 
-```text
-error: service_role_required
-where: PL/pgSQL function prepare_account_deletion_data(uuid,uuid) line 4 at RAISE
-query: select public.prepare_account_deletion_data(
-  '94000000-0000-4000-8000-000000000002',
-  '94000000-0000-4000-8000-000000000003'
-) value
-```
-
-Ursache sehr wahrscheinlich im **Testmodell**, nicht bereits als Produktfix-Fehler bewerten: In PostgreSQL bedeutet `SECURITY DEFINER`, dass `current_user` innerhalb der Funktion der Funktionsowner ist. Im PGlite-Test wird die Funktion als Default-Owner erstellt; anschließend wird nur `SET ROLE service_role` ausgeführt. Deshalb ist `current_user` innerhalb der SECURITY-DEFINER-Funktion nicht `service_role` und die neue explizite Prüfung schlägt fehl. Auf echtem Supabase ist ebenfalls sorgfältig zu prüfen, welcher Owner die Funktion besitzt; `current_user='service_role'` ist daher möglicherweise strukturell die falsche Absicherung für einen SECURITY-DEFINER-RPC.
-
-**B02 darf nicht geschlossen werden.** Der nächste Chat muss diesen Punkt zuerst sauber korrigieren, statt den Test nur passend zu machen.
+**B02 ist geschlossen.** Nicht erneut bearbeiten, solange kein neuer konkreter Befund entsteht.
 
 ## 7. Exakter nächster Arbeitsauftrag
 
-Arbeite ausschließlich an B02 weiter.
+Nächster Block ist ausschließlich **B03**: eigener standardmäßig deaktivierter Live-Paymentmodus; ein bloßer Wechsel von Sandbox- auf Live-Schlüsseln darf keine Live-Zahlungsfähigkeit freischalten.
 
-1. Zuerst Branch-Head, PR #5 Draftstatus und main erneut lesen. Nichts zurücksetzen.
-2. Prüfe die PostgreSQL/Supabase-Ausführungssemantik des bestehenden `prepare_account_deletion_data` als `SECURITY DEFINER`: insbesondere `current_user`, Funktionsowner und RPC-Rollenprüfung.
-3. Entferne oder ersetze die neu eingeführte `current_user<>'service_role'`-Prüfung nur dann, wenn eine bessere, belastbare Grenze verwendet wird. Die vorhandene EXECUTE-Berechtigungsgrenze (`revoke ... public, anon, authenticated`; `grant ... service_role`) plus Lock-Token kann der richtige Mechanismus sein; dies muss anhand des realen Supabase-Verhaltens und isolierter Tests begründet werden.
-4. Behalte zwingend den globalen `guard_profile_username_direct_update` unverändert wirksam.
-5. Der Erasure-RPC darf den bestehenden `duelvanta.username_rpc`-Freigabekontext nur transaktionslokal und nur innerhalb des bereits autorisierten, gelockten Erasure-Pfads setzen. Erfolgs- und Fehlerpfad müssen ihn wieder neutralisieren; Rollback darf keinen wirksamen Freigabekontext hinterlassen.
-6. Korrigiere Produkt-SQL und/oder Test minimal. Keine echte Account-, Storage- oder Auth-Löschung ausführen.
-7. Automatische CI erneut laufen lassen. Nicht manuell bereits grüne Abnahmen wiederholen.
-8. B02 erst schließen, wenn der neue Real-Trigger-Test und die bestehende CI vollständig grün sind und die Rollen-/Bypassgrenze fachlich korrekt ist.
-9. Danach B02-Status im Masterhandout aktualisieren. Erst anschließend mit B03 fortfahren.
+1. Branch-Head, PR #5 Draftstatus und main vor Änderungen erneut lesen. Nichts zurücksetzen.
+2. Bestehende Payment-/Stripe-Konfiguration, API-Routen, Worker und Environment-Gates vollständig auf die aktuelle Sandbox-/Live-Trennung prüfen.
+3. Einen expliziten, standardmäßig deaktivierten Live-Paymentmodus entwerfen und nur minimal implementieren. Live-Schlüssel allein dürfen nicht genügen.
+4. Bestehende Sandbox-, Payment-, Refund-, Connect- und Webhook-Sicherheitsgrenzen unverändert erhalten; keinen zweiten Zahlungs- oder Refundpfad schaffen.
+5. Ausschließlich Mocks/isolierte Tests verwenden. Keine Live-Zahlung, Live-Erstattung, Live-Auszahlung oder Stripe-Sandbox-Reaktivierung ausführen.
+6. Automatische CI laufen lassen; bereits grüne, unveränderte Abnahmen nicht manuell wiederholen.
+7. B03 erst schließen, wenn der Modus technisch fail-closed ist, die Regressionen grün sind und ein versehentlicher Schlüsselwechsel allein nachweislich keine Live-Aktion aktivieren kann.
+8. Danach V7 aktualisieren; erst anschließend B04 beginnen.
 
-## 8. Releaseblocker nach B01
+## 8. Releaseblocker nach B02
 
 - **B01 GESCHLOSSEN:** PROFILE-Preview-Isolation vollständig nachgewiesen.
-- **B02 OFFEN / in Arbeit:** Username-Triggerkonflikt im Lösch-RPC; aktueller B02-Test deckt eine Rollenprüfungsfrage im neuen Fix auf.
+- **B02 GESCHLOSSEN:** Username-Triggerkonflikt im Erasure-RPC behoben; Rollen-/Bypassgrenze und Rollback isoliert getestet, CI #228 vollständig grün.
 - **B03 OFFEN:** eigener standardmäßig deaktivierter Live-Paymentmodus; Schlüsselwechsel allein genügt nicht.
 - **B04 OFFEN:** wirksamer main-Schutz mit PR-/CI-Pflicht, Force-Push-/Delete-Sperre und Notfallweg.
 - **B05 OFFEN:** `.gitignore`, aktueller/historischer Secret- und Supply-Chain-Scan; echte Treffer gegebenenfalls rotieren.
@@ -177,7 +186,7 @@ F03 und F04 aus V5 bleiben unverändert. Alle in V4 abgeschlossenen Abnahmen ble
 - `v-logo.svg` und **COLLECT. TRADE. BATTLE.** unverändert lassen.
 - Kein echter Account-Löschlauf zur Diagnose von B02.
 
-V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Rollbackplan. B01-Abschluss erteilt keine Produktionsfreigabe. **NO-GO für Produktion und Live-Payments bleibt bestehen.**
+V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Rollbackplan. B01-/B02-Abschluss erteilt keine Produktionsfreigabe. **NO-GO für Produktion und Live-Payments bleibt bestehen.**
 
 ## 10. Dauerhafte Referenzen
 
@@ -186,8 +195,11 @@ V5 Abschnitte 7 und 8 bleiben der verbindliche, NICHT ausgeführte Rollout-/Roll
 - V6: `DUELVANTA_MASTERHANDOUT_V6_2026-09-15.md`; B01-Abschlussdokumentation Commit `d28d6c5777bb8120ae6fa373be419b55f49b63ea`
 - Technischer B01-Checkpoint: `d108eba6033ea2d94d3a06e639202260e2d69717`
 - B01 CI: Run #219 / `34955359914`
-- B02 aktueller technischer Head: `cdf0592b9544c0a25da064148564ac878dff2127`
-- B02 aktueller fehlgeschlagener CI-Run: #225 / `34964129105`
+- V7 ursprünglicher Dokumentationscommit vor B02-Abschluss: `773d1b1e23395647d6a992174aecbfd939afad02`
+- B02 finale SQL-Korrektur: `bfa428e189b3515c44adb0c5bd4194fac03f6e3f`
+- B02 technischer Abschluss-Head / finaler Test: `24c1a6ef0fc437e13f56d18aa23e255dfc7d610c`
+- B02 erfolgreicher CI-Run: #228 / `34964941036`
+- B02 historischer fehlgeschlagener CI-Run: #225 / `34964129105`
 - Staging Supabase: `xhmjxrcskfhbovhitdej`
 - Produktion Supabase: `enifiaqsnqtbzylnfrpi`
 
