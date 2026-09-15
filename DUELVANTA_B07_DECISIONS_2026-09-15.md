@@ -57,4 +57,34 @@ Zwingend extern freizugeben bleiben insbesondere:
 - der Umgang mit Falschangaben oder tatsächlich unternehmerisch handelnden Käufern;
 - die korrekte C2C-/B2C-Zuordnung und die daraus folgenden Pflichtinformationen.
 
+### Entscheidung L07-01/03 – Gebührenmodell des ersten Marketplace-Releases
+
+**Betreiberentscheidung:**
+
+- Käufer zahlen im ersten kommerziellen Marketplace-Release keine gesonderte Gebühr an DUELVANTA.
+- Für das Einstellen von Angeboten wird im ersten Release keine Einstellgebühr erhoben.
+- Im ersten Release gibt es kein verpflichtendes Verkäufer-Abonnement.
+- DUELVANTA soll nur bei einem tatsächlich erfolgreichen vermittelten Verkauf eine Verkaufsprovision vom Verkäufer erhalten.
+- Die konkrete Höhe, Berechnungsbasis, Fälligkeit und steuerliche Behandlung dieser Verkäuferprovision sind mit dieser Entscheidung noch nicht festgelegt.
+
+### Vertragsbeziehungen aus dieser Entscheidung
+
+- Verkäufer ↔ Käufer: Kaufvertrag über die Ware und die unmittelbar zugehörige Lieferung beziehungsweise Übergabe.
+- DUELVANTA ↔ Verkäufer: Plattform-/Vermittlungsvertrag; bei erfolgreichem Verkauf entsteht nach dem später freizugebenden Gebührenmodell die Verkäuferprovision zugunsten von DUELVANTA.
+- DUELVANTA ↔ Käufer: Plattformnutzungsverhältnis ohne gesonderte Käufer-Transaktionsgebühr im ersten Release.
+
+### Technische Folge für den aktuellen B07-Stand
+
+Für die reine Festlegung des Gebührenmodells ist aktuell keine Produktcodeänderung erforderlich. Stripe Live, echte Zahlungen, Gebühreneinzug, Refunds und Payouts bleiben weiterhin deaktiviert. Die bereits vorbereitete Gebühren-/Stripe-Architektur ist vor Aktivierung gegen das final freigegebene Provisionsmodell zu prüfen.
+
+### Externer Freigabepunkt
+
+Zwingend extern beziehungsweise steuerlich zu prüfen bleiben insbesondere:
+
+- rechtliche Ausgestaltung, Transparenz, Entstehung und Fälligkeit der Verkaufsprovision;
+- konkrete Gebührenhöhe und Berechnungsbasis einschließlich Versand, Rabatten, Stornos, Refunds und Teilrückabwicklungen;
+- Umsatzsteuer- und Rechnungsbehandlung der DUELVANTA-Provision gegenüber privaten und gewerblichen Verkäufern;
+- Zahlungsdienst-/ZAG-Einordnung des tatsächlichen späteren Geldflusses;
+- Stripe-Connect-, Gebühren-, Refund-, Chargeback- und Auszahlungskonfiguration vor Stripe Live.
+
 **B07-Status nach diesen Entscheidungen: unverändert OFFEN / BLOCKIERT.**
