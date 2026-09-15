@@ -71,19 +71,19 @@
 <section class="section" id="beta"><div class="wrap beta"><div class="reveal"><div class="kicker">Founders Beta</div><h2>Sei von Anfang an dabei.</h2><p class="lead">Die ersten Mitglieder erleben DUELVANTA vor dem öffentlichen Start und helfen dabei, die Plattform mitzugestalten.</p></div><div class="beta-card reveal"><form class="beta-form beta-form-live" id="betaForm"><input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="Deine E-Mail-Adresse" required aria-label="E-Mail-Adresse"><button type="submit" id="betaSubmit">Zur Warteliste →</button><label class="consent"><input type="checkbox" id="consent" required><span>Ich möchte auf die DUELVANTA-Beta-Warteliste und akzeptiere die Verarbeitung meiner E-Mail-Adresse hierfür. Hinweise stehen in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label></form><div class="beta-note" id="formNote" role="status" aria-live="polite">Deine E-Mail-Adresse wird ausschließlich für die DUELVANTA-Beta-Warteliste gespeichert.</div></div></div></section>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><a class="brand footer-brand" href="#top" aria-label="DUELVANTA Startseite"><img src="v-logo.svg" alt="" /><span>DUELVANTA</span></a><div class="legal"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="mailto:info@duelvanta.de">Kontakt</a></div></div></footer>
+<script src="/api/compliance-message-dispatch?runtime_config=1"></script>
 <script>
 const intro=document.getElementById('intro');const skip=document.getElementById('skipIntro');
 function finishIntro(){intro.classList.add('done');sessionStorage.setItem('duelvantaIntroSeen','1')}
 if(sessionStorage.getItem('duelvantaIntroSeen')){intro.style.display='none'}else{setTimeout(finishIntro,5900)}
 skip.addEventListener('click',finishIntro);
 const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.14});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const {url:SB_URL,key:SB_KEY}=window.DV_SUPABASE;
 document.getElementById('betaForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const mail=document.getElementById('email').value.trim().toLowerCase();const consent=document.getElementById('consent').checked;const note=document.getElementById('formNote');const btn=document.getElementById('betaSubmit');note.className='beta-note';if(!mail||!consent)return;btn.disabled=true;btn.textContent='Wird eingetragen …';try{const r=await fetch(SB_URL+'/rest/v1/beta_waitlist',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email:mail,consent:true,source:'landingpage'})});if(r.ok){note.textContent='Geschafft – du stehst auf der DUELVANTA-Beta-Warteliste.';note.classList.add('ok');form.reset();}else if(r.status===409){note.textContent='Diese E-Mail-Adresse steht bereits auf der Warteliste.';note.classList.add('ok');}else{throw new Error('HTTP '+r.status)}}catch(err){console.error(err);note.textContent='Die Anmeldung konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.';note.classList.add('err')}finally{btn.disabled=false;btn.textContent='Zur Warteliste →'}});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(()=>{const c=window.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true}});c.auth.getSession().then(({data})=>{const on=!!data.session;for(const id of ['accountLink','mobileAccountLink']){const a=document.getElementById(id);if(a){a.textContent=on?'MEIN DUELVANTA':'LOGIN';a.href=on?'app.html':'login.html'}}})})();
+(()=>{const c=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});c.auth.getSession().then(({data})=>{const on=!!data.session;for(const id of ['accountLink','mobileAccountLink']){const a=document.getElementById(id);if(a){a.textContent=on?'MEIN DUELVANTA':'LOGIN';a.href=on?'app.html':'login.html'}}})})();
 </script>
 </body></html>
