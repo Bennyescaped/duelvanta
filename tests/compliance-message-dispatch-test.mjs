@@ -3,10 +3,25 @@ import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const handler=require('../api/compliance-message-dispatch.js');
 
-const response=()=>({statusCode:0,body:null,status(code){this.statusCode=code;return this},json(body){this.body=body;return this}});
+const response=()=>({statusCode:0,body:null,headers:{},status(code){this.statusCode=code;return this},json(body){this.body=body;return this},send(body){this.body=body;return this},setHeader(name,value){this.headers[name]=value}});
 const originalFetch=global.fetch;
 const originalEnv={...process.env};
 try{
+  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://example.supabase.test',SUPABASE_PUBLISHABLE_KEY:'test-publishable',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
+  let publicCalls=0;
+  global.fetch=async(url,options)=>{
+    publicCalls++;
+    if(String(url).includes('/rpc/get_public_market_listing_v1'))return new Response(JSON.stringify({listing_id:'11111111-1111-4111-8111-111111111111',listing_type:'sale',pricing_mode:'fixed',asking_price:42.5,currency:'EUR',tcg:'pokemon',card_name:'Pikachu <script>bad</script>',set_name:'Base Set',card_number:'58/102',language:'Deutsch',condition:'NM',quantity_available:1}),{status:200});
+    if(String(url).includes('/rest/v1/market_listings?'))return new Response(JSON.stringify([{image_path:'cards/example.png'}]),{status:200});
+    if(String(url).includes('/storage/v1/object/sign/collection-cards/'))return new Response(JSON.stringify({signedURL:'/storage/v1/object/sign/collection-cards/cards/example.png?token=test'}),{status:200});
+    throw Error('unexpected public listing network call');
+  };
+  const invalid=response();await handler({method:'GET',query:{public_listing:'not-a-uuid'},headers:{host:'preview.example.test'}},invalid);assert.equal(invalid.statusCode,400);assert.equal(publicCalls,0);
+  const share=response();await handler({method:'GET',query:{public_listing:'11111111-1111-4111-8111-111111111111'},headers:{host:'preview.example.test'}},share);
+  assert.equal(share.statusCode,200);assert.match(share.headers['Content-Type'],/text\/html/);assert.match(share.headers['Content-Security-Policy'],/default-src 'none'/);
+  assert.match(share.body,/Pikachu &lt;script&gt;bad&lt;\/script&gt;/);assert.ok(!share.body.includes('<script>bad</script>'));assert.match(share.body,/og:image/);assert.match(share.body,/token=test/);assert.match(share.body,/\/listing\/11111111-1111-4111-8111-111111111111/);assert.ok(!/seller|street|email|phone/i.test(share.body));
+  assert.equal(publicCalls,3);
+
   delete process.env.COMPLIANCE_EMAIL_DELIVERY_ENABLED;
   let calls=0;global.fetch=async()=>{calls++;throw Error('network forbidden')};
   const disabled=response();await handler({method:'POST',headers:{}},disabled);
@@ -46,7 +61,7 @@ try{
   const failedFinish=failedRequests.find(item=>String(item.url).includes('finish_marketplace_message_delivery'));
   assert.ok(failedFinish);const failedBody=JSON.parse(failedFinish.options.body);
   assert.equal(failedBody.p_success,false);assert.equal(failedBody.p_provider_message_id,null);assert.match(failedBody.p_error,/provider_503_synthetic_provider_failure/);
-  console.log('PASS: dispatcher stays disabled by default and all compliance messages pass success/failure dry-runs with mocked network');
+  console.log('PASS: public listing renderer is data-minimal; dispatcher stays disabled by default and compliance dry-runs pass');
 }finally{
   global.fetch=originalFetch;
   for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];
