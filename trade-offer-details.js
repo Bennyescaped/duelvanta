@@ -33,6 +33,6 @@
     }).join('') || '<div class="empty">Noch keine Preisangebote.</div>';
   };
   if (!document.querySelector('script[data-dv-offer-checkout]')) {
-    const script=document.createElement('script');script.src='trade-offer-checkout.js?v=1.0';script.dataset.dvOfferCheckout='1';document.body.appendChild(script);
+    const script=document.createElement('script');script.src='trade-offer-checkout.js?v=1.1';script.dataset.dvOfferCheckout='1';document.body.appendChild(script);
   }
 })();

@@ -1,47 +1,57 @@
-// Browser heartbeat isolation for TRADE with local fixtures only; no live transactions.
+// Browser acceptance of existing TRADE UI with isolated fixtures; no live transactions.
+import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
+import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
+
 const root=fileURLToPath(new URL('..',import.meta.url));
 const server=spawn(process.execPath,['tests/trade-ui-server.mjs'],{cwd:root,stdio:['ignore','pipe','pipe']});
-const timeout=(promise,ms,label)=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error(`${label} timed out after ${ms}ms`)),ms);promise.then(v=>{clearTimeout(timer);resolve(v)},e=>{clearTimeout(timer);reject(e)})});
-const files={tradeV2:'trade-v2.js',marketplaceUx:'trade-marketplace-ux.js',noticeAction:'trade-notice-action.js',sellerModeration:'trade-seller-moderation.js',sellerCompliance:'trade-seller-compliance.js'};
+const timeout=(promise,ms,label)=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error(`${label} timed out after ${ms}ms`)),ms);promise.then(value=>{clearTimeout(timer);resolve(value)},error=>{clearTimeout(timer);reject(error)})});
+const watchdog=setTimeout(()=>{console.error('FAIL: TRADE browser acceptance exceeded 120000ms');server.kill('SIGKILL');process.exit(1)},120000);
 let browser,exitCode=0;
-async function heartbeat(name,{blocked=[],fakeDealsTab=false}={}){
- const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
- const page=await context.newPage();
- for(const key of blocked)await page.route(`**/${files[key]}*`,route=>route.abort());
- if(fakeDealsTab)await page.addInitScript(()=>document.addEventListener('DOMContentLoaded',()=>{if(!document.getElementById('dvDealsTab')){const tabs=document.querySelector('.tabs'),sell=document.getElementById('sell'),button=document.createElement('button');button.id='dvDealsTab';button.className='btn';button.textContent='DEALS';sell?tabs?.insertBefore(button,sell):tabs?.appendChild(button)}}));
- page.on('dialog',dialog=>dialog.dismiss());
- try{
-  await timeout(page.goto('http://127.0.0.1:4173/trade.html?selftest=1',{waitUntil:'domcontentloaded',timeout:10000}),10000,`${name} navigation`);
-  await new Promise(resolve=>setTimeout(resolve,250));
-  const state=await timeout(page.evaluate(()=>({readyState:document.readyState,body:document.body?.children.length||0,ux:!!window.DV_TRADE_MARKETPLACE_UX,deals:!!document.getElementById('dvDealsTab')})),2000,`${name} renderer heartbeat`);
-  console.log(`HEARTBEAT ${name}: RESPONSIVE ${JSON.stringify(state)}`);return true;
- }catch(error){console.log(`HEARTBEAT ${name}: BLOCKED ${error.message}`);return false}
- finally{await timeout(context.close(),1500,`${name} close`).catch(()=>{})}
+
+async function verifyViewport(name,contextOptions){
+  const context=await timeout(browser.newContext(contextOptions),10000,`${name} browser context`);
+  const page=await timeout(context.newPage(),10000,`${name} browser page`);
+  const pageErrors=[];
+  page.on('pageerror',error=>pageErrors.push(error.message));
+  page.on('dialog',dialog=>dialog.accept());
+  page.setDefaultTimeout(30000);
+  page.setDefaultNavigationTimeout(30000);
+  try{
+    await timeout(page.goto('http://127.0.0.1:4173/trade.html?selftest=1',{waitUntil:'domcontentloaded',timeout:30000}),20000,`${name} navigation`);
+    await timeout(page.waitForFunction(()=>{const text=document.getElementById('uiTestResults')?.textContent||'';return text.includes('ALL UI TESTS PASSED')||text.includes('\nFAIL')},null,{timeout:30000}),35000,`${name} UI selftest`);
+    const text=await timeout(page.locator('#uiTestResults').innerText(),5000,`${name} UI result`);
+    if(!text.includes('ALL UI TESTS PASSED')){
+      const diagnostics=await timeout(page.evaluate(()=>({calls:window.TRADE_UI_FIXTURE?.calls?.slice(-12)||[],body:document.body.innerText.slice(-6000)})),5000,`${name} failure diagnostics`).catch(()=>null);
+      if(diagnostics)console.log(diagnostics);
+    }
+    assert.ok(text.includes('ALL UI TESTS PASSED'),`${name}: ${text}`);
+    assert.deepEqual(pageErrors,[],`${name} TRADE page raised a browser error`);
+    assert.equal(await timeout(page.evaluate(()=>new Promise(resolve=>setTimeout(()=>resolve(true),0))),3000,`${name} renderer heartbeat`),true,`${name} renderer event loop must remain responsive`);
+    assert.equal(await timeout(page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),5000,`${name} overflow check`),true,`${name} Marketplace must not overflow horizontally`);
+    console.log(`PASS: TRADE ${name} browser acceptance`);
+    return text;
+  }finally{
+    await timeout(context.close(),5000,`${name} context close`).catch(error=>console.warn(error.message));
+  }
 }
+
 try{
- await timeout(new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('Test server exited '+code)))}),10000,'server startup');
- browser=await timeout(chromium.launch({headless:true}),15000,'Chromium launch');
- const full=await heartbeat('full-stack');
- const noUx=await heartbeat('without-marketplaceUx',{blocked:['marketplaceUx']});
- const noTradeV2=await heartbeat('without-tradeV2',{blocked:['tradeV2']});
- const noTradeV2FakeTab=await heartbeat('without-tradeV2-with-fake-deals-tab',{blocked:['tradeV2'],fakeDealsTab:true});
- const noNotice=await heartbeat('without-noticeAction',{blocked:['noticeAction']});
- const noModeration=await heartbeat('without-sellerModeration',{blocked:['sellerModeration']});
- const noCompliance=await heartbeat('without-sellerCompliance',{blocked:['sellerCompliance']});
- console.log('DEPENDENCY MATRIX',JSON.stringify({full,noUx,noTradeV2,noTradeV2FakeTab,noNotice,noModeration,noCompliance}));
- if(full)throw Error('full stack unexpectedly responsive');
- if(noUx)throw Error('culprit=trade-marketplace-ux activation chain');
- if(noTradeV2&&noTradeV2FakeTab)throw Error('culprit=trade-v2 itself');
- if(noTradeV2&&!noTradeV2FakeTab)throw Error('culprit=module activated by presence of dvDealsTab');
- if(noNotice)throw Error('culprit=trade-notice-action');
- if(noModeration)throw Error('culprit=trade-seller-moderation');
- if(noCompliance)throw Error('culprit=trade-seller-compliance');
- throw Error('culprit remains in trade-v2 interaction chain');
-}catch(error){exitCode=1;console.error(error?.stack||error)}finally{
- if(browser)await timeout(browser.close(),5000,'Chromium close').catch(()=>{});
- if(server.exitCode===null){server.kill('SIGTERM');await timeout(new Promise(r=>server.once('exit',r)),3000,'server stop').catch(()=>server.kill('SIGKILL'))}
+  await timeout(new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('Test server exited '+code)))}),10000,'TRADE test server startup');
+  browser=await timeout(chromium.launch({headless:true}),15000,'Chromium launch');
+  await mkdir(new URL('../test-results/',import.meta.url),{recursive:true});
+  const mobile=await verifyViewport('Mobile',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  const desktop=await verifyViewport('Desktop',{viewport:{width:1440,height:1000}});
+  await writeFile(new URL('../test-results/trade-browser.txt',import.meta.url),`MOBILE\n${mobile}\n\nDESKTOP\n${desktop}`);
+  console.log('PASS: TRADE browser acceptance on mobile and desktop viewports');
+}catch(error){
+  exitCode=1;
+  console.error(error?.stack||error);
+}finally{
+  if(browser)await timeout(browser.close(),5000,'Chromium close').catch(error=>console.warn(error.message));
+  if(server.exitCode===null){server.kill('SIGTERM');await timeout(new Promise(resolve=>server.once('exit',resolve)),3000,'TRADE test server stop').catch(()=>server.kill('SIGKILL'))}
+  clearTimeout(watchdog);
 }
 process.exit(exitCode);
