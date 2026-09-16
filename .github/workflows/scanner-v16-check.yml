@@ -258,6 +258,7 @@ jobs:
           node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs
           node tests/trade-shipping-contract-test.mjs
+          node tests/b07-c2c-pickup-contract-test.mjs
           node tests/trade-shipping-null-fallback-contract-test.mjs
           node tests/trade-marketplace-ux-contract-test.mjs
           node tests/market-seller-compliance-database-test.mjs
