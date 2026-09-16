@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const handler=require('../api/compliance-message-dispatch.js');
@@ -22,8 +23,68 @@ try{
   assert.match(share.body,/Pikachu &lt;script&gt;bad&lt;\/script&gt;/);assert.ok(!share.body.includes('<script>bad</script>'));assert.match(share.body,/og:image/);assert.match(share.body,/token=test/);assert.match(share.body,/\/listing\/11111111-1111-4111-8111-111111111111/);assert.ok(!/seller|street|email|phone/i.test(share.body));
   assert.equal(publicCalls,3);
 
-  delete process.env.COMPLIANCE_EMAIL_DELIVERY_ENABLED;
+  delete process.env.MARKET_TRACKING_ENABLED;
   let calls=0;global.fetch=async()=>{calls++;throw Error('network forbidden')};
+  const trackingDisabled=response();await handler({method:'POST',query:{tracking_register:'1'},headers:{},body:{order_id:'22222222-2222-4222-8222-222222222222'}},trackingDisabled);
+  assert.deepEqual(trackingDisabled.body,{status:'disabled'});assert.equal(calls,0);
+
+  Object.assign(process.env,{
+    VERCEL_ENV:'preview',
+    MARKET_TRACKING_ENABLED:'true',
+    SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',
+    SUPABASE_PUBLISHABLE_KEY:'test-publishable',
+    SUPABASE_SERVICE_ROLE_KEY:'test-service-role',
+    AFTERSHIP_API_KEY:'test-aftership-key',
+    AFTERSHIP_WEBHOOK_SECRET:'test-webhook-secret',
+    AFTERSHIP_WEBHOOK_HEADER_SECRET:'test-header-secret'
+  });
+  const order={id:'22222222-2222-4222-8222-222222222222',order_number:'DV-TRACK-1',seller_id:'33333333-3333-4333-8333-333333333333',fulfillment_group:'shipping',status:'shipped',carrier:'DHL',tracking_code:'00340434161094000000',shipped_at:'2026-09-16T06:00:00.000Z',delivery_evidence_at:null,closure_eligible_at:null};
+  const registrationCalls=[];
+  global.fetch=async(url,options={})=>{
+    registrationCalls.push({url:String(url),options});
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:order.seller_id}),{status:200});
+    if(String(url).includes('/rest/v1/market_orders?'))return new Response(JSON.stringify([order]),{status:200});
+    if(String(url)==='https://api.aftership.com/tracking/2026-07/trackings')return new Response(JSON.stringify({data:{tracking:{id:`duelvanta-${order.id}`}}}),{status:201,headers:{'content-type':'application/json'}});
+    throw Error('unexpected tracking registration network call '+url);
+  };
+  const registered=response();await handler({method:'POST',query:{tracking_register:'1'},headers:{authorization:'Bearer seller-token'},body:{order_id:order.id}},registered);
+  assert.equal(registered.statusCode,200);assert.equal(registered.body.status,'registered');assert.equal(registered.body.provider_tracking_id,`duelvanta-${order.id}`);
+  const aftershipCreate=registrationCalls.find(x=>x.url==='https://api.aftership.com/tracking/2026-07/trackings');assert.ok(aftershipCreate);
+  assert.equal(aftershipCreate.options.headers['as-api-key'],'test-aftership-key');
+  const trackingBody=JSON.parse(aftershipCreate.options.body).tracking;
+  assert.equal(trackingBody.order_id,order.id);assert.equal(trackingBody.tracking_number,order.tracking_code);assert.equal(trackingBody.language,'de');
+  assert.ok(!JSON.stringify(trackingBody).match(/recipient|street|email|phone|buyer/i),'AfterShip payload must not contain personal customer data');
+
+  let webhookFetches=0;global.fetch=async(url,options={})=>{webhookFetches++;throw Error('network should not run')};
+  const badWebhook=response();await handler({method:'POST',query:{aftership_webhook:'1'},headers:{'x-duelvanta-tracking-secret':'wrong','as-webhook-version':'2026-07'},body:{}},badWebhook);
+  assert.equal(badWebhook.statusCode,401);assert.equal(webhookFetches,0);
+
+  const event={event:'tracking_update',event_id:'44444444-4444-4444-8444-444444444444',msg:{id:`duelvanta-${order.id}`,order_id:order.id,tracking_number:order.tracking_code,slug:'dhl-germany',tag:'Delivered',checkpoints:[{tag:'InTransit',source:'carrier',checkpoint_time:'2026-09-16T07:00:00.000Z',hash:'cp-1'},{tag:'Delivered',source:'carrier',checkpoint_time:'2026-09-16T08:15:00.000Z',hash:'cp-delivered'}]}};
+  const raw=JSON.stringify(event),signature=createHmac('sha256','test-webhook-secret').update(raw,'utf8').digest('base64');
+  const webhookCalls=[];global.fetch=async(url,options={})=>{
+    webhookCalls.push({url:String(url),options});
+    if(String(url).includes('/rest/v1/market_orders?'))return new Response(JSON.stringify([order]),{status:200});
+    if(String(url).includes('/rest/v1/rpc/record_market_order_delivery_evidence_b07'))return new Response('',{status:200});
+    throw Error('unexpected webhook network call '+url);
+  };
+  const delivered=response();await handler({method:'POST',query:{aftership_webhook:'1'},headers:{'x-duelvanta-tracking-secret':'test-header-secret','as-webhook-version':'2026-07','aftership-hmac-sha256':signature},body:raw},delivered);
+  assert.equal(delivered.statusCode,200);assert.equal(delivered.body.status,'delivery_recorded');assert.equal(delivered.body.hmac_verified,true);
+  const evidence=webhookCalls.find(x=>x.url.includes('/rpc/record_market_order_delivery_evidence_b07'));assert.ok(evidence);
+  const evidenceBody=JSON.parse(evidence.options.body);assert.equal(evidenceBody.p_order_id,order.id);assert.equal(evidenceBody.p_delivered_at,'2026-09-16T08:15:00.000Z');assert.equal(evidenceBody.p_source,'aftership:dhl-germany');assert.match(evidenceBody.p_reference,/44444444-4444-4444-8444-444444444444:cp-delivered/);
+
+  const userCompleted={...event,event_id:'55555555-5555-4555-8555-555555555555',msg:{...event.msg,checkpoints:[{tag:'Delivered',source:'user',checkpoint_time:'2026-09-16T08:20:00.000Z',hash:'manual'}]}};
+  const manualRaw=JSON.stringify(userCompleted),manualSig=createHmac('sha256','test-webhook-secret').update(manualRaw,'utf8').digest('base64');
+  let manualCalls=0;global.fetch=async()=>{manualCalls++;throw Error('manual completion must not touch database')};
+  const manual=response();await handler({method:'POST',query:{aftership_webhook:'1'},headers:{'x-duelvanta-tracking-secret':'test-header-secret','as-webhook-version':'2026-07','aftership-hmac-sha256':manualSig},body:manualRaw},manual);
+  assert.deepEqual(manual.body,{status:'ignored',reason:'no_carrier_delivery_checkpoint'});assert.equal(manualCalls,0);
+
+  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://example.supabase.test',SUPABASE_PUBLISHABLE_KEY:'test-publishable',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
+  delete process.env.MARKET_TRACKING_ENABLED;
+  delete process.env.AFTERSHIP_API_KEY;
+  delete process.env.AFTERSHIP_WEBHOOK_SECRET;
+  delete process.env.AFTERSHIP_WEBHOOK_HEADER_SECRET;
+  delete process.env.COMPLIANCE_EMAIL_DELIVERY_ENABLED;
+  calls=0;global.fetch=async()=>{calls++;throw Error('network forbidden')};
   const disabled=response();await handler({method:'POST',headers:{}},disabled);
   assert.deepEqual(disabled.body,{status:'disabled',claimed:0,sent:0,failed:0});assert.equal(calls,0);
 
@@ -61,7 +122,7 @@ try{
   const failedFinish=failedRequests.find(item=>String(item.url).includes('finish_marketplace_message_delivery'));
   assert.ok(failedFinish);const failedBody=JSON.parse(failedFinish.options.body);
   assert.equal(failedBody.p_success,false);assert.equal(failedBody.p_provider_message_id,null);assert.match(failedBody.p_error,/provider_503_synthetic_provider_failure/);
-  console.log('PASS: public listing renderer is data-minimal; dispatcher stays disabled by default and compliance dry-runs pass');
+  console.log('PASS: public listing, preview-only AfterShip tracking and compliance dispatcher dry-runs pass');
 }finally{
   global.fetch=originalFetch;
   for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];
