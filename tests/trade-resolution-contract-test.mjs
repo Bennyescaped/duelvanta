@@ -7,6 +7,8 @@ const migration=await readFile(new URL('../database/trade-order-resolution-v1.sq
 const hardening=await readFile(new URL('../database/trade-order-resolution-v1-hardening.sql',import.meta.url),'utf8');
 const lifecycle=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1.sql',import.meta.url),'utf8');
 const lifecycleHardening=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1-hardening.sql',import.meta.url),'utf8');
+const release1Shipping=await readFile(new URL('../database/b07-l07-01-release1-shipping-close-v1.sql',import.meta.url),'utf8');
+const release1ShippingHardening=await readFile(new URL('../database/b07-l07-01-release1-shipping-close-v1-hardening.sql',import.meta.url),'utf8');
 const swapMigration=[
   await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-schema.sql',import.meta.url),'utf8'),
   await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-binding.sql',import.meta.url),'utf8'),
@@ -15,6 +17,7 @@ const swapMigration=[
 const ui=await readFile(new URL('../trade-order-resolution.js',import.meta.url),'utf8');
 const lifecycleUi=await readFile(new URL('../trade-b07-order-lifecycle.js',import.meta.url),'utf8');
 const trackingServer=await readFile(new URL('../market-tracking-aftership.js',import.meta.url),'utf8');
+const adminDelivery=await readFile(new URL('../admin-delivery-review.js',import.meta.url),'utf8');
 const swapUi=await readFile(new URL('../trade-c2c-swap.js',import.meta.url),'utf8');
 const mock=await readFile(new URL('./trade-ui-mock.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
@@ -56,24 +59,45 @@ must(lifecycle,'create_market_pickup_handover_code_b07','pickup handover code mi
 must(lifecycleHardening,'pickup_code_attempt_limit','pickup brute-force guard missing');
 must(lifecycle,'grant execute on function public.advance_market_order_lifecycle_b07() to service_role','72h lifecycle advance must remain server only');
 must(lifecycleHardening,"received_at=case when p_reason in ('buyer_received_ok','pickup_bilateral_handover')",'72h technical completion must not fake buyer receipt');
+
+must(release1Shipping,"o.subtotal>25 or o.risk_tracking_required",'Release-1 tracked shipping threshold must be server-enforced');
+must(release1Shipping,"new.shipped_at+interval '40 days'",'untracked auto-close must be exactly 40 days from shipping');
+must(release1Shipping,"o.shipped_at+interval '14 days'",'untracked not-received floor must be exactly 14 days');
+must(release1Shipping,"untracked_not_received_available_after_14_days",'untracked early not-received guard missing');
+must(release1Shipping,"'untracked_shipping_40d_elapsed'",'untracked technical completion reason missing');
+must(release1Shipping,"request_market_order_delivery_review_b07",'seller manual delivery review request RPC missing');
+must(release1Shipping,"review_market_order_delivery_b07",'owner delivery verification RPC missing');
+must(release1Shipping,"'owner_carrier_verification'",'owner carrier evidence source missing');
+must(release1Shipping,"v_at+interval '72 hours'",'owner-verified delivery must start exact 72h window');
+must(release1Shipping,"and not exists(select 1 from public.market_order_cases c",'open problem must block automatic close');
+must(release1ShippingHardening,'dv_market_private.is_market_owner_caller()','delivery review must reuse shared owner authorization');
+
 must(lifecycleUi,'function mutationAddsOrderCard(mutation)','lifecycle render-loop guard missing');
 must(lifecycleUi,'if(!mutations.some(mutationAddsOrderCard))return;','lifecycle observer must ignore own decoration mutations');
 assert.ok(!lifecycleUi.includes('new MutationObserver(()=>{clearTimeout'),'old recursive lifecycle observer must not return');
-must(lifecycleUi,"fetch('/api/tracking/register'",'seller shipping must register trackable orders through server boundary');
-must(lifecycleUi,'db.auth.getSession()','tracking registration must authenticate the seller session');
-must(lifecycleUi,'Carrier-Status „Zugestellt“','UI must explain the carrier-driven 72h start');
-must(lifecycleUi,"version:'1.2'",'B07 lifecycle tracking version mismatch');
+must(lifecycleUi,"db.rpc('request_market_order_delivery_review_b07'",'seller must be able to request manual delivery verification');
+must(lifecycleUi,'ZUSTELLPRÜFUNG ANFORDERN','tracked Release-1 review CTA missing');
+must(lifecycleUi,'Nicht erhalten','untracked 14-day user guidance missing');
+must(lifecycleUi,'40 Tagen','untracked 40-day auto-close guidance missing');
+must(lifecycleUi,"version:'1.2'",'B07 lifecycle Release-1 version mismatch');
 mustNot(lifecycleUi,'AFTERSHIP_API_KEY','browser must never contain AfterShip credentials');
+assert.doesNotThrow(()=>new Function(lifecycleUi),'B07 lifecycle UI syntax invalid');
 must(html,'trade-b07-order-lifecycle.js?v=1.0','B07 lifecycle module missing');
 
-must(trackingServer,"process.env.VERCEL_ENV!=='preview'",'tracking provider must stay preview-only');
-must(trackingServer,"MARKET_TRACKING_ENABLED!=='true'",'tracking provider must be default-off');
+must(adminDelivery,"db.rpc('get_owner_market_delivery_reviews_b07'",'owner delivery review queue RPC missing');
+must(adminDelivery,"db.rpc('review_market_order_delivery_b07'",'owner delivery decision RPC missing');
+must(adminDelivery,'ZUSTELLUNG VERIFIZIEREN','owner verification action missing');
+must(adminDelivery,'NICHT BESTÄTIGEN','owner rejection action missing');
+assert.doesNotThrow(()=>new Function(adminDelivery),'owner delivery review UI syntax invalid');
+
+must(trackingServer,"process.env.VERCEL_ENV!=='preview'",'optional tracking provider must stay preview-only');
+must(trackingServer,"MARKET_TRACKING_ENABLED!=='true'",'optional tracking provider must be default-off');
 must(trackingServer,"https://api.aftership.com/tracking/2026-07",'current AfterShip API version missing');
 must(trackingServer,"'as-api-key':apiKey",'AfterShip API key must remain server-side');
 must(trackingServer,"aftership-hmac-sha256",'AfterShip webhook HMAC verification missing');
 must(trackingServer,"x-duelvanta-tracking-secret",'secondary webhook secret missing');
-must(trackingServer,"cp?.tag==='Delivered'&&cp?.source==='carrier'",'only carrier-sourced Delivered checkpoints may start 72h');
-must(trackingServer,"record_market_order_delivery_evidence_b07",'tracking webhook must feed existing server-only delivery evidence RPC');
+must(trackingServer,"cp?.tag==='Delivered'&&cp?.source==='carrier'",'optional automation may only accept carrier-sourced Delivered checkpoints');
+must(trackingServer,"record_market_order_delivery_evidence_b07",'optional tracking webhook must feed existing server-only delivery evidence RPC');
 mustNot(trackingServer,'recipient_name','tracking provider payload must not include recipient identity');
 mustNot(trackingServer,'street_line','tracking provider payload must not include address data');
 
@@ -116,4 +140,4 @@ assert.ok(html.indexOf('trade-c2c-swap.js?v=1.0')<html.indexOf('trade-v2.js?v=2.
 must(mock,"name==='get_my_market_trade_eligibility'",'browser fixture must explicitly satisfy B07 eligibility');
 must(mock,"name==='get_my_market_swaps_v1'",'browser fixture must isolate C2C RPC');
 
-console.log('PASS: order resolution plus B07 carrier tracking/deadlines/pickup and private C2C revision/value-snapshot flow');
+console.log('PASS: order resolution plus B07 Release-1 shipping, optional carrier automation, pickup and private C2C flow');
