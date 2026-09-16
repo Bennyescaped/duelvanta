@@ -4,7 +4,7 @@
 create schema if not exists dv_market_private;
 revoke all on schema dv_market_private from public, anon, authenticated;
 
-after alter table public.market_orders
+alter table public.market_orders
   add column if not exists delivery_evidence_at timestamptz,
   add column if not exists delivery_evidence_source text,
   add column if not exists delivery_evidence_ref text,
