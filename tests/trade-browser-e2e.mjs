@@ -7,21 +7,28 @@ import {chromium} from 'playwright';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const server=spawn(process.execPath,['tests/trade-ui-server.mjs'],{cwd:root,stdio:['ignore','pipe','pipe']});
 const timeout=(promise,ms,label)=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error(`${label} timed out after ${ms}ms`)),ms);promise.then(value=>{clearTimeout(timer);resolve(value)},error=>{clearTimeout(timer);reject(error)})});
-const watchdog=setTimeout(()=>{console.error('FAIL: TRADE browser acceptance exceeded 90000ms');server.kill('SIGKILL');process.exit(1)},90000);
+const watchdog=setTimeout(()=>{console.error('FAIL: TRADE browser acceptance exceeded 60000ms');server.kill('SIGKILL');process.exit(1)},60000);
 let browser,exitCode=0;
 async function verifyViewport(name,contextOptions){
- const context=await browser.newContext(contextOptions),page=await context.newPage();
+ console.log(`TRADE ${name}: creating context`);
+ const context=await timeout(browser.newContext(contextOptions),10000,`${name} browser context`);
+ console.log(`TRADE ${name}: creating page`);
+ const page=await timeout(context.newPage(),10000,`${name} browser page`);
  const pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));
  page.on('dialog',dialog=>dialog.accept());
  page.setDefaultTimeout(30000);page.setDefaultNavigationTimeout(30000);
  try{
-  await page.goto('http://127.0.0.1:4173/trade.html?selftest=1',{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>{const text=document.getElementById('uiTestResults')?.textContent||'';return text.includes('ALL UI TESTS PASSED')||text.includes('\nFAIL')},null,{timeout:30000});
-  const text=await page.locator('#uiTestResults').innerText();
-  if(!text.includes('ALL UI TESTS PASSED'))console.log(await page.evaluate(()=>({calls:TRADE_UI_FIXTURE.calls.slice(-12),body:document.body.innerText.slice(-6000)})));
+  console.log(`TRADE ${name}: navigating`);
+  await timeout(page.goto('http://127.0.0.1:4173/trade.html?selftest=1',{waitUntil:'domcontentloaded',timeout:30000}),20000,`${name} navigation`);
+  console.log(`TRADE ${name}: waiting for UI selftest`);
+  await timeout(page.waitForFunction(()=>{const text=document.getElementById('uiTestResults')?.textContent||'';return text.includes('ALL UI TESTS PASSED')||text.includes('\nFAIL')},null,{timeout:30000}),20000,`${name} UI selftest`);
+  console.log(`TRADE ${name}: reading UI result`);
+  const text=await timeout(page.locator('#uiTestResults').innerText(),10000,`${name} UI result read`);
+  if(!text.includes('ALL UI TESTS PASSED'))console.log(await timeout(page.evaluate(()=>({calls:TRADE_UI_FIXTURE.calls.slice(-12),body:document.body.innerText.slice(-6000)})),5000,`${name} failure diagnostics`));
   assert.ok(text.includes('ALL UI TESTS PASSED'),`${name}: ${text}`);
   assert.deepEqual(pageErrors,[],`${name} TRADE page raised a browser error`);
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),true,`${name} Marketplace must not overflow horizontally`);
+  const noOverflow=await timeout(page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),5000,`${name} overflow check`);
+  assert.equal(noOverflow,true,`${name} Marketplace must not overflow horizontally`);
   console.log(`TRADE ${name}: browser assertions complete`);
   return text;
  }finally{
@@ -30,7 +37,9 @@ async function verifyViewport(name,contextOptions){
 }
 try{
  await timeout(new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('Test server exited '+code)))}),10000,'TRADE test server startup');
+ console.log('TRADE browser: test server ready');
  browser=await timeout(chromium.launch({headless:true}),15000,'Chromium launch');
+ console.log('TRADE browser: Chromium launched');
  await mkdir(new URL('../test-results/',import.meta.url),{recursive:true});
  const mobile=await verifyViewport('Mobile',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const desktop=await verifyViewport('Desktop',{viewport:{width:1440,height:1000}});
