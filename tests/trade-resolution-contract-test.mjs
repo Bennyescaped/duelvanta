@@ -14,6 +14,7 @@ const swapMigration=[
 ].join('\n');
 const ui=await readFile(new URL('../trade-order-resolution.js',import.meta.url),'utf8');
 const lifecycleUi=await readFile(new URL('../trade-b07-order-lifecycle.js',import.meta.url),'utf8');
+const trackingServer=await readFile(new URL('../market-tracking-aftership.js',import.meta.url),'utf8');
 const swapUi=await readFile(new URL('../trade-c2c-swap.js',import.meta.url),'utf8');
 const mock=await readFile(new URL('./trade-ui-mock.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
@@ -58,7 +59,23 @@ must(lifecycleHardening,"received_at=case when p_reason in ('buyer_received_ok',
 must(lifecycleUi,'function mutationAddsOrderCard(mutation)','lifecycle render-loop guard missing');
 must(lifecycleUi,'if(!mutations.some(mutationAddsOrderCard))return;','lifecycle observer must ignore own decoration mutations');
 assert.ok(!lifecycleUi.includes('new MutationObserver(()=>{clearTimeout'),'old recursive lifecycle observer must not return');
+must(lifecycleUi,"fetch('/api/tracking/register'",'seller shipping must register trackable orders through server boundary');
+must(lifecycleUi,'db.auth.getSession()','tracking registration must authenticate the seller session');
+must(lifecycleUi,'Carrier-Status „Zugestellt“','UI must explain the carrier-driven 72h start');
+must(lifecycleUi,"version:'1.2'",'B07 lifecycle tracking version mismatch');
+mustNot(lifecycleUi,'AFTERSHIP_API_KEY','browser must never contain AfterShip credentials');
 must(html,'trade-b07-order-lifecycle.js?v=1.0','B07 lifecycle module missing');
+
+must(trackingServer,"process.env.VERCEL_ENV!=='preview'",'tracking provider must stay preview-only');
+must(trackingServer,"MARKET_TRACKING_ENABLED!=='true'",'tracking provider must be default-off');
+must(trackingServer,"https://api.aftership.com/tracking/2026-07",'current AfterShip API version missing');
+must(trackingServer,"'as-api-key':apiKey",'AfterShip API key must remain server-side');
+must(trackingServer,"aftership-hmac-sha256",'AfterShip webhook HMAC verification missing');
+must(trackingServer,"x-duelvanta-tracking-secret",'secondary webhook secret missing');
+must(trackingServer,"cp?.tag==='Delivered'&&cp?.source==='carrier'",'only carrier-sourced Delivered checkpoints may start 72h');
+must(trackingServer,"record_market_order_delivery_evidence_b07",'tracking webhook must feed existing server-only delivery evidence RPC');
+mustNot(trackingServer,'recipient_name','tracking provider payload must not include recipient identity');
+mustNot(trackingServer,'street_line','tracking provider payload must not include address data');
 
 for(const table of ['market_swap_threads','market_swap_revisions','market_swap_revision_items','market_swap_confirmations','market_swap_reservations','market_swap_value_snapshots','market_swap_shipping_addresses','market_swap_fulfillments'])must(swapMigration,`dv_market_private.${table}`,'private C2C swap table missing');
 must(swapMigration,'alter table dv_market_private.market_swap_threads enable row level security','C2C private-table RLS defense missing');
@@ -99,4 +116,4 @@ assert.ok(html.indexOf('trade-c2c-swap.js?v=1.0')<html.indexOf('trade-v2.js?v=2.
 must(mock,"name==='get_my_market_trade_eligibility'",'browser fixture must explicitly satisfy B07 eligibility');
 must(mock,"name==='get_my_market_swaps_v1'",'browser fixture must isolate C2C RPC');
 
-console.log('PASS: order resolution plus B07 tracking/deadlines/pickup and private C2C revision/value-snapshot flow');
+console.log('PASS: order resolution plus B07 carrier tracking/deadlines/pickup and private C2C revision/value-snapshot flow');
