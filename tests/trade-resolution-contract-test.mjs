@@ -7,6 +7,7 @@ const migration=await readFile(new URL('../database/trade-order-resolution-v1.sq
 const hardening=await readFile(new URL('../database/trade-order-resolution-v1-hardening.sql',import.meta.url),'utf8');
 const lifecycle=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1.sql',import.meta.url),'utf8');
 const lifecycleHardening=await readFile(new URL('../database/b07-l07-01-order-lifecycle-v1-hardening.sql',import.meta.url),'utf8');
+const deadlineHardening=await readFile(new URL('../database/b07-l07-01-shipping-deadline-hardening-v1.sql',import.meta.url),'utf8');
 const release1Shipping=await readFile(new URL('../database/b07-l07-01-release1-shipping-close-v1.sql',import.meta.url),'utf8');
 const release1ShippingHardening=await readFile(new URL('../database/b07-l07-01-release1-shipping-close-v1-hardening.sql',import.meta.url),'utf8');
 const swapMigration=[
@@ -59,6 +60,12 @@ must(lifecycle,'create_market_pickup_handover_code_b07','pickup handover code mi
 must(lifecycleHardening,'pickup_code_attempt_limit','pickup brute-force guard missing');
 must(lifecycle,'grant execute on function public.advance_market_order_lifecycle_b07() to service_role','72h lifecycle advance must remain server only');
 must(lifecycleHardening,"received_at=case when p_reason in ('buyer_received_ok','pickup_bilateral_handover')",'72h technical completion must not fake buyer receipt');
+
+must(deadlineHardening,'language plpgsql\nstable','shipping workday helper must be STABLE, not IMMUTABLE');
+mustNot(deadlineHardening,'language plpgsql\nimmutable','shipping workday helper must not be IMMUTABLE');
+must(deadlineHardening,"if tg_op='INSERT' then",'already-paid INSERT orders must receive a shipping deadline');
+must(deadlineHardening,"coalesce(new.paid_at,now())",'shipping deadline must start from paid_at when available');
+must(deadlineHardening,'before insert or update of payment_status,fulfillment_group on public.market_orders','shipping deadline trigger must cover INSERT and relevant UPDATEs');
 
 must(release1Shipping,"o.subtotal>25 or o.risk_tracking_required",'Release-1 tracked shipping threshold must be server-enforced');
 must(release1Shipping,"new.shipped_at+interval '40 days'",'untracked auto-close must be exactly 40 days from shipping');
