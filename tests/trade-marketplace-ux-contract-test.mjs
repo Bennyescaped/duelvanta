@@ -47,10 +47,12 @@ must(css,'.dvSellAdvanced','Collapsed optional selling fields are not styled');
 must(css,'.dvAdvancedGrid','Advanced selling grid is missing');
 must(css,'.dvShippingReuse','Reused shipping feedback is missing');
 must(css,'.wrap:not([data-trade-view="market"]) .daily','Daily Deal must only occupy the Marketplace view');
+must(css,'#dvSwapEditor .dvSwapCandidates label{display:grid;grid-template-columns:20px minmax(0,1fr)','Swap candidate rows must keep checkbox and text inside the mobile dialog');
+must(css,'overflow-wrap:anywhere','Swap candidate text must wrap instead of overflowing the dialog');
 
 const orders=await readFile(new URL('../trade-orders.js',import.meta.url),'utf8');
 must(orders,"version:'1.5'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
-console.log('PASS: simplified Marketplace navigation, C2C integration, fast selling forms, offer wording and checkout controls');
+console.log('PASS: simplified Marketplace navigation, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
