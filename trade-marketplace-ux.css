@@ -33,6 +33,11 @@
 .dvShippingReuse{grid-column:1/-1;border-left:2px solid var(--gold);padding:6px 9px;color:#aba397;font-size:10px;line-height:1.45}
 .dvShippingReuse[hidden]{display:none}
 #listDialog .formGrid>.dvShippingHint{margin-top:0}
+#dvSwapEditor .dvSwapCandidates{min-width:0}
+#dvSwapEditor .dvSwapCandidates label{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:start;gap:10px;width:100%;min-width:0;overflow:hidden}
+#dvSwapEditor .dvSwapCandidates label>input[type="checkbox"]{width:18px;height:18px;margin:2px 0 0}
+#dvSwapEditor .dvSwapCandidates label>span{display:block;min-width:0;max-width:100%;overflow:hidden}
+#dvSwapEditor .dvSwapCandidates label>span b,#dvSwapEditor .dvSwapCandidates label>span small{display:block;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 
 @media(min-width:761px){
   .dvTradeMore{display:block}
