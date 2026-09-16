@@ -13,8 +13,8 @@ must(html,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not loaded')
 must(html,'trade-checkout.js?v=1.1','Checkout cache version is stale');
 must(html,'trade-orders.js?v=1.5','Orders cache version is stale');
 must(html,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
-for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
-for(const view of ['market','mine','offers','orders','deals','shipping_profiles'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
+for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND','TAUSCH'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
+for(const view of ['market','mine','offers','orders','deals','shipping_profiles','swaps'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
 must(ux,"app.dataset.tradeView = view",'Marketplace view state is not exposed to responsive CSS');
 must(ux,"hero.after(tabs)",'Primary Marketplace navigation must precede secondary content');
 must(ux,"tabs.after(automation)",'Required actions must stay directly below primary navigation');
@@ -24,7 +24,10 @@ must(ux,"buildAdvanced(form,'dvSealedAdvanced',['dvSUnits','dvSContents','dvSWei
 must(ux,'Name, Set, Nummer, Sprache, Zustand, Variante, Grading und Bild kommen aus deiner Collection.','Automatic Collection data reuse is not explained');
 must(ux,"applyRecentShipping('single'",'Single shipping reuse is missing');
 must(ux,"applyRecentShipping('sealed'",'Sealed shipping reuse is missing');
-must(ux,"version:'1.1'",'Marketplace UX module version mismatch');
+must(ux,"version:'1.2'",'Marketplace UX module version mismatch');
+must(ux,"swaps = document.getElementById('dvSwapsTab')",'C2C tab must be captured before mobile navigation rebuild');
+must(ux,'if (swaps) secondary.append(swaps)','C2C tab must survive mobile navigation rebuild');
+must(ux,'window.DV_C2C_SWAP?.refresh?.(false)','Marketplace rebuild must resynchronize C2C listing actions');
 assert.ok(!ux.includes('createClient('),'Marketplace UX must reuse the existing authenticated client');
 assert.ok(!ux.includes('db.rpc('),'Navigation and copy simplification must not mutate Marketplace data');
 
@@ -50,4 +53,4 @@ must(orders,"version:'1.5'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
-console.log('PASS: simplified Marketplace navigation, fast selling forms, offer wording and checkout controls');
+console.log('PASS: simplified Marketplace navigation, C2C integration, fast selling forms, offer wording and checkout controls');
