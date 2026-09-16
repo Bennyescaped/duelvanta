@@ -13,13 +13,15 @@ const release1ShippingHardening=await readFile(new URL('../database/b07-l07-01-r
 const swapMigration=[
   await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-schema.sql',import.meta.url),'utf8'),
   await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-binding.sql',import.meta.url),'utf8'),
-  await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-fulfillment.sql',import.meta.url),'utf8')
+  await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-fulfillment.sql',import.meta.url),'utf8'),
+  await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-problems.sql',import.meta.url),'utf8')
 ].join('\n');
 const ui=await readFile(new URL('../trade-order-resolution.js',import.meta.url),'utf8');
 const lifecycleUi=await readFile(new URL('../trade-b07-order-lifecycle.js',import.meta.url),'utf8');
 const trackingServer=await readFile(new URL('../market-tracking-aftership.js',import.meta.url),'utf8');
 const adminDelivery=await readFile(new URL('../admin-delivery-review.js',import.meta.url),'utf8');
 const swapUi=await readFile(new URL('../trade-c2c-swap.js',import.meta.url),'utf8');
+const swapProblemsUi=await readFile(new URL('../trade-c2c-swap-problems.js',import.meta.url),'utf8');
 const mock=await readFile(new URL('./trade-ui-mock.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
 const must=(source,needle,label)=>assert.ok(source.includes(needle),label+': '+needle);
@@ -108,9 +110,10 @@ must(trackingServer,"record_market_order_delivery_evidence_b07",'optional tracki
 mustNot(trackingServer,'recipient_name','tracking provider payload must not include recipient identity');
 mustNot(trackingServer,'street_line','tracking provider payload must not include address data');
 
-for(const table of ['market_swap_threads','market_swap_revisions','market_swap_revision_items','market_swap_confirmations','market_swap_reservations','market_swap_value_snapshots','market_swap_shipping_addresses','market_swap_fulfillments'])must(swapMigration,`dv_market_private.${table}`,'private C2C swap table missing');
+for(const table of ['market_swap_threads','market_swap_revisions','market_swap_revision_items','market_swap_confirmations','market_swap_reservations','market_swap_value_snapshots','market_swap_shipping_addresses','market_swap_fulfillments','market_swap_cases'])must(swapMigration,`dv_market_private.${table}`,'private C2C swap table missing');
 must(swapMigration,'alter table dv_market_private.market_swap_threads enable row level security','C2C private-table RLS defense missing');
 must(swapMigration,'revoke all on table dv_market_private.market_swap_value_snapshots from public,anon,authenticated','C2C value snapshots must stay RPC-only');
+must(swapMigration,'revoke all on table dv_market_private.market_swap_cases from public,anon,authenticated','C2C problem cases must stay RPC-only');
 must(swapMigration,"v_account.seller_type<>'private'",'C2C must reject trader accounts');
 must(swapMigration,"v_account.onboarding_status<>'active'",'C2C must require active private onboarding');
 must(swapMigration,"v_account.country_code<>'DE'",'C2C Germany-only guard missing');
@@ -130,6 +133,11 @@ must(swapMigration,"'ship_to',case when f.sender_id=v_uid",'C2C destination addr
 must(swapMigration,"v_item.updated_at is distinct from (v_item.item_snapshot->>'listing_updated_at')::timestamptz",'changed listings must force a new C2C revision before binding');
 must(swapMigration,"raise exception 'bound_swap_cannot_be_unilaterally_closed'",'bound C2C swap must not be unilaterally cancelled');
 must(swapMigration,'market_swap_evidence_is_immutable','C2C immutable evidence guard missing');
+must(swapMigration,"raise exception 'c2c_untracked_not_received_wait_14_days'",'C2C untracked not-received 14-day floor missing');
+must(swapMigration,"v_now+interval '7 days'",'C2C problem response/evidence deadline missing');
+must(swapMigration,"set status='disputed'",'C2C open problem must dispute the thread');
+must(swapMigration,"set status='bound'",'C2C withdrawn problem must resume the bound thread');
+for(const rpc of ['open_market_swap_problem_v1','respond_market_swap_problem_v1','withdraw_market_swap_problem_v1','get_my_market_swap_cases_v1'])must(swapMigration,`function public.${rpc}`,'C2C problem RPC missing');
 mustNot(swapMigration,'insert into dv_market_private.market_tax_events','B07 C2C must not create tax ledger events');
 mustNot(swapMigration,'record_market_tax_remuneration(','B07 C2C must not book tax remuneration');
 mustNot(swapMigration,'platform_fee_collected','B07 C2C must not introduce swap fees');
@@ -140,11 +148,18 @@ must(swapUi,'FINALEN TAUSCHSTAND BESTÄTIGEN','explicit final C2C confirmation m
 must(swapUi,'GEGENVORSCHLAG / ÄNDERN','C2C revision flow missing');
 must(swapUi,'Keine steuerliche Einordnung; PStTG-Zählung ist hier nicht aktiviert.','C2C reference-value disclaimer missing');
 must(swapUi,'An: ${esc(my.ship_to.recipient_name)}','C2C sender must receive the bound destination address');
+must(swapUi,"trade-c2c-swap-problems.js?v=1.0",'C2C problem UI module loader missing');
 mustNot(swapUi,'MutationObserver','C2C UI must not add recursive DOM refresh observers');
 assert.doesNotThrow(()=>new Function(swapUi),'C2C UI syntax invalid');
+for(const rpc of ['get_my_market_swap_cases_v1','open_market_swap_problem_v1','respond_market_swap_problem_v1','withdraw_market_swap_problem_v1'])must(swapProblemsUi,`db.rpc('${rpc}'`,'C2C problem UI RPC wiring missing');
+must(swapProblemsUi,'TAUSCH-PROBLEME','C2C problem tab missing');
+must(swapProblemsUi,'Nicht erhalten','C2C untracked not-received guidance missing');
+must(swapProblemsUi,'14 Tage','C2C 14-day UI guidance missing');
+must(swapProblemsUi,'7 Tage','C2C 7-day deadline UI guidance missing');
+assert.doesNotThrow(()=>new Function(swapProblemsUi),'C2C problem UI syntax invalid');
 must(html,'trade-c2c-swap.js?v=1.0','C2C module missing');
 assert.ok(html.indexOf('trade-c2c-swap.js?v=1.0')<html.indexOf('trade-v2.js?v=2.1'),'C2C decorator must load before legacy deal capture');
 must(mock,"name==='get_my_market_trade_eligibility'",'browser fixture must explicitly satisfy B07 eligibility');
 must(mock,"name==='get_my_market_swaps_v1'",'browser fixture must isolate C2C RPC');
 
-console.log('PASS: order resolution plus B07 Release-1 shipping, optional carrier automation, pickup and private C2C flow');
+console.log('PASS: order resolution plus B07 Release-1 shipping, C2C problem deadlines, optional carrier automation and private C2C flow');
