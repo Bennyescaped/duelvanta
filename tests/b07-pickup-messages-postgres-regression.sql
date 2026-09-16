@@ -78,6 +78,18 @@ do $$declare v jsonb;begin
   end;
 end$$;
 
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
+do $$declare v jsonb;v_swap uuid:=(select thread_id from b07_pickup_message_state);begin
+  v:=public.list_my_market_pickup_conversations_v1();
+  if jsonb_array_length(v)<2 then raise exception 'pickup messages: unified list missing contexts';end if;
+  if not exists(select 1 from jsonb_array_elements(v) x where x->>'context_type'='swap' and (x->>'context_id')::uuid=v_swap) then
+    raise exception 'pickup messages: swap missing from unified list';
+  end if;
+  if not exists(select 1 from jsonb_array_elements(v) x where x->>'context_type'='order' and x->>'context_id'='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') then
+    raise exception 'pickup messages: order missing from unified list';
+  end if;
+end$$;
+
 do $$begin
   if has_table_privilege('authenticated','dv_market_private.market_pickup_messages','select') then
     raise exception 'pickup messages: authenticated has direct SELECT';
@@ -91,9 +103,12 @@ do $$begin
   if has_function_privilege('anon','public.get_market_pickup_conversation_v1(text,uuid)','execute') then
     raise exception 'pickup messages: anon can read conversation RPC';
   end if;
+  if has_function_privilege('anon','public.list_my_market_pickup_conversations_v1()','execute') then
+    raise exception 'pickup messages: anon can list conversations';
+  end if;
   if not has_function_privilege('authenticated','public.get_market_pickup_conversation_v1(text,uuid)','execute') then
     raise exception 'pickup messages: authenticated cannot read conversation RPC';
   end if;
 end$$;
 
-select 'PASS: pickup messages are participant-only for swaps and orders, pickup-only, terminal read-only and private-table isolated' as result;
+select 'PASS: pickup messages are participant-only for swaps and orders, pickup-only, terminal read-only, unified and private-table isolated' as result;
