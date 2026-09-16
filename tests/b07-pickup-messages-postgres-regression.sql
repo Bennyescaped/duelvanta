@@ -1,16 +1,16 @@
 \set ON_ERROR_STOP on
 
 insert into public.market_listings(id,seller_id,listing_type,status,quantity_available,tcg,card_name,set_name,card_number,language,condition,market_price_snapshot) values
-  ('cccccccc-cccc-4ccc-8ccc-cccccccccccc','11111111-1111-4111-8111-111111111111','trade','active',1,'pokemon','Pickup A','Set P','003','DE','NM',10.00),
-  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd','22222222-2222-4222-8222-222222222222','trade','active',1,'pokemon','Pickup B','Set P','004','DE','NM',10.00);
+  ('66666666-6666-4666-8666-666666666666','11111111-1111-4111-8111-111111111111','trade','active',1,'pokemon','Pickup Message A','Set PM','005','DE','NM',10.00),
+  ('77777777-7777-4777-8777-777777777777','22222222-2222-4222-8222-222222222222','trade','active',1,'pokemon','Pickup Message B','Set PM','006','DE','NM',10.00);
 
 create temporary table b07_pickup_message_state(thread_id uuid,revision_id uuid,order_id uuid);
 
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
 insert into b07_pickup_message_state(thread_id)
 select public.create_market_swap_proposal_v2(
-  'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
-  array['cccccccc-cccc-4ccc-8ccc-cccccccccccc']::uuid[],
+  '77777777-7777-4777-8777-777777777777',
+  array['66666666-6666-4666-8666-666666666666']::uuid[],
   'pickup'
 );
 update b07_pickup_message_state s set revision_id=t.current_revision_id
