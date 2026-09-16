@@ -1,5 +1,6 @@
 'use strict';
 
+const tracking=require('../market-tracking-aftership.js');
 const json=(res,status,body)=>res.status(status).json(body);
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -130,6 +131,8 @@ async function sendEmail(row){
 module.exports=async function handler(req,res){
   if(req.method==='GET'&&String(req.query?.runtime_config||'')==='1')return runtimeConfig(res);
   if(req.method==='GET'&&req.query?.public_listing)return renderPublicListing(req,res);
+  if(req.method==='POST'&&String(req.query?.tracking_register||'')==='1')return tracking.handleRegister(req,res);
+  if(req.method==='POST'&&String(req.query?.aftership_webhook||'')==='1')return tracking.handleWebhook(req,res);
   if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'});
   if(process.env.COMPLIANCE_EMAIL_DELIVERY_ENABLED!=='true')return json(res,200,{status:'disabled',claimed:0,sent:0,failed:0});
   const secret=required('COMPLIANCE_DISPATCH_SECRET');
