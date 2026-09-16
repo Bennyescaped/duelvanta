@@ -33,10 +33,13 @@ mustTrade("else if(l.listing_type==='trade')ownBtns=`<button class=\"btn gold\" 
 mustTrade("else if(l.listing_type==='sale_or_trade')ownBtns=`<button class=\"btn gold\" data-offer=\"${l.id}\">ANGEBOT</button><button class=\"btn ghost\" data-swap-propose=\"${l.id}\">TAUSCH VORSCHLAGEN</button>`",'sale-or-trade listings must render both native actions');
 mustUi("swap.dataset.swapPropose=id",'C2C module must keep compatibility with dynamically decorated listings');
 mustUi("if(l.listing_type==='trade')button.remove()",'trade-only listing must not retain price-offer action after refresh decoration');
-mustUi("window.DV_C2C_SWAP={version:'1.4'",'integrated C2C UI version marker missing');
+mustUi("window.DV_C2C_SWAP={version:'1.5'",'integrated C2C UI version marker missing');
 mustUi('try{if(!await loadSwaps())return false}','initial schema-cache miss must stay retryable');
 mustUi('retryMs=Math.min(Math.round(retryMs*1.5),2000)','mobile startup retry must use bounded backoff');
 mustUi("window.addEventListener('pageshow',()=>scheduleInstall(0))",'C2C initializer must retry when preview page becomes active');
+mustUi("const secondary=tabs.querySelector('.dvTradeSecondary')",'C2C tab must detect an already rebuilt Marketplace navigation');
+mustUi('if(secondary)secondary.appendChild(button)','C2C tab must attach to existing secondary Marketplace navigation when it initializes late');
+mustUi('else if(sell?.parentElement===tabs)tabs.insertBefore(button,sell)','C2C tab must preserve the early-init path before Marketplace navigation rebuild');
 assert.ok(!swapUi.includes('tries>150'),'C2C initializer must not permanently stop after the old 12-second timeout');
 assert.ok(!swapUi.includes('if(!await loadSwaps()){installed=true;return true}'),'missing RPC must never latch C2C as installed');
 assert.ok(!swapUi.includes('MutationObserver'),'C2C module must remain free of recursive DOM observers');
@@ -44,4 +47,4 @@ mustMarket("swaps = document.getElementById('dvSwapsTab')",'Marketplace layout m
 mustMarket('if (swaps) secondary.append(swaps)','Marketplace layout must preserve the TAUSCH tab');
 mustMarket('window.DV_C2C_SWAP?.refresh?.(false)','Marketplace layout must explicitly refresh C2C actions after navigation rebuild');
 
-console.log('PASS: C2C pickup is revision-bound, marketplace actions are native and mobile initialization remains retryable');
+console.log('PASS: C2C pickup is revision-bound, marketplace actions are native and startup order is deterministic');
