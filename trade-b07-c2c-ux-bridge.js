@@ -1,8 +1,8 @@
-/* B07 C2C UI integration bridge. Keeps swap actions/navigation intact after marketplace UX rewrites. */
+/* B07 C2C UI integration bridge. Keeps swap actions/navigation intact after marketplace rewrites. */
 (() => {
   'use strict';
 
-  let installed=false,syncing=false,scheduled=false;
+  let installed=false,scheduled=false;
   const tradeCapable=listing=>['trade','sale_or_trade'].includes(listing?.listing_type);
 
   function listingFor(button){
@@ -10,24 +10,30 @@
     return listings.find(item=>item.id===button.dataset.offer)||null;
   }
 
-  function needsDecoration(){
-    if(typeof listings==='undefined'||typeof user==='undefined'||!user)return false;
-    return [...document.querySelectorAll('#grid [data-offer]')].some(button=>{
-      const listing=listingFor(button);
-      if(!listing||listing.seller_id===user.id||!tradeCapable(listing)||listing.status!=='active')return false;
-      const actions=button.parentElement;
-      const swap=actions?.querySelector(`[data-swap-propose="${CSS.escape(listing.id)}"]`);
-      return !swap||listing.listing_type==='trade';
-    });
-  }
-
-  function cleanTradeOnlyOfferButtons(){
+  function decorateListings(){
     if(typeof listings==='undefined'||typeof user==='undefined'||!user)return;
     document.querySelectorAll('#grid [data-offer]').forEach(button=>{
       const listing=listingFor(button);
-      if(!listing||listing.seller_id===user.id||listing.listing_type!=='trade'||listing.status!=='active')return;
-      const swap=button.parentElement?.querySelector(`[data-swap-propose="${CSS.escape(listing.id)}"]`);
-      if(swap)button.remove();
+      if(!listing||listing.seller_id===user.id||!tradeCapable(listing)||listing.status!=='active')return;
+      const actions=button.parentElement;
+      if(!actions)return;
+
+      if(listing.listing_type==='trade'){
+        button.dataset.swapPropose=listing.id;
+        delete button.dataset.offer;
+        button.textContent='TAUSCH VORSCHLAGEN';
+        button.classList.remove('gold');
+        button.classList.add('ghost');
+        return;
+      }
+
+      if(actions.querySelector(`[data-swap-propose="${CSS.escape(listing.id)}"]`))return;
+      const swap=document.createElement('button');
+      swap.type='button';
+      swap.className='btn ghost';
+      swap.dataset.swapPropose=listing.id;
+      swap.textContent='TAUSCH VORSCHLAGEN';
+      actions.appendChild(swap);
     });
   }
 
@@ -71,43 +77,33 @@
     return button;
   }
 
-  async function syncMarket(){
-    if(syncing||!window.DV_C2C_SWAP?.refresh)return;
-    if(typeof tab!=='undefined'&&tab==='swaps')return;
-    syncing=true;
-    try{
-      await window.DV_C2C_SWAP.refresh(false);
-      cleanTradeOnlyOfferButtons();
-    }catch(error){
-      console.warn('B07 C2C UX bridge sync failed',error);
-    }finally{
-      syncing=false;
-    }
+  function sync(){
+    ensureSwapTab();
+    if(typeof tab==='undefined'||tab!=='swaps')decorateListings();
   }
 
   function scheduleSync(){
     if(scheduled)return;
     scheduled=true;
-    setTimeout(async()=>{
+    setTimeout(()=>{
       scheduled=false;
-      ensureSwapTab();
-      if(needsDecoration())await syncMarket();
+      sync();
     },0);
   }
 
   function install(){
     if(installed)return true;
     const grid=document.getElementById('grid'),tabs=document.querySelector('.tabs');
-    if(!grid||!tabs||!window.DV_C2C_SWAP?.refresh||!window.DV_TRADE_MARKETPLACE_UX)return false;
+    if(!grid||!tabs||!window.DV_C2C_SWAP?.render)return false;
     installed=true;
-    ensureSwapTab();
     new MutationObserver(scheduleSync).observe(grid,{childList:true,subtree:true});
+    new MutationObserver(scheduleSync).observe(tabs,{childList:true,subtree:true});
     tabs.addEventListener('click',event=>{
       if(event.target.closest('[data-tab],#dvSwapsTab'))setTimeout(scheduleSync,0);
     },true);
     document.getElementById('refresh')?.addEventListener('click',()=>setTimeout(scheduleSync,0));
-    window.DV_B07_C2C_UX_BRIDGE={version:'1.0',sync:syncMarket};
-    syncMarket();
+    window.DV_B07_C2C_UX_BRIDGE={version:'1.1',sync};
+    sync();
     return true;
   }
 
