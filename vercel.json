@@ -19,6 +19,14 @@
     {
       "source": "/listing/:id",
       "destination": "/api/compliance-message-dispatch?public_listing=:id"
+    },
+    {
+      "source": "/api/tracking/register",
+      "destination": "/api/compliance-message-dispatch?tracking_register=1"
+    },
+    {
+      "source": "/api/tracking/aftership",
+      "destination": "/api/compliance-message-dispatch?aftership_webhook=1"
     }
   ]
 }
