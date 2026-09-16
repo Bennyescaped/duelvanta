@@ -15,6 +15,10 @@
     {
       "source": "/u/:username",
       "destination": "/u.html?username=:username"
+    },
+    {
+      "source": "/listing/:id",
+      "destination": "/api/compliance-message-dispatch?public_listing=:id"
     }
   ]
 }
