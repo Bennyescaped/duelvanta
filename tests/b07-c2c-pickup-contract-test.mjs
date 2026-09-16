@@ -10,7 +10,7 @@ must("'schema_version','c2c-swap-revision-v2'",'pickup-aware revision schema ver
 must('create_market_swap_proposal_v2','pickup-aware proposal RPC missing');
 must('propose_market_swap_revision_v2','pickup-aware revision RPC missing');
 must("v_thread.fulfillment_mode='shipping'",'shipping-only address and fulfillment branch missing');
-must("v_thread.fulfillment_mode='pickup'",'pickup availability guard missing');
+must("v_thread.fulfillment_mode<>'pickup'",'pickup availability guard missing');
 must("v_now+interval '2 hours'",'pickup handover code must expire after 2 hours');
 must('h.attempt_count>=8','pickup brute-force limit missing');
 must("raise exception 'swap_pickup_requires_other_party'",'pickup must require bilateral parties');
