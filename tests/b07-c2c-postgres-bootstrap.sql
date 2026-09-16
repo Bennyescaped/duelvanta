@@ -5,33 +5,46 @@ create schema if not exists extensions;
 create schema if not exists dv_market_private;
 create extension if not exists pgcrypto with schema extensions;
 
-create table auth.users(
+do $$
+begin
+  if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if;
+  if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if;
+end
+$$;
+
+create table if not exists auth.users(
   id uuid primary key,
   email text
 );
+
+create or replace function auth.jwt()
+returns jsonb
+language sql
+stable
+as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
 
 create or replace function auth.uid()
 returns uuid
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub',true),''),
+    nullif(auth.jwt()->>'sub','')
+  )::uuid
 $$;
 
-create table public.profiles(
-  id uuid primary key references auth.users(id),
-  display_name text,
-  username text
-);
+alter table public.profiles add column if not exists display_name text;
+alter table public.profiles add column if not exists username text;
 
-create table public.market_seller_accounts(
+create table if not exists public.market_seller_accounts(
   seller_id uuid primary key references auth.users(id),
   seller_type text not null,
   onboarding_status text not null,
   country_code text not null
 );
 
-create table public.market_listings(
+create table if not exists public.market_listings(
   id uuid primary key default gen_random_uuid(),
   seller_id uuid not null references auth.users(id),
   listing_type text not null,
@@ -53,7 +66,7 @@ create table public.market_listings(
   updated_at timestamptz not null default now()
 );
 
-create table public.market_default_shipping_addresses(
+create table if not exists public.market_default_shipping_addresses(
   user_id uuid primary key references auth.users(id),
   recipient_name text not null,
   street_line1 text not null,
@@ -63,13 +76,13 @@ create table public.market_default_shipping_addresses(
   country_code text not null
 );
 
-create table public.market_deals(
+create table if not exists public.market_deals(
   id uuid primary key default gen_random_uuid(),
   listing_id uuid references public.market_listings(id),
   status text not null default 'accepted'
 );
 
-create table public.market_offers(
+create table if not exists public.market_offers(
   id uuid primary key default gen_random_uuid(),
   listing_id uuid references public.market_listings(id),
   status text not null default 'pending',
