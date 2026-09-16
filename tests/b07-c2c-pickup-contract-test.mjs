@@ -24,10 +24,11 @@ mustNot('platform_fee_collected','pickup must not introduce fees');
 mustNot('record_market_tax_remuneration(','pickup must not book tax remuneration');
 
 assert.ok(tradeHtml.includes('trade-b07-c2c-ux-bridge.js?v=1.0'),'TRADE page must load C2C UX bridge');
-assert.ok(tradeHtml.indexOf('trade-marketplace-ux.js?v=1.1')<tradeHtml.indexOf('trade-b07-c2c-ux-bridge.js?v=1.0'),'C2C UX bridge must load after marketplace layout');
-mustBridge('window.DV_TRADE_MARKETPLACE_UX','bridge must wait for final marketplace layout');
-mustBridge('await window.DV_C2C_SWAP.refresh(false)','bridge must re-decorate rendered market listings');
-mustBridge("button.id='dvSwapsTab'",'bridge must restore TAUSCH navigation');
-mustBridge("listing.listing_type==='trade'",'trade-only listings must not retain price-offer action');
+mustBridge("button.dataset.swapPropose=listing.id",'trade-only listing must become direct swap action');
+mustBridge("swap.dataset.swapPropose=listing.id",'sale-or-trade listing must keep separate swap action');
+mustBridge("if(!grid||!tabs||!window.DV_C2C_SWAP?.render)return false",'bridge must depend only on initialized C2C UI');
+mustBridge('new MutationObserver(scheduleSync).observe(grid','bridge must track market rerenders');
+mustBridge('new MutationObserver(scheduleSync).observe(tabs','bridge must restore TAUSCH navigation after nav rewrites');
+assert.ok(!bridge.includes('window.DV_TRADE_MARKETPLACE_UX'),'bridge must not depend on optional marketplace UX marker');
 
-console.log('PASS: C2C pickup is revision-bound and the marketplace keeps its C2C actions after final rendering');
+console.log('PASS: C2C pickup is revision-bound and market swap actions survive mobile rerenders');
