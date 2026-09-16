@@ -1,9 +1,11 @@
 /* B07 / L07-01 order lifecycle UI. No payout/refund execution. */
 (() => {
   'use strict';
-  let installed=false,busy=false,reloadTimer=null,statuses=new Map();
+  let installed=false,busy=false,reloadTimer=null,pendingShipOrderId=null,statuses=new Map();
+  const trackingRegistrationBusy=new Set();
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=d=>d?new Date(d).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
   async function load(){
     if(busy)return;
@@ -23,6 +25,7 @@
     const bits=[];
     if(s.fulfillment_group==='shipping'){
       bits.push(s.tracking_required?'TRACKING VERPFLICHTEND · Warenwert über 25 € oder Risikoregel':'Bis einschließlich 25 € ist ungetrackter Versand zulässig; Tracking bleibt wählbar.');
+      bits.push('Bei Tracking startet die 72-Stunden-Frist erst mit serverseitig bestätigtem Carrier-Status „Zugestellt“.');
       if(s.shipping_due_at)bits.push(`Versandfrist: ${fmt(s.shipping_due_at)}`);
       if(s.delivery_evidence_at)bits.push(`Zustellung nachgewiesen: ${fmt(s.delivery_evidence_at)}${s.closure_eligible_at?` · technischer Abschluss ohne Problem spätestens ${fmt(s.closure_eligible_at)}`:''}`);
     } else if(s.pickup_code_pending) {
@@ -104,6 +107,33 @@
     window.DV_TRADE_ORDERS?.render(id);
   }
 
+  async function registerTracking(id){
+    if(!id||trackingRegistrationBusy.has(id))return;
+    trackingRegistrationBusy.add(id);
+    try{
+      const auth=await db.auth.getSession(),token=auth.data?.session?.access_token;
+      if(!token)throw new Error('tracking_session_missing');
+      for(let attempt=0;attempt<5;attempt++){
+        if(attempt)await delay(250*attempt);
+        const response=await fetch('/api/tracking/register',{
+          method:'POST',
+          headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},
+          body:JSON.stringify({order_id:id})
+        });
+        const result=await response.json().catch(()=>({}));
+        if(response.status===409&&result.error==='order_not_shipped')continue;
+        if(!response.ok)throw new Error(result.error||`tracking_register_${response.status}`);
+        if(['registered','already_registered'].includes(result.status))console.info('DUELVANTA tracking registered',id,result.provider_tracking_id||'');
+        return result;
+      }
+      throw new Error('tracking_register_order_not_shipped');
+    }catch(error){
+      console.warn('DUELVANTA tracking registration',error);
+    }finally{
+      trackingRegistrationBusy.delete(id);
+    }
+  }
+
   function enforceDialogHints(target){
     const id=target.dataset.oShip||target.dataset.oQuote||target.dataset.oAddressEdit;
     const s=statuses.get(id);
@@ -141,6 +171,8 @@
     style.textContent='.dvB07Lifecycle{margin:11px 0;padding:10px 12px;border:1px solid rgba(199,164,93,.25);border-radius:10px;background:rgba(199,164,93,.04);color:#9ea6b0;font-size:10px;line-height:1.55}.dvB07Lifecycle b{color:#d8c28f;letter-spacing:.08em}.dvB07Code{padding:18px;border:1px solid #4a4230;border-radius:12px;text-align:center}.dvB07Code span,.dvB07Code small{display:block;color:#9ea6b0}.dvB07Code strong{display:block;margin:12px 0;font:600 28px monospace;letter-spacing:.14em;color:#efd18c}';
     document.head.appendChild(style);
     document.addEventListener('click',e=>{
+      const shipNow=e.target.closest?.('#oShipNow');
+      if(shipNow&&pendingShipOrderId){const id=pendingShipOrderId;pendingShipOrderId=null;setTimeout(()=>registerTracking(id),250);return}
       const pickup=e.target.closest?.('[data-b07-pickup-confirm]');
       if(pickup){e.preventDefault();e.stopImmediatePropagation();buyerPickup(pickup.dataset.b07PickupConfirm);return}
       const target=e.target.closest?.('[data-o-ship],[data-o-quote],[data-o-address-edit]');
@@ -149,6 +181,7 @@
       if(target.dataset.oShip&&s?.fulfillment_group==='pickup'){
         e.preventDefault();e.stopImmediatePropagation();sellerPickup(id);return;
       }
+      if(target.dataset.oShip&&s?.fulfillment_group==='shipping')pendingShipOrderId=id;
       enforceDialogHints(target);
     },true);
     const root=document.getElementById('grid')||document.body;
@@ -158,7 +191,7 @@
     });
     observer.observe(root,{childList:true,subtree:true});
     load();
-    window.DV_B07_ORDER_LIFECYCLE={version:'1.1',refresh:load};
+    window.DV_B07_ORDER_LIFECYCLE={version:'1.2',refresh:load,registerTracking};
     return true;
   }
   let tries=0;
