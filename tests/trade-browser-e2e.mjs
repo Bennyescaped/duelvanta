@@ -15,13 +15,27 @@ async function verifyViewport(name,contextOptions){
  console.log(`TRADE ${name}: creating page`);
  const page=await timeout(context.newPage(),10000,`${name} browser page`);
  const pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));
+ page.on('console',message=>{if(message.type()==='error')console.error(`PAGE ${name}:`,message.text())});
  page.on('dialog',dialog=>dialog.accept());
  page.setDefaultTimeout(30000);page.setDefaultNavigationTimeout(30000);
  try{
   console.log(`TRADE ${name}: navigating`);
   await timeout(page.goto('http://127.0.0.1:4173/trade.html?selftest=1',{waitUntil:'domcontentloaded',timeout:30000}),20000,`${name} navigation`);
   console.log(`TRADE ${name}: waiting for UI selftest`);
-  await timeout(page.waitForFunction(()=>{const text=document.getElementById('uiTestResults')?.textContent||'';return text.includes('ALL UI TESTS PASSED')||text.includes('\nFAIL')},null,{timeout:30000}),20000,`${name} UI selftest`);
+  try{
+    await timeout(page.waitForFunction(()=>{const text=document.getElementById('uiTestResults')?.textContent||'';return text.includes('ALL UI TESTS PASSED')||text.includes('\nFAIL')},null,{timeout:30000}),20000,`${name} UI selftest`);
+  }catch(error){
+    const diagnostics=await timeout(page.evaluate(()=>({
+      readyState:document.readyState,
+      uiText:document.getElementById('uiTestResults')?.textContent||null,
+      calls:window.TRADE_UI_FIXTURE?.calls?.slice(-20)||[],
+      tradeView:document.getElementById('app')?.dataset?.tradeView||null,
+      appHidden:document.getElementById('app')?.classList.contains('hidden')??null,
+      globals:{checkout:!!window.DV_TRADE_CHECKOUT,automation:!!window.DV_TRADE_AUTOMATION,marketplaceUx:!!window.DV_TRADE_MARKETPLACE_UX,c2c:!!window.DV_C2C_SWAP,reviews:!!window.DV_B07_REVIEWS,share:!!window.DV_B07_SHARE,lifecycle:!!window.DV_B07_ORDER_LIFECYCLE}
+    })),5000,`${name} selftest timeout diagnostics`).catch(diagError=>({diagnostic_error:diagError.message}));
+    console.error(`TRADE ${name} selftest diagnostics:`,JSON.stringify(diagnostics));
+    throw error;
+  }
   console.log(`TRADE ${name}: reading UI result`);
   const text=await timeout(page.locator('#uiTestResults').innerText(),10000,`${name} UI result read`);
   if(!text.includes('ALL UI TESTS PASSED'))console.log(await timeout(page.evaluate(()=>({calls:TRADE_UI_FIXTURE.calls.slice(-12),body:document.body.innerText.slice(-6000)})),5000,`${name} failure diagnostics`));
