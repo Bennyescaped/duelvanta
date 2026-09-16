@@ -4,9 +4,9 @@ insert into auth.users(id,email) values
   ('11111111-1111-4111-8111-111111111111','a@example.test'),
   ('22222222-2222-4222-8222-222222222222','b@example.test');
 
-insert into public.profiles(id,display_name,username) values
-  ('11111111-1111-4111-8111-111111111111','A','a'),
-  ('22222222-2222-4222-8222-222222222222','B','b');
+insert into public.profiles(id,email,display_name,username) values
+  ('11111111-1111-4111-8111-111111111111','a@example.test','A','a'),
+  ('22222222-2222-4222-8222-222222222222','b@example.test','B','b');
 
 insert into public.market_seller_accounts(seller_id,seller_type,onboarding_status,country_code) values
   ('11111111-1111-4111-8111-111111111111','private','active','DE'),
