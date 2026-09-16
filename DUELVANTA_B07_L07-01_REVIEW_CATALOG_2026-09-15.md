@@ -1,9 +1,9 @@
 # DUELVANTA – B07 / L07-01 Prüfkatalog
 
 Stand: 15.09.2026  
-Implementierungsstand ergänzt: 16.09.2026  
-Status: **B07 OFFEN / BLOCKIERT – keine Rechts-, Steuer- oder Paymentfreigabe**  
-Grundlage: `DUELVANTA_MASTERHANDOUT_V14_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /53.
+Implementierungsstand nachgezogen: 16.09.2026  
+Status: **B07 intern technisch weitgehend geschlossen; Kategorie C extern offen; Kategorie D Browser-Evidenz offen**  
+Grundlage: `DUELVANTA_MASTERHANDOUT_V15_2026-09-16.md`, Entscheidung L07-01/54 sowie die dokumentierten L07-01-Entscheidungen /01 bis /54.
 
 ## 1. Festgelegtes Release-1-Geschäftsmodell
 
@@ -206,7 +206,7 @@ Diese Punkte sind keine frei gestaltbaren Produktoptionen und müssen vor Releas
 
 ## 15. Status des internen L07-01-Entscheidungsteils
 
-Der interne Geschäftsmodell- und Regelteil von L07-01 ist mit den Entscheidungen /01 bis /53 **inhaltlich weitgehend entschieden**.
+Der interne Geschäftsmodell- und Regelteil von L07-01 ist mit den Entscheidungen /01 bis /54 **inhaltlich entschieden**.
 
 Nicht als freie interne Produktentscheidung abschließbar bleiben insbesondere:
 
@@ -222,8 +222,8 @@ Diese Punkte werden nicht durch weitere frei gestaltete L07-01-Entscheidungen er
 
 Für die externe Prüfung vorzulegen:
 
-- Masterhandout V14;
-- sämtliche L07-01-Entscheidungsdateien /01–/53;
+- Masterhandout V15 bzw. dessen aktueller Nachfolger;
+- sämtliche L07-01-Entscheidungsdateien /01–/54;
 - `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md`;
 - `DUELVANTA_B07_IMPLEMENTATION_STATUS_2026-09-16.md`;
 - Seller-Onboarding-Screens/Code;
@@ -235,7 +235,7 @@ Für die externe Prüfung vorzulegen:
 - geplantes Stripe-Connect-Flussdiagramm;
 - Screens der Verkäuferstatus-, Preis-, Versand-, Abhol-, Storno-, Problemfall-, Sanktions- und Bewertungsanzeigen.
 
-## 17. Technischer Soll-Ist-Befund nach V14
+## 17. Technischer Soll-Ist-Befund nach V15
 
 Der am 15.09.2026 durchgeführte vollständige Phase-1-/Phase-2-Abgleich ist in `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md` dokumentiert. Er trennt jeden Befund in A/B/C/D und war die technische Änderungsliste für Phase 3.
 
@@ -254,11 +254,14 @@ Die dort aufgeführten Lücken sind als **historischer Ausgangsbefund** zu lesen
 - [x] 3-Werktage-Versandfrist als technischer Zustand.
 - [x] Delivery-Evidence + 72-Stunden-technischer Abschluss ohne reale Payout-Auslösung.
 - [x] explizite Käuferbestätigung `Erhalten – alles in Ordnung`.
-- [x] persönliche Abholung über einmaligen, gehashten Übergabecode mit beidseitigem Nachweis.
+- [x] persönliche Order-Abholung über einmaligen, gehashten Übergabecode mit beidseitigem Nachweis.
 - [x] privater C2C-Ware-gegen-Ware-Tausch mit revisionsfestem finalem Stand und beidseitiger Bestätigung.
+- [x] C2C-Fulfillment-Modus `shipping|pickup` revisionsgebunden; Moduswechsel erzeugt neue Revision.
 - [x] C2C-Versandfrist, Trackinggrenze und eingefrorene Versandadressen ab Bindung.
+- [x] C2C-Pickup ohne Versandfrist/-adressen/-fulfillment, 2h-Einmalcode, Fremdpartei-Bestätigung, 8-Versuche-Limit.
 - [x] C2C-EUR-Referenzsnapshot als unveränderbare Evidenz; keine automatische Steuer-/PStTG-Buchung.
 - [x] 7-Tage-Problem-/Nachweisfristen und besondere 14-Tage-Regel für ungetrackten privaten C2C-Nicht-Erhalt.
+- [x] C2C-Problemantwort und Rücknahme mit Rückkehr `disputed -> bound`.
 - [x] Verkäuferstorno nach bezahlt bestätigtem Kauf nur als begründeter Ausnahmefall; 4-%-Gebühr technisch deaktiviert.
 - [x] 5-Sterne-Gesamtbewertung, eine Bewertung je Nutzer/Transaktion, 30 Tage, Blind Review, unveränderbar.
 - [x] Review-Meldepfad vorbereitet; Moderationsentscheidung nicht automatisiert.
@@ -273,6 +276,28 @@ Die dort aufgeführten Lücken sind als **historischer Ausgangsbefund** zu lesen
 - [x] Festpreis-Checkout-Review und bindende Bestellhandlung.
 - [x] transaktionsbezogene Problem-/Hold-Struktur statt pauschaler Verkäuferkonto-Sperre.
 - [x] bestehende sichere Order-/Shipping-/Contract-Snapshot-Architektur.
+- [x] GitHub-Main-Schutz mit PR-Pflicht und Required Checks `validate` + `quota_database`.
+
+### Technische Evidenz – geschlossen
+
+- [x] `tests/b07-c2c-pickup-contract-test.mjs` explizit im bestehenden `validate`-Block.
+- [x] Run #411 / `35089710430` vollständig SUCCESS.
+- [x] `quota_database` testet realen PostgreSQL-17-C2C-Stack inklusive Pickup.
+- [x] CI-Fixture an reales Staging-`market_offers`-Schema ohne `reservation_expires_at` angeglichen.
+- [x] vollständiger C2C-Stack persistent auf Supabase-Staging `xhmjxrcskfhbovhitdej` aktiviert.
+- [x] C2C-Privattabellen: RLS aktiv, keine direkten `anon/authenticated`-Tabellenrechte.
+- [x] reale Staging-Rollback-Abnahme Versand: PASS.
+- [x] reale Staging-Rollback-Abnahme Problemfall 14 Tage / 7 Tage: PASS.
+- [x] reale Staging-Rollback-Abnahme Pickup 2h / Fremdpartei / Versuchslimit / Abschluss: PASS.
+- [x] nach Rollback keine B07-C2C-Testreste.
+- [x] aktuelles Vercel-Preview ist READY auf Head `de8fcb12e790a09f0e2bf10f3d49009dab49e294`.
+- [x] DUELVANTA-Preview-Login erreichbar; bestehender privater Staging-Testaccount erfolgreich angemeldet.
+
+### Kategorie D – verbleibende Verifikation
+
+- [ ] vollständiger browserseitiger Zwei-Rollen-C2C-E2E für Versand + Problemfall + Pickup mit zwei **regulär onboardeten** privaten Staging-Accounts.
+
+Dieser Punkt ist ein Evidenzrest. Er darf nicht durch Roh-SQL-Berechtigungseskalation eines vorhandenen Testnutzers künstlich geschlossen werden. Die Zwei-Parteien-Funktionalität ist bereits im realen PostgreSQL-CI und in den echten Supabase-Staging-Rollback-Abnahmen nachgewiesen.
 
 ### Kategorie C – bewusst nicht aktiviert
 
@@ -292,6 +317,8 @@ Die dort aufgeführten Lücken sind als **historischer Ausgangsbefund** zu lesen
 
 ### Verbindliche Statusaussage
 
-Die sicheren Kategorie-B-Korrekturen aus Phase 3 sind damit implementiert. Kategorie C bleibt absichtlich deaktiviert bzw. auf `external_review_required` begrenzt. B07 ist deshalb **nicht kommerziell freigegeben** und bleibt bis zu externer Rechts-/Steuer-/Paymentprüfung sowie dem abschließenden B07-Re-Review offen/blockiert.
+Die intern sicheren Kategorie-B-Korrekturen sind implementiert und der V15-C2C-Staging-Auftrag ist datenbankseitig geschlossen. Ein Kategorie-D-Browser-Evidenzpunkt bleibt offen. Kategorie C bleibt absichtlich deaktiviert bzw. auf `external_review_required` begrenzt.
+
+B07 ist daher **nicht kommerziell freigegeben**. Der kommerzielle Produktivstart bleibt bis zur externen Rechts-/Steuer-/Paymentprüfung gesperrt.
 
 **Hinweis:** Dieses Dokument ist ein interner Prüfkatalog und keine Rechts-, Steuer- oder Zahlungsdienstfreigabe.
