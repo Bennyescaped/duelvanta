@@ -1,7 +1,8 @@
 # DUELVANTA – B07 / L07-01 Prüfkatalog
 
-Stand: 15.09.2026
-Status: **B07 OFFEN / BLOCKIERT – keine Rechts-, Steuer- oder Paymentfreigabe**
+Stand: 15.09.2026  
+Implementierungsstand ergänzt: 16.09.2026  
+Status: **B07 OFFEN / BLOCKIERT – keine Rechts-, Steuer- oder Paymentfreigabe**  
 Grundlage: `DUELVANTA_MASTERHANDOUT_V14_2026-09-15.md` sowie die dokumentierten L07-01-Entscheidungen /01 bis /53.
 
 ## 1. Festgelegtes Release-1-Geschäftsmodell
@@ -224,6 +225,7 @@ Für die externe Prüfung vorzulegen:
 - Masterhandout V14;
 - sämtliche L07-01-Entscheidungsdateien /01–/53;
 - `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md`;
+- `DUELVANTA_B07_IMPLEMENTATION_STATUS_2026-09-16.md`;
 - Seller-Onboarding-Screens/Code;
 - Checkout-Screens/Code;
 - Payment-Flow-Dokumentation;
@@ -235,16 +237,61 @@ Für die externe Prüfung vorzulegen:
 
 ## 17. Technischer Soll-Ist-Befund nach V14
 
-Der am 15.09.2026 durchgeführte vollständige Phase-1-/Phase-2-Abgleich ist in `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md` dokumentiert. Er trennt jeden Befund in A/B/C/D und ist ab jetzt die technische Änderungsliste für Phase 3.
+Der am 15.09.2026 durchgeführte vollständige Phase-1-/Phase-2-Abgleich ist in `DUELVANTA_B07_L07-01_SOLL_IST_ABGLEICH_2026-09-15.md` dokumentiert. Er trennt jeden Befund in A/B/C/D und war die technische Änderungsliste für Phase 3.
 
-Wesentliche bestätigte Lücken:
+Die dort aufgeführten Lücken sind als **historischer Ausgangsbefund** zu lesen. Der aktuelle Umsetzungsstand steht in Abschnitt 18 und in `DUELVANTA_B07_IMPLEMENTATION_STATUS_2026-09-16.md`.
 
-- Preisvorschlagsannahme erzeugt derzeit zu früh einen Deal; 2-Stunden-Checkout-Reservierung fehlt.
-- DE-only ist in Seller-/Shipping-Pfaden nicht konsistent erzwungen.
-- 25-EUR-Trackinggrenze, 3-Werktage-Frist und 72-Stunden-Abschlusslogik fehlen als vollständige serverseitige Regeln.
-- QR-/Übergabecode für Abholung und echter Waren-gegen-Waren-C2C-Tausch fehlen.
-- 7-Tage-Nachweisfristen und Verkäuferstorno-Grenzen sind unvollständig.
-- 5-Sterne-/Blind-Review und Release-1-Share/Public-Listing-Pfad fehlen.
-- reale Zahlungen, Refunds, Payouts, Stornogebühr, Sanktionsaktivierung und materielle Bedingungen-Neuakzeptanz bleiben Kategorie C und werden nicht produktiv aktiviert.
+## 18. Implementierungscheckliste – Stand 16.09.2026
 
-**Hinweis:** Dieses Dokument ist ein interner Prüfkatalog und keine Rechts-, Steuer- oder Zahlungsdienstfreigabe. B07 bleibt bis zu den vorgesehenen externen Freigaben und den daraus folgenden Implementierungs-/Nachweisarbeiten offen/blockiert.
+### Kategorie B – technisch umgesetzt
+
+- [x] Release-1-Eligibility: registriert, 18+, Deutschland-only.
+- [x] DE-only in Seller-/Buyer-/Versandpfaden und Anti-Circumvention-Guards.
+- [x] Preisvorschlagsannahme als 2-Stunden-Checkout-Reservierung ohne vorzeitigen Vertrag/Deal.
+- [x] verbindlicher Käufer-Checkout getrennt von Angebotsannahme.
+- [x] Warenkorb-/Order-Gruppierung je Verkäufer aus bestehender Architektur beibehalten.
+- [x] Trackingpflicht über 25 EUR bzw. Risikoflag; <=25 EUR ungetrackt technisch möglich.
+- [x] 3-Werktage-Versandfrist als technischer Zustand.
+- [x] Delivery-Evidence + 72-Stunden-technischer Abschluss ohne reale Payout-Auslösung.
+- [x] explizite Käuferbestätigung `Erhalten – alles in Ordnung`.
+- [x] persönliche Abholung über einmaligen, gehashten Übergabecode mit beidseitigem Nachweis.
+- [x] privater C2C-Ware-gegen-Ware-Tausch mit revisionsfestem finalem Stand und beidseitiger Bestätigung.
+- [x] C2C-Versandfrist, Trackinggrenze und eingefrorene Versandadressen ab Bindung.
+- [x] C2C-EUR-Referenzsnapshot als unveränderbare Evidenz; keine automatische Steuer-/PStTG-Buchung.
+- [x] 7-Tage-Problem-/Nachweisfristen und besondere 14-Tage-Regel für ungetrackten privaten C2C-Nicht-Erhalt.
+- [x] Verkäuferstorno nach bezahlt bestätigtem Kauf nur als begründeter Ausnahmefall; 4-%-Gebühr technisch deaktiviert.
+- [x] 5-Sterne-Gesamtbewertung, eine Bewertung je Nutzer/Transaktion, 30 Tage, Blind Review, unveränderbar.
+- [x] Review-Meldepfad vorbereitet; Moderationsentscheidung nicht automatisiert.
+- [x] öffentliche, datensparsame Listing-URL `/listing/:id`.
+- [x] Native Share und Link-kopieren-Fallback.
+- [x] Social-/Messenger-OG-Metadaten mit kurzlebigem signiertem Artikelbild und ohne private Verkäuferdaten.
+- [x] 1080×1920-Story-Karte mit Produktdaten/Preis/DUELVANTA-Branding und ohne private Verkäuferdaten.
+
+### Kategorie A – vorhandene Architektur weiterverwendet
+
+- [x] Sellerstatus-/Identitätsgrundlage und versionierte Annahmedaten.
+- [x] Festpreis-Checkout-Review und bindende Bestellhandlung.
+- [x] transaktionsbezogene Problem-/Hold-Struktur statt pauschaler Verkäuferkonto-Sperre.
+- [x] bestehende sichere Order-/Shipping-/Contract-Snapshot-Architektur.
+
+### Kategorie C – bewusst nicht aktiviert
+
+- [ ] externe Rechtsfreigabe des Vermittler-/Vertrags-/B2C-/C2C-Modells.
+- [ ] Stripe Live / echte Zahlung.
+- [ ] reale Auszahlung, Payout-Hold und 72h-/Pickup-Geldfreigabe.
+- [ ] reale Refund-/Chargeback-Wirkung.
+- [ ] 4-%-Verkäufer-Stornogebühr.
+- [ ] automatische Verkäufer-Sanktionsleiter/Sperrfolgen.
+- [ ] materielle Bedingungen-Neuakzeptanz mit final freigegebenen Texten.
+- [ ] externe Identitäts-/Altersproviderfreigabe.
+- [ ] verbindliche PStTG-/DAC7-Einordnung und Verbuchung von C2C-Tauschwerten.
+- [ ] TIN-/KYC-Schwellen- und Sperrfolgen für PStTG.
+- [ ] produktive BZSt-Meldung/XML-Abgabe.
+- [ ] rechtlich finalisierte Review-Löschung/Berichtigung/Gegendarstellung/Moderation.
+- [ ] finale Versandprodukte, Haftungs-/Versicherungsgrenzen und Risikokriterien.
+
+### Verbindliche Statusaussage
+
+Die sicheren Kategorie-B-Korrekturen aus Phase 3 sind damit implementiert. Kategorie C bleibt absichtlich deaktiviert bzw. auf `external_review_required` begrenzt. B07 ist deshalb **nicht kommerziell freigegeben** und bleibt bis zu externer Rechts-/Steuer-/Paymentprüfung sowie dem abschließenden B07-Re-Review offen/blockiert.
+
+**Hinweis:** Dieses Dokument ist ein interner Prüfkatalog und keine Rechts-, Steuer- oder Zahlungsdienstfreigabe.
