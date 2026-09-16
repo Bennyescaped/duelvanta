@@ -1,7 +1,7 @@
 /* B07 / L07-01 private C2C swap flow. No payment, fee, wallet or tax-reporting activation. */
 (() => {
   'use strict';
-  let installed=false,available=false,swaps=[],baseRender=null,editor=null,shippingThread=null,pickupThread=null;
+  let installed=false,available=false,swaps=[],baseRender=null,editor=null,shippingThread=null,pickupThread=null,gridObserver=null,tabsObserver=null,decorateQueued=false;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const eur=n=>n==null?'—':new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(n));
   const fmt=d=>d?new Date(d).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
@@ -49,6 +49,11 @@
       const id=button.dataset.complete,threadId=bound.get(id);if(!threadId)return;
       delete button.dataset.complete;button.dataset.swapOpen=threadId;button.textContent='TAUSCH ÖFFNEN';
     });
+  }
+
+  function scheduleDecoration(){
+    if(decorateQueued)return;decorateQueued=true;
+    queueMicrotask(()=>{decorateQueued=false;if(typeof tab==='undefined'||tab!=='swaps')decorateListings()});
   }
 
   function renderItemList(rows){
@@ -200,12 +205,20 @@
   async function act(name,args){const {data,error}=await db.rpc(name,args);if(error)throw error;await refreshAll(name==='confirm_market_swap_revision_v1'||name==='confirm_market_swap_received_v1');return data}
 
   function setupUi(){
-    const tabs=document.querySelector('.tabs'),sell=document.getElementById('sell');if(!tabs)return false;
-    const button=document.createElement('button');button.id='dvSwapsTab';button.className='btn';button.textContent='TAUSCH';sell?tabs.insertBefore(button,sell):tabs.appendChild(button);
+    const tabs=document.querySelector('.tabs'),sell=document.getElementById('sell'),grid=document.getElementById('grid');if(!tabs||!grid)return false;
+    let button=document.getElementById('dvSwapsTab');
+    if(!button){button=document.createElement('button');button.id='dvSwapsTab';button.className='btn';button.textContent='TAUSCH';sell?tabs.insertBefore(button,sell):tabs.appendChild(button)}
+    const placeSwapTab=()=>{
+      if(button.isConnected)return;
+      const currentTabs=document.querySelector('.tabs');if(!currentTabs)return;
+      const secondary=currentTabs.querySelector('.dvTradeSecondary');
+      if(secondary){secondary.insertBefore(button,secondary.querySelector('#dvDealsTab')||null);return}
+      const currentSell=document.getElementById('sell');currentSell?currentTabs.insertBefore(button,currentSell):currentTabs.appendChild(button);
+    };
     baseRender=render;render=async function(){if(typeof tab!=='undefined'&&tab==='swaps')return renderSwaps();const out=await baseRender();decorateListings();return out};
-    button.onclick=()=>{if(typeof tab!=='undefined')tab='swaps';tabs.querySelectorAll('.btn').forEach(x=>x.classList.remove('active'));button.classList.add('active');renderSwaps()};
+    button.onclick=()=>{if(typeof tab!=='undefined')tab='swaps';document.querySelectorAll('.tabs .btn').forEach(x=>x.classList.remove('active'));button.classList.add('active');renderSwaps()};
     tabs.addEventListener('click',e=>{if(e.target.closest('[data-tab]'))button.classList.remove('active')},true);
-    document.getElementById('grid').addEventListener('click',async e=>{
+    grid.addEventListener('click',async e=>{
       const propose=e.target.closest('[data-swap-propose]');if(propose){openInitial(propose.dataset.swapPropose);return}
       const open=e.target.closest('[data-swap-open]');if(open){if(typeof tab!=='undefined')tab='swaps';button.click();return}
       const revise=e.target.closest('[data-swap-revise]');if(revise){openRevision(revise.dataset.swapRevise);return}
@@ -215,15 +228,19 @@
       const pickup=e.target.closest('[data-swap-pickup]');if(pickup){openPickup(pickup.dataset.swapPickup);return}
       const received=e.target.closest('[data-swap-received]');if(received){if(!confirm('Bestätigst du, dass die Waren dieser Tauschseite vollständig angekommen und in Ordnung sind?'))return;try{await act('confirm_market_swap_received_v1',{p_thread_id:received.dataset.swapReceived,p_sender_id:received.dataset.swapSender})}catch(error){alert(error.message)}return}
     });
+    gridObserver?.disconnect();gridObserver=new MutationObserver(scheduleDecoration);gridObserver.observe(grid,{childList:true,subtree:true});
+    tabsObserver?.disconnect();tabsObserver=new MutationObserver(()=>{placeSwapTab();scheduleDecoration()});tabsObserver.observe(tabs,{childList:true,subtree:true});
     const style=document.createElement('style');style.id='dvSwapStyle';style.textContent='.dvSwapGrid{display:grid;gap:12px;grid-column:1/-1}.dvSwapIntro{grid-column:1/-1;border:1px solid rgba(199,164,93,.25);border-radius:14px;padding:14px;color:#aaa39a;font-size:12px;line-height:1.55}.dvSwapCard{border:1px solid #252b34;background:#10141a;border-radius:16px;padding:16px}.dvSwapTop{display:flex;justify-content:space-between;gap:12px}.dvSwapTop h3{margin:5px 0;font:400 23px Georgia,serif}.dvSwapStatus{height:max-content;border:1px solid #4a4230;border-radius:999px;padding:6px 9px;font-size:9px;color:#d8c28f}.dvSwapStatus.completed{color:#87d7a5}.dvSwapSides{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.dvSwapSides section,.dvSwapAudit,.dvSwapShip{border:1px solid #2c323b;border-radius:10px;padding:11px;color:#aab0ba;font-size:11px;line-height:1.55}.dvSwapSides ul{margin:7px 0 0;padding-left:18px}.dvSwapSides li span{color:#858d98}.dvSwapConfirm,.dvSwapActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.dvSwapConfirm span{border:1px solid #303640;border-radius:999px;padding:5px 8px;font-size:9px;color:#969eaa}.dvSwapConfirm span.ok{color:#87d7a5;border-color:rgba(89,190,126,.35)}.dvSwapAudit{margin-top:10px;border-color:rgba(199,164,93,.28)}.dvSwapAudit b{color:#d8c28f}.dvSwapShip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.dvSwapCandidates{border:1px solid #303640;border-radius:11px;margin:12px 0;padding:10px}.dvSwapCandidates legend{color:#d8c28f;font-size:10px;letter-spacing:.08em;padding:0 6px}.dvSwapCandidates label{display:flex;gap:9px;padding:9px;border-bottom:1px solid #222831}.dvSwapCandidates label:last-child{border-bottom:0}.dvSwapCandidates label.disabled{opacity:.5}.dvSwapCandidates small{display:block;color:#929aa5;margin-top:3px}.dvSwapFixed{border:1px solid #4a4230;border-radius:10px;padding:11px;color:#d8c28f}.dvSwapFulfillment{margin:12px 0}.dvSwapFulfillment select{width:100%;margin-top:5px}.dvSwapFulfillment small{display:block;color:#929aa5;margin-top:5px}.dvSwapPickupCode{border:1px solid rgba(199,164,93,.4);border-radius:12px;padding:14px;margin:12px 0;text-align:center}.dvSwapPickupCode b,.dvSwapPickupCode small{display:block}.dvSwapPickupCode strong{display:block;color:#efd18c;font:700 28px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;margin:8px 0}.dvSwapModal{max-width:650px}.dvSwapModal .field{margin-top:10px}.dvSwapModal input[type=text],.dvSwapModal input:not([type]),.dvSwapModal select{width:100%}@media(max-width:620px){.dvSwapSides,.dvSwapShip{grid-template-columns:1fr}.dvSwapTop{display:block}}';document.head.appendChild(style);
     if(!document.querySelector('script[data-dv-swap-problems]')){const problems=document.createElement('script');problems.src='trade-c2c-swap-problems.js?v=1.0';problems.dataset.dvSwapProblems='1';document.body.appendChild(problems)}
-    decorateListings();window.DV_C2C_SWAP={version:'1.1',render:renderSwaps,refresh:refreshAll};return true;
+    decorateListings();window.DV_C2C_SWAP={version:'1.2',render:renderSwaps,refresh:refreshAll};return true;
   }
 
   async function install(){
-    if(installed||typeof db==='undefined'||typeof user==='undefined'||!user||typeof render!=='function')return false;installed=true;
-    try{if(!await loadSwaps())return true}catch(error){console.warn('B07 C2C swap unavailable',error);return true}
-    return setupUi();
+    if(installed||typeof db==='undefined'||typeof user==='undefined'||!user||typeof render!=='function')return false;
+    try{
+      if(!await loadSwaps()){installed=true;return true}
+    }catch(error){console.warn('B07 C2C swap unavailable',error);return false}
+    const ready=setupUi();if(ready)installed=true;return ready;
   }
   let tries=0;const wait=setInterval(async()=>{tries++;if(await install()||tries>150)clearInterval(wait)},80);
 })();
