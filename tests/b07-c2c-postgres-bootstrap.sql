@@ -89,6 +89,9 @@ create table if not exists public.market_offers(
   reservation_expires_at timestamptz
 );
 
+alter table public.market_deals
+  add column if not exists offer_id uuid references public.market_offers(id);
+
 create or replace function dv_market_private.require_trade_eligibility(p_user_id uuid,p_require_buyer boolean)
 returns void
 language plpgsql
