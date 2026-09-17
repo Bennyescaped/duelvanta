@@ -12,10 +12,20 @@
 
     const quote = card.querySelector('.dvQuote');
     const heading = quote?.querySelector('b');
-    if (quote && heading && /Abholung\s*·/i.test(quote.textContent || '')) {
+    const pickup = /Abholung\s*·/i.test(quote?.textContent || '');
+    if (pickup && heading) {
       const current = heading.textContent || '';
       const next = current.replace(/^VERSAND\s*·/i, 'ÜBERGABE ·');
       if (next !== current) heading.textContent = next;
+    }
+
+    const completed = card.querySelector('.dvOrderStatus.completed');
+    const steps = card.querySelectorAll('.dvOrderRail .dvOrderStep');
+    if (pickup && completed && steps.length >= 3) {
+      const handover = steps[1];
+      handover.classList.remove('current');
+      handover.classList.add('done');
+      if (handover.innerHTML !== '<b>ÜBERGABE</b>BESTÄTIGT') handover.innerHTML = '<b>ÜBERGABE</b>BESTÄTIGT';
     }
   }
 
@@ -38,7 +48,7 @@
     });
     observer.observe(root, { childList: true, subtree: true });
     fixAll();
-    window.DV_B07_PICKUP_UI_FIX = { version: '2.0', refresh: fixAll };
+    window.DV_B07_PICKUP_UI_FIX = { version: '2.1', refresh: fixAll };
     return true;
   }
 
