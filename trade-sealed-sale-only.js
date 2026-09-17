@@ -9,7 +9,10 @@
     if (!select) return false;
 
     if (select.options.length !== 1 || select.options[0]?.value !== 'sale') {
-      select.replaceChildren(new Option('Verkauf', 'sale'));
+      const saleOption = document.createElement('option');
+      saleOption.value = 'sale';
+      saleOption.textContent = 'Verkauf';
+      select.replaceChildren(saleOption);
     }
     select.value = 'sale';
     select.disabled = true;
