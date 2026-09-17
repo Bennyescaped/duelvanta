@@ -32,6 +32,33 @@
     document.documentElement.dataset.dvTradeRelease=state;
   };
 
+  const setRuntimeHold=active=>{
+    let style=document.getElementById('dvTradeRuntimeHoldStyle');
+    if(!style){
+      style=document.createElement('style');
+      style.id='dvTradeRuntimeHoldStyle';
+      style.textContent='html[data-dv-trade-runtime-hold="1"] #app{visibility:hidden!important;pointer-events:none!important}';
+      document.head.appendChild(style);
+    }
+    if(active)document.documentElement.dataset.dvTradeRuntimeHold='1';
+    else delete document.documentElement.dataset.dvTradeRuntimeHold;
+  };
+
+  const waitForRuntimeUi=async()=>{
+    const deadline=Date.now()+4000;
+    while(Date.now()<deadline){
+      if(window.DV_TRADE_ORDERS&&window.DV_TRADE_MARKETPLACE_UX&&window.DV_TRADE_SEARCH_ARCHIVE)return true;
+      await new Promise(resolve=>setTimeout(resolve,25));
+    }
+    return false;
+  };
+
+  const revealTradeRuntime=async()=>{
+    if(!await waitForRuntimeUi())throw new Error('trade_runtime_ui_not_ready');
+    document.getElementById('app')?.classList.remove('hidden');
+    setRuntimeHold(false);
+  };
+
   const addOwnerLink=()=>{
     const links=document.querySelector('.dv-global-nav .dv-nav-links');
     if(!links||links.querySelector('[href="control-center.html"]'))return;
@@ -57,6 +84,7 @@
   };
 
   const showLocked=async(db,session,environment)=>{
+    setRuntimeHold(false);
     setState('locked',environment,'member');
     const app=document.getElementById('app');
     if(!app)throw new Error('trade_release_shell_missing');
@@ -86,8 +114,10 @@
     const environment=runtime.environment||'development';
 
     if(environment!=='production'){
+      setRuntimeHold(true);
       setState('internal-preview',environment);
       await loadTradeStack();
+      await revealTradeRuntime();
       return;
     }
 
@@ -99,9 +129,11 @@
     }
 
     if(role==='owner'){
+      setRuntimeHold(true);
       setState('owner-bypass',environment,role);
       addOwnerLink();
       await loadTradeStack();
+      await revealTradeRuntime();
       return;
     }
 
@@ -109,6 +141,7 @@
   };
 
   start().catch(error=>{
+    setRuntimeHold(false);
     console.error('DUELVANTA TRADE release gate',error);
     const app=document.getElementById('app');
     if(app){
