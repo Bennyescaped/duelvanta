@@ -73,7 +73,7 @@ end
 $$;
 revoke all on function dv_market_private.enforce_sale_only_offer() from public,anon,authenticated;
 drop trigger if exists sale_only_offer on public.market_offers;
-create trigger sale_only_offer before insert or update on public.market_offers
+create trigger sale_only_offer before insert or update of listing_id,offer_type,status on public.market_offers
 for each row execute function dv_market_private.enforce_sale_only_offer();
 
 -- Legacy deal creation must not resurrect a swap via an old accepted offer.

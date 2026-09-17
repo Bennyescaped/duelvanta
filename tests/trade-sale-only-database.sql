@@ -57,3 +57,30 @@ select pg_temp.denied($q$select public.create_market_swap_proposal_v2(null,null,
 reset role;
 rollback;
 \echo PASS: sale-only inserts and price offers allowed; swap creation/revision/binding rejected; history preserved.
+
+-- Exercise sale-only notification synchronization and filter BEFORE pagination.
+alter table public.market_orders add column if not exists order_number text;
+create table if not exists public.market_notifications(
+ id uuid primary key default gen_random_uuid(),recipient_id uuid,kind text,title text,body text,
+ order_id uuid,offer_id uuid,listing_id uuid,context_type text,context_id uuid,dedupe_key text unique,
+ read_at timestamptz,created_at timestamptz default now()
+);
+\ir ../database/b07-sale-only-notifications-v1.sql
+begin;
+insert into public.market_orders(id,seller_id,buyer_id,fulfillment_group,order_number) values
+('a9000000-0000-4000-8000-000000000031','a9000000-0000-4000-8000-000000000001','a9000000-0000-4000-8000-000000000002','pickup','SALE-ONLY-TEST');
+insert into dv_market_private.market_pickup_messages(context_type,context_id,sender_id,body) values
+('order','a9000000-0000-4000-8000-000000000031','a9000000-0000-4000-8000-000000000002','Sale-only pickup test');
+insert into public.market_notifications(recipient_id,kind,title,context_type,created_at) values
+('a9000000-0000-4000-8000-000000000001','swap_bound','Historical swap','swap',now()+interval '1 minute');
+select set_config('request.jwt.claim.sub','a9000000-0000-4000-8000-000000000001',true);
+set local role authenticated;
+select public.sync_my_trade_notifications_v2();
+do $$ begin
+ if (select count(*) from public.get_my_market_notifications(1) where context_type='pickup_order')<>1 then raise exception 'Order notification hidden by swap pagination';end if;
+ if public.sync_my_trade_notifications_v2()<>0 then raise exception 'Notification sync not idempotent';end if;
+end $$;
+reset role;
+do $$ begin if not exists(select 1 from public.market_notifications where kind='swap_bound') then raise exception 'Historical notification lost';end if;end $$;
+rollback;
+\echo PASS: order pickup notification retained, swap notification filtered before pagination, historical row preserved.

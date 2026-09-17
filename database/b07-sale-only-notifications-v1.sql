@@ -43,4 +43,46 @@ end;
 $$;
 revoke all on function public.sync_my_trade_notifications_v2() from public,anon;
 grant execute on function public.sync_my_trade_notifications_v2() to authenticated;
+create or replace function public.get_my_market_notifications(p_limit integer default 40)
+returns table(
+  notification_id uuid,
+  kind text,
+  title text,
+  body text,
+  order_id uuid,
+  offer_id uuid,
+  listing_id uuid,
+  context_type text,
+  context_id uuid,
+  dedupe_key text,
+  is_unread boolean,
+  read_at timestamptz,
+  created_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Nicht angemeldet';
+  end if;
+
+  return query
+  select n.id, n.kind, n.title, n.body, n.order_id, n.offer_id, n.listing_id,
+         n.context_type, n.context_id, n.dedupe_key,
+         n.read_at is null, n.read_at, n.created_at
+  from public.market_notifications n
+  where n.recipient_id = auth.uid()
+    and coalesce(n.context_type,'') not in ('swap','swap_case','pickup_swap')
+    and n.kind not like 'swap_%'
+  order by n.created_at desc
+  limit least(greatest(coalesce(p_limit, 40), 1), 100);
+end;
+$$;
+
+revoke all on function public.get_my_market_notifications(integer) from public, anon;
+grant execute on function public.get_my_market_notifications(integer) to authenticated;
+
 commit;
