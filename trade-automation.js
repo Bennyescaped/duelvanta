@@ -18,7 +18,7 @@
     const dialog=document.createElement('dialog');
     dialog.id='dvNotifyDialog';
     dialog.className='dvNotifyDialog';
-    dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Benachrichtigungen</h2><button id="dvNotifyClose" class="close" type="button">✕</button></div><div class="dvNotifyTools"><span class="dvNotifyHint">Kauf · Angebot · Annahme · Versand · Erhalt</span><button id="dvNotifyReadAll" class="btn ghost" type="button">ALLE GELESEN</button></div><div id="dvNotifyList" class="dvNotifyList"></div><div id="dvNotifyMsg" class="msg"></div></div>';
+    dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Benachrichtigungen</h2><button id="dvNotifyClose" class="close" type="button">✕</button></div><div class="dvNotifyTools"><span class="dvNotifyHint">Kauf · Angebot · Tausch · Chat · Versand · Erhalt · Probleme</span><button id="dvNotifyReadAll" class="btn ghost" type="button">ALLE GELESEN</button></div><div id="dvNotifyList" class="dvNotifyList"></div><div id="dvNotifyMsg" class="msg"></div></div>';
     document.body.appendChild(dialog);
   }
 
@@ -38,13 +38,59 @@
     host.innerHTML=notifications.length?notifications.map(n=>`<article class="dvNotifyRow ${n.is_unread?'unread':''}" data-dv-note="${n.notification_id}"><div class="dvNotifyTop"><span class="dvNotifyTitle">${esc(n.title)}</span><span class="dvNotifyTime">${esc(stamp(n.created_at))}</span></div><div class="dvNotifyBody">${esc(n.body)}</div></article>`).join(''):'<div class="empty">Noch keine Benachrichtigungen.</div>';
   }
 
+  function swapSubject(t){
+    const rev=t?.current_revision||{};
+    const names=[...(rev.party_a_items||[]),...(rev.party_b_items||[])].map(x=>x.card_name||x.item_title).filter(Boolean);
+    if(names.length)return names.slice(0,2).join(' ↔ ');
+    const other=t?.party_a_id===user.id?t?.party_b:t?.party_a;
+    return other?.display_name||other?.username||'C2C-Tausch';
+  }
+
+  function swapActions(swaps,cases){
+    const extra=[];
+    for(const t of swaps||[]){
+      const mineA=t.party_a_id===user.id;
+      const mineConfirmed=mineA?!!t.party_a_confirmed:!!t.party_b_confirmed;
+      const subject=swapSubject(t);
+      const created=t.current_revision?.created_at||t.binding_at||t.completed_at||new Date().toISOString();
+      if(t.status==='negotiating'&&!mineConfirmed){
+        extra.push({action_key:`swap:${t.thread_id}`,action_type:'swap_confirm',priority:12,title:'TAUSCHSTAND BESTÄTIGEN',subject,quantity:null,amount:null,created_at:created});
+      }
+      if(t.status==='bound'&&t.fulfillment_mode==='shipping'){
+        const mine=(t.fulfillments||[]).find(f=>f.sender_id===user.id);
+        const incoming=(t.fulfillments||[]).find(f=>f.receiver_id===user.id);
+        if(mine&&!mine.shipped_at)extra.push({action_key:`swap:${t.thread_id}:ship`,action_type:'swap_ship',priority:34,title:'TAUSCH VERSENDEN',subject,quantity:null,amount:null,created_at:t.binding_at||created});
+        if(incoming?.shipped_at&&!incoming.receiver_confirmed_at)extra.push({action_key:`swap:${t.thread_id}:receive`,action_type:'swap_receive',priority:48,title:'TAUSCH-ERHALT BESTÄTIGEN',subject,quantity:null,amount:null,created_at:incoming.shipped_at});
+      }
+      if(t.status==='bound'&&t.fulfillment_mode==='pickup'&&t.pickup?.pending&&t.pickup.generated_by!==user.id){
+        extra.push({action_key:`swap:${t.thread_id}:pickup`,action_type:'swap_pickup_confirm',priority:42,title:'ÜBERGABECODE BESTÄTIGEN',subject,quantity:null,amount:null,created_at:t.pickup.generated_at||created});
+      }
+    }
+    for(const c of cases||[]){
+      if(c.can_respond)extra.push({action_key:`swap-case:${c.case_id}`,action_type:'swap_problem_response',priority:18,title:'TAUSCH-PROBLEM BEANTWORTEN',subject:c.reason||'C2C-Problemfall',quantity:null,amount:null,created_at:c.created_at});
+    }
+    return extra;
+  }
+
   async function refresh(){
     if(busy)return;
     busy=true;
     try{
-      const [a,n]=await Promise.all([db.rpc('get_my_trade_actions'),db.rpc('get_my_market_notifications',{p_limit:40})]);
+      try{
+        const sync=await db.rpc('sync_my_trade_notifications_v2');
+        if(sync?.error&&!/Could not find the function|schema cache/i.test(sync.error.message||''))console.warn('TRADE notification sync',sync.error);
+      }catch(error){console.warn('TRADE notification sync unavailable',error)}
+      const [a,n,s,c]=await Promise.all([
+        db.rpc('get_my_trade_actions'),
+        db.rpc('get_my_market_notifications',{p_limit:60}),
+        db.rpc('get_my_market_swaps_v1'),
+        db.rpc('get_my_market_swap_cases_v1')
+      ]);
       if(a.error)throw a.error;if(n.error)throw n.error;
-      actions=a.data||[];notifications=n.data||[];
+      const swaps=!s?.error&&Array.isArray(s?.data)?s.data:[];
+      const cases=!c?.error&&Array.isArray(c?.data)?c.data:[];
+      actions=[...(a.data||[]),...swapActions(swaps,cases)].sort((x,y)=>(Number(x.priority||99)-Number(y.priority||99))||(new Date(y.created_at||0)-new Date(x.created_at||0)));
+      notifications=n.data||[];
       renderActions();renderNotifications();
     }catch(error){
       console.warn('DUELVANTA TRADE automation',error);
@@ -58,7 +104,23 @@
     document.getElementById('dvOrdersTab')?.click();
   }
   function openOffer(){document.querySelector('[data-tab="offers"]')?.click()}
-  function route(item){if(item?.order_id)return openOrder(item.order_id);if(item?.offer_id)return openOffer()}
+  function openSwap(){document.getElementById('dvSwapsTab')?.click()}
+  function openSwapCase(){document.getElementById('dvSwapProblemsTab')?.click()}
+  function openPickup(type,id){
+    if(type&&id&&window.DV_PICKUP_MESSAGES?.open)return window.DV_PICKUP_MESSAGES.open(type,id);
+    document.getElementById('dvPickupMessagesTab')?.click();
+  }
+  function route(item){
+    if(item?.order_id)return openOrder(item.order_id);
+    if(item?.offer_id)return openOffer();
+    if(item?.context_type==='swap')return openSwap();
+    if(item?.context_type==='swap_case')return openSwapCase();
+    if(item?.context_type==='pickup_order')return openPickup('order',item.context_id);
+    if(item?.context_type==='pickup_swap')return openPickup('swap',item.context_id);
+    const key=String(item?.action_key||'');
+    if(key.startsWith('swap-case:'))return openSwapCase();
+    if(key.startsWith('swap:'))return openSwap();
+  }
 
   async function openNotification(item){
     if(!item)return;
@@ -96,7 +158,7 @@
     if(typeof db==='undefined'||typeof user==='undefined'||!user||!document.querySelector('.tabs'))return false;
     installed=true;mount();bind();refresh();
     setInterval(()=>{if(!document.hidden)refresh()},30000);
-    window.DV_TRADE_AUTOMATION={version:'1.0',refresh,get actions(){return actions},get notifications(){return notifications}};
+    window.DV_TRADE_AUTOMATION={version:'2.0',refresh,get actions(){return actions},get notifications(){return notifications}};
     return true;
   }
 
