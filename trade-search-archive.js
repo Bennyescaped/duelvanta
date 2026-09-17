@@ -259,7 +259,8 @@
       candidates = [...grid.querySelectorAll('article.listing')];
       candidates.forEach(card => {
         const eyebrow = text(card.querySelector('.eyebrow')?.textContent);
-        card.hidden = !eyebrow.includes('offen');
+        const reserved = !!card.querySelector('.dvOfferReservation');
+        card.hidden = !eyebrow.includes('offen') && !reserved;
       });
     } else if (view === 'orders') {
       candidates = [...grid.querySelectorAll('.dvOrderCard')];

@@ -221,7 +221,8 @@ begin
   left join public.market_orders ord on ord.id=d.order_id
   left join public.profiles pb on pb.id=o.buyer_id
   left join public.profiles ps on ps.id=o.seller_id
-  where auth.uid() in (o.seller_id,o.buyer_id);
+  where auth.uid() in (o.seller_id,o.buyer_id)
+    and o.offer_type='price' and l.listing_type<>'trade';
   return v_result;
 end
 $$;
