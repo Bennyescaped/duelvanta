@@ -96,8 +96,9 @@
   function observeDialog(id, sync) {
     const dialog = document.getElementById(id);
     if (!dialog) return;
-    new MutationObserver(() => { if (dialog.hasAttribute('open')) queueMicrotask(sync); })
-      .observe(dialog, {attributes:true, attributeFilter:['open']});
+    new MutationObserver(() => {
+      if (dialog.hasAttribute('open')) Promise.resolve().then(sync);
+    }).observe(dialog, {attributes:true, attributeFilter:['open']});
   }
 
   function install() {
