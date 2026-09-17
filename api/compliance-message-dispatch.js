@@ -3,7 +3,7 @@
 const tracking=require('../market-tracking-aftership.js');
 const json=(res,status,body)=>res.status(status).json(body);
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
-const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const PRODUCTION_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 const PRODUCTION_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
 const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
@@ -72,6 +72,12 @@ async function renderPublicListing(req,res){
   const listingId=String(req.query?.public_listing||'').trim();
   if(!UUID_RE.test(listingId))return res.status(400).send('Ungültige Angebots-ID');
   const config=databaseConfig();if(!config)return res.status(503).send('Öffentliche Vorschau derzeit nicht verfügbar');
+  if(config.environment==='production'){
+    res.setHeader('Content-Type','text/html; charset=utf-8');
+    res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');
+    res.setHeader('X-Content-Type-Options','nosniff');
+    return res.status(423).send('<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>DUELVANTA · TRADE</title><style>html{color-scheme:dark}body{margin:0;background:#07090d;color:#f2eee7;font:16px system-ui;min-height:100vh;display:grid;place-items:center;text-align:center}.box{max-width:680px;padding:32px}.tag{color:#c7a45d;letter-spacing:.18em;font-size:12px;font-weight:800}h1{font:400 clamp(42px,8vw,72px) Georgia,serif;margin:12px 0}p{color:#aeb4bf;line-height:1.6}</style></head><body><main class="box"><div class="tag">DUELVANTA · TRADE · BETA</div><h1>COMING SOON 2027</h1><p>Der Marktplatz wird noch vorbereitet. Öffentliche Angebote sind während der Beta noch nicht freigeschaltet.</p></main></body></html>');
+  }
   let listing;
   try{listing=await publicRpc(config.url,config.key,'get_public_market_listing_v1',{p_listing_id:listingId})}catch(error){console.warn('public listing read',error);return res.status(503).send('Öffentliche Vorschau derzeit nicht verfügbar')}
   if(!listing)return res.status(404).send('Angebot nicht verfügbar');
