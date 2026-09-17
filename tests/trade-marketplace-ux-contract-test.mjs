@@ -48,7 +48,7 @@ must(tradeOnlySql,"pricing_mode = 'negotiable'",'Database does not normalize tra
 must(tradeOnlySql,"coalesce(quantity_pricing,'[]'::jsonb) = '[]'::jsonb",'Database does not block quantity prices on trade-only listings');
 must(tradeOnlySql,'trade_only_listing_price_offer_forbidden','Money offers are not blocked server-side for trade-only listings');
 
-must(sealedSaleOnly,"select.replaceChildren(new Option('Verkauf', 'sale'))",'Sealed form still exposes trade listing types');
+must(sealedSaleOnly,"saleOption.value = 'sale'",'Sealed form still exposes trade listing types');
 must(sealedSaleOnly,"select.value = 'sale'",'Sealed listing type is not normalized to sale');
 must(sealedSaleOnly,'field.hidden = true','Sealed listing-type field is still visible');
 must(sealedSaleOnlySql,'market_listings_sealed_sale_only_ck','Database invariant for sealed sale-only listings is missing');
