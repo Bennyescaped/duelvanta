@@ -8,6 +8,8 @@ const checkout=await readFile(new URL('../trade-checkout.js',import.meta.url),'u
 const shippingOptions=await readFile(new URL('../trade-shipping-options.js',import.meta.url),'utf8');
 const listingRules=await readFile(new URL('../trade-listing-type-rules.js',import.meta.url),'utf8');
 const tradeOnlySql=await readFile(new URL('../database/b07-trade-only-no-money-v1.sql',import.meta.url),'utf8');
+const sealedSaleOnly=await readFile(new URL('../trade-sealed-sale-only.js',import.meta.url),'utf8');
+const sealedSaleOnlySql=await readFile(new URL('../database/b07-sealed-sale-only-v1.sql',import.meta.url),'utf8');
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 must(html,'trade-marketplace-ux.css?v=1.1','Marketplace UX stylesheet is not loaded');
@@ -16,6 +18,7 @@ must(html,'trade-checkout.js?v=1.1','Checkout cache version is stale');
 must(html,'trade-orders.js?v=1.5','Orders cache version is stale');
 must(html,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
 must(html,'trade-listing-type-rules.js?v=1.0','Trade-only listing money rules are not loaded');
+must(html,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
 for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND','TAUSCH'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
 for(const view of ['market','mine','offers','orders','deals','shipping_profiles','swaps'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
 must(ux,"app.dataset.tradeView = view",'Marketplace view state is not exposed to responsive CSS');
@@ -45,6 +48,12 @@ must(tradeOnlySql,"pricing_mode = 'negotiable'",'Database does not normalize tra
 must(tradeOnlySql,"coalesce(quantity_pricing,'[]'::jsonb) = '[]'::jsonb",'Database does not block quantity prices on trade-only listings');
 must(tradeOnlySql,'trade_only_listing_price_offer_forbidden','Money offers are not blocked server-side for trade-only listings');
 
+must(sealedSaleOnly,"select.replaceChildren(new Option('Verkauf', 'sale'))",'Sealed form still exposes trade listing types');
+must(sealedSaleOnly,"select.value = 'sale'",'Sealed listing type is not normalized to sale');
+must(sealedSaleOnly,'field.hidden = true','Sealed listing-type field is still visible');
+must(sealedSaleOnlySql,'market_listings_sealed_sale_only_ck','Database invariant for sealed sale-only listings is missing');
+must(sealedSaleOnlySql,"product_kind is distinct from 'sealed' or listing_type = 'sale'",'Database does not reject sealed trade listings');
+
 must(checkout,'id="dvBuyMinus"','Mobile quantity decrement is missing');
 must(checkout,'id="dvBuyPlus"','Mobile quantity increment is missing');
 must(checkout,'Zahlungspflichtig bestellen','Legally explicit checkout action is missing');
@@ -69,4 +78,4 @@ must(orders,"version:'1.5'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
-console.log('PASS: simplified Marketplace navigation, trade-only no-money invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
+console.log('PASS: simplified Marketplace navigation, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
