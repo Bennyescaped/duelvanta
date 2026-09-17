@@ -51,7 +51,9 @@ try{
   await run('tests/trade-ui-mock.js');
   for(const node of document.querySelectorAll('script[src]')){
     const path=node.getAttribute('src').split('?')[0];
-    if(path.startsWith('https:')||path.startsWith('/api/')||['i18n.js','site-nav.js'].includes(path))continue;
+    // trade-search-archive.js is MutationObserver-driven and is covered by the real Chromium E2E below.
+    // LinkeDOM's observer delivery can starve its synthetic event loop when that module filters nested cards.
+    if(path.startsWith('https:')||path.startsWith('/api/')||['i18n.js','site-nav.js','trade-search-archive.js'].includes(path))continue;
     await run(path);
   }
   await run('tests/trade-ui-selftest.js');
