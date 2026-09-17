@@ -19,7 +19,7 @@ const calls=[];
 const db={rpc:async(name,args)=>{
   calls.push({name,args});
   if(name==='get_my_trade_actions')return {data:[{action_key:'order:1',title:'ORDER',order_id:'order-1'},{action_key:'swap:1',title:'SWAP',action_type:'swap_confirm'}]};
-  if(name==='get_my_market_notifications')return {data:[{notification_id:'n1',title:'ORDER',context_type:'pickup_order',context_id:'order-1',is_unread:true},{notification_id:'n2',title:'SWAP',context_type:'pickup_swap',is_unread:true},{notification_id:'n3',title:'SWAP',kind:'swap_bound',is_unread:true}]};
+  if(name==='get_my_market_notifications')return {data:[{notification_id:'n1',title:'ORDER',context_type:'pickup_order',context_id:'order-1',order_id:'order-1',is_unread:true},{notification_id:'n2',title:'SWAP',context_type:'pickup_swap',is_unread:true},{notification_id:'n3',title:'SWAP',kind:'swap_bound',is_unread:true}]};
   if(name==='list_my_market_pickup_conversations_v1')return {data:[{context_type:'order',context_id:'order-1',other_party:{display_name:'Order person'}},{context_type:'swap',context_id:'swap-1',other_party:{display_name:'Swap person'}}]};
   if(name==='get_market_pickup_conversation_v1')return {data:{context_type:'order',messages:[],can_send:true}};
   return {data:[]};
@@ -42,4 +42,14 @@ assert.doesNotMatch(document.getElementById('grid').textContent,/Swap person|TAU
 const before=calls.length;await window.DV_PICKUP_MESSAGES.open('swap','swap-1');assert.equal(calls.length,before);
 await window.DV_PICKUP_MESSAGES.open('order','order-1');
 assert.equal(calls.at(-1).name,'get_market_pickup_conversation_v1');
+// Real pickup notifications also contain order_id: the chat target takes priority.
+let openedOrder=null;
+window.DV_TRADE_ORDERS={open:id=>{openedOrder=id}};
+document.querySelector('[data-dv-note="n1"]').click();
+await new Promise(r=>setTimeout(r,20));
+assert.equal(openedOrder,null);
+assert.equal(calls.at(-1).name,'get_market_pickup_conversation_v1');
+assert.equal(document.getElementById('dvNotifyBadge').textContent,'0');
+document.querySelector('[data-dv-action="order:1"]').click();
+assert.equal(openedOrder,'order-1');
 console.log('PASS: sale-only forms/runtime; no swap actions, notifications, archives or pickup entry; order chat retained');

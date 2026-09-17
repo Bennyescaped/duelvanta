@@ -74,9 +74,9 @@
   }
   function route(item){
     if(isSwap(item))return;
+    if(item?.context_type==='pickup_order')return openPickup('order',item.context_id);
     if(item?.order_id)return openOrder(item.order_id);
     if(item?.offer_id)return openOffer();
-    if(item?.context_type==='pickup_order')return openPickup('order',item.context_id);
     const key=String(item?.action_key||'');
   }
 
