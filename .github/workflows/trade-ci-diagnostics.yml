@@ -1,3 +1,4 @@
+# Temporary diagnostic workflow for isolating the long-running TRADE validation block.
 name: TRADE Diagnostic
 on:
   pull_request:
