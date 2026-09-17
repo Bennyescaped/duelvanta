@@ -157,9 +157,9 @@ must(swapProblemsUi,'Nicht erhalten','C2C untracked not-received guidance missin
 must(swapProblemsUi,'14 Tage','C2C 14-day UI guidance missing');
 must(swapProblemsUi,'7 Tage','C2C 7-day deadline UI guidance missing');
 assert.doesNotThrow(()=>new Function(swapProblemsUi),'C2C problem UI syntax invalid');
-must(html,'trade-c2c-swap.js?v=1.0','C2C module missing');
-assert.ok(html.indexOf('trade-c2c-swap.js?v=1.0')<html.indexOf('trade-v2.js?v=2.1'),'C2C decorator must load before legacy deal capture');
 must(mock,"name==='get_my_market_trade_eligibility'",'browser fixture must explicitly satisfy B07 eligibility');
 must(mock,"name==='get_my_market_swaps_v1'",'browser fixture must isolate C2C RPC');
 
 console.log('PASS: order resolution plus B07 Release-1 shipping, C2C problem deadlines, optional carrier automation and private C2C flow');
+
+assert.ok(!html.includes('trade-c2c-swap.js'),'retired C2C module must not load');

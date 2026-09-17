@@ -7,7 +7,7 @@
     orders:['TRADE · BESTELLUNGEN','Käufe und Verkäufe.','Produkte, Versand, Gesamtbetrag und der nächste Schritt an einem Ort.'],
     deals:['TRADE · BEWERTUNGEN','Abschlüsse und Bewertungen.','Abgeschlossene Handelsvorgänge prüfen und Handelspartner bewerten.'],
     shipping_profiles:['TRADE · VERSAND','Deine Versandregeln.','Tarife einmal festlegen und Combined Shipping sicher berechnen lassen.'],
-    swaps:['TRADE · TAUSCH','Karten direkt tauschen.','C2C-Tausch wird erst verbindlich, wenn beide Seiten exakt denselben finalen Stand bestätigen.']
+
   };
   let installed = false;
   const isMobile = () => typeof matchMedia === 'function' && matchMedia('(max-width:760px)').matches;
@@ -37,7 +37,6 @@
     if (active?.id === 'dvOrdersTab') return 'orders';
     if (active?.id === 'dvDealsTab') return 'deals';
     if (active?.id === 'dvShippingProfilesTab') return 'shipping_profiles';
-    if (active?.id === 'dvSwapsTab') return 'swaps';
     return active?.dataset.tab || (typeof tab !== 'undefined' ? tab : 'market');
   }
 
@@ -205,7 +204,7 @@
     if (installed) return true;
     const tabs = document.querySelector('.tabs'), hero = document.querySelector('.hero'), daily = document.getElementById('daily');
     const market = tabs?.querySelector('[data-tab="market"]'), mine = tabs?.querySelector('[data-tab="mine"]'), offers = tabs?.querySelector('[data-tab="offers"]');
-    const orders = document.getElementById('dvOrdersTab'), deals = document.getElementById('dvDealsTab'), shipping = document.getElementById('dvShippingProfilesTab'), swaps = document.getElementById('dvSwapsTab');
+    const orders = document.getElementById('dvOrdersTab'), deals = document.getElementById('dvDealsTab'), shipping = document.getElementById('dvShippingProfilesTab');
     const sell = document.getElementById('sell'), automation = document.getElementById('dvTradeAutomation');
     if (!tabs || !hero || !daily || !market || !mine || !offers || !orders || !deals || !shipping || !sell || !automation) return false;
     installed = true;
@@ -218,7 +217,6 @@
     orders.textContent = 'BESTELLUNGEN';
     deals.textContent = 'BEWERTUNGEN';
     shipping.textContent = 'VERSAND';
-    if (swaps) swaps.textContent = 'TAUSCH';
     sell.textContent = '+ VERKAUFEN';
 
     const primary = document.createElement('div');
@@ -230,7 +228,6 @@
     primary.append(market, orders, sell);
     const secondary = more.querySelector('.dvTradeSecondary');
     secondary.append(mine, offers);
-    if (swaps) secondary.append(swaps);
     secondary.append(deals, shipping);
 
     hero.after(tabs);
@@ -240,7 +237,6 @@
     simplifySingleForm();
     simplifySealedForm();
     syncView(tabs);
-    Promise.resolve(window.DV_C2C_SWAP?.refresh?.(false)).catch(error => console.warn('C2C marketplace sync failed',error));
 
     tabs.addEventListener('click', event => {
       if (!event.target.closest('.btn')) return;

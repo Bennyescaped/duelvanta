@@ -23,8 +23,6 @@ for(const rpc of ['get_my_market_notifications','get_my_trade_actions','mark_mar
 }
 must(notificationV2,'grant execute on function public.sync_my_trade_notifications_v2() to authenticated','v2 sync RPC grant missing');
 must(automation,"db.rpc('sync_my_trade_notifications_v2'",'v2 sync frontend wiring missing');
-must(automation,"db.rpc('get_my_market_swaps_v1'",'swap state wiring missing');
-must(automation,"db.rpc('get_my_market_swap_cases_v1'",'swap problem state wiring missing');
 for(const fn of ['emit_market_offer_notification','emit_market_purchase_notification','emit_market_order_status_notification','link_offer_notification_to_order']){
   const source=fn==='link_offer_notification_to_order'?hardening:migration;
   must(source,`revoke all on function public.${fn}`,'internal trigger function must not be client-callable');
@@ -35,11 +33,7 @@ assert.match(notificationV2,/create or replace function public\.sync_my_trade_no
 must(hardening,"set search_path = ''",'SECURITY DEFINER search_path hardening missing');
 must(automation,"if(item?.order_id)return openOrder(item.order_id)",'notification/action should prefer direct order routing');
 must(automation,"if(item?.offer_id)return openOffer()",'offer fallback routing missing');
-must(automation,"if(item?.context_type==='swap')return openSwap()",'swap notification routing missing');
-must(automation,"if(item?.context_type==='swap_case')return openSwapCase()",'swap problem notification routing missing');
 must(automation,"if(item?.context_type==='pickup_order')return openPickup('order',item.context_id)",'order pickup-chat routing missing');
-must(automation,"if(item?.context_type==='pickup_swap')return openPickup('swap',item.context_id)",'swap pickup-chat routing missing');
-for(const action of ['swap_confirm','swap_ship','swap_receive','swap_pickup_confirm','swap_problem_response'])must(automation,`action_type:'${action}'`,'swap action integration missing');
 assert.ok(!automation.includes('createClient('),'automation module must reuse the existing Supabase client');
 
-console.log('PASS: TRADE automation contract, legacy + C2C notification coverage, action routing and hardening');
+console.log('PASS: TRADE automation contract, historical notification coverage and sale-only UI, action routing and hardening');

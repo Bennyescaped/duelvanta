@@ -21,10 +21,9 @@ must(releaseGate,'trade-search-archive.js?v=1.1','Search/archive cache version i
 must(releaseGate,'trade-checkout.js?v=1.1','Checkout cache version is stale');
 must(releaseGate,'trade-orders.js?v=1.5','Orders cache version is stale');
 must(releaseGate,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
-must(releaseGate,'trade-listing-type-rules.js?v=1.0','Trade-only listing money rules are not loaded');
 must(releaseGate,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
-for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND','TAUSCH'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
-for(const view of ['market','mine','offers','orders','deals','shipping_profiles','swaps'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
+for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
+for(const view of ['market','mine','offers','orders','deals','shipping_profiles'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
 must(ux,"app.dataset.tradeView = view",'Marketplace view state is not exposed to responsive CSS');
 must(ux,"hero.after(tabs)",'Primary Marketplace navigation must precede secondary content');
 must(ux,"tabs.after(automation)",'Required actions must stay directly below primary navigation');
@@ -35,9 +34,6 @@ must(ux,'Name, Set, Nummer, Sprache, Zustand, Variante, Grading und Bild kommen 
 must(ux,"applyRecentShipping('single'",'Single shipping reuse is missing');
 must(ux,"applyRecentShipping('sealed'",'Sealed shipping reuse is missing');
 must(ux,"version:'1.2'",'Marketplace UX module version mismatch');
-must(ux,"swaps = document.getElementById('dvSwapsTab')",'C2C tab must be captured before mobile navigation rebuild');
-must(ux,'if (swaps) secondary.append(swaps)','C2C tab must survive mobile navigation rebuild');
-must(ux,'window.DV_C2C_SWAP?.refresh?.(false)','Marketplace rebuild must resynchronize C2C listing actions');
 assert.ok(!ux.includes('createClient('),'Marketplace UX must reuse the existing authenticated client');
 assert.ok(!ux.includes('db.rpc('),'Navigation and copy simplification must not mutate Marketplace data');
 
@@ -95,3 +91,5 @@ must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order c
 
 await import('./trade-release-gate-test.mjs');
 console.log('PASS: simplified Marketplace navigation, search/archive separation, release gate, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
+
+assert.ok(!releaseGate.includes('trade-listing-type-rules.js'),'retired money rules must stay unloaded');

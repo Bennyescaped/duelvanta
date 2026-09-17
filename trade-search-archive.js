@@ -60,7 +60,7 @@
     const copy = hero.querySelector('p');
     if (eyebrow) eyebrow.textContent = 'TRADE · ARCHIV';
     if (title) title.textContent = 'Abgeschlossene Vorgänge.';
-    if (copy) copy.textContent = 'Verkäufe, Käufe, Tauschvorgänge und beendete Angebote bleiben nachvollziehbar, ohne die aktiven Bereiche zu überladen.';
+    if (copy) copy.textContent = 'Verkäufe, Käufe und beendete Angebote bleiben nachvollziehbar, ohne die aktiven Bereiche zu überladen.';
   }
 
   function enhanceSearch() {
@@ -102,19 +102,17 @@
 
   async function loadArchive() {
     const offerPromise = db.from('market_offers')
-      .select('id,status,amount,message,created_at,updated_at,buyer_id,seller_id,market_listings(card_name,set_name,card_number)')
+      .select('id,status,offer_type,amount,message,created_at,updated_at,buyer_id,seller_id,market_listings(card_name,set_name,card_number)')
       .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
       .order('created_at', {ascending: false});
     const orderPromise = db.rpc('get_my_market_orders');
-    const swapPromise = db.rpc('get_my_market_swaps_v1');
-    const casePromise = db.rpc('get_my_market_swap_cases_v1');
-    const [offersResult, ordersResult, swapsResult, casesResult] = await Promise.all([offerPromise, orderPromise, swapPromise, casePromise]);
+    const [offersResult, ordersResult] = await Promise.all([offerPromise, orderPromise]);
 
     const rows = [...listingRows()];
 
     if (!offersResult.error) {
       for (const row of offersResult.data || []) {
-        if (row.status === 'pending') continue;
+        if (row.status === 'pending' || (row.offer_type && row.offer_type !== 'price')) continue;
         const card = row.market_listings || {};
         rows.push({
           type: 'offer', kind: 'PREISANGEBOT', status: row.status,
@@ -136,35 +134,6 @@
           at: row.completed_at || row.updated_at || row.created_at,
           orderId: row.order_id,
           search: [row.order_number, row.status, row.seller_name, row.buyer_name].join(' ')
-        });
-      }
-    }
-
-    if (!swapsResult.error) {
-      for (const row of swapsResult.data || []) {
-        if (!terminalSwapStatus(row.status)) continue;
-        const revision = row.current_revision || {};
-        const names = [...(revision.party_a_items || []), ...(revision.party_b_items || [])]
-          .map(item => item.card_name || item.item_title || 'Produkt').filter(Boolean);
-        rows.push({
-          type: 'swap', kind: 'TAUSCH', status: row.status,
-          title: names.slice(0, 2).join(' ↔ ') || 'C2C-Tausch',
-          meta: row.fulfillment_mode === 'pickup' ? 'Persönliche Abholung' : 'Versand',
-          at: row.completed_at || row.closed_at || row.binding_at || revision.created_at,
-          search: [names.join(' '), row.status, row.fulfillment_mode].join(' ')
-        });
-      }
-    }
-
-    if (!casesResult.error) {
-      for (const row of casesResult.data || []) {
-        if (row.status === 'open') continue;
-        rows.push({
-          type: 'case', kind: 'TAUSCH-PROBLEM', status: row.status,
-          title: row.reason || 'Problemfall',
-          meta: [row.category, row.response_note ? 'Antwort vorhanden' : null].filter(Boolean).join(' · '),
-          at: row.resolved_at || row.updated_at || row.created_at,
-          search: [row.reason, row.category, row.status, row.response_note].join(' ')
         });
       }
     }
@@ -214,9 +183,7 @@
         <button class="btn gold" type="button" data-archive-filter="all">ALLES</button>
         <button class="btn ghost" type="button" data-archive-filter="listing">INSERATE</button>
         <button class="btn ghost" type="button" data-archive-filter="order">KÄUFE / VERKÄUFE</button>
-        <button class="btn ghost" type="button" data-archive-filter="swap">TAUSCH</button>
         <button class="btn ghost" type="button" data-archive-filter="offer">PREISANGEBOTE</button>
-        <button class="btn ghost" type="button" data-archive-filter="case">PROBLEMFÄLLE</button>
       </div></div>
       <div class="dvArchiveGrid">${archiveRows.map(archiveCard).join('') || '<div class="dvArchiveEmpty">Noch keine archivierten Vorgänge.</div>'}<div id="dvArchiveFilterEmpty" class="dvArchiveHint" hidden>Keine passenden Archiveinträge.</div></div>`;
     document.getElementById('dvArchiveSearch')?.addEventListener('input', applyArchiveFilter);

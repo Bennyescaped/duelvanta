@@ -6,14 +6,12 @@
     'trade-b07-eligibility.js?v=1.1',
     'offers-fix.js?v=1.0',
     'seller-trust.js?v=2.0',
-    'trade-c2c-swap.js?v=1.0',
     'trade-v2.js?v=2.1',
     'trade-b07-reviews.js?v=1.0',
     'trade-payment-flow.js?v=1.0',
     'trade-shipping-address.js?v=1.1',
     'trade-shipping-options.js?v=1.2',
     'trade-sealed.js?v=1.2.0',
-    'trade-listing-type-rules.js?v=1.0',
     'trade-sealed-sale-only.js?v=1.0',
     'trade-orders.js?v=1.5',
     'trade-b07-order-lifecycle.js?v=1.0',
@@ -68,7 +66,7 @@
       const section=document.createElement('section');
       section.id='tradeReleaseLockScreen';
       section.className='trade-release-lock-screen';
-      section.innerHTML='<div class="trade-release-lock-badge">TRADE · BETA</div><h1>COMING SOON 2027</h1><p>Der DUELVANTA Marktplatz wird noch vorbereitet. Kaufen, Verkaufen und Tauschen sind während der Beta noch nicht für normale Nutzer freigeschaltet.</p><div class="trade-release-lock-note">COLLECT und BATTLE bleiben weiterhin verfügbar.</div>';
+      section.innerHTML='<div class="trade-release-lock-badge">TRADE · BETA</div><h1>COMING SOON 2027</h1><p>Der DUELVANTA Marktplatz wird noch vorbereitet. Kaufen und Verkaufen sind während der Beta noch nicht für normale Nutzer freigeschaltet.</p><div class="trade-release-lock-note">COLLECT und BATTLE bleiben weiterhin verfügbar.</div>';
       app.appendChild(section);
     }
     const logout=document.getElementById('logout');

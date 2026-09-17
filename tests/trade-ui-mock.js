@@ -2,7 +2,7 @@
 (() => {
   const stamp='2026-09-09T10:00:00Z';
   const base={seller_id:'ui-seller',seller_display_name:'Local seller',tcg:'pokemon',card_name:'Display UI-Prüfung',language:'Deutsch',status:'active',listing_type:'sale',asking_price:240,shipping_method:'parcel',shipping_cost:6.99,product_kind:'sealed',sealed_category:'display',sealed_condition:'factory_sealed',stock_quantity:10,quantity_available:10,minimum_purchase_quantity:1,quantity_pricing:[{min_quantity:3,unit_price:220},{min_quantity:5,unit_price:215}],package_contents:'24 Booster je Display',updated_at:stamp,active_until:'2026-12-09T10:00:00Z'};
-  const rows=[{...base,id:'ui-fixed',pricing_mode:'fixed'},{...base,id:'ui-vb',card_name:'Verhandlungsangebot UI',pricing_mode:'negotiable'}];
+  const rows=[{...base,id:'ui-fixed',pricing_mode:'fixed'},{...base,id:'ui-vb',card_name:'Verhandlungsangebot UI',pricing_mode:'negotiable'},{...base,id:'ui-retired-swap',listing_type:'trade',asking_price:null,card_name:'Retired swap fixture'}];
   const order={order_id:'ui-order',order_number:'UI-LOCAL-ONLY',seller_id:'ui-seller',buyer_id:'ui-buyer',seller_name:'Local seller',buyer_name:'Local buyer',fulfillment_group:'shipping',status:'open',has_address:false,shipping_method:'parcel',shipping_quote_status:'review_required',item_count:1,subtotal:660,separate_shipping_sum:6.99,shipping_cost:6.99,total_amount:666.99,shipping_savings:0,payment_provider:'manual_beta',payment_status:'not_required',paid_amount:0};
   const notifications=[{notification_id:'ui-note-offer',kind:'offer_accepted',title:'ANGEBOT ANGENOMMEN',body:'3 × Display UI-Prüfung · 600,00 €',order_id:'ui-order',offer_id:'ui-offer',listing_id:'ui-vb',is_unread:true,read_at:null,created_at:stamp}];
   const calls=[];let failNext=true, purchases=0;

@@ -64,7 +64,7 @@ async function publicListingImage(base,serviceKey,listingId){
 
 function listingDescription(listing){
   const parts=[listing.tcg==='pokemon'?'Pokémon':listing.tcg==='one_piece'?'One Piece':listing.tcg,listing.set_name,listing.card_number,listing.language].filter(Boolean);
-  const price=listing.asking_price!=null?`${Number(listing.asking_price).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} €`:'Tausch';
+  const price=listing.asking_price!=null?`${Number(listing.asking_price).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} €`:'Preis auf Anfrage';
   return `${parts.join(' · ')}${parts.length?' · ':''}${price} auf DUELVANTA`;
 }
 
@@ -80,13 +80,13 @@ async function renderPublicListing(req,res){
   }
   let listing;
   try{listing=await publicRpc(config.url,config.key,'get_public_market_listing_v1',{p_listing_id:listingId})}catch(error){console.warn('public listing read',error);return res.status(503).send('Öffentliche Vorschau derzeit nicht verfügbar')}
-  if(!listing)return res.status(404).send('Angebot nicht verfügbar');
+  if(!listing||listing.listing_type==='trade')return res.status(404).send('Angebot nicht verfügbar');
   const origin=requestOrigin(req),canonical=`${origin}/listing/${listingId}`;
   let image=`${origin}/v-logo.svg`;
   try{image=await publicListingImage(config.url,process.env.SUPABASE_SERVICE_ROLE_KEY,listingId)||image}catch(error){console.warn('public listing image',error)}
   const title=`${listing.card_name||'TCG-Angebot'} · DUELVANTA`,description=listingDescription(listing);
   const priceMeta=listing.asking_price!=null?`<meta property="product:price:amount" content="${escapeHtml(Number(listing.asking_price).toFixed(2))}"><meta property="product:price:currency" content="EUR">`:'';
-  const bodyPrice=listing.asking_price!=null?`${Number(listing.asking_price).toLocaleString('de-DE',{style:'currency',currency:'EUR'})}`:'TAUSCH';
+  const bodyPrice=listing.asking_price!=null?`${Number(listing.asking_price).toLocaleString('de-DE',{style:'currency',currency:'EUR'})}`:'Preis auf Anfrage';
   const details=[listing.set_name,listing.card_number,listing.language,listing.condition,listing.grading_company&&listing.grade!=null?`${listing.grading_company} ${listing.grade}`:null].filter(Boolean).map(escapeHtml).join(' · ');
   const html=`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>${escapeHtml(title)}</title><link rel="canonical" href="${escapeHtml(canonical)}"><meta name="description" content="${escapeHtml(description)}"><meta property="og:type" content="product"><meta property="og:site_name" content="DUELVANTA"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${escapeHtml(canonical)}"><meta property="og:image" content="${escapeHtml(image)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escapeHtml(title)}"><meta name="twitter:description" content="${escapeHtml(description)}"><meta name="twitter:image" content="${escapeHtml(image)}">${priceMeta}<style>html{color-scheme:dark}body{margin:0;background:#07090d;color:#f2eee7;font:16px system-ui;min-height:100vh;display:grid;place-items:center}.card{width:min(520px,calc(100vw - 32px));border:1px solid #343943;border-radius:20px;background:#0e1218;overflow:hidden}.media{aspect-ratio:4/3;background:#090c11;display:grid;place-items:center}.media img{width:100%;height:100%;object-fit:contain}.body{padding:22px}.brand{font-size:11px;letter-spacing:.18em;color:#c7a45d}.body h1{font:400 30px Georgia,serif;margin:8px 0}.meta{color:#9ea6b0;line-height:1.6}.price{font:400 28px Georgia,serif;margin:18px 0;color:#efd18c}.cta{display:block;text-align:center;padding:13px;border-radius:10px;background:#c7a45d;color:#111;text-decoration:none;font-weight:800}</style></head><body><main class="card"><div class="media"><img src="${escapeHtml(image)}" alt="${escapeHtml(listing.card_name||'TCG-Angebot')}"></div><div class="body"><div class="brand">DUELVANTA · TRADE</div><h1>${escapeHtml(listing.card_name||'TCG-Angebot')}</h1><div class="meta">${details||'Trading Card Game'}</div><div class="price">${escapeHtml(bodyPrice)}</div><a class="cta" href="/trade.html">AUF DUELVANTA ANSEHEN</a></div></main></body></html>`;
   res.setHeader('Content-Type','text/html; charset=utf-8');

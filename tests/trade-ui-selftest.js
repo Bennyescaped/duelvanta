@@ -7,6 +7,9 @@
   const amountInput=value=>{const q=document.getElementById('dvBuyQty');q.value=value;q.dispatchEvent(new Event('input',{bubbles:true}))};
   try{
     await wait(()=>window.DV_TRADE_CHECKOUT&&window.DV_TRADE_AUTOMATION&&window.DV_TRADE_MARKETPLACE_UX&&document.querySelector('[data-offer="ui-fixed"]'));
+    assert(!document.querySelector('[data-swap-propose],#dvSwapsTab,#dvSwapProblemsTab'),'Keine Tausch-CTAs oder Tausch-Tabs');
+    assert(!document.getElementById('grid').textContent.includes('Retired swap fixture'),'Historische Nur-Tausch-Inserate bleiben ausgeblendet');
+    assert([...document.querySelectorAll('#listingType option,#dvSListingType option')].every(o=>o.value==='sale'),'Single, Graded und Sealed bieten ausschließlich Verkauf');
     assert(!!document.querySelector('.dvTradePrimary [data-tab="market"]')&&!!document.querySelector('.dvTradePrimary #dvOrdersTab')&&!!document.querySelector('.dvTradePrimary #sell'),'Hauptnavigation zeigt Markt, Bestellungen und Verkaufen');
     assert(document.querySelector('[data-tab="mine"]').textContent==='MEINE INSERATE'&&document.getElementById('dvDealsTab').textContent==='BEWERTUNGEN','Nebenbereiche sind eindeutig benannt');
     assert(document.querySelector('.hero h1').textContent.includes('direkt handeln'),'Startansicht erklärt den direkten Handelsweg');

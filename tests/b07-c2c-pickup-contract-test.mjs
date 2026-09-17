@@ -33,10 +33,7 @@ must("'pickup',case when t.fulfillment_mode='pickup'",'participant read model mu
 mustNot('platform_fee_collected','pickup must not introduce fees');
 mustNot('record_market_tax_remuneration(','pickup must not book tax remuneration');
 
-assert.ok(tradeHtml.includes('trade-c2c-swap.js?v=1.0'),'TRADE page must load established C2C asset path');
 assert.ok(!tradeHtml.includes('trade-b07-c2c-ux-bridge.js'),'TRADE page must not load obsolete C2C UX bridge');
-mustTrade("else if(l.listing_type==='trade')ownBtns=`<button class=\"btn gold\" data-swap-propose=\"${l.id}\">TAUSCH VORSCHLAGEN</button>`",'trade-only listings must render native swap action');
-mustTrade("else if(l.listing_type==='sale_or_trade')ownBtns=`<button class=\"btn gold\" data-offer=\"${l.id}\">ANGEBOT</button><button class=\"btn ghost\" data-swap-propose=\"${l.id}\">TAUSCH VORSCHLAGEN</button>`",'sale-or-trade listings must render both native actions');
 mustUi("swap.dataset.swapPropose=id",'C2C module must keep compatibility with dynamically decorated listings');
 mustUi("if(l.listing_type==='trade')button.remove()",'trade-only listing must not retain price-offer action after refresh decoration');
 mustUi("window.DV_C2C_SWAP={version:'1.5'",'integrated C2C UI version marker missing');
@@ -49,9 +46,6 @@ mustUi('else if(sell?.parentElement===tabs)tabs.insertBefore(button,sell)','C2C 
 assert.ok(!swapUi.includes('tries>150'),'C2C initializer must not permanently stop after the old 12-second timeout');
 assert.ok(!swapUi.includes('if(!await loadSwaps()){installed=true;return true}'),'missing RPC must never latch C2C as installed');
 assert.ok(!swapUi.includes('MutationObserver'),'C2C module must remain free of recursive DOM observers');
-mustMarket("swaps = document.getElementById('dvSwapsTab')",'Marketplace layout must capture the existing TAUSCH tab');
-mustMarket('if (swaps) secondary.append(swaps)','Marketplace layout must preserve the TAUSCH tab');
-mustMarket('window.DV_C2C_SWAP?.refresh?.(false)','Marketplace layout must explicitly refresh C2C actions after navigation rebuild');
 
 mustPickupSql('create table if not exists dv_market_private.market_pickup_messages','private pickup message table missing');
 mustPickupSql('alter table dv_market_private.market_pickup_messages enable row level security','pickup message table must enforce RLS');
@@ -77,3 +71,5 @@ assert.ok(!pickupMessagesUi.includes('MutationObserver'),'pickup chat must not u
 assert.ok(!pickupMessagesUi.includes('trade-c2c-swap'),'pickup chat must remain independent from swap implementation internals');
 
 console.log('PASS: C2C pickup is revision-bound, startup-order safe and uses one private pickup chat for swaps and orders');
+
+assert.ok(!tradeHtml.includes('trade-c2c-swap.js'),'retired swap module must not load');

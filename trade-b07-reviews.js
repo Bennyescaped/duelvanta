@@ -15,7 +15,7 @@
         if(/Could not find the function|schema cache|permission denied/i.test(error.message||'')){available=false;return}
         throw error;
       }
-      available=true;states=Array.isArray(data)?data:[];
+      available=true;states=Array.isArray(data)?data.filter(s=>s.transaction_kind!=='swap'):[];
     }catch(error){console.warn('B07 reviews',error)}finally{busy=false;decorate()}
   }
 

@@ -142,6 +142,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-fulfillment.sql
           psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-problems.sql
           psql -v ON_ERROR_STOP=1 -f tests/b07-c2c-postgres-regression.sql
+          psql -v ON_ERROR_STOP=1 -f tests/trade-sale-only-database.sql
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -254,6 +255,8 @@ jobs:
           node --check profile-data-rights.js
           node tests/runtime-routing-contract-test.mjs
           node tests/account-home-battle-live-test.mjs
+          node tests/trade-sale-only-test.mjs
+          node tests/trade-release-gate-test.mjs
           node tests/trade-automation-contract-test.mjs
           node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs

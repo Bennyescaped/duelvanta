@@ -5,7 +5,7 @@
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const publicUrl=id=>`${location.origin}/listing/${encodeURIComponent(id)}`;
   const listingById=id=>typeof listings==='undefined'?null:listings.find(x=>x.id===id)||null;
-  const price=l=>l.asking_price!=null?new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(l.asking_price)):'TAUSCH';
+  const price=l=>l.asking_price!=null?new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(l.asking_price)):'Preis auf Anfrage';
   const title=l=>`${l.card_name||'TCG-Angebot'} · DUELVANTA`;
   const text=l=>[l.tcg==='pokemon'?'Pokémon':l.tcg==='one_piece'?'One Piece':l.tcg,l.set_name,l.card_number,l.language,price(l)].filter(Boolean).join(' · ');
 
