@@ -3,7 +3,7 @@
   'use strict';
 
   function fixCard(card) {
-    if (!(card instanceof Element) || !card.matches('.dvOrderCard')) return;
+    if (!card?.matches?.('.dvOrderCard')) return;
 
     const eyebrow = card.querySelector('.eyebrow')?.textContent || '';
     if (eyebrow.includes('DU VERKAUFST')) {
@@ -48,7 +48,7 @@
     });
     observer.observe(root, { childList: true, subtree: true });
     fixAll();
-    window.DV_B07_PICKUP_UI_FIX = { version: '2.1', refresh: fixAll };
+    window.DV_B07_PICKUP_UI_FIX = { version: '2.2', refresh: fixAll };
     return true;
   }
 
