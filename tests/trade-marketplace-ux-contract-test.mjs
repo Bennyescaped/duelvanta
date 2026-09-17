@@ -35,7 +35,7 @@ assert.ok(!ux.includes('createClient('),'Marketplace UX must reuse the existing 
 assert.ok(!ux.includes('db.rpc('),'Navigation and copy simplification must not mutate Marketplace data');
 
 must(listingRules,"type.value === 'trade'",'Trade-only mode is not detected');
-must(listingRules,"asking.value = ''",'Single/graded trade-only price is not cleared');
+must(listingRules,'stashAndClear(asking)','Single/graded trade-only price is not cleared');
 must(listingRules,"pricing.value = 'negotiable'",'Trade-only pricing mode is not normalized');
 must(listingRules,"['dvSTier1Qty','dvSTier1Price','dvSTier2Qty','dvSTier2Price']",'Sealed trade-only quantity prices are not cleared');
 must(listingRules,'Nur Tausch: Es wird kein Geldbetrag vereinbart.','Trade-only no-money rule is not explained in the UI');
