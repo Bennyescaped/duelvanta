@@ -312,7 +312,7 @@
   function queueActiveFilter() {
     if (filterQueued) return;
     filterQueued = true;
-    queueMicrotask(applyActiveFilters);
+    Promise.resolve().then(applyActiveFilters);
   }
 
   function install() {
