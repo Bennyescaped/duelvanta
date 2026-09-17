@@ -18,4 +18,5 @@ assert.doesNotMatch(pickupRights,/'pickup_messages'[\s\S]{0,300}retain_until\s*\
 assert.match(html,/MEINE DATEN EXPORTIEREN/);assert.match(html,/KONTO LÖSCHEN/);
 assert.match(ui,/crypto\.randomUUID/);assert.match(ui,/signOut\(\{scope:'global'\}\)/);assert.match(worker,/ACCOUNT_DATA_ERASURE_ENABLED/);
 assert.match(worker,/storage\/v1\/object/);assert.match(worker,/auth\/v1\/admin\/users/);assert.match(workflow,/account-data-rights-database-test/);
-console.log('PASS: data-rights UI, pickup-message export/hold boundary, private RPC boundaries, disabled worker and CI wiring are present');
+await import('./account-data-rights-pickup-messages-database-test.mjs');
+console.log('PASS: data-rights UI, pickup-message export/hold runtime boundary, private RPC boundaries, disabled worker and CI wiring are present');
