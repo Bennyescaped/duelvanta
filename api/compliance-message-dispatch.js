@@ -3,7 +3,7 @@
 const tracking=require('../market-tracking-aftership.js');
 const json=(res,status,body)=>res.status(status).json(body);
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
-const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PRODUCTION_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 const PRODUCTION_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
 const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
