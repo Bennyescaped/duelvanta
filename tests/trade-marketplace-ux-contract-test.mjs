@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
+const releaseGate=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
 const ux=await readFile(new URL('../trade-marketplace-ux.js',import.meta.url),'utf8');
 const archive=await readFile(new URL('../trade-search-archive.js',import.meta.url),'utf8');
 const css=await readFile(new URL('../trade-marketplace-ux.css',import.meta.url),'utf8');
@@ -14,13 +15,14 @@ const sealedSaleOnlySql=await readFile(new URL('../database/b07-sealed-sale-only
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 must(html,'trade-marketplace-ux.css?v=1.1','Marketplace UX stylesheet is not loaded');
-must(html,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not loaded');
-must(html,'trade-search-archive.js?v=1.1','Search/archive cache version is stale');
-must(html,'trade-checkout.js?v=1.1','Checkout cache version is stale');
-must(html,'trade-orders.js?v=1.5','Orders cache version is stale');
-must(html,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
-must(html,'trade-listing-type-rules.js?v=1.0','Trade-only listing money rules are not loaded');
-must(html,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
+must(html,'trade-release-gate.js?v=1.0','TRADE release gate is not loaded');
+must(releaseGate,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not routed through the release gate');
+must(releaseGate,'trade-search-archive.js?v=1.1','Search/archive cache version is stale');
+must(releaseGate,'trade-checkout.js?v=1.1','Checkout cache version is stale');
+must(releaseGate,'trade-orders.js?v=1.5','Orders cache version is stale');
+must(releaseGate,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
+must(releaseGate,'trade-listing-type-rules.js?v=1.0','Trade-only listing money rules are not loaded');
+must(releaseGate,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
 for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND','TAUSCH'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
 for(const view of ['market','mine','offers','orders','deals','shipping_profiles','swaps'])must(ux,`${view}:`,'Missing contextual Marketplace view '+view);
 must(ux,"app.dataset.tradeView = view",'Marketplace view state is not exposed to responsive CSS');
@@ -91,4 +93,5 @@ must(orders,"version:'1.5'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
-console.log('PASS: simplified Marketplace navigation, search/archive separation, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
+await import('./trade-release-gate-test.mjs');
+console.log('PASS: simplified Marketplace navigation, search/archive separation, release gate, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls');
