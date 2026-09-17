@@ -256,15 +256,22 @@
     const grid = document.getElementById('grid');
     if (!grid || view === 'archive') return;
     const id = 'dvActiveArchiveHint';
-    document.getElementById(id)?.remove();
-    if (visible > 0) return;
+    const hint = document.getElementById(id);
+    if (visible > 0) {
+      hint?.remove();
+      return;
+    }
     const existingEmpty = [...grid.children].some(node => node.classList?.contains('empty') && !node.hidden);
-    if (existingEmpty) return;
-    const hint = document.createElement('div');
-    hint.id = id;
-    hint.className = 'dvArchiveHint';
-    hint.textContent = 'Keine aktiven Vorgänge. Abgeschlossene Einträge findest du im Archiv.';
-    grid.appendChild(hint);
+    if (existingEmpty) {
+      hint?.remove();
+      return;
+    }
+    if (hint) return;
+    const next = document.createElement('div');
+    next.id = id;
+    next.className = 'dvArchiveHint';
+    next.textContent = 'Keine aktiven Vorgänge. Abgeschlossene Einträge findest du im Archiv.';
+    grid.appendChild(next);
   }
 
   function applyActiveFilters() {
