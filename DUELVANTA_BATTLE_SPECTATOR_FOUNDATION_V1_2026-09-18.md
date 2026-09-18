@@ -2,7 +2,7 @@
 
 Stand: 18.09.2026. Post-V27-Delta, kein Produktionsrelease.
 
-**Status: implementiert, relevante CI grün, auf Staging angewandt und dort per RPC/Rollentest nachgeprüft. Die angemeldete praktische Drei-Rollen-/Geräteabnahme ist OFFEN. Spectator Media V1 und SFU werden noch nicht geplant oder umgesetzt.**
+**Status: vollständig praktisch abgenommen. Implementierung, Staging-Rollentests, relevante CI sowie die öffentlichen und privaten Zuschauerpfade sind bestätigt. Spectator Media V1 und SFU bleiben ein zukünftiger Arbeitsschritt und wurden nicht begonnen.**
 
 ## 1. Grundlage und unveränderte Grenzen
 
@@ -134,22 +134,45 @@ Commitgebundene Seite: https://duelvantav5vision-g7hs7vax5-bennyescaped-3783.ver
 
 Fortlaufender Branch-Alias: https://duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app/battle-spectator.html . Für eine Abnahme zuerst dessen tatsächlichen Deployment-Head gegenprüfen. Geschützte Previews benötigen Vercel-Zugang bzw. einen frisch erzeugten temporären Share-Link; Share-Schlüssel gehören nicht ins Repository.
 
-Realer, ausschließlich ausgeloggter Browsercheck über TinyFish-Run `0bde9481-74f7-4346-94c2-31bbcf586272` erfolgreich: korrekte Foundation-Seite, abgeschlossene Anmeldeaufforderung, sichtbarer Login, versteckte Zuschauer-Lobby/Matchansicht, keine Video-/Audioelemente oder sichtbaren Spiel-/Moderationscontrols, keine gemeldeten JavaScriptfehler, kein beobachteter horizontaler Überlauf um 390 Pixel. Keine Anmeldung oder Matchänderung durchgeführt. Dieser Check ersetzt keine praktische Drei-Rollen-Abnahme.
+Realer, ausschließlich ausgeloggter Browsercheck über TinyFish-Run `0bde9481-74f7-4346-94c2-31bbcf586272` erfolgreich: korrekte Foundation-Seite, abgeschlossene Anmeldeaufforderung, sichtbarer Login, versteckte Zuschauer-Lobby/Matchansicht, keine Video-/Audioelemente oder sichtbaren Spiel-/Moderationscontrols, keine gemeldeten JavaScriptfehler, kein beobachteter horizontaler Überlauf um 390 Pixel. Keine Anmeldung oder Matchänderung durchgeführt. Dieser Check ersetzt keine praktische Drei-Rol## 6. Praktische Abnahme — abgeschlossen
 
-## 6. Offene praktische Abnahme — nächster verbindlicher Schritt
+Abnahme am 18.09.2026 auf dem Preview des Branches `marketplace-ux-v1` mit Host `test-verkaeufer@duelvanta.de`, Gast `test-kaeufer@duelvanta.de` und `test-judge@duelvanta.de` ausdrücklich als normalem Zuschauer über **„ZUSCHAUEN · OHNE VIDEO“**. Technischer Abnahme-Head: `7ee367213eb0c92838162d1a5b82dc5757eca93e`. Deployment `dpl_EisYqSqpLYCZyGvF7LZeHQotasDw`: READY und demselben Git-SHA zugeordnet.
 
-Rollen auf demselben Preview-Ursprung in getrennten Browserprofilen/Geräten: Host `test-verkaeufer@duelvanta.de`, Gast `test-kaeufer@duelvanta.de`, Zuschauer `test-judge@duelvanta.de`. Der dritte Account tritt ausdrücklich über die Zuschaueransicht bei, nicht als Judge. Keine neuen Passwörter vorgeben oder bestehende zurücksetzen. Casual-Matches verwenden, damit keine Ranked-Testwertung entsteht.
+| Praktischer Pfad | Ergebnis |
+| --- | --- |
+| Öffentliches Casual-Match | PASS: Host und Gast blieben die einzigen Spieler. Der dritte Account erhielt eine eigene read-only Zuschaueransicht; Zähler 1. Keine Ready-, Start-, Ergebnis- oder Moderationssteuerung, keine Kamera-/Mikrofonanforderung und kein Zuschauer-WebRTC. |
+| Presence / Mehrfach-Tab | PASS: Zwei Ansichten desselben Zuschaueraccounts wurden weiterhin als 1 Zuschauer gezählt. Nach Schließen einer Ansicht blieb der Zähler 1; nach regulärem Verlassen der letzten Ansicht fiel er auf 0. Der bereits automatisiert geprüfte Lease-Ablauf wurde nicht künstlich erneut abgewartet. |
+| Privates Casual-Match | PASS: Spieler-Code `A25484` trat ausschließlich über den Spielerpfad als Gast `testKaeufer` bei, wurde im Zuschauerformular abgewiesen und das private Match erschien nicht in der öffentlichen Liste. Der getrennte `SP-`-Zuschauerlink gewährte ausschließlich read-only Zuschauerzugriff; Host und Gast blieben unverändert. |
+| Rotation und Widerruf | PASS: Ersetzung machte den alten Zuschauerzugang beim nächsten Abgleich ungültig; der neue Link funktionierte und zeigte wieder Zähler 1. Der endgültige Widerruf schloss die offene Ansicht, setzte den Zähler auf 0 und ließ Gast sowie Spieler-Code unberührt. |
+| Rollen und Rechte | PASS: Die Zuschaueroberfläche bot weder Spieler- noch Moderationsaktionen. Der Judge-Testaccount wurde ausschließlich als Zuschauer verwendet. Die praktische Rollenabweisung und der bereits vollständig grüne tatsächliche Staging-RPC-Rollentest bestätigen, dass Spieler/Judge nicht gleichzeitig Zuschauer desselben Matches sein können und Moderation erst nach Verlassen des Spectator-Modus möglich ist. Der bestehende Judge-Pfad wurde nicht verändert. |
 
-| Schritt | Erwartung | Status |
-| --- | --- | --- |
-| Öffentliches Casual-Match, zwei Spieler und dritter Nutzer über ZUSCHAUEN | Beide Spielerplätze unverändert; reine Statusansicht; Zähler 1; keine Kamera-/Mikrofonabfrage beim Zuschauer | OFFEN |
-| Zusätzlicher Zuschauer-Tab desselben Kontos; einen Tab verlassen | Zähler bleibt 1, solange eine bestätigte Ansicht vorhanden ist | OFFEN |
-| Alle Zuschaueransichten verlassen bzw. Verbindung hart unterbrechen | Bei normalem Leave nächster Zählerabgleich 0; bei Abbruch nach höchstens 75 Sekunden seit letzter Bestätigung plus Anzeige-Abgleich 0 | OFFEN |
-| Privates Casual-Match: ohne Zuschauerrecht / nur mit Spieler-Code | Zuschauerzutritt abgewiesen; privates Match fehlt in öffentlicher Zuschauerliste | OFFEN |
-| Host erstellt eigenen Zuschauerlink; dritter Nutzer öffnet ihn | Zutritt nur als Zuschauer; Spieler-Code und Plätze unverändert | OFFEN |
-| Host ersetzt bzw. widerruft Zuschauerlink | Alter Code/Grant sofort serverseitig ungültig; offene Ansicht wird beim nächsten Abgleich geschlossen; neuer Link nur nach Ersetzung nutzbar | OFFEN |
-| Spieler führen Ready, Start, Kamera-Neustart und Ergebnis aus, während dritter Nutzer zuschaut | Bestehender Zwei-Spieler-P2P-Pfad funktioniert; Zuschauer hat keine entsprechenden Controls/Rechte; korrekter terminaler Status | OFFEN |
+Der vorhandene Zwei-Spieler-P2P-WebRTC-Pfad wurde wegen nur einer verfügbaren physischen Kamera nicht unnötig erneut als Zweigerätetest wiederholt. Seine zuvor bestätigte praktische Abnahme, die geschützten unveränderten Blob-Hashes und die erneut grüne WebRTC-Regression bleiben maßgeblich. Während der Spectator-Abnahme trat kein konkreter P2P-, Kamera- oder Signalregressionsbefund auf.
 
-Jeden Schritt mit konkretem Screenshot-/Browserbefund und erforderlichenfalls read-only Staging-Abgleich festhalten. Neue Befunde reproduzieren, minimal beheben, Regression ergänzen, vollständige relevante CI abwarten und denselben Preview-/Staging-Schritt wiederholen.
+### Konkreter Befund und minimaler Fix
 
-**Bis diese praktische Foundation-Abnahme vollständig bestätigt und dokumentiert ist: keine Freigabe als vollständig abgenommen, keine SFU-/Media-V1-Planung, kein Merge und kein Produktionsrelease.**
+Beim absichtlichen Eingeben des Spieler-Codes in das private Zuschauerformular wurde der Zugriff serverseitig korrekt verweigert, die Rückmeldung erschien mobil jedoch außerhalb des sichtbaren Bereichs. Minimaler Fix ohne Änderung an Berechtigungen, Datenbank oder WebRTC:
+
+- `battle-spectator.html`: Inline-Status direkt unter dem Codeformular.
+- `battle-spectator.js`: sichtbare Fehlermeldung, `aria-invalid` und Zurücksetzen bei neuer Eingabe.
+- `tests/battle-spectator-browser-test.mjs`: Regression für sichtbare Ablehnung ohne Join-RPC.
+- Fixcommit: `7ee367213eb0c92838162d1a5b82dc5757eca93e`.
+- Praktischer Retest: Spieler-Code `A25484` wurde sichtbar inline mit „Kein Zuschauerzugang“ abgewiesen; der getrennte Zuschauerlink funktionierte anschließend weiterhin.
+
+Relevante CI zu diesem technischen Head:
+
+- Battle WebRTC Check #38, Run [35379643555](https://github.com/Bennyescaped/duelvanta/actions/runs/35379643555): `battle_webrtc` und `spectator_database` SUCCESS.
+- Scanner V16 Check #562, Run [35379643506](https://github.com/Bennyescaped/duelvanta/actions/runs/35379643506): `validate` und `quota_database` SUCCESS.
+
+## 7. Abschlussentscheidung und Grenzen
+
+**Spectator Foundation V1 ist praktisch abgenommen.** Öffentliche und private Zuschauerpfade, Presence-Deduplizierung, separate private Berechtigungen, Rotation, Widerruf und read-only Rollenbegrenzung sind bestätigt.
+
+- `main` blieb bei `50f88213571be13255bb52eb489cc28cca660001`.
+- Produktion und Production-Supabase `enifiaqsnqtbzylnfrpi` blieben unverändert.
+- Staging `xhmjxrcskfhbovhitdej` wurde nicht blind erneut migriert.
+- PR #5 bleibt offen, Draft und unmerged.
+- TRADE, Tausch, Stripe Live, echte Payments, Refunds und Payouts wurden nicht angefasst.
+- `v-logo.svg` und der Slogan **COLLECT. TRADE. BATTLE.** blieben unverändert.
+- Dieser Abschlusscommit ändert ausschließlich dieses Dokument; sein tatsächlicher SHA ist anschließend als finaler Branch-Head zu erfassen.
+
+**Nächster zukünftiger Arbeitsschritt: Spectator Media V1 / mögliche SFU-Entscheidung. Nicht Bestandteil dieses Work-Laufs und nicht begonnen.**
