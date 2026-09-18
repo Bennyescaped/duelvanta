@@ -85,13 +85,13 @@ async function snapshot(page){return page.evaluate(async()=>{
   activePeers:window.__peers.filter(peer=>peer.connectionState!=='closed').length};
 })}
 async function waitForMedia(page,label){
- await page.waitForFunction(async()=>{
-  const peer=window.__peers.at(-1);if(!peer||peer.connectionState!=='connected')return false;
-  const kinds=peer.getSenders().filter(sender=>sender.track?.readyState==='live').map(sender=>sender.track.kind);
-  const inbound=[...(await peer.getStats()).values()].filter(row=>row.type==='inbound-rtp'&&!row.isRemote);
-  return kinds.includes('audio')&&kinds.includes('video')&&inbound.some(row=>row.kind==='video'&&row.framesDecoded>0)&&inbound.some(row=>row.kind==='audio'&&row.bytesReceived>0)&&document.getElementById('opponentVideo').videoWidth>0;
- },null,{timeout:15000});
- const state=await snapshot(page);assert.equal(state.activePeers,1,`${label}: only one active peer`);checks.push({label,...state});
+ // Poll the awaited stats snapshot from Node: an async waitForFunction predicate
+ // can be truthy before its Promise resolves in the pinned Playwright runtime.
+ const hasMedia=state=>state.state==='connected'&&state.frames>0&&state.audioBytes>0&&state.videoWidth>0&&['audio','video'].every(kind=>state.senders.some(sender=>sender?.kind===kind&&sender.state==='live'));
+ let state;const deadline=Date.now()+15000;
+ do{state=await snapshot(page);if(hasMedia(state))break;await new Promise(resolve=>setTimeout(resolve,100))}while(Date.now()<deadline);
+ assert.ok(hasMedia(state),`${label}: expected real bilateral media, received ${JSON.stringify(state)}`);
+ assert.equal(state.activePeers,1,`${label}: only one active peer`);checks.push({label,...state});
  console.log(`PASS: ${label} (real audio/video received, ${state.frames} decoded frames)`);
 }
 async function stop(page,id){
