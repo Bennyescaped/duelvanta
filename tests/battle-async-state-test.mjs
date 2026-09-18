@@ -84,7 +84,7 @@ await test('Wrong-id, empty and failed reads do not replace the active match',as
 await test('Cancelled match returns the remaining guest to lobby',async f=>{
   f.run("user={id:'guest'};profile={display_name:'Guest'}");
   await open(f,match('cancelled',{status:'ready'}));f.run('refreshMatch()');
-  await resolve(f,0,match('cancelled',{status:'cancelled'}));await settle();
+  await resolve(f,0,match('cancelled',{status:'cancelled'}));await settle();await settle();
   assert.equal(f.run('currentMatch'),null);assert.ok(!f.node('lobbyView').classList.contains('hidden'));
   assert.ok(f.node('arenaView').classList.contains('hidden'));assert.equal(f.timers.size,0);
   assert.match(f.alerts.at(-1)||'',/Host.*Match beendet/);
