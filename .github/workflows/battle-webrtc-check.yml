@@ -20,11 +20,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Isolated camera restart regression
+      - name: Isolated camera restart and async state regressions
         run: |
           node --check battle.js
           node --check battle-webrtc.js
           node --check tests/battle-webrtc-browser-test.mjs
+          node --check tests/battle-async-state-test.mjs
+          node tests/battle-async-state-test.mjs
           node tests/battle-webrtc-restart-test.mjs
       - name: Install pinned browser test runtime
         run: |
@@ -38,5 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: battle-webrtc-evidence
-          path: test-results/battle-webrtc-browser.json
+          path: |
+            test-results/battle-webrtc-browser.json
+            test-results/battle-async-state.json
           if-no-files-found: ignore
