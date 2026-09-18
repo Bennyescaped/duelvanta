@@ -32,17 +32,19 @@
     document.documentElement.dataset.dvTradeRelease=state;
   };
 
-  const setRuntimeHold=active=>{
-    let style=document.getElementById('dvTradeRuntimeHoldStyle');
-    if(!style){
-      style=document.createElement('style');
-      style.id='dvTradeRuntimeHoldStyle';
-      style.textContent='html[data-dv-trade-runtime-hold="1"] #app{visibility:hidden!important;pointer-events:none!important}';
-      document.head.appendChild(style);
-    }
-    if(active)document.documentElement.dataset.dvTradeRuntimeHold='1';
-    else delete document.documentElement.dataset.dvTradeRuntimeHold;
+  const setBootLoading=active=>{
+    const app=document.getElementById('app');
+    if(!app)return;
+    app.classList.remove('hidden');
+    app.classList.toggle('trade-runtime-loading',active);
+    app.setAttribute('aria-busy',active?'true':'false');
+    if(!active)app.classList.add('dv-trade-ready');
   };
+
+  const nextFrame=()=>new Promise(resolve=>{
+    const raf=window.requestAnimationFrame||((callback)=>setTimeout(callback,0));
+    raf(()=>resolve());
+  });
 
   const waitForRuntimeUi=async()=>{
     const deadline=Date.now()+4000;
@@ -55,8 +57,11 @@
 
   const revealTradeRuntime=async()=>{
     if(!await waitForRuntimeUi())throw new Error('trade_runtime_ui_not_ready');
-    document.getElementById('app')?.classList.remove('hidden');
-    setRuntimeHold(false);
+    window.DV_TRADE_MARKETPLACE_UX?.sync?.();
+    window.DV_TRADE_SEARCH_ARCHIVE?.refreshActive?.();
+    await nextFrame();
+    await nextFrame();
+    setBootLoading(false);
   };
 
   const addOwnerLink=()=>{
@@ -70,25 +75,23 @@
   };
 
   const loadTradeStack=async()=>{
-    for(const src of TRADE_SCRIPTS){
-      await new Promise((resolve,reject)=>{
-        const script=document.createElement('script');
-        script.src=src;
-        script.async=false;
-        script.dataset.dvTradeRuntime='1';
-        script.onload=resolve;
-        script.onerror=()=>reject(new Error(`trade_runtime_load_failed:${src}`));
-        document.body.appendChild(script);
-      });
-    }
+    const pending=TRADE_SCRIPTS.map(src=>new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      script.src=src;
+      script.async=false;
+      script.dataset.dvTradeRuntime='1';
+      script.onload=resolve;
+      script.onerror=()=>reject(new Error(`trade_runtime_load_failed:${src}`));
+      document.body.appendChild(script);
+    }));
+    await Promise.all(pending);
   };
 
   const showLocked=async(db,session,environment)=>{
-    setRuntimeHold(false);
+    setBootLoading(false);
     setState('locked',environment,'member');
     const app=document.getElementById('app');
     if(!app)throw new Error('trade_release_shell_missing');
-    app.classList.remove('hidden');
     app.classList.add('trade-release-locked');
     if(!document.getElementById('tradeReleaseLockScreen')){
       const section=document.createElement('section');
@@ -108,13 +111,13 @@
   };
 
   const start=async()=>{
+    setBootLoading(true);
     const runtime=window.DV_SUPABASE;
     if(!runtime?.url||!runtime?.key||!window.supabase?.createClient)throw new Error('trade_release_runtime_missing');
     const db=window.supabase.createClient(runtime.url,runtime.key,{auth:{persistSession:true,autoRefreshToken:true}});
     const environment=runtime.environment||'development';
 
     if(environment!=='production'){
-      setRuntimeHold(true);
       setState('internal-preview',environment);
       await loadTradeStack();
       await revealTradeRuntime();
@@ -129,7 +132,6 @@
     }
 
     if(role==='owner'){
-      setRuntimeHold(true);
       setState('owner-bypass',environment,role);
       addOwnerLink();
       await loadTradeStack();
@@ -141,11 +143,10 @@
   };
 
   start().catch(error=>{
-    setRuntimeHold(false);
+    setBootLoading(false);
     console.error('DUELVANTA TRADE release gate',error);
     const app=document.getElementById('app');
     if(app){
-      app.classList.remove('hidden');
       app.classList.add('trade-release-locked');
       const section=document.createElement('section');
       section.className='trade-release-lock-screen';
