@@ -31,6 +31,8 @@ const fixture=`(()=>{
  function complete(name,args){
   if(name==='list_battle_spectator_matches')return {data:matches.filter(m=>m.visibility==='public'&&m.tcg===args.p_tcg),error:null};
   if(name==='get_battle_spectator_status')return {data:{spectator_count:3,link_enabled:enabled},error:null};
+  if(name==='get_battle_spectator_media_status')return {data:{media_open:false,my_consent:false},error:null};
+  if(name==='set_battle_spectator_media_consent')return {data:{media_open:false,my_consent:!!args.p_granted},error:null};
   if(name==='set_battle_spectator_link'){enabled=args.p_enabled;return {data:{enabled,code:enabled?'${CODE}':null},error:null};}
   const m=matches.find(m=>m.id===(args.p_match_id||'${P}'));
   const key=(args.p_match_id||m?.id)+':'+args.p_tab_id;
