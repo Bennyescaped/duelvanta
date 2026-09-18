@@ -28,9 +28,11 @@ jobs:
           node --check tests/battle-async-state-test.mjs
           node --check tests/battle-private-join-contract-test.mjs
           node --check tests/battle-dispute-resolution-test.mjs
+          node --check tests/battle-judge-desk-test.mjs
           node tests/battle-async-state-test.mjs
           node tests/battle-private-join-contract-test.mjs
           node tests/battle-dispute-resolution-test.mjs
+          node tests/battle-judge-desk-test.mjs
           node tests/battle-webrtc-restart-test.mjs
       - name: Install pinned browser test runtime
         run: |
