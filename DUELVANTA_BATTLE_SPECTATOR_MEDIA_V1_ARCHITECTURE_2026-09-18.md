@@ -253,6 +253,16 @@ Kein Kostenansatz für ungenutzte KI-, SIP-, Agent-, Ingress-/Egress- oder Aufze
 
 Bei 1.000 Zuschauern sind allein Foundation-Heartbeats ungefähr 50 Requests pro Sekunde. Vor Erhöhung des serverseitigen Schutzwerts müssen DB-Latenz, Quoten, Reconnect-Bursts, Widerrufsschlange und Kosten kontrolliert werden. Ein späterer konkreter Performancebefund erlaubt gezielte Optimierung, nicht vorsorgliche Großrefaktorierung der abgeschlossenen Foundation.
 
+### Kostenbewusster Großpublikums-Pfad
+
+Für dauerhaft große öffentliche Zuschauermengen wird **nicht** vorausgesetzt, dass jeder Zuschauer auf Dauer eine eigene interaktive WebRTC/SFU-Verbindung erhält. Der SFU-Pfad bleibt die Media-V1-Basis und eignet sich für Beta sowie kleine bis mittlere interaktive Zuschauerzahlen. Ab einer später anhand realer Last und Kosten festgelegten Schwelle darf die Distribution additiv auf einen Broadcast-/CDN-Pfad erweitert werden.
+
+Zielbild: `Host/Gast → bestehendes P2P + je ein SFU-Publish → serverseitige Broadcast-Ausgabe → CDN/Streaming-Distribution → große read-only Zuschauermenge`. Dabei bleiben Spieleraufnahme, Foundation-Autorisierung, Match-/Publisheridentität und der grundlegende Spieler-Medienpfad erhalten. Der Broadcast-Ausgang darf keine dauerhafte Aufzeichnung voraussetzen. Konkretes Protokoll, CDN, Latenz, Authentisierung und Anbieter werden **nicht** in Media V1 vorweggenommen und benötigen vor Einführung einen eigenen Architektur-/Datenschutz-/Kostenentscheid.
+
+Damit sind 500–10.000+ Zuschauer als spätere Verteilungsstufe vorgesehen, ohne Spieler in ein Zuschauer-Mesh zu zwingen oder den Host↔Gast-P2P-Pfad neu aufzubauen. Das ist ausdrücklich **kein Versprechen eines bestimmten Preises**. Vor Freigabe einer höheren Zuschauergrenze werden tatsächliche Providerkosten, Bandbreite und Erlösmodell geprüft. Serverseitige Limits bleiben der Kostenschutz und dürfen nur kontrolliert erhöht werden.
+
+Werbung, Sponsoring oder andere Monetarisierung können bei entsprechendem Publikum später zur Finanzierung beitragen, sind aber **keine technische Voraussetzung und keine angenommene Kostendeckung** der Media-Architektur. Werbe-/Trackingtechnik, Sponsorenintegration und deren Datenschutz-/Jugendschutzanforderungen sind separate Produktblöcke und werden nicht in Spectator Media V1 eingebaut.
+
 ## 12. Stop-Kriterien und konkrete Gate-Blocker
 
 | V28-Kriterium | Bewertung dieses Entwurfs |
