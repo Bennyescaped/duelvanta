@@ -57,6 +57,7 @@ on:
       - 'database/account-data-rights-*.sql'
       - 'database/account-data-erasure-*.sql'
       - 'database/market-stripe-*.sql'
+      - 'database/market-production-*.sql'
       - 'database/auth-*.sql'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
@@ -143,6 +144,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-problems.sql
           psql -v ON_ERROR_STOP=1 -f tests/b07-c2c-postgres-regression.sql
           psql -v ON_ERROR_STOP=1 -f tests/trade-sale-only-database.sql
+          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f database/market-production-trade-lock-v1.sql
+          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-database.sql
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
