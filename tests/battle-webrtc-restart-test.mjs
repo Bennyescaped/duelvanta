@@ -65,7 +65,8 @@ for(let attempt=1;attempt<=2;attempt++){
  assert.equal(oldPeer.connectionState,'closed','restart must dispose of the receive-only peer');
  console.log(`PASS: guest camera restart ${attempt} restores both sending tracks`);
 }
-await stop(host);await start(host);assertSending(host,'host restart');assertSending(guest,'guest after host restart');
+await stop(host);host.node('cameraBtn').textContent='KAMERA STOPPEN';host.context.DV_BATTLE_RTC.sync();assert.equal(host.node('cameraBtn').textContent,'KAMERA TESTEN','new arena must reset a stale camera-stop label when no live stream exists');assert.equal(host.node('connectionState').textContent,'KAMERA NICHT AKTIV');
+await start(host);assertSending(host,'host restart');assertSending(guest,'guest after host restart');
 await guest.node('micBtn').onclick();assert.ok(guest.context.stream.getAudioTracks().every(t=>!t.enabled));
 await guest.node('micBtn').onclick();assert.ok(guest.context.stream.getAudioTracks().every(t=>t.enabled));
 assert.ok(rows.filter(row=>row.signal_type==='offer').every(row=>row.sender_id==='host'),'host remains the offerer');
