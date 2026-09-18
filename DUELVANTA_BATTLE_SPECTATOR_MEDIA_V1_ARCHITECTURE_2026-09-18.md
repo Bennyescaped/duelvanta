@@ -379,3 +379,34 @@ Erst danach: minimaler serverseitiger Admission-/Lease-/Widerrufspfad mit isolie
 [13] Supabase Scheduler/Edge Functions: https://supabase.com/docs/guides/functions/schedule-functions ; https://supabase.com/docs/guides/cron/quickstart
 
 [14] Supabase Edge-Function-Abrechnung: https://supabase.com/docs/guides/functions/pricing ; https://supabase.com/docs/guides/platform/manage-your-usage/edge-function-invocations
+
+
+## 17. Post-architecture gate update – LiveKit staging and explicit player consent
+
+Verified after the initial architecture commit:
+- Owner created a separate LiveKit Cloud project for DUELVANTA staging with Project Data Region **European Union (Frankfurt)**.
+- A dedicated service-account API key for Spectator Media Staging was created.
+- `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` are stored only as encrypted Edge Function secrets in Supabase staging `xhmjxrcskfhbovhitdej`. No secret was committed to GitHub or placed in browser code.
+- No paid plan was activated.
+
+### B1 product/privacy decision
+
+The existing Arena Code acceptance is not treated as consent for spectator media. Media V1 requires a separate, match-scoped, explicit approval from **both host and guest** before either player publishes to the spectator SFU.
+
+Required UI meaning: **LIVE-ZUSCHAUERÜBERTRAGUNG ERLAUBEN**. The adjacent explanation must state that authorized DUELVANTA spectators may receive both players' live camera/audio through the external media processor, that DUELVANTA Media V1 does not introduce permanent webcam recording, and that withdrawing approval stops only spectator distribution and does not terminate the existing Host↔Guest P2P match.
+
+Consent is server-authoritative, auditable per match/player/version/time, defaults false, is never inferred from public visibility, camera permission, Ready state, old Arena Code acceptance, or the other player's approval, and must be reset for a new match. SFU publishing starts only while both approvals remain valid. Withdrawal, safety restriction, processing restriction, role change, match termination, or moderation pause fails closed for spectator publishing.
+
+B1 remains **OPEN** until these controls and the corresponding privacy text/provider records are implemented and reviewed; this document does not claim legal approval.
+
+### B2 revocation protocol decision
+
+DUELVANTA will use epoch-scoped LiveKit participant identities and explicit server-side participant removal/token revocation. Rotation/revocation first stops the old room epoch's two publishers, then revokes viewer identities. New admission is denied until current Foundation presence, auth session, eligibility, player approvals, and room/link generation all match.
+
+Provider timeout/429/control-plane failure is fail-closed for new admissions and is persisted in an idempotent revocation outbox for retry. Client disconnect alone is never treated as sufficient revocation. Old epochs are never reused. The existing Host↔Guest P2P connection remains independent.
+
+B2 remains **OPEN** until the server implementation plus real reconnect, delayed-join, rotation, timeout and retry tests prove this behavior. Documentation alone is not PASS.
+
+### Large-audience cost guard
+
+The already selected SFU remains Media V1. Large public audiences may later add a broadcast/CDN distribution layer behind the same publishers instead of maintaining one interactive WebRTC viewer connection per spectator. This is additive and must not require redesign of player capture, Host↔Guest P2P, Foundation authorization, or match identity. The concrete CDN/broadcast provider and protocol are a separate future gate; no recording requirement is introduced here.
