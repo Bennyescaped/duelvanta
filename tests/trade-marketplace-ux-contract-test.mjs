@@ -15,7 +15,7 @@ const sealedSaleOnlySql=await readFile(new URL('../database/b07-sealed-sale-only
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 must(html,'trade-marketplace-ux.css?v=1.1','Marketplace UX stylesheet is not loaded');
-must(html,'trade-release-gate.js?v=1.0','TRADE release gate is not loaded');
+must(html,'trade-release-gate.js?v=1.1','TRADE release gate is not loaded');
 must(releaseGate,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not routed through the release gate');
 must(releaseGate,'trade-search-archive.js?v=1.1','Search/archive cache version is stale');
 must(releaseGate,'trade-checkout.js?v=1.1','Checkout cache version is stale');
