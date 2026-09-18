@@ -3,7 +3,9 @@ on:
   pull_request:
     paths:
       - 'battle*.js'
-      - 'battle.html'
+      - 'battle*.html'
+      - 'battle-spectator.css'
+      - 'database/battle-spectator-*.sql'
       - 'site-nav.js'
       - 'tests/battle-*'
       - '.github/ci/**'
@@ -12,6 +14,39 @@ on:
 permissions:
   contents: read
 jobs:
+  spectator_database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Real PostgreSQL spectator access, lifecycle and concurrent role boundaries
+        run: node tests/battle-spectator-database-test.mjs
+      - name: Spectator database evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: battle-spectator-database-evidence
+          path: test-results/battle-spectator-database.json
+          if-no-files-found: ignore
   battle_webrtc:
     runs-on: ubuntu-latest
     timeout-minutes: 6
