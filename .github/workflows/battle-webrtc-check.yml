@@ -1,0 +1,42 @@
+name: Battle WebRTC Check
+on:
+  pull_request:
+    paths:
+      - 'battle*.js'
+      - 'battle.html'
+      - 'site-nav.js'
+      - 'tests/battle-*'
+      - '.github/ci/**'
+      - '.github/workflows/battle-webrtc-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  battle_webrtc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Isolated camera restart regression
+        run: |
+          node --check battle.js
+          node --check battle-webrtc.js
+          node --check tests/battle-webrtc-browser-test.mjs
+          node tests/battle-webrtc-restart-test.mjs
+      - name: Install pinned browser test runtime
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+          .github/ci/node_modules/.bin/playwright install chromium
+      - name: Real WebRTC browser regression with isolated signaling
+        run: node tests/battle-webrtc-browser-test.mjs
+      - name: Browser evidence (no media recordings)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: battle-webrtc-evidence
+          path: test-results/battle-webrtc-browser.json
+          if-no-files-found: ignore
