@@ -59,6 +59,9 @@ jobs:
         run: |
           node --check battle.js
           node --check battle-webrtc.js
+          node --check battle-spectator.js
+          node --check battle-spectator-host.js
+          node --check tests/battle-spectator-browser-test.mjs
           node --check tests/battle-webrtc-browser-test.mjs
           node --check tests/battle-async-state-test.mjs
           node --check tests/battle-private-join-contract-test.mjs
@@ -74,6 +77,8 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
           ln -s .github/ci/node_modules node_modules
           .github/ci/node_modules/.bin/playwright install chromium
+      - name: Independent spectator browser lifecycle and read-only UI
+        run: node tests/battle-spectator-browser-test.mjs
       - name: Real WebRTC browser regression with isolated signaling
         run: node tests/battle-webrtc-browser-test.mjs
       - name: Browser evidence (no media recordings)
@@ -84,4 +89,6 @@ jobs:
           path: |
             test-results/battle-webrtc-browser.json
             test-results/battle-async-state.json
+            test-results/battle-spectator-browser.json
+            test-results/battle-spectator-*.png
           if-no-files-found: ignore
