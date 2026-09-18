@@ -3,6 +3,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const message=text=>{$('spMessage').textContent=text;};
+  const codeMessage=text=>{$('spCodeMessage').textContent=text;$('spCode').setAttribute('aria-invalid',String(Boolean(text)));};
   const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const CODE=/^SP-[0-9A-F]{64}$/;
   const activeStatuses=new Set(['waiting','ready','live','dispute']);
@@ -143,7 +144,8 @@
     document.querySelectorAll('[data-spectator-tcg]').forEach(other=>{other.classList.toggle('active',other===button);other.setAttribute('aria-pressed',String(other===button));});
     void loadDirectory();
   }));
-  $('spCodeForm').onsubmit=event=>{event.preventDefault();try{const invitation=parseInvitation($('spCode').value);void watch(invitation.id,invitation.code);}catch(error){message(errorText(error));}};
+  $('spCodeForm').onsubmit=event=>{event.preventDefault();codeMessage('');try{const invitation=parseInvitation($('spCode').value);void watch(invitation.id,invitation.code);}catch(error){const text=errorText(error);message(text);codeMessage(text);}};
+  $('spCode').oninput=()=>codeMessage('');
   $('spLogout').onclick=async()=>{stop({keepResume:false});await db.auth.signOut();location.replace('login.html');};
   window.addEventListener('pagehide',()=>stop());
   window.addEventListener('pageshow',event=>{if(event.persisted&&resumeId&&actor)void watch(resumeId);});
