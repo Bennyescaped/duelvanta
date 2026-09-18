@@ -53,3 +53,99 @@ Dieser Dokumentationsnachtrag folgt auf den geprüften technischen Checkpoint. E
 ## Nächster kontrollierter Schritt
 
 Mit den bestehenden Staging-Testkonten auf dem festen Preview eine echte Zwei-Geräte-Abnahme durchführen: initial Bild/Ton in beide Richtungen, Gastkamera stoppen, Host-Neuverbindung abwarten, Gastkamera wieder starten, wiederholen, anschließend Hostkamera neu starten sowie Mikrofon und Bereitschaftssperre prüfen. Falls das Preview zunächst Vercel-Authentifizierung verlangt, den regulären Owner-Zugang verwenden. Erst nach dieser Bestätigung gilt auch der reale iPhone/Safari-Pfad als abgenommen. V26 bleibt zusammen mit diesem Delta die Arbeitsgrundlage; TRADE bleibt eingefroren.
+
+
+## Reale Zwei-Geräte-Abnahme und Post-V26-Fixes – 18.09.2026
+
+Die zuvor offene reale Preview-Abnahme wurde auf Staging durchgeführt und ist für den geprüften BATTLE-Kernpfad **PASS**.
+
+### Während der Abnahme gefundener Account-Status-Befund
+
+Reproduziert:
+- `test-verkaeufer@duelvanta.de` konnte zunächst kein Match erstellen: `Account ist nicht aktiv`.
+- Derselbe Fehler wurde vom Owner auch auf der bestehenden Beta-Seite mit seinem regulären Account beobachtet; Production wurde daraufhin ausdrücklich nicht verändert.
+
+Ursache auf Staging:
+- `profiles.account_status` kennt `beta`, `active`, `suspended`.
+- normale Beta-Profile stehen korrekt auf `beta`.
+- BATTLE-RPCs akzeptierten jedoch nur `active`.
+- `activate_my_beta_account()` setzt den Profilstatus selbst nicht auf `active`; der BATTLE-Guard widersprach damit dem Beta-Statusmodell.
+
+Minimaler Fix:
+- Migration `supabase/migrations/20260918123500_battle_beta_account_status_v1.sql`.
+- BATTLE akzeptiert `beta` und `active`.
+- `suspended`, `safety_restricted`, anonyme/null Auth bleiben gesperrt.
+- keine Nutzer wurden künstlich von `beta` auf `active` umgestellt.
+- Migration wurde nach grüner CI kontrolliert nur auf DUELVANTA-STAGING `xhmjxrcskfhbovhitdej` angewandt.
+- Production-Supabase blieb unverändert.
+
+Technischer Zwischenstand: `0a2b0ae095be70e28f319e9889ff745e2274839e`.
+CI:
+- Scanner V16 Check #529 / Run `35335547219`: SUCCESS.
+- Battle WebRTC Check #5 / Run `35335547504`: SUCCESS.
+
+### Reale Zwei-Geräte-WebRTC-Abnahme
+
+Preview für die Kernabnahme: `duelvantav5vision-5rsb082mr-bennyescaped-3783.vercel.app`.
+Rollen:
+- Host: `test-verkaeufer@duelvanta.de`, Desktop-Browser.
+- Gast: `test-kaeufer@duelvanta.de`, iPhone/Safari.
+
+Praktisch bestätigt:
+- Safety-Gate und Arena Code;
+- öffentliche Pokémon-Casual-Lobby;
+- Match erstellen nach Account-Status-Fix;
+- Gast sieht Match in Live-Lobby und kann beitreten;
+- Host-/Gast-Zuordnung korrekt;
+- lokales Kamerabild auf beiden Geräten;
+- Video bidirektional;
+- Audio bidirektional;
+- Mikrofon stumm/an auf beiden Geräten;
+- Status `LIVE VERBUNDEN`;
+- Gastkamera mehrfach stoppen/starten: Gegenbild verschwindet und kehrt jeweils nach ca. 1–2 Sekunden zurück;
+- Hostkamera mehrfach stoppen/starten: Verbindung wird erwartungsgemäß neu aufgebaut und beide Richtungen kehren automatisch zurück;
+- Kamera-aus-Ready-Gate blockiert Bereitschaft mit dem Hinweis, zuerst die Kamera zu aktivieren;
+- beide Ready-Zustände synchronisieren;
+- `MATCH STARTEN` nur im Hostpfad nach beiden Ready;
+- Matchstatus `MATCH LÄUFT`;
+- übereinstimmende Ergebnisabgabe: `MATCH ABGESCHLOSSEN`;
+- absichtlich widersprüchliche Ergebnisabgabe: `ERGEBNIS UNKLAR · PRÜFUNG NÖTIG`, kein automatisch bestimmter Sieger;
+- Webcam-Bild, das auf einzelnen Fotos schwarz erscheint, wurde vom Owner als Foto-/Aufnahmeartefakt bestätigt und nicht als BATTLE-Befund gewertet.
+
+### Während der Abnahme gefundener Kamera-UI-Lifecycle-Befund
+
+Reproduziert:
+Nach einem vorherigen Match und Erstellung eines neuen Matches ohne erneuten Kamerastart konnte der Button noch `KAMERA STOPPEN` anzeigen, während der Status bereits korrekt `KAMERA NICHT AKTIV` meldete.
+
+Minimaler Fix:
+- `battle-webrtc.js` synchronisiert den Kamera-UI-Zustand mit tatsächlich vorhandenen live MediaTracks.
+- ohne aktiven Stream werden Video-Fallback, `KAMERA TESTEN`, versteckter Mikrofonbutton und `KAMERA NICHT AKTIV` konsistent hergestellt.
+- Regression in `tests/battle-webrtc-restart-test.mjs`.
+
+Finaler technischer Checkpoint dieser Abnahme:
+`5ff782c86a3a55650a62f7d91860b0628e7137a8`
+
+CI:
+- Scanner V16 Check #531 / Run `35337780911`: SUCCESS.
+  - `validate`: SUCCESS.
+  - `quota_database`: SUCCESS.
+- Battle WebRTC Check #7 / Run `35337780919`: SUCCESS.
+
+Finales Preview:
+- Deployment `dpl_8qKuCrQhvvmSDRmGEaU76kAjzMhZ`.
+- Host `duelvantav5vision-55flywomc-bennyescaped-3783.vercel.app`.
+- Zustand READY, Preview / kein Production-Target.
+- Commit exakt `5ff782c86a3a55650a62f7d91860b0628e7137a8`.
+
+Praktischer Retest auf diesem finalen Preview:
+Neues Casual-Match ohne Kamerastart zeigt konsistent `KAMERA TESTEN`, `KAMERA NICHT AKTIV` und den Fallback `Kamera noch nicht aktiv`. Owner bestätigt den Ablauf als einwandfrei.
+
+### Grenzen
+
+- main unverändert: `50f88213571be13255bb52eb489cc28cca660001`.
+- PR #5 bleibt open, Draft, unmerged.
+- Production und Production-Supabase wurden nicht verändert.
+- TRADE bleibt eingefroren.
+- Production-TRADE-Hard-Lock wurde nicht ausgerollt.
+- Stripe Live, echte Payments/Refunds/Payouts und produktive PStTG/DAC7-Meldungen bleiben unangetastet.
+- Der separate Staging-Security-Advisory zu `public.market_notification_sync_state` ohne RLS wurde während der Analyse sichtbar, aber wegen TRADE-Freeze nicht verändert; er bleibt für den späteren Security-/Pre-Merge-Audit zu berücksichtigen.
