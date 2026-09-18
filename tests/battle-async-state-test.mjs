@@ -81,6 +81,14 @@ await test('Wrong-id, empty and failed reads do not replace the active match',as
   f.run('refreshMatch()');await resolve(f,2,null,{message:'offline'});
   assert.equal(f.run('currentMatch.id'),'a');assert.equal(f.node('arenaTitle').textContent,'Match a');
 });
+await test('Cancelled match returns the remaining guest to lobby',async f=>{
+  f.run("user={id:'guest'};profile={display_name:'Guest'}");
+  await open(f,match('cancelled',{status:'ready'}));f.run('refreshMatch()');
+  await resolve(f,0,match('cancelled',{status:'cancelled'}));await settle();
+  assert.equal(f.run('currentMatch'),null);assert.ok(!f.node('lobbyView').classList.contains('hidden'));
+  assert.ok(f.node('arenaView').classList.contains('hidden'));assert.equal(f.timers.size,0);
+  assert.match(f.alerts.at(-1)||'',/Host.*Match beendet/);
+});
 await test('TCG switch ignores the late Pokemon response after One Piece renders',async f=>{
   f.run('loadLobby()');await settle();f.run("currentTcg='one_piece';loadLobby()");await settle();
   await resolve(f,1,[match('op',{tcg:'one_piece',guest_id:null,title:'Current One Piece'})]);
