@@ -39,7 +39,9 @@ jobs:
         with:
           node-version: '22'
       - name: Real PostgreSQL spectator access, lifecycle and concurrent role boundaries
-        run: node tests/battle-spectator-database-test.mjs
+        run: |
+          node tests/battle-spectator-database-test.mjs
+          node tests/battle-spectator-media-database-test.mjs
       - name: Spectator database evidence
         if: always()
         uses: actions/upload-artifact@v4
