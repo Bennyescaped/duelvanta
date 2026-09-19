@@ -170,5 +170,6 @@
       }else{message('Wähle ein öffentliches Match oder nutze einen separaten Zuschauerlink.');await loadDirectory();}
     }catch(error){message(errorText(error));}
   }
+  window.__dvSpectatorAttempt=()=>attempt;
   void boot();
 })();
