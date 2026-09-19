@@ -7,6 +7,20 @@ on:
       - 'scanner-v16-*.js'
       - 'collect.html'
       - 'site-nav.js'
+      - 'app.html'
+      - 'i18n.js'
+      - 'tests/account-home-battle-live-test.mjs'
+      - 'index.html'
+      - 'welcome.html'
+      - 'battle.html'
+      - 'battle-*.js'
+      - 'staff.html'
+      - 'staff-admin.html'
+      - 'ranking.html'
+      - 'ranking.js'
+      - 'u.html'
+      - 'public-battle-profile.js'
+      - 'tests/runtime-routing-contract-test.mjs'
       - 'tests/scanner-v16-collect-e2e.mjs'
       - 'scanner-v16-ai-pilot.html'
       - 'api/scanner-v16-gemini.js'
@@ -22,8 +36,6 @@ on:
       - 'benchmark/scanner-pilot/openai-*'
       - 'tests/scanner-v16-openai-test.mjs'
       - 'benchmark/scanner-pilot/gemini-*'
-      - 'benchmark/scanner-pilot/prepare-gemini-pilot.mjs'
-      - 'benchmark/scanner-pilot/score-gemini.mjs'
       - 'tests/scanner-v16-gemini-test.mjs'
       - 'vercel.json'
       - 'scanner-v16-assets/**'
@@ -33,10 +45,50 @@ on:
       - 'scanner-v16-host.js'
       - 'database/collect-scanner-v16-*.sql'
       - 'database/collect-binder-*.sql'
+      - 'database/b07-*.sql'
+      - 'tests/b07-c2c-*.sql'
       - 'admin.html'
       - 'trade.html'
       - 'trade-*.js'
+      - 'database/market-seller-*.sql'
+      - 'database/market-notice-action-*.sql'
+      - 'database/market-checkout-compliance-*.sql'
+      - 'database/market-tax-transparency-*.sql'
+      - 'database/account-data-rights-*.sql'
+      - 'database/account-data-erasure-*.sql'
+      - 'database/market-stripe-*.sql'
+      - 'database/market-production-*.sql'
+      - 'database/auth-*.sql'
+      - 'api/compliance-message-dispatch.js'
+      - 'api/account-data-erasure.js'
+      - 'api/market-stripe-*.js'
+      - 'profile.html'
+      - 'profile.js'
+      - 'profile.css'
+      - 'profile-data-rights.js'
+      - 'mfa.html'
+      - 'mfa.js'
+      - 'reset-password.html'
+      - 'control-center.html'
+      - 'control-center.js'
+      - 'control-center-permissions.js'
+      - 'control-center-auth-preflight.js'
+      - 'tests/supabase-runtime-config-test.mjs'
+      - 'MARKETPLACE_COMPLIANCE_REQUIREMENTS.md'
+      - 'DUELVANTA_MASTERHANDOUT_V*.md'
       - 'tests/trade-*'
+      - 'tests/account-data-*'
+      - 'tests/market-stripe-*.mjs'
+      - 'tests/market-seller-compliance-database-test.mjs'
+      - 'tests/market-seller-onboarding-contract-test.mjs'
+      - 'seller-onboarding.html'
+      - 'seller-onboarding.css'
+      - 'seller-onboarding.js'
+      - 'listing-report.html'
+      - 'listing-report.css'
+      - 'listing-report.js'
+      - 'admin-notice-action.css'
+      - 'admin-notice-action.js'
       - 'tests/auth-boundary-database-test.mjs'
       - 'supabase/migrations/**'
       - 'tests/scanner-v16-contract-test.mjs'
@@ -53,6 +105,7 @@ on:
       - 'tests/scanner-v16-browser-e2e.mjs'
       - 'tests/scanner-v16-real-card-matrix.mjs'
       - 'tests/fixtures/**'
+      - '.github/ci/**'
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
@@ -77,13 +130,23 @@ jobs:
       PGDATABASE: postgres
     steps:
       - uses: actions/checkout@v4
-      - name: Real SQL quota regression in disposable database
+      - name: Real SQL quota and B07 C2C regressions in disposable database
         run: |
           psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-bootstrap.sql
           psql -v ON_ERROR_STOP=1 -f database/collect-scanner-v16-weekly-quota.sql
           psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-quota-database.sql
           psql -v ON_ERROR_STOP=1 -f database/collect-scanner-v16-owner-control.sql
           psql -v ON_ERROR_STOP=1 -f tests/scanner-v16-owner-control-database.sql
+          psql -v ON_ERROR_STOP=1 -f tests/b07-c2c-postgres-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-schema.sql
+          psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-binding.sql
+          psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-fulfillment.sql
+          psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-problems.sql
+          psql -v ON_ERROR_STOP=1 -f tests/b07-c2c-postgres-regression.sql
+          psql -v ON_ERROR_STOP=1 -f tests/trade-sale-only-database.sql
+          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f database/market-production-trade-lock-v1.sql
+          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-database.sql
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -119,6 +182,13 @@ jobs:
           node --check scanner-v16-recovery.js
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
+          node --check site-nav.js
+          node --check ranking.js
+          node --check public-battle-profile.js
+          node --check mfa.js
+          node --check control-center.js
+          node --check control-center-permissions.js
+          node --check control-center-auth-preflight.js
       - name: Scanner V16 contract
         run: |
           node tests/scanner-v16-contract-test.mjs
@@ -164,17 +234,65 @@ jobs:
       - name: Install Chromium browser test runtime
         id: browser_runtime
         run: |
-          npm install --no-save --no-package-lock playwright@1.55.0 tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0 @electric-sql/pglite@0.5.8
-          npx playwright install chromium
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          npm audit --audit-level=high --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+          .github/ci/node_modules/.bin/playwright install chromium
       - name: Battle and profile database access boundaries
         run: node tests/auth-boundary-database-test.mjs
       - name: Trade contracts and mobile order flow
         run: |
+          node --check trade-marketplace-ux.js
+          node --check trade-checkout.js
+          node --check trade-orders.js
+          node --check trade-notice-action.js
+          node --check trade-seller-moderation.js
+          node --check listing-report.js
+          node --check admin-notice-action.js
+          node --check api/compliance-message-dispatch.js
+          node --check api/account-data-erasure.js
+          node --check api/market-stripe-lib.js
+          node --check api/market-stripe-onboarding.js
+          node --check api/market-stripe-checkout.js
+          node --check api/market-stripe-webhook.js
+          node --check api/market-stripe-refund.js
+          node --check profile-data-rights.js
+          node tests/runtime-routing-contract-test.mjs
+          node tests/account-home-battle-live-test.mjs
+          node tests/trade-sale-only-test.mjs
+          node tests/trade-release-gate-test.mjs
           node tests/trade-automation-contract-test.mjs
+          node tests/trade-actions-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/trade-resolution-contract-test.mjs
           node tests/trade-shipping-contract-test.mjs
+          node tests/b07-c2c-pickup-contract-test.mjs
           node tests/trade-shipping-null-fallback-contract-test.mjs
+          node tests/trade-marketplace-ux-contract-test.mjs
+          node tests/market-seller-compliance-database-test.mjs
+          node tests/market-seller-onboarding-contract-test.mjs
+          node tests/trade-seller-compliance-contract-test.mjs
+          node tests/market-seller-enforcement-contract-test.mjs
+          node tests/market-notice-action-contract-test.mjs
+          node tests/market-notice-action-database-test.mjs
+          node tests/market-checkout-compliance-contract-test.mjs
+          node tests/market-checkout-compliance-database-test.mjs
+          node tests/supabase-runtime-config-test.mjs
+          node tests/market-tax-transparency-contract-test.mjs
+          node tests/market-tax-transparency-database-test.mjs
+          node tests/compliance-message-dispatch-test.mjs
+          node tests/account-data-rights-contract-test.mjs
+          node tests/account-data-rights-database-test.mjs
+          node tests/account-data-erasure-worker-test.mjs
+          node tests/account-data-erasure-username-guard-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
+          node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
+          node tests/market-stripe-connect-contract-test.mjs
+          node tests/market-stripe-connect-api-test.mjs
+          node tests/market-stripe-connect-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
+          node tests/market-stripe-live-mode-api-test.mjs
+          node tests/market-stripe-live-mode-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
+          node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
+          node tests/market-notice-action-browser-test.mjs
       - name: Second mobile acceptance regressions
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: Integrated COLLECT scanner and binder E2E

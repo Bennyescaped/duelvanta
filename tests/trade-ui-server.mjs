@@ -11,6 +11,10 @@ http.createServer(async(req,res)=>{
       res.setHeader('Content-Type','text/html');
       res.end('<!doctype html><title>TRADE local verification</title><h1>Local UI tests — no real purchases</h1><iframe title="Mobile TRADE" src="/trade.html?selftest=1" style="width:393px;height:850px;border:1px solid #aaa"></iframe>');return;
     }
+    if(url.pathname==='/api/compliance-message-dispatch'&&url.searchParams.get('runtime_config')==='1'){
+      res.setHeader('Content-Type','application/javascript');
+      res.end("window.DV_SUPABASE=Object.freeze({url:'https://example.supabase.co',key:'test-publishable-key',environment:'test'});");return;
+    }
     const path=resolve(root,'.'+url.pathname);
     if(!path.startsWith(root+'/')){res.writeHead(403);res.end();return}
     let content=await readFile(path);
@@ -18,6 +22,9 @@ http.createServer(async(req,res)=>{
       content=content.toString().replace(/<script src="https:[^"]*supabase[^"]*"><\/script>/,'<script src="/tests/trade-ui-mock.js"></script>')
         .replace(/<script src="(?:i18n|site-nav)\.js"><\/script>/g,'')
         .replace('</body>','<script src="/tests/trade-ui-selftest.js"></script></body>');
+    }
+    if(url.pathname==='/listing-report.html'){
+      content=content.toString().replace(/<script src="https:[^"]*supabase[^"]*"><\/script>/,'<script src="/tests/market-notice-action-ui-mock.js"></script>');
     }
     res.setHeader('Content-Type',types[extname(path)]||'text/plain');
     res.setHeader('Content-Security-Policy',"default-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data: blob:");

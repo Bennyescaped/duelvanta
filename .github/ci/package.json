@@ -1,0 +1,13 @@
+{
+  "name": "duelvanta-ci-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pinned test-only dependencies for the DUELVANTA GitHub Actions workflow.",
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@tesseract.js-data/eng": "1.0.0",
+    "linkedom": "0.18.12",
+    "playwright": "1.55.1",
+    "tesseract.js": "5.1.1"
+  }
+}

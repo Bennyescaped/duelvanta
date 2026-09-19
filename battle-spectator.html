@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>DUELVANTA · BATTLE zuschauen</title>
+  <link rel="stylesheet" href="battle.css">
+  <link rel="stylesheet" href="site-nav.css">
+  <link rel="stylesheet" href="battle-spectator.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="brand"><img src="v-logo.svg" alt="DUELVANTA V"><div class="word">DUELVANTA</div></div><div class="nav"><button id="spLogout" hidden>Abmelden</button></div></header>
+  <main class="spectator-shell">
+    <section class="hero"><div class="eyebrow">BATTLE · SPECTATOR FOUNDATION V1</div><h1>Die Arena verfolgen.</h1><p>Matchstatus, Spieler und Zuschauerzahl – in einer eigenen, rein lesenden Ansicht.</p><div class="safetyRibbon">NOCH KEIN VIDEO ODER AUDIO · KEINE KAMERA · KEIN MIKROFON</div></section>
+    <p id="spMessage" role="status" aria-live="polite">Zuschauerzugang wird geprüft …</p>
+    <div class="spectator-actions"><a class="btn ghost" href="battle.html">ZUR SPIELER-LOBBY</a><a id="spLogin" class="btn gold" href="login.html?next=battle-spectator.html" hidden>ANMELDEN</a><button id="spReconnect" class="btn gold" hidden>ERNEUT ZUSCHAUEN</button><button id="spLeave" class="btn danger" hidden>ZUSCHAUEN BEENDEN</button></div>
+    <section id="spDirectory" hidden aria-label="Zuschauer-Lobby">
+      <div class="sectionHead"><h2>Öffentliche Matches</h2><button id="spRefresh" class="btn ghost" type="button">AKTUALISIEREN</button></div>
+      <div class="spectator-actions"><button class="btn active" data-spectator-tcg="pokemon" aria-pressed="true">Pokémon</button><button class="btn" data-spectator-tcg="one_piece" aria-pressed="false">One Piece</button></div>
+      <div id="spMatches" class="matchGrid"></div>
+      <form id="spCodeForm" class="spectator-invite"><label for="spCode">Privater Zuschauer-Code oder Zuschauerlink</label><div class="spectator-actions"><input id="spCode" type="text" maxlength="2048" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="SP-… · Kein Spieler-Einladungscode"><button class="btn gold" type="submit">ALS ZUSCHAUER BEITRETEN</button></div><p id="spCodeMessage" class="meta" role="status" aria-live="polite"></p><p class="meta">Nur der separate Zuschauerzugang funktioniert hier. Ein Spielerplatz wird niemals belegt.</p></form>
+    </section>
+    <section id="spView" class="spectator-view" hidden aria-label="Read-only Matchansicht">
+      <div class="sectionHead"><div><div class="eyebrow">DU BIST ZUSCHAUER · READ-ONLY</div><h2 id="spTitle"></h2><p id="spMeta" class="meta"></p></div><div class="spectator-count"><strong id="spCount">—</strong><span>Zuschauer</span></div></div>
+      <div class="spectator-players"><article><div class="eyebrow">HOST</div><h3 id="spHost"></h3><p id="spHostReady" class="meta"></p></article><span class="versus">VS</span><article><div class="eyebrow">GAST</div><h3 id="spGuest"></h3><p id="spGuestReady" class="meta"></p></article></div>
+      <div class="spectator-status"><strong id="spStatus"></strong><p id="spModeration"></p><p id="spResult"></p></div>
+      <div id="spMedia" class="spectator-players" aria-label="Live-Medien"></div><div class="spectator-placeholder"><img src="v-logo.svg" alt=""><h3>Matchstatus statt Videostream.</h3><p>Foundation V1 überträgt noch kein Zuschauerbild und keinen Ton. Deine Kamera und dein Mikrofon werden hier nicht verwendet.</p></div>
+      <div class="spectator-actions"><button id="spRefreshMatch" class="btn ghost">STATUS AKTUALISIEREN</button><span id="spFreshness" class="meta"></span></div>
+    </section>
+    <footer class="spectator-footer">COLLECT. TRADE. BATTLE.<p class="meta">Berechtigungen und Zuschauerzahl werden auf dem Server geprüft. Ohne weitere Bestätigung läuft eine Anwesenheit nach spätestens 75 Sekunden ab.</p></footer>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="site-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@2.15.6/dist/livekit-client.umd.min.js"></script>\n<script src="battle-spectator.js"></script>\n<script src="battle-spectator-media-viewer.js"></script>
+</body>
+</html>
