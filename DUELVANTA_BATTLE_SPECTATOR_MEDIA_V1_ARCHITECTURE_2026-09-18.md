@@ -410,3 +410,24 @@ B2 remains **OPEN** until the server implementation plus real reconnect, delayed
 ### Large-audience cost guard
 
 The already selected SFU remains Media V1. Large public audiences may later add a broadcast/CDN distribution layer behind the same publishers instead of maintaining one interactive WebRTC viewer connection per spectator. This is additive and must not require redesign of player capture, Host↔Guest P2P, Foundation authorization, or match identity. The concrete CDN/broadcast provider and protocol are a separate future gate; no recording requirement is introduced here.
+
+
+## 18. Implementierungs- und praktischer Checkpoint – 19.09.2026
+
+Stand nach Head `6076c0f1fb778d8bb06d87f1431521ebb48d1731`:
+
+- Battle WebRTC Check #68: **SUCCESS** (`battle_webrtc` und `spectator_database`).
+- Scanner V16 Check #592: **SUCCESS**.
+- Spectator-Media-DB, Publisher-Admission, Broker und Reconciler sind ausschließlich auf Staging eingerichtet; Production/main unverändert.
+- Reconciler V5: persistenter Widerruf wurde praktisch `pending -> HTTP 200 -> done` verarbeitet; Wiederholung war idempotent. Dieser Teilnachweis enthielt noch keinen verbundenen LiveKit-Teilnehmer.
+- Separate Match-Zustimmung wurde praktisch mit Host und Gast geprüft. Rücknahme eines Spielers lässt das Spieler-Match bestehen, rotiert die Media-Epoche und erzeugt den Widerrufsauftrag.
+- Isolierter Publisher-Adapter nutzt ausschließlich bereits vorhandene Spielertracks; er fordert keine zweite Kamera an und besitzt/stoppt den P2P-Quelltrack nicht. Später gestartete Tracks werden nachpubliziert; gestoppte/deaktivierte Tracks werden nicht weiter publiziert.
+- Isolierter Viewer-Adapter ist subscribe-only und ruft kein `getUserMedia` auf.
+- Privater Zuschauerpfad inklusive Login-Rückkehr wurde praktisch repariert und geprüft: Presence/read-only, Zuschauerzähler und getrennte Spielerplätze funktionieren. Login bewahrt nur sicheren same-origin Match-Queryzustand; private Fragment-Secrets werden nicht durch Login persistiert/weitergereicht.
+- Praktischer iPhone/Safari-Spielertest: Kamera an/aus funktioniert mit aktivem Media-Adapter. Keine endgültige Safari-Zuschauerabnahme daraus ableiten.
+
+### Noch offenes B2-/Media-Gate
+
+Der echte Ende-zu-Ende-Nachweis `Spieler-Publisher -> LiveKit -> autorisierter Viewer` sowie `verbundener Viewer -> RemoveParticipant/revoke -> physischer Disconnect -> alter Reconnect abgewiesen` benötigt zwei gleichzeitig aktive Browser-/Gerätekontexte. Der bisherige Ein-iPhone-Test ist dafür nicht belastbar, weil iOS/Safari Hintergrundtabs Kamera/Ausführung pausieren kann. Fehlendes Zuschauerbild im Ein-Gerät-Versuch ist deshalb **weder PASS noch FAIL**.
+
+B2 und Spectator Media V1 bleiben bis zu diesem Mehrkontexttest **OPEN**. Kein fehlender echter Gerätetest darf als bestanden dokumentiert werden. Das serverseitige Schutzlimit bleibt 50 und ist konfigurierbar. Production und Production-Supabase bleiben gesperrt.
