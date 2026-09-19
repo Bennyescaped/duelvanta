@@ -6,6 +6,7 @@ on:
       - 'battle*.html'
       - 'battle-spectator.css'
       - 'database/battle-spectator-*.sql'
+      - 'supabase/functions/battle-spectator-media-reconciler/**'
       - 'site-nav.js'
       - 'tests/battle-*'
       - '.github/ci/**'
@@ -73,6 +74,7 @@ jobs:
           node tests/battle-private-join-contract-test.mjs
           node tests/battle-dispute-resolution-test.mjs
           node tests/battle-judge-desk-test.mjs
+          node tests/battle-spectator-media-reconciler-contract-test.mjs
           node tests/battle-webrtc-restart-test.mjs
       - name: Install pinned browser test runtime
         run: |
