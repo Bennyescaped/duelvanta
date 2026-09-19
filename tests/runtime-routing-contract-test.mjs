@@ -18,7 +18,10 @@ for(const file of ['welcome.html','staff.html','staff-admin.html','ranking.js','
 }
 
 const login=await read('login.html');
-assert.match(login,/const next=\(params\.get\('next'\)\|\|'app\.html'\)\.replace\(\/\[\^a-zA-Z0-9\._-\]\/g,''\)/,'login redirect target must stay same-origin and filename-only');
+assert.match(login,/if\(u\.origin!==location\.origin\)return'app\.html'/,'login redirect target must stay same-origin');
+assert.match(login,/path\.includes\('\.\.'\)/,'login redirect must reject path traversal');
+assert.match(login,/return path\+\(u\.search\|\|''\)/,'login redirect may preserve safe same-origin query parameters');
+assert.ok(!login.includes("u.hash"),'login redirect must never preserve URL fragments/secrets');
 for(const [file,target] of [['collect.html','collect.html'],['battle.js','battle.html'],['staff.html','staff.html'],['staff-admin.html','staff-admin.html']]){
   const source=await read(file);
   assert.ok(source.includes(`login.html?next=${target}`),`${file} must return unauthenticated users through the shared login route`);
