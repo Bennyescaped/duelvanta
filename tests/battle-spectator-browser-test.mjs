@@ -12,7 +12,7 @@ for(const [path,sha] of Object.entries({'battle.js':'4f465a801dd5561fa4adae2cc86
 const spectatorHTML=await read('battle-spectator.html');
 assert.ok(!/<(?:video|audio)\b|src="battle(?:-webrtc|-moderation|-ranked)?\.js"/.test(spectatorHTML));
 assert.ok(spectatorHTML.indexOf('src="site-nav.js"')<spectatorHTML.indexOf('src="battle-spectator.js"'));
-assert.equal(hash((await read('battle.html')).replace('<script src="battle-spectator-host.js"></script>','')),'bbb624f6aca3709b0609b7b93be910a29eb29dcb','player HTML only appends the isolated addon');
+const playerHTML=await read('battle.html');const strippedPlayerHTML=playerHTML.replace('<script src="https://cdn.jsdelivr.net/npm/livekit-client@2.15.6/dist/livekit-client.umd.min.js"></script><script src="battle-spectator-host.js"></script><script src="battle-spectator-media-publisher.js"></script>','');assert.equal(hash(strippedPlayerHTML),'bbb624f6aca3709b0609b7b93be910a29eb29dcb','player HTML only appends isolated spectator addons');
 const M='30000000-0000-4000-8000-000000000001',N='30000000-0000-4000-8000-000000000002',P='30000000-0000-4000-8000-000000000003';
 const CODE='SP-'+'A'.repeat(64),HOST='10000000-0000-4000-8000-000000000001',GUEST='10000000-0000-4000-8000-000000000002';
 const fixture=`(()=>{
