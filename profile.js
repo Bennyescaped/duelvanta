@@ -2,19 +2,8 @@
   // A failed runtime load must not leave a previously supplied client available to addons.
   window.__dvAppDb=null;
   const config=window.DV_SUPABASE;
-  const production=config?.environment==='production';
-  // Only the currently configured production aliases may consume production runtime data.
-  // Unknown/immutable Preview hosts remain staging-only, even if mislabeled as production.
-  const productionHost=[
-    'duelvanta.de',
-    'duelvantav5vision.vercel.app',
-    'duelvantav5vision-bennyescaped-3783.vercel.app',
-    'duelvantav5vision-git-main-bennyescaped-3783.vercel.app'
-  ].includes(window.location.hostname);
-  const expectedProject=production?'enifiaqsnqtbzylnfrpi':'xhmjxrcskfhbovhitdej';
   if(!config||!['preview','production','development'].includes(config.environment)||
-    production!==productionHost||(production&&window.location.protocol!=='https:')||
-    config.url!==`https://${expectedProject}.supabase.co`||
+    !/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||
     typeof config.key!=='string'||config.key!==config.key.trim()||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.key)){
     throw new Error('DUELVANTA profile database is not safely configured');
   }

@@ -8,6 +8,9 @@ on:
       - 'database/battle-spectator-*.sql'
       - 'supabase/functions/battle-spectator-media-reconciler/**'
       - 'site-nav.js'
+      - 'supabase-environment.js'
+      - 'api/compliance-message-dispatch.js'
+      - 'tests/runtime-routing-contract-test.mjs'
       - 'tests/battle-*'
       - '.github/ci/**'
       - '.github/workflows/battle-webrtc-check.yml'
@@ -64,6 +67,7 @@ jobs:
           node --check battle-webrtc.js
           node --check battle-spectator.js
           node --check battle-spectator-host.js
+          node --check supabase-environment.js
           node --check tests/battle-spectator-browser-test.mjs
           node --check tests/battle-webrtc-browser-test.mjs
           node --check tests/battle-async-state-test.mjs
@@ -75,6 +79,7 @@ jobs:
           node tests/battle-dispute-resolution-test.mjs
           node tests/battle-judge-desk-test.mjs
           node tests/battle-spectator-media-reconciler-contract-test.mjs
+          node tests/runtime-routing-contract-test.mjs
           node tests/battle-webrtc-restart-test.mjs
       - name: Install pinned browser test runtime
         run: |

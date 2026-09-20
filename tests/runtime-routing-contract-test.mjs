@@ -1,65 +1,125 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {readFile,readdir} from 'node:fs/promises';
+import {relative} from 'node:path';
 import {createContext,runInContext} from 'node:vm';
 
-const read=path=>readFile(new URL('../'+path,import.meta.url),'utf8');
-const PROD='https://enifiaqsnqtbzylnfrpi.supabase.co';
-const STAGING='https://xhmjxrcskfhbovhitdej.supabase.co';
-const PROD_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const require=createRequire(import.meta.url);
+const root=new URL('../',import.meta.url);
+const read=path=>readFile(new URL(path,root),'utf8');
+const {PRODUCTION_URL,STAGING_URL,resolveSupabaseEnvironment,resolveSupabaseRuntimeConfig}=require('../supabase-environment.js');
+const runtimeHandler=require('../api/compliance-message-dispatch.js');
+const {createHandler}=require('../benchmark/scanner-pilot/recognize-server.cjs');
 
-const directRuntimePages=['index.html','welcome.html','staff.html','staff-admin.html','ranking.html','u.html'];
-for(const file of directRuntimePages){
+assert.deepEqual(resolveSupabaseEnvironment({VERCEL_ENV:'preview'}),{environment:'preview',url:STAGING_URL});
+assert.deepEqual(resolveSupabaseEnvironment({VERCEL_ENV:'production'}),{environment:'production',url:PRODUCTION_URL});
+assert.deepEqual(resolveSupabaseEnvironment({VERCEL_ENV:'development'}),{environment:'development',url:STAGING_URL});
+assert.throws(()=>resolveSupabaseEnvironment({VERCEL_ENV:'preview',SUPABASE_URL:PRODUCTION_URL}),/supabase_environment_mismatch/);
+assert.throws(()=>resolveSupabaseEnvironment({VERCEL_ENV:'production',SUPABASE_URL:STAGING_URL}),/supabase_environment_mismatch/);
+assert.throws(()=>resolveSupabaseEnvironment({VERCEL_ENV:'development',SUPABASE_URL:PRODUCTION_URL}),/supabase_environment_mismatch/);
+assert.equal(resolveSupabaseRuntimeConfig({VERCEL_ENV:'preview'}).url,STAGING_URL);
+assert.equal(resolveSupabaseRuntimeConfig({VERCEL_ENV:'production'}).url,PRODUCTION_URL);
+
+const originalEnv={...process.env};
+function response(){return {statusCode:200,headers:{},body:'',status(code){this.statusCode=code;return this},setHeader(name,value){this.headers[name.toLowerCase()]=value},send(body){this.body=body;return this},json(body){this.body=body;return this}}}
+async function runtime(environment,url){
+  process.env.VERCEL_ENV=environment;
+  if(url===undefined)delete process.env.SUPABASE_URL;else process.env.SUPABASE_URL=url;
+  const res=response();await runtimeHandler({method:'GET',query:{runtime_config:'1'}},res);return res;
+}
+function configFrom(script){const context=createContext({window:{}});runInContext(script,context);return context.window.DV_SUPABASE}
+
+try{
+  let res=await runtime('preview');assert.equal(res.statusCode,200);assert.equal(configFrom(res.body).url,STAGING_URL);
+  res=await runtime('production');assert.equal(res.statusCode,200);assert.equal(configFrom(res.body).url,PRODUCTION_URL);
+  res=await runtime('preview',PRODUCTION_URL);assert.equal(res.statusCode,503);
+  res=await runtime('production',STAGING_URL);assert.equal(res.statusCode,503);
+}finally{
+  for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];
+  Object.assign(process.env,originalEnv);
+}
+
+const pages={
+  'collect.html':'site-nav.js?v=16.27.0',
+  'battle.html':'battle.js',
+  'battle-spectator.html':'battle-spectator.js'
+};
+for(const [file,consumer] of Object.entries(pages)){
+  const source=await read(file),runtime='/api/compliance-message-dispatch?runtime_config=1';
+  assert.ok(source.includes(runtime),`${file} must load the central runtime config`);
+  assert.ok(source.indexOf(runtime)<source.indexOf(consumer),`${file} must resolve its environment before ${consumer}`);
+}
+
+const routedClients={
+  'collect.html':['DV_SUPABASE','createClient(SB_URL,SB_KEY,'],
+  'battle.js':['DV_SUPABASE','createClient(SB_URL,SB_KEY,'],
+  'battle-spectator.js':['DV_SUPABASE','createClient(config.url,config.key,'],
+  'battle-spectator-media-publisher.js':['DV_SUPABASE.url','battle-spectator-media-broker'],
+  'battle-spectator-media-viewer.js':['DV_SUPABASE.url','battle-spectator-media-broker'],
+  'control-center.js':['window.__dvAppDb'],
+  'control-center-auth-preflight.js':['DV_SUPABASE','window.__dvAppDb=preflight']
+};
+for(const [file,markers] of Object.entries(routedClients)){
   const source=await read(file);
-  assert.ok(source.includes('/api/compliance-message-dispatch?runtime_config=1'),`${file} must load guarded runtime config`);
+  for(const marker of markers)assert.ok(source.includes(marker),`${file} must use ${marker}`);
+  assert.ok(!source.includes(PRODUCTION_URL)&&!source.includes(STAGING_URL),`${file} must not own an environment target`);
 }
-for(const file of ['welcome.html','staff.html','staff-admin.html','ranking.js','u.html','public-battle-profile.js','scanner-v16-host.js']){
+
+const routedServerPaths={
+  'api/compliance-message-dispatch.js':'resolveSupabaseEnvironment',
+  'api/account-data-erasure.js':'resolveSupabaseEnvironment',
+  'api/market-stripe-lib.js':'resolveSupabaseEnvironment',
+  'market-tracking-aftership.js':'resolveSupabaseRuntimeConfig',
+  'benchmark/scanner-pilot/recognize-server.cjs':'resolveSupabaseRuntimeConfig'
+};
+for(const [file,resolver] of Object.entries(routedServerPaths)){
   const source=await read(file);
-  assert.ok(!source.includes(PROD),`${file} must not hardcode production Supabase`);
+  assert.ok(source.includes(resolver),`${file} must use the central resolver`);
+  assert.ok(!source.includes(PRODUCTION_URL)&&!source.includes(STAGING_URL),`${file} must not own an environment target`);
 }
 
-const login=await read('login.html');
-assert.match(login,/if\(u\.origin!==location\.origin\)return'app\.html'/,'login redirect target must stay same-origin');
-assert.match(login,/path\.includes\('\.\.'\)/,'login redirect must reject path traversal');
-assert.match(login,/return path\+\(u\.search\|\|''\)/,'login redirect may preserve safe same-origin query parameters');
-assert.ok(!login.includes("u.hash"),'login redirect must never preserve URL fragments/secrets');
-for(const [file,target] of [['collect.html','collect.html'],['battle.js','battle.html'],['staff.html','staff.html'],['staff-admin.html','staff-admin.html']]){
-  const source=await read(file);
-  assert.ok(source.includes(`login.html?next=${target}`),`${file} must return unauthenticated users through the shared login route`);
+const scannerUrls=[];
+const scanner=createHandler({
+  env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',OPENAI_API_KEY:'test-only',DV_OPENAI_ACCOUNTING_KEY:'x'.repeat(32)},
+  config:{enabled:true},
+  fetchImpl:async url=>{
+    scannerUrls.push(String(url));
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:'10000000-0000-4000-8000-000000000001'}),{status:200});
+    if(String(url).includes('/rpc/dv_v16_openai_scan_budget'))return new Response(JSON.stringify({enabled:true,remaining:50,slabRemaining:10}),{status:200});
+    throw new Error('unexpected scanner request');
+  }
+});
+let scannerResponse=response();
+await scanner({method:'GET',headers:{authorization:'Bearer test.preview.token'}},scannerResponse);
+assert.equal(scannerResponse.statusCode,200);
+assert.ok(scannerUrls.length===2&&scannerUrls.every(url=>url.startsWith(STAGING_URL)),'Preview scanner quota/auth must use staging only');
+assert.ok(scannerUrls.every(url=>!url.startsWith(PRODUCTION_URL)));
+
+let blockedFetches=0;
+const blockedScanner=createHandler({
+  env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'scanner-v16',SUPABASE_URL:PRODUCTION_URL,OPENAI_API_KEY:'test-only',DV_OPENAI_ACCOUNTING_KEY:'x'.repeat(32)},
+  config:{enabled:true},fetchImpl:async()=>{blockedFetches++;throw new Error('must not fetch')}
+});
+scannerResponse=response();await blockedScanner({method:'GET',headers:{authorization:'Bearer test.preview.token'}},scannerResponse);
+assert.equal(scannerResponse.statusCode,503);assert.equal(blockedFetches,0,'mismatched scanner routing must fail before network access');
+
+async function runtimeFiles(dir=root){
+  const paths=[];
+  for(const entry of await readdir(dir,{withFileTypes:true})){
+    if(entry.name==='.git'||entry.name==='node_modules'||entry.name==='tests'||entry.name==='test-results')continue;
+    const url=new URL(entry.name+(entry.isDirectory()?'/':''),dir);
+    if(entry.isDirectory())paths.push(...await runtimeFiles(url));
+    else if(/\.(?:js|cjs|html)$/.test(entry.name))paths.push(url);
+  }
+  return paths;
 }
-
-const collect=await read('collect.html'),battleHtml=await read('battle.html'),siteNav=await read('site-nav.js');
-assert.ok(collect.indexOf('site-nav.js')<collect.indexOf("const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co'"),'COLLECT legacy client must be intercepted before creation');
-assert.ok(battleHtml.indexOf('site-nav.js')<battleHtml.indexOf('battle.js'),'BATTLE legacy client must be intercepted before battle.js');
-assert.match(siteNav,/PRODUCTION_HOSTS=new Set/);
-assert.match(siteNav,/STAGING_URL='https:\/\/xhmjxrcskfhbovhitdej\.supabase\.co'/);
-assert.match(siteNav,/api\.createClient=\(url,key,options\)=>/);
-
-function executeGuard(hostname,runtime){
-  const calls=[];
-  const supabase={createClient:(url,key,options)=>{calls.push({url,key,options});return {auth:{}}}};
-  const window={supabase,DV_SUPABASE:runtime};
-  const location={hostname,pathname:'/collect.html'};
-  const document={readyState:'loading',addEventListener(){},querySelector(){return null},querySelectorAll(){return[]},head:{appendChild(){}},body:{appendChild(){}}};
-  const context=createContext({window,location,document,console,Set,Object});
-  runInContext(siteNav,context);
-  return {window,calls};
+const targetOwners=[],keyOwners=[];
+for(const url of await runtimeFiles()){
+  const source=await readFile(url,'utf8'),name=relative(root.pathname,url.pathname);
+  if(source.includes('enifiaqsnqtbzylnfrpi')||source.includes('xhmjxrcskfhbovhitdej'))targetOwners.push(name);
+  if(/(?:eyJ[A-Za-z0-9_-]{20,}|sb_(?:publishable|secret)_[A-Za-z0-9_-]{10,})/.test(source))keyOwners.push(name);
 }
+assert.deepEqual(targetOwners,['supabase-environment.js'],'only the central resolver may own Supabase project targets');
+assert.deepEqual(keyOwners,['supabase-environment.js'],'only the central resolver may own static public Supabase keys');
 
-const previewRuntime={url:STAGING,key:'sb_publishable_preview_test',environment:'preview'};
-assert.throws(()=>executeGuard('preview.example.vercel.app',previewRuntime),/runtime environment mismatch/,'unknown runtime key/config must fail closed');
-const preview=executeGuard('duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app');
-preview.window.supabase.createClient(PROD,PROD_KEY,{auth:{persistSession:true}});
-assert.equal(preview.calls[0].url,STAGING,'Preview must redirect legacy production client requests to staging');
-assert.ok(preview.calls[0].key.startsWith('sb_publishable_'));
-assert.ok(preview.window.__dvAppDb,'legacy authenticated pages must expose the guarded client to session/nav helpers');
-assert.throws(()=>preview.window.supabase.createClient('https://unapproved.supabase.co','sb_publishable_x',{}),/unapproved Supabase client/);
-
-const production=executeGuard('duelvanta.de');
-production.window.supabase.createClient(PROD,PROD_KEY,{auth:{persistSession:true}});
-assert.equal(production.calls[0].url,PROD,'Production host must remain on production Supabase');
-
-const staffAdmin=await read('staff-admin.html');
-assert.match(staffAdmin,/getAuthenticatorAssuranceLevel/,'staff admin must require MFA assurance');
-assert.match(staffAdmin,/currentLevel!=='aal2'/,'staff admin must step up before privileged UI access');
-
-console.log('PASS: all preview entry points use staging runtime, legacy COLLECT/BATTLE clients are intercepted before creation, redirects remain same-origin, and staff admin requires AAL2');
+console.log('PASS: centralized Production/Preview Supabase routing, COLLECT/BATTLE/Spectator adoption, scanner quota isolation and runtime hardcoding scan');

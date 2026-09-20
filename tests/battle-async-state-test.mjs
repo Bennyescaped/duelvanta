@@ -36,6 +36,7 @@ function fixture() {
     async rpc(name,args){rpcCalls.push({name,args});return {data:'private-match',error:null};}
   };
   const context = createContext({console, document:{getElementById:node,querySelectorAll:()=>[]},
+    DV_SUPABASE:{url:'https://xhmjxrcskfhbovhitdej.supabase.co',key:'sb_publishable_test_only',environment:'preview'},
     supabase:{createClient:()=>db}, alert:message=>alerts.push(message),
     setInterval:fn=>{timers.add(fn);return fn;},clearInterval:fn=>timers.delete(fn),addEventListener(){}});
   context.window=context;

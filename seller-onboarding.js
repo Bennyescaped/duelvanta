@@ -2,7 +2,7 @@
 const {url:SB_URL,key:SB_KEY}=window.DV_SUPABASE;
 const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);let account={seller_type:'unclassified',onboarding_status:'draft'};let busy=false,stripeBusy=false;
-const stripeSandboxPreview=location.hostname.endsWith('.vercel.app')&&SB_URL.includes('xhmjxrcskfhbovhitdej');
+const stripeSandboxPreview=window.DV_SUPABASE.environment==='preview';
 const statusText={legacy_beta:'EINSTUFUNG ERFORDERLICH',draft:'ENTWURF',pending_review:'PRÜFUNG AUSSTEHEND',active:'VERKAUF FREIGEGEBEN',rejected:'ÜBERARBEITUNG ERFORDERLICH',suspended:'VERKAUF GESPERRT'};
 function message(id,text,kind=''){const el=$(id);el.textContent=text;el.className='msg '+kind}
 function value(id){return $(id)?.value.trim()||null}

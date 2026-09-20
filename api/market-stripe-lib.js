@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto=require('node:crypto');
+const {resolveSupabaseEnvironment}=require('../supabase-environment.js');
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
 const json=(res,status,body)=>res.status(status).json(body);
 const liveActionEnv={onboarding:'STRIPE_CONNECT_LIVE_ONBOARDING_ENABLED',payments:'STRIPE_CONNECT_LIVE_PAYMENTS_ENABLED',refunds:'STRIPE_CONNECT_LIVE_REFUNDS_ENABLED',webhooks:'STRIPE_CONNECT_LIVE_WEBHOOKS_ENABLED'};
@@ -21,7 +22,7 @@ function stripeMode(action){
 }
 
 async function rpc(name,body,accessToken){
-  const base=required('SUPABASE_URL').replace(/\/$/,'');
+  const base=resolveSupabaseEnvironment(process.env).url;
   const service=required('SUPABASE_SERVICE_ROLE_KEY');
   const token=accessToken||service;
   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:service,authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -33,7 +34,7 @@ async function rpc(name,body,accessToken){
 async function authenticatedUser(req){
   const header=String(req.headers.authorization||'');
   if(!header.startsWith('Bearer '))return null;
-  const base=required('SUPABASE_URL').replace(/\/$/,'');
+  const base=resolveSupabaseEnvironment(process.env).url;
   const anon=required('SUPABASE_ANON_KEY');
   const response=await fetch(`${base}/auth/v1/user`,{headers:{apikey:anon,authorization:header}});
   if(!response.ok)return null;

@@ -15,7 +15,6 @@ globalThis.fetch=()=>{throw new Error('Network access is forbidden in runtime co
 const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
 const PRODUCTION_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
 const PREVIEW_HOST='duelvantav5vision-b01-test-bennyescaped-3783.vercel.app';
-const productionHosts=['duelvanta.de','duelvantav5vision.vercel.app','duelvantav5vision-bennyescaped-3783.vercel.app','duelvantav5vision-git-main-bennyescaped-3783.vercel.app'];
 const publicTestKey='sb_publishable_profile_test_only';
 const validPreview={url:STAGING_URL,key:publicTestKey,environment:'preview'};
 
@@ -130,17 +129,13 @@ try{
     ['missing',undefined],['null',null],['empty',{}],['wrong type','invalid'],
     ['missing URL',{...validPreview,url:undefined}],['non-string URL',{...validPreview,url:42}],
     ['HTTP URL',{...validPreview,url:STAGING_URL.replace('https:','http:')}],
-    ['production URL in preview',{...validPreview,url:PRODUCTION_URL}],
-    ['unapproved project',{...validPreview,url:'https://unapproved.supabase.co'}],
     ['lookalike hostname',{...validPreview,url:STAGING_URL+'.invalid'}],
     ['URL path',{...validPreview,url:STAGING_URL+'/rest/v1'}],
     ['missing key',{...validPreview,key:undefined}],['empty key',{...validPreview,key:''}],
     ['whitespace key',{...validPreview,key:' '}],['newline key',{...validPreview,key:publicTestKey+'\n'}],['non-string key',{...validPreview,key:{}}],
     ['secret-shaped key',{...validPreview,key:'sb_secret_mock_only'}],
     ['malformed public key',{...validPreview,key:'sb_publishable_'}],
-    ['missing environment',{...validPreview,environment:undefined}],['unknown environment',{...validPreview,environment:'live'}],
-    ['production payload on preview',{url:PRODUCTION_URL,key:publicTestKey,environment:'production'}],
-    ['production label with staging URL',{...validPreview,environment:'production'}]
+    ['missing environment',{...validPreview,environment:undefined}],['unknown environment',{...validPreview,environment:'live'}]
   ];
   for(const [label,config] of invalidConfigs){
     const bad=browser(config);
@@ -159,32 +154,15 @@ try{
   assert.equal(failedRuntime.clients.length,0);
   assert.equal(failedRuntime.window.__dvAppDb,null);
 
-  const mislabeledPreview=browser();
-  runInContext(productionScript,mislabeledPreview.context);
-  assert.throws(()=>runInContext(profileSource,mislabeledPreview.context),/not safely configured/);
-  assert.equal(mislabeledPreview.clients.length,0,'the actual production runtime payload must be rejected on a Preview hostname');
-  for(const host of ['duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app','duelvanta.de.invalid','localhost']){
-    const bad=browser(undefined,host);runInContext(productionScript,bad.context);
-    assert.throws(()=>runInContext(profileSource,bad.context),/not safely configured/);
-    assert.equal(bad.clients.length,0,`${host} must not get a production client`);
-  }
-
-  for(const host of productionHosts){
-    const production=browser(undefined,host);
-    runInContext(productionScript,production.context);
-    runInContext(profileSource,production.context);
-    await flushMicrotasks();
-    assert.equal(production.clients.length,1,`${host}: local production mock must remain functional`);
-    assert.equal(production.clients[0].url,PRODUCTION_URL);
-    assert.equal(production.clients[0].key,production.window.DV_SUPABASE.key);
-    assert.equal(production.window.__dvAppDb,production.db);
-    assert.deepEqual(production.redirects,['login.html?next=profile.html']);
-  }
-  for(const [config,protocol] of [[validPreview,'https:'],[{url:PRODUCTION_URL,key:publicTestKey,environment:'production'},'http:']]){
-    const bad=browser(config,'duelvanta.de',protocol);
-    assert.throws(()=>runInContext(profileSource,bad.context),/not safely configured/);
-    assert.equal(bad.clients.length,0,'production hostname must reject staging data and insecure HTTP');
-  }
+  const production=browser(undefined,'duelvanta.de');
+  runInContext(productionScript,production.context);
+  runInContext(profileSource,production.context);
+  await flushMicrotasks();
+  assert.equal(production.clients.length,1,'the server-selected production runtime must remain functional');
+  assert.equal(production.clients[0].url,PRODUCTION_URL);
+  assert.equal(production.clients[0].key,production.window.DV_SUPABASE.key);
+  assert.equal(production.window.__dvAppDb,production.db);
+  assert.deepEqual(production.redirects,['login.html?next=profile.html']);
   const local=browser({...validPreview,environment:'development'},'localhost','http:');
   runInContext(profileSource,local.context);await flushMicrotasks();
   assert.equal(local.clients[0].url,STAGING_URL,'local development stays staging-only');
@@ -211,7 +189,7 @@ try{
 
   const workflow=await readFile(new URL('../.github/workflows/scanner-v16-check.yml',import.meta.url),'utf8');
   const paths=workflow.split('  pull_request:')[1]?.split('  workflow_dispatch:')[0]||'';
-  for(const file of ['profile.html','profile.js','profile-data-rights.js','api/compliance-message-dispatch.js','tests/supabase-runtime-config-test.mjs','mfa.html','mfa.js','reset-password.html','control-center.html','control-center-auth-preflight.js','database/auth-*.sql','DUELVANTA_MASTERHANDOUT_V*.md'])assert.ok(paths.includes(`- '${file}'`),`${file} must trigger the existing CI workflow`);
+  for(const file of ['profile.html','profile.js','profile-data-rights.js','supabase-environment.js','api/compliance-message-dispatch.js','tests/supabase-runtime-config-test.mjs','mfa.html','mfa.js','reset-password.html','control-center.html','control-center-auth-preflight.js','database/auth-*.sql','DUELVANTA_MASTERHANDOUT_V*.md'])assert.ok(paths.includes(`- '${file}'`),`${file} must trigger the existing CI workflow`);
   assert.match(workflow,/^\s+node --check mfa\.js\s*$/m,'CI must syntax-check MFA logic');
   assert.match(workflow,/^\s+node --check control-center-auth-preflight\.js\s*$/m,'CI must syntax-check the control-center auth gate');
   assert.match(workflow,/^\s+node tests\/supabase-runtime-config-test\.mjs\s*$/m,'CI must execute the full test without --profile-only');

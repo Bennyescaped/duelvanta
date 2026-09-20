@@ -1,5 +1,6 @@
 'use strict';
 
+const {resolveSupabaseEnvironment}=require('../supabase-environment.js');
 const json=(res,status,body)=>res.status(status).json(body);
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
 
@@ -32,7 +33,7 @@ module.exports=async function handler(req,res){
   if(process.env.ACCOUNT_DATA_ERASURE_ENABLED!=='true')return json(res,200,{status:'disabled',claimed:0,completed:0,failed:0});
   const secret=required('ACCOUNT_DATA_ERASURE_SECRET');
   if(req.headers.authorization!==`Bearer ${secret}`)return json(res,401,{error:'unauthorized'});
-  const base=required('SUPABASE_URL'),key=required('SUPABASE_SERVICE_ROLE_KEY'),lock=crypto.randomUUID();
+  const {url:base}=resolveSupabaseEnvironment(process.env),key=required('SUPABASE_SERVICE_ROLE_KEY'),lock=crypto.randomUUID();
   const rows=await rpc(base,key,'claim_account_deletion_requests',{p_limit:5,p_lock_token:lock});
   let completed=0,failed=0;
   for(const row of rows||[]){

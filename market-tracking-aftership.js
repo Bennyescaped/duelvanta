@@ -1,9 +1,7 @@
 'use strict';
 
 const crypto=require('node:crypto');
-
-const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
-const STAGING_KEY='sb_publishable_KNlm6LzvSxCaGwLc_1mPbA_-z1we46N';
+const {resolveSupabaseRuntimeConfig}=require('./supabase-environment.js');
 const AFTERSHIP_BASE='https://api.aftership.com/tracking/2026-07';
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -29,11 +27,10 @@ const rawBody=req=>{
 
 function baseConfig(){
   if(process.env.VERCEL_ENV!=='preview'||process.env.MARKET_TRACKING_ENABLED!=='true')return null;
-  const base=process.env.SUPABASE_URL||STAGING_URL;
-  if(base!==STAGING_URL)throw new Error('tracking_preview_database_mismatch');
+  const {url:base,key:publishableKey}=resolveSupabaseRuntimeConfig(process.env);
   return {
     base,
-    publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY||STAGING_KEY,
+    publishableKey,
     serviceKey:required('SUPABASE_SERVICE_ROLE_KEY')
   };
 }

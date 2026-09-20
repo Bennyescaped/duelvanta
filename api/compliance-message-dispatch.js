@@ -1,21 +1,15 @@
 'use strict';
 
 const tracking=require('../market-tracking-aftership.js');
+const {resolveSupabaseEnvironment,resolveSupabaseRuntimeConfig}=require('../supabase-environment.js');
 const json=(res,status,body)=>res.status(status).json(body);
 const required=name=>{const value=process.env[name];if(!value)throw new Error(`missing_${name.toLowerCase()}`);return value};
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const PRODUCTION_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-const PRODUCTION_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
-const STAGING_URL='https://xhmjxrcskfhbovhitdej.supabase.co';
-const STAGING_KEY='sb_publishable_KNlm6LzvSxCaGwLc_1mPbA_-z1we46N';
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function databaseConfig(){
-  const environment=process.env.VERCEL_ENV||'development',production=environment==='production';
-  const url=production?PRODUCTION_URL:(environment==='preview'?(process.env.SUPABASE_URL||STAGING_URL):process.env.SUPABASE_URL);
-  const key=production?PRODUCTION_KEY:(environment==='preview'?(process.env.SUPABASE_PUBLISHABLE_KEY||STAGING_KEY):process.env.SUPABASE_PUBLISHABLE_KEY);
-  if(!url||!key||(!production&&url.includes('enifiaqsnqtbzylnfrpi'))||(environment==='preview'&&url!==STAGING_URL))return null;
-  return {url,key,environment};
+  try{return resolveSupabaseRuntimeConfig(process.env)}
+  catch{return null}
 }
 
 function runtimeConfig(res){
@@ -143,7 +137,7 @@ module.exports=async function handler(req,res){
   if(process.env.COMPLIANCE_EMAIL_DELIVERY_ENABLED!=='true')return json(res,200,{status:'disabled',claimed:0,sent:0,failed:0});
   const secret=required('COMPLIANCE_DISPATCH_SECRET');
   if(req.headers.authorization!==`Bearer ${secret}`)return json(res,401,{error:'unauthorized'});
-  const base=required('SUPABASE_URL'),key=required('SUPABASE_SERVICE_ROLE_KEY'),lock=crypto.randomUUID();
+  const {url:base}=resolveSupabaseEnvironment(process.env),key=required('SUPABASE_SERVICE_ROLE_KEY'),lock=crypto.randomUUID();
   const rows=await supabaseRpc(base,key,'claim_marketplace_message_delivery',{p_limit:10,p_lock_token:lock});
   let sent=0,failed=0;
   for(const row of rows||[]){

@@ -8,8 +8,9 @@
   const CODE=/^SP-[0-9A-F]{64}$/;
   const activeStatuses=new Set(['waiting','ready','live','dispute']);
   const statusText={waiting:'WARTET AUF GEGNER',ready:'SPIELER VERBUNDEN',live:'MATCH LÄUFT',dispute:'ERGEBNIS WIRD GEPRÜFT',completed:'MATCH ABGESCHLOSSEN',cancelled:'MATCH BEENDET'};
-  if(!window.supabase?.__dvRuntimeGuard){message('Sicherer Umgebungszugang fehlt. Bitte die Seite neu laden.');return;}
-  const db=window.supabase.createClient('https://xhmjxrcskfhbovhitdej.supabase.co','sb_publishable_KNlm6LzvSxCaGwLc_1mPbA_-z1we46N',{auth:{persistSession:true,autoRefreshToken:true}});
+  const config=window.DV_SUPABASE;
+  if(!config?.url||!config?.key){message('Sicherer Umgebungszugang fehlt. Bitte die Seite neu laden.');return;}
+  const db=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:true}});window.__dvAppDb=db;
   let actor=null,attempt=null,version=0,listVersion=0,tcg='pokemon',timer=null,watchdog=null,resumeId=null;
   function errorText(error){
     const text=String(error?.message||'');

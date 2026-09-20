@@ -155,7 +155,7 @@
   <script>
     const {url:SB_URL,key:SB_KEY}=window.DV_SUPABASE;
     const OWNER_EMAIL='info@duelvanta.de';
-    const IS_REVIEW_PREVIEW=location.hostname.endsWith('.vercel.app')&&SB_URL.includes('xhmjxrcskfhbovhitdej');
+    const IS_REVIEW_PREVIEW=window.DV_SUPABASE.environment==='preview';
     const PREVIEW_OWNER_EMAIL='test-owner@duelvanta.de';
     const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 

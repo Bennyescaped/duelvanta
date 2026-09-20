@@ -11,7 +11,7 @@ const response=()=>({statusCode:0,body:null,status(code){this.statusCode=code;re
 const originalFetch=global.fetch,originalEnv={...process.env};
 const UUID='90000000-0000-4000-8000-000000000001',USER='90000000-0000-4000-8000-000000000002';
 try{
-  Object.assign(process.env,{SUPABASE_URL:'https://project.example.test',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'service-test',
+  Object.assign(process.env,{SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'service-test',
     STRIPE_SECRET_KEY:'sk_test_mock_only',STRIPE_WEBHOOK_SECRET:'whsec_mock_only',STRIPE_REFUND_WORKER_SECRET:'refund-worker-test',
     STRIPE_ACCOUNTS_V2_VERSION:'2026-08-26.dahlia',DUELVANTA_PUBLIC_ORIGIN:'https://review.example.test'});
   delete process.env.STRIPE_CONNECT_SANDBOX_ENABLED;

@@ -8,7 +8,7 @@ const response=()=>({statusCode:0,body:null,headers:{},status(code){this.statusC
 const originalFetch=global.fetch;
 const originalEnv={...process.env};
 try{
-  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://example.supabase.test',SUPABASE_PUBLISHABLE_KEY:'test-publishable',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
+  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test_only',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
   let publicCalls=0;
   global.fetch=async(url,options)=>{
     publicCalls++;
@@ -32,7 +32,7 @@ try{
     VERCEL_ENV:'preview',
     MARKET_TRACKING_ENABLED:'true',
     SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',
-    SUPABASE_PUBLISHABLE_KEY:'test-publishable',
+    SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test_only',
     SUPABASE_SERVICE_ROLE_KEY:'test-service-role',
     AFTERSHIP_API_KEY:'test-aftership-key',
     AFTERSHIP_WEBHOOK_SECRET:'test-webhook-secret',
@@ -78,7 +78,7 @@ try{
   const manual=response();await handler({method:'POST',query:{aftership_webhook:'1'},headers:{'x-duelvanta-tracking-secret':'test-header-secret','as-webhook-version':'2026-07','aftership-hmac-sha256':manualSig},body:manualRaw},manual);
   assert.deepEqual(manual.body,{status:'ignored',reason:'no_carrier_delivery_checkpoint'});assert.equal(manualCalls,0);
 
-  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://example.supabase.test',SUPABASE_PUBLISHABLE_KEY:'test-publishable',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
+  Object.assign(process.env,{VERCEL_ENV:'development',SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test_only',SUPABASE_SERVICE_ROLE_KEY:'test-service-role'});
   delete process.env.MARKET_TRACKING_ENABLED;
   delete process.env.AFTERSHIP_API_KEY;
   delete process.env.AFTERSHIP_WEBHOOK_SECRET;
@@ -88,7 +88,7 @@ try{
   const disabled=response();await handler({method:'POST',headers:{}},disabled);
   assert.deepEqual(disabled.body,{status:'disabled',claimed:0,sent:0,failed:0});assert.equal(calls,0);
 
-  Object.assign(process.env,{COMPLIANCE_EMAIL_DELIVERY_ENABLED:'true',COMPLIANCE_DISPATCH_SECRET:'test-dispatch-secret',SUPABASE_URL:'https://example.supabase.test',SUPABASE_SERVICE_ROLE_KEY:'test-service-role',RESEND_API_KEY:'test-resend-key',COMPLIANCE_EMAIL_FROM:'DUELVANTA <no-reply@example.test>'});
+  Object.assign(process.env,{COMPLIANCE_EMAIL_DELIVERY_ENABLED:'true',COMPLIANCE_DISPATCH_SECRET:'test-dispatch-secret',SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test-service-role',RESEND_API_KEY:'test-resend-key',COMPLIANCE_EMAIL_FROM:'DUELVANTA <no-reply@example.test>'});
   const unauthorized=response();await handler({method:'POST',headers:{authorization:'Bearer wrong'}},unauthorized);assert.equal(unauthorized.statusCode,401);assert.equal(calls,0);
   const rows=[
     {message_id:'message-1',message_kind:'order_confirmation',recipient_email:'buyer@example.test',payload:{order_number:'DV-TEST'},confirmation_text:'DUELVANTA BESTELLBESTÄTIGUNG',idempotency_key:'order_confirmation:snapshot-1',delivery_lock_token:'lock-1',attempt:1},

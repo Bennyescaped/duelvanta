@@ -7,6 +7,7 @@ on:
       - 'scanner-v16-*.js'
       - 'collect.html'
       - 'site-nav.js'
+      - 'supabase-environment.js'
       - 'app.html'
       - 'i18n.js'
       - 'tests/account-home-battle-live-test.mjs'
@@ -183,6 +184,7 @@ jobs:
           node --check scanner-v16-live.js
           node --check scanner-v16-ocr.js
           node --check site-nav.js
+          node --check supabase-environment.js
           node --check ranking.js
           node --check public-battle-profile.js
           node --check mfa.js
