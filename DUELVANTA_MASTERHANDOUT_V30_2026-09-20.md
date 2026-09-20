@@ -2,7 +2,7 @@
 
 Stand: 2026-09-20
 Verbindlicher Entwicklungsbranch: `marketplace-ux-v1`
-Verbindlicher Branch-Head: `bda7617a18eea1897f9add7d9440c1c3b3d49793`
+Verbindlicher Branch-Head vor diesem V30-Aktualisierungscommit: `d0470c4cb34eb9f8c1ae02060118847f86a92c07`
 `main`: `50f88213571be13255bb52eb489cc28cca660001` – unverändert
 PR #5: offen, Draft, unmerged
 
@@ -145,15 +145,24 @@ Für Smoke-Test fehlte ein geeignetes aktives Fremdinserat. Kein Blocker des Env
 6. Sobald mehrere Geräte verfügbar sind: Spectator-Media-Mehrgeräte-Abnahme fortsetzen.
 7. Vor Live finale Gesamtprüfung/Codex-Review.
 
-## 10. Übergabe für neuen Chat
+## 10. Projektarchiv
+
+Konsolidierte Historie: `DUELVANTA_PROJECT_HISTORY_2026-09-20.md`.
+Archiv-Commit: `d0470c4cb34eb9f8c1ae02060118847f86a92c07`.
+Das Projektarchiv dient als historischer Kontext für archivierte Chat-/Work-Verläufe; bei Widersprüchen haben V30 bzw. spätere Masterhandouts und der tatsächliche Repository-Stand Vorrang.
+
+## 11. Übergabe für neuen Chat
 
 Neuer Chat soll zuerst V30 vollständig lesen und anschließend tatsächlichen Repository-Head prüfen. Erwartet:
 - Branch `marketplace-ux-v1`
-- Head `bda7617a18eea1897f9add7d9440c1c3b3d49793`
+- Head: tatsächlichen aktuellen `marketplace-ux-v1`-Head prüfen; unmittelbar vor diesem V30-Aktualisierungscommit `d0470c4cb34eb9f8c1ae02060118847f86a92c07`
 - main `50f88213571be13255bb52eb489cc28cca660001`
 - PR #5 offen/Draft/unmerged
 
 Wenn die Kanzlei noch nicht geantwortet hat, keine Legal-Entscheidung erzwingen. Stattdessen nur klar isolierte, von Legal unabhängige Arbeiten durchführen.
+
+---
+Hinweis: Dieser V30-Aktualisierungscommit ändert ausschließlich Dokumentation; Anwendungscode bleibt auf dem technisch getesteten Stand `bda7617a18eea1897f9add7d9440c1c3b3d49793`.
 
 ---
 Ende V30.
