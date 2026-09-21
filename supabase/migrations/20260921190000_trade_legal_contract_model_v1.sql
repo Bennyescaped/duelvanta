@@ -256,6 +256,10 @@ begin
 end
 $$;
 
+-- Retire legacy browser entrypoints that would form contracts at the obsolete buyer-checkout time.
+revoke all on function public.buy_market_listing_v3(uuid,integer,uuid,timestamptz,text) from public,anon,authenticated;
+revoke all on function public.checkout_accepted_market_offer_v1(uuid,uuid,text) from public,anon,authenticated;
+
 -- Price proposals freeze buyer status when the buyer makes the binding offer.
 create or replace function public.create_market_offer_v2(
   p_listing_id uuid,p_requested_quantity integer,p_amount numeric,p_message text default null
