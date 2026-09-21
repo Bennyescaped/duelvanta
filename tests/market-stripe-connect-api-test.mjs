@@ -105,6 +105,40 @@ try{
   assert.equal(created.statusCode,200);assert.equal(created.body.live_mode,false);
   const stripeCall=requests.find(r=>r.url.includes('/checkout/sessions'));assert.equal(stripeCall.options.headers['stripe-account'],'acct_TestSeller');
   assert.match(stripeCall.options.body,/payment_intent_data%5Bapplication_fee_amount%5D=250/);
+  const FIXED_LISTING='90000000-0000-4000-8000-000000000010',FIXED_REQUEST='90000000-0000-4000-8000-000000000011';
+  const FIXED_OFFER='90000000-0000-4000-8000-000000000012',FIXED_ATTEMPT='90000000-0000-4000-8000-000000000013';
+  const fixedRequests=[];const fixedCreated=Math.floor(Date.now()/1000);
+  global.fetch=async(url,options={})=>{
+    fixedRequests.push({url:String(url),options});
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
+    if(String(url).includes('prepare_fixed_price_market_offer_v1'))return new Response(JSON.stringify({
+      accepted:false,offer_id:FIXED_OFFER,payment_attempt_id:FIXED_ATTEMPT,stripe_account_id:'acct_TestSeller',
+      amount_due_cents:1099,platform_fee_cents:99,live_mode:false
+    }),{status:200});
+    if(String(url).includes('api.stripe.com/v1/checkout/sessions'))return new Response(JSON.stringify({
+      id:'cs_test_FixedSession',url:'https://checkout.stripe.com/c/pay/cs_test_FixedSession',created:fixedCreated
+    }),{status:200});
+    if(String(url).includes('accept_fixed_price_market_offer_v1'))return new Response(JSON.stringify({
+      order_id:'90000000-0000-4000-8000-000000000014',replayed:false
+    }),{status:200});
+    throw new Error('unexpected_fixed_fetch_'+url);
+  };
+  const fixed=response();await checkout({method:'POST',headers:{authorization:'Bearer buyer-token'},body:{
+    listing_id:FIXED_LISTING,quantity:1,request_key:FIXED_REQUEST,
+    expected_updated_at:'2026-09-21T17:00:00.000Z',checkout_hash:'a'.repeat(64)
+  }},fixed);
+  assert.equal(fixed.statusCode,200);assert.equal(fixed.body.live_mode,false);assert.equal(fixed.body.attempt_id,FIXED_ATTEMPT);
+  const fixedPrepare=fixedRequests.find(x=>x.url.includes('prepare_fixed_price_market_offer_v1'));
+  assert.equal(fixedPrepare.options.headers.authorization,'Bearer buyer-token');
+  const fixedStripe=fixedRequests.find(x=>x.url.includes('api.stripe.com/v1/checkout/sessions'));
+  assert.equal(fixedStripe.options.headers['stripe-account'],'acct_TestSeller');
+  assert.match(fixedStripe.options.body,/duelvanta_fixed_offer_id/);
+  const fixedAccept=fixedRequests.find(x=>x.url.includes('accept_fixed_price_market_offer_v1'));
+  const fixedAcceptBody=JSON.parse(fixedAccept.options.body);
+  assert.equal(fixedAcceptBody.p_offer_id,FIXED_OFFER);assert.equal(fixedAcceptBody.p_attempt_id,FIXED_ATTEMPT);
+  assert.equal(fixedAcceptBody.p_session_id,'cs_test_FixedSession');
+  assert.equal(fixedAcceptBody.p_payment_requested_at,new Date(fixedCreated*1000).toISOString());
+
   const event={id:'evt_TestEvent',type:'payment_intent.succeeded',livemode:false,account:'acct_TestSeller',created:1789308000,
     data:{object:{id:'pi_TestIntent',amount_received:10500,currency:'eur',latest_charge:'ch_TestCharge',metadata:{duelvanta_attempt_id:UUID}}}};
   const raw=Buffer.from(JSON.stringify(event)),timestamp=Math.floor(Date.now()/1000);
