@@ -354,6 +354,7 @@ jobs:
           node tests/collect-ux-browser-test.mjs
           node tests/collect-mobile-ui-test.mjs
           node tests/collect-binder-delete-database-test.mjs
+          node tests/collect-binder-delete-browser-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
         run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E
