@@ -1,5 +1,5 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
-import { AccessToken, RoomServiceClient } from "npm:livekit-server-sdk@2";
+import { createClient } from "npm:@supabase/supabase-js@2.116.0";
+import { AccessToken, TrackSource } from "npm:livekit-server-sdk@2.19.0";
 
 const corsHeaders = {
  "access-control-allow-origin": "https://duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app",
@@ -29,7 +29,7 @@ Deno.serve(async(req)=>{
   const role=action==="viewer"?"viewer":rpc.data.publisher_role;
   const identity=`dv:${matchId}:${rpc.data.epoch}:${role}:${crypto.randomUUID()}`;
   const token=new AccessToken(key,secret,{identity,ttl:"45s",metadata:JSON.stringify({match_id:matchId,epoch:rpc.data.epoch,role})});
-  token.addGrant({roomJoin:true,room:`dv-${matchId}-${rpc.data.epoch}`,canSubscribe:action==="viewer",canPublish:action==="publisher",canPublishData:false,canUpdateOwnMetadata:false,canPublishSources:action==="publisher"?["camera","microphone"]:[]});
+  token.addGrant({roomJoin:true,room:`dv-${matchId}-${rpc.data.epoch}`,canSubscribe:action==="viewer",canPublish:action==="publisher",canPublishData:false,canUpdateOwnMetadata:false,canPublishSources:action==="publisher"?[TrackSource.CAMERA,TrackSource.MICROPHONE]:[]});
   return json({url:lkUrl,token:await token.toJwt(),role,epoch:rpc.data.epoch,expires_in:45});
  }catch(e){console.error("spectator-media-broker",e instanceof Error?e.message:"error");return json({error:"media_broker_unavailable"},503);}
 });
