@@ -55,7 +55,7 @@ const routedClients={
   'battle.js':['DV_SUPABASE','createClient(SB_URL,SB_KEY,'],
   'battle-spectator.js':['DV_SUPABASE','createClient(config.url,config.key,'],
   'battle-spectator-media-publisher.js':['DV_SUPABASE.url','battle-spectator-media-broker'],
-  'battle-spectator-media-viewer.js':['DV_SUPABASE.url','battle-spectator-media-broker'],
+  'battle-spectator-media-viewer.js':['DV_SUPABASE.url','battle-spectator-media-broker','window.__dvAppDb'],
   'control-center.js':['window.__dvAppDb'],
   'control-center-auth-preflight.js':['DV_SUPABASE','window.__dvAppDb=preflight']
 };
@@ -64,6 +64,9 @@ for(const [file,markers] of Object.entries(routedClients)){
   for(const marker of markers)assert.ok(source.includes(marker),`${file} must use ${marker}`);
   assert.ok(!source.includes(PRODUCTION_URL)&&!source.includes(STAGING_URL),`${file} must not own an environment target`);
 }
+
+const spectatorViewer=await read('battle-spectator-media-viewer.js');
+assert.ok(!spectatorViewer.includes('async function broker(a){const {data:{session}}=await db.auth.getSession()'),'spectator viewer must not reference the spectator client outside its private scope');
 
 const routedServerPaths={
   'api/compliance-message-dispatch.js':'resolveSupabaseEnvironment',
