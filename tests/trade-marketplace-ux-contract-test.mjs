@@ -68,10 +68,10 @@ must(sealedSaleOnlySql,"product_kind is distinct from 'sealed' or listing_type =
 must(checkout,'id="dvBuyMinus"','Mobile quantity decrement is missing');
 must(checkout,'id="dvBuyPlus"','Mobile quantity increment is missing');
 must(checkout,'Zahlungspflichtig bestellen','Legally explicit checkout action is missing');
-must(checkout,'Keine integrierte Onlinezahlung oder Auszahlung.','Truthful beta payment wording is missing');
+must(checkout,'Erst die unmittelbar danach erzeugte Stripe-Zahlungsaufforderung','Contract-forming payment-request wording is missing');
 must(checkout,"db.rpc('review_market_checkout'",'Server-side seller and checkout review is missing');
-must(checkout,"db.rpc('buy_market_listing_v3'",'Hash-bound immutable checkout entrypoint is missing');
-must(checkout,"version:'1.2'",'Checkout module version mismatch');
+must(checkout,"fetch('/api/market-stripe-checkout'",'Fixed-price buyer offer is not routed through the Stripe acceptance API');
+must(checkout,"version:'2.0'",'Checkout module version mismatch');
 must(shippingOptions,'Bitte Versandkosten ergänzen.','An empty shipping price must not appear as free shipping');
 must(shippingOptions,"version:'1.2'",'Shipping options module version mismatch');
 must(css,'.dvTradePrimary','Primary Marketplace navigation styles are missing');
