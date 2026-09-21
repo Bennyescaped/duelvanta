@@ -12,7 +12,8 @@ for(const [path,sha] of Object.entries({'battle.js':'9cb2d4368cde388d8c89fc44d88
 const spectatorHTML=await read('battle-spectator.html');
 assert.ok(!/<(?:video|audio)\b|src="battle(?:-webrtc|-moderation|-ranked)?\.js"/.test(spectatorHTML));
 assert.ok(spectatorHTML.indexOf('site-nav.js')<spectatorHTML.indexOf('battle-spectator.js'));
-const playerHTML=await read('battle.html');assert.equal(hash(playerHTML),'9610594044b412289fe0fa535ad7c543258c5f9e','player HTML environment and spectator integration changed unexpectedly');
+// Reviewed delta: pinned LiveKit 2.15.6 uses the published .umd.js asset, not nonexistent .umd.min.js.
+const playerHTML=await read('battle.html');assert.equal(hash(playerHTML),'8fedc872e7430622fb2a3b064a92e0e0bab67b6c','player HTML environment and spectator integration changed unexpectedly');
 const M='30000000-0000-4000-8000-000000000001',N='30000000-0000-4000-8000-000000000002',P='30000000-0000-4000-8000-000000000003';
 const CODE='SP-'+'A'.repeat(64),HOST='10000000-0000-4000-8000-000000000001',GUEST='10000000-0000-4000-8000-000000000002';
 const fixture=`(()=>{
