@@ -133,3 +133,15 @@ Nach Erstellung dieses Projektarchivs können ältere DUELVANTA-Chats und Work-C
 4. spezialisierte Legal-/Battle-/Spectator-/Abnahmedokumente im Repository.
 
 Dieses Dokument ersetzt weder Git-Historie noch das jeweils neueste Masterhandout.
+
+## Nachtrag 2026-09-21 – Spectator Media Abschluss
+
+Dieser Nachtrag ersetzt die vorstehenden Angaben „Mehrgeräte-Test ausstehend/pausiert“ und den damaligen Spectator-Anwendungscode-Stand. Die übrigen Gates bleiben unverändert.
+
+- Funktionale Staging-Abnahme bestanden: zwei physische Geräte/Kameras, drei getrennte Browser-Sitzungen (Host Chrome, Gast iPhone Safari, Zuschauer Safari auf Host-Mac).
+- Echter LiveKit-Widerruf, fortbestehendes Spieler-P2P, Replay des noch gültigen Host-Tokens mit HTTP 401 und erneuter Bild-/Tonempfang nach regulärer Zustimmung nachgewiesen.
+- Abschließend geprüfter Code-/Test-Head: `73f6baeb08116be4753799155b787f7ea937cd8a`; Battle WebRTC Check #87 und Scanner V16 Check #611 SUCCESS.
+- `media_enabled=true` ausschließlich für Staging `xhmjxrcskfhbovhitdej` freigegeben. Keine Production-Freigabe, kein 50-Zuschauer-Lastnachweis.
+- Vollständiger Umfang, Fehlerbehebungen, Evidenz und Grenzen: `DUELVANTA_SPECTATOR_MEDIA_MULTIDEVICE_ACCEPTANCE_2026-09-21.md`.
+- Production/main/Stripe Live unverändert; main weiterhin `50f88213571be13255bb52eb489cc28cca660001`.
+- Abschluss: STOP. Keine weitere BATTLE-Entwicklung beginnen. Für neue Arbeiten tatsächlichen Branch-Head prüfen; spätere Dokumentationscommits ändern den genannten geprüften Code nicht.
