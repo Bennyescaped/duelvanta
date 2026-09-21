@@ -297,6 +297,8 @@ jobs:
         run: |
           node --check trade-marketplace-ux.js
           node --check trade-checkout.js
+          node --check trade-offer-details.js
+          node --check trade-offer-checkout.js
           node --check trade-orders.js
           node --check trade-notice-action.js
           node --check trade-seller-moderation.js
@@ -309,6 +311,7 @@ jobs:
           node --check api/market-stripe-checkout.js
           node --check api/market-stripe-webhook.js
           node --check api/market-stripe-refund.js
+          node --check profile.js
           node --check profile-data-rights.js
           node tests/runtime-routing-contract-test.mjs
           node tests/account-home-battle-live-test.mjs
