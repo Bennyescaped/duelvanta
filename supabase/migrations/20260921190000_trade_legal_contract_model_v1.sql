@@ -692,6 +692,10 @@ begin
     l.length_mm,l.width_mm,l.height_mm,o.checkout_request_id,'stripe_connect','pending'
   ) returning * into d;
 
+  -- AFTER INSERT order attachment updates market_deals.order_id; reload the post-trigger row before payment evidence.
+  select * into d from public.market_deals where id=d.id;
+  if d.order_id is null then raise exception 'fixed_order_attachment_missing'; end if;
+
   select * into snap from dv_market_private.market_contract_snapshots where deal_id=d.id;
   if not found then raise exception 'checkout_snapshot_missing'; end if;
   v_total:=round(snap.total_price*100)::integer;
