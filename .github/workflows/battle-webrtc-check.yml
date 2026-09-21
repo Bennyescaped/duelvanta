@@ -78,6 +78,8 @@ jobs:
           node tests/battle-private-join-contract-test.mjs
           node tests/battle-dispute-resolution-test.mjs
           node tests/battle-judge-desk-test.mjs
+          node tests/battle-spectator-media-publisher-test.mjs
+          node tests/battle-spectator-media-broker-test.mjs
           node tests/battle-spectator-media-reconciler-contract-test.mjs
           node tests/runtime-routing-contract-test.mjs
           node tests/battle-webrtc-restart-test.mjs
@@ -87,7 +89,9 @@ jobs:
           ln -s .github/ci/node_modules node_modules
           .github/ci/node_modules/.bin/playwright install chromium
       - name: Independent spectator browser lifecycle and read-only UI
-        run: node tests/battle-spectator-browser-test.mjs
+        run: |
+          node tests/battle-spectator-browser-test.mjs
+          node tests/battle-spectator-media-layout-test.mjs
       - name: Real WebRTC browser regression with isolated signaling
         run: node tests/battle-webrtc-browser-test.mjs
       - name: Browser evidence (no media recordings)
