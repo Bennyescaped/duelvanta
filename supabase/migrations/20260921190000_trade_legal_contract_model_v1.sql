@@ -873,9 +873,9 @@ begin
   ) on conflict(dedupe_key) do nothing;
 
   insert into dv_market_private.marketplace_message_outbox(
-    contract_snapshot_id,recipient_kind,recipient_user_id,message_kind,payload,dedupe_key
+    contract_snapshot_id,recipient_kind,recipient_user_id,recipient_email,message_kind,payload,dedupe_key
   ) values(
-    s.id,'seller',s.seller_id,'withdrawal_notice',
+    s.id,'seller',s.seller_id,s.seller_party->>'public_email','withdrawal_notice',
     jsonb_build_object('withdrawal_id',w.id,'contract_snapshot_id',s.id,'order_id',s.order_id,
       'product_title',s.product_snapshot->>'title','consumer_name',d.consumer_name,
       'submitted_at',v_submitted,'declaration_text',v_text),
