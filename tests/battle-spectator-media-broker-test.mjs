@@ -8,6 +8,7 @@ const origin = 'https://duelvantav5vision-git-marketplace-ux-v1-bennyescaped-378
 let handler, rpcCalls = 0, tokens = 0, admission = { error: { message: 'denied' } }, grant;
 const context = {
   Request, Response, crypto, console,
+  TrackSource: { CAMERA: 1, MICROPHONE: 2 },
   Deno: { serve(fn) { handler = fn; }, env: { get: () => 'test-only' } },
   createClient: () => ({ rpc: async () => { rpcCalls++; return admission; } }),
   AccessToken: class {
@@ -45,5 +46,26 @@ assert.equal(grant.room, 'dv-' + body.match_id + '-test-epoch');
 response = await handler(request('POST', { ...body, action: 'publisher' }, true));
 assert.equal(response.status, 200); cors(response);
 assert.equal(grant.canPublish, true); assert.equal(grant.canSubscribe, false);
-assert.equal(JSON.stringify(grant.canPublishSources), '["camera","microphone"]');
+assert.equal(JSON.stringify(grant.canPublishSources), '[1,2]');
 console.log('PASS broker preflight, CORS, admission denial, viewer/publisher grants');
+
+// Supply the pinned SDK module path to run real signing, without production credentials.
+if (process.env.LIVEKIT_SDK_MODULE) {
+  const sdk = await import(process.env.LIVEKIT_SDK_MODULE);
+  context.AccessToken = sdk.AccessToken;
+  context.TrackSource = sdk.TrackSource;
+  for (const action of ['publisher', 'viewer']) {
+    const result = await handler(request('POST', { ...body, action }, true));
+    assert.equal(result.status, 200, 'real SDK must sign ' + action);
+    const { token } = await result.json();
+    const claims = await new sdk.TokenVerifier('test-only', 'test-only').verify(token);
+    assert.equal(claims.video.canPublish, action === 'publisher');
+    assert.equal(claims.video.canSubscribe, action === 'viewer');
+    assert.equal(claims.video.canPublishData, false);
+    assert.equal(claims.video.canUpdateOwnMetadata, false);
+    assert.deepEqual(claims.video.canPublishSources, action === 'publisher' ? ['camera', 'microphone'] : []);
+    assert.equal(claims.video.room, 'dv-' + body.match_id + '-test-epoch');
+    assert.ok(claims.exp - claims.nbf <= 45);
+  }
+  console.log('PASS real LiveKit SDK signs and verifies publisher/viewer tokens; no real credentials used');
+}
