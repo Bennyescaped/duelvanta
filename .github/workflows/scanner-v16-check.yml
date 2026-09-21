@@ -8,6 +8,7 @@ on:
       - 'collect.html'
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
+      - 'tests/collect-mobile-ui-test.mjs'
       - 'site-nav.js'
       - 'supabase-environment.js'
       - 'app.html'
@@ -303,6 +304,7 @@ jobs:
         run: |
           node tests/collect-ux-test.mjs
           node tests/collect-ux-browser-test.mjs
+          node tests/collect-mobile-ui-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
         run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E
