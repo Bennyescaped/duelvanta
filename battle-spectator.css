@@ -9,6 +9,13 @@
 .spectator-count{display:flex;flex-direction:column;align-items:center;min-width:90px;gap:4px}.spectator-count strong{font-size:36px;color:#d4af62}
 .spectator-players{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;margin:24px 0}.spectator-players article{min-width:0;padding:20px;background:#1b1c20;border-radius:12px}
 .spectator-players h3,.spectator-view h2{overflow-wrap:anywhere}.spectator-status{text-align:center;padding:18px;border-block:1px solid #39352c;line-height:1.6}
+/* Media tracks are not the three-column Host / VS / Guest status row. */
+#spMedia{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;min-width:0}
+#spMedia:empty{display:none}
+#spMedia>video{display:block;width:100%;max-width:100%;min-width:0;height:auto;aspect-ratio:16/9;object-fit:contain;background:#080b0d;border-radius:12px}
+#spMedia>audio{display:none}
+#spMedia:has(>video)+.spectator-placeholder{display:none}
+@media(max-width:620px){#spMedia{grid-template-columns:minmax(0,1fr)}}
 .spectator-placeholder{text-align:center;max-width:650px;margin:36px auto;line-height:1.7;color:#c4c4c7}.spectator-placeholder img{width:54px;height:54px;opacity:.65}.spectator-placeholder h3{color:#e4d6b9}
 .spectator-footer{padding:36px 0;margin-top:24px;text-align:center;font-weight:700;color:#c5a161}.spectator-footer p{font-weight:400;max-width:700px;margin:14px auto;line-height:1.6}
 #battleSpectatorPanel .spectator-actions{margin-bottom:8px}#battleSpectatorPanel .meta{overflow-wrap:anywhere;line-height:1.5}
