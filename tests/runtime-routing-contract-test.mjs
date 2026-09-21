@@ -50,6 +50,12 @@ for(const [file,consumer] of Object.entries(pages)){
   assert.ok(source.indexOf(runtime)<source.indexOf(consumer),`${file} must resolve its environment before ${consumer}`);
 }
 
+for(const file of ['battle.html','battle-spectator.html']){
+  const source=await read(file);
+  assert.ok(source.includes('livekit-client@2.15.6/dist/livekit-client.umd.js'),`${file} must load the published LiveKit UMD bundle`);
+  assert.ok(!source.includes('livekit-client.umd.min.js'),`${file} must not request the unpublished LiveKit minified bundle`);
+}
+
 const routedClients={
   'collect.html':['DV_SUPABASE','createClient(SB_URL,SB_KEY,'],
   'battle.js':['DV_SUPABASE','createClient(SB_URL,SB_KEY,'],
