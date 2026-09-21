@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 
 const pgliteUrl=process.argv[2]?pathToFileURL(process.argv[2]).href:import.meta.resolve('@electric-sql/pglite');
 const {PGlite}=await import(pgliteUrl);
-const db=new PGlite();
+const db=process.env.F3_NATIVE_PG==='1'?await (await import('./helpers/f3-native-db.mjs')).createDatabase():new PGlite();
 const USER='94000000-0000-4000-8000-000000000001',REQ='94000000-0000-4000-8000-000000000002',LOCK='94000000-0000-4000-8000-000000000003';
 const USER2='94000000-0000-4000-8000-000000000011',REQ2='94000000-0000-4000-8000-000000000012',LOCK2='94000000-0000-4000-8000-000000000013';
 const patch=await readFile(new URL('../database/account-data-erasure-username-guard-v1.sql',import.meta.url),'utf8');
@@ -47,6 +47,7 @@ try{
     grant usage on schema public to authenticated,service_role;grant select,update on public.profiles to authenticated,service_role;
   `);
   await db.exec(patch);
+  await db.exec(await readFile(new URL('../supabase/migrations/20260921144947_collect_empty_binder_delete.sql',import.meta.url),'utf8'));
 
   const acl=(await db.query(`select
     has_function_privilege('authenticated','public.prepare_account_deletion_data(uuid,uuid)','EXECUTE') authenticated,

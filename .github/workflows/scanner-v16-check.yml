@@ -9,6 +9,9 @@ on:
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
       - 'tests/collect-mobile-ui-test.mjs'
+      - 'tests/collect-binder-delete-*.mjs'
+      - 'tests/helpers/f3-native-db.mjs'
+      - 'supabase/migrations/*_collect_empty_binder_delete.sql'
       - 'site-nav.js'
       - 'supabase-environment.js'
       - 'app.html'
@@ -113,6 +116,51 @@ on:
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
+  collect_f3_database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+      F3_NATIVE_PG: '1'
+      F3_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+      - name: Required real PostgreSQL role, cleanup and lock-order regressions
+        run: |
+          mkdir -p test-results
+          set -o pipefail
+          node tests/collect-binder-delete-database-test.mjs | tee test-results/collect-f3-roles.log
+          node tests/account-data-rights-database-test.mjs | tee test-results/collect-f3-account-erasure.log
+          node tests/account-data-erasure-username-guard-test.mjs | tee test-results/collect-f3-username-erasure.log
+          node tests/collect-binder-delete-concurrency-test.mjs
+      - name: F3 PostgreSQL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: collect-f3-postgres-evidence
+          path: test-results/collect-f3-*
+          if-no-files-found: error
   quota_database:
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -305,6 +353,7 @@ jobs:
           node tests/collect-ux-test.mjs
           node tests/collect-ux-browser-test.mjs
           node tests/collect-mobile-ui-test.mjs
+          node tests/collect-binder-delete-database-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
         run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E

@@ -4,8 +4,8 @@ import {pathToFileURL} from 'node:url';
 
 const pgliteUrl=process.argv[2]?pathToFileURL(process.argv[2]).href:import.meta.resolve('@electric-sql/pglite');
 const {PGlite}=await import(pgliteUrl);const{pgcrypto}=await import(new URL('./contrib/pgcrypto.js',pgliteUrl).href);
-const db=new PGlite({extensions:{pgcrypto}}),USER='91000000-0000-4000-8000-000000000001',OTHER='91000000-0000-4000-8000-000000000002';
-const migrations=await Promise.all(['database/market-seller-compliance-v1.sql','database/market-notice-action-v1.sql','database/market-checkout-compliance-v1.sql','database/market-tax-transparency-v1.sql','database/account-data-rights-v1.sql'].map(name=>readFile(new URL('../'+name,import.meta.url),'utf8')));
+const db=process.env.F3_NATIVE_PG==='1'?await (await import('./helpers/f3-native-db.mjs')).createDatabase():new PGlite({extensions:{pgcrypto}}),USER='91000000-0000-4000-8000-000000000001',OTHER='91000000-0000-4000-8000-000000000002';
+const migrations=await Promise.all(['database/market-seller-compliance-v1.sql','database/market-notice-action-v1.sql','database/market-checkout-compliance-v1.sql','database/market-tax-transparency-v1.sql','database/account-data-rights-v1.sql','supabase/migrations/20260921144947_collect_empty_binder_delete.sql'].map(name=>readFile(new URL('../'+name,import.meta.url),'utf8')));
 const claim=async(uid,role='authenticated')=>db.exec(`reset role;select set_config('request.jwt.claim.sub','${uid||''}',false);set role ${role};`);
 const value=async sql=>{const result=(await db.query(sql)).rows[0].value;return typeof result==='string'?JSON.parse(result):result};
 
