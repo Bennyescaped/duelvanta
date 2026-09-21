@@ -321,6 +321,7 @@ jobs:
           node tests/b07-c2c-pickup-contract-test.mjs
           node tests/trade-shipping-null-fallback-contract-test.mjs
           node tests/trade-marketplace-ux-contract-test.mjs
+          node tests/trade-legal-contract-model-test.mjs
           node tests/market-seller-compliance-database-test.mjs
           node tests/market-seller-onboarding-contract-test.mjs
           node tests/trade-seller-compliance-contract-test.mjs
