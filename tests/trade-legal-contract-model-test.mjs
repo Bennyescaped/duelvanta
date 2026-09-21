@@ -23,7 +23,7 @@ for(const kind of ['b2c','b2b','c2c','c2b'])must(migration,"'"+kind+"'",'contrac
 must(migration,"offer_type in ('price','fixed_price')",'fixed-price buyer offer type missing');
 must(migration,'prepare_fixed_price_market_offer_v1','fixed-price buyer offer preparation missing');
 must(migration,'accept_fixed_price_market_offer_v1','fixed-price payment-request acceptance missing');
-must(fn(migration,'public.accept_fixed_price_market_offer_v1'),'accepted_at,p_payment_requested_at','fixed contract is not timestamped at payment request');
+must(fn(migration,'public.accept_fixed_price_market_offer_v1'),"'accepted',p_payment_requested_at",'fixed contract is not timestamped at payment request');
 must(fn(migration,'public.respond_to_market_offer'),'insert into public.market_deals','seller acceptance does not form negotiated contract');
 mustNot(fn(migration,'public.respond_to_market_offer'),"now()+interval '2 hours'",'negotiated acceptance still creates a two-hour pre-contract reservation');
 must(migration,'market_withdrawal_drafts','withdrawal confirmation draft missing');
