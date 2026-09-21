@@ -95,7 +95,7 @@ try{
   assert.equal(scripts.filter(script=>script.src==='/api/compliance-message-dispatch?runtime_config=1').length,1);
   assert.ok(runtimeIndex>=0&&runtimeIndex<profileIndex&&profileIndex<rightsIndex,'runtime must execute before PROFILE and its dependent modules');
   for(const index of [runtimeIndex,profileIndex,rightsIndex])assert.doesNotMatch(scripts[index].attributes,/\b(?:async|defer|type)\s*(?:=|\s|$)/i,'PROFILE bootstrap scripts must remain parser-blocking classic scripts');
-  assert.equal(scripts[profileIndex].src,'profile.js?v=1.2','the changed profile resource needs its new cache version');
+  assert.equal(scripts[profileIndex].src,'profile.js?v=1.3','the changed profile resource needs its new cache version');
   assert.equal(scripts[rightsIndex].src,'profile-data-rights.js?v=2','the changed data-rights resource needs its new cache version');
   assert.match(profileHtml,/profile\.css\?v=1\.1/,'unchanged CSS must keep its cache version');
   assert.equal((profileSource.match(/createClient\(/g)||[]).length,1,'PROFILE must have exactly one guarded client factory');
