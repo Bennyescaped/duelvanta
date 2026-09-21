@@ -97,7 +97,7 @@ try{
     requests.push({url:String(url),options});
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
     if(String(url).includes('prepare_market_stripe_payment'))return new Response(JSON.stringify({attempt_id:UUID,stripe_account_id:'acct_TestSeller',amount_due_cents:10500,platform_fee_cents:250}),{status:200});
-    if(String(url).includes('api.stripe.com/v1/checkout/sessions'))return new Response(JSON.stringify({id:'cs_test_TestSession',url:'https://checkout.stripe.test/session'}),{status:200});
+    if(String(url).includes('api.stripe.com/v1/checkout/sessions'))return new Response(JSON.stringify({id:'cs_test_TestSession',url:'https://checkout.stripe.com/c/pay/cs_test_TestSession'}),{status:200});
     if(String(url).includes('bind_market_stripe_checkout_session'))return new Response('',{status:200});
     throw new Error('unexpected_fetch_'+url);
   };
