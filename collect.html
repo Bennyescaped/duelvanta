@@ -18,6 +18,9 @@ body:before,body:after{content:"";position:fixed;pointer-events:none;z-index:-1;
 
 /* M1–M3: scoped presentation corrections, no price or persistence changes. */
 #cardDialog .field{min-width:0}#cardDialog input,#cardDialog select,#cardDialog textarea{min-width:0;max-width:100%}
+/* Native date control: derive its border-box from the field, not intrinsic content. */
+#cardDialog .field:has(> #purchaseDate){display:grid;grid-template-columns:minmax(0,1fr)}
+#cardDialog #purchaseDate{display:block;box-sizing:border-box;width:0;min-width:100%;max-width:100%}
 .stat strong.priceStatus{font-family:Inter,system-ui,sans-serif;font-size:18px;line-height:1.4;overflow-wrap:normal;word-break:normal}
 .cardSlot:not(.imageReady)>img{visibility:hidden}
 .cardSlot:not(.imageReady) .slotMeta{display:flex!important;flex-direction:column;justify-content:flex-start;gap:4px;inset:8px;padding:0;background:none;overflow:auto}

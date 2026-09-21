@@ -57,7 +57,23 @@ try{for(const engine of engines){
   await page.locator('#rows [data-edit="card-0"]').click();
   const measure=()=>page.locator('#cardDialog').evaluate(d=>({width:d.getBoundingClientRect().width,client:d.clientWidth,scroll:d.scrollWidth,height:d.clientHeight,scrollHeight:d.scrollHeight,viewport:{width:innerWidth,height:innerHeight,scale:visualViewport.scale},fields:[...d.querySelectorAll('input,select,textarea')].map(e=>({id:e.id,font:getComputedStyle(e).fontSize,width:e.getBoundingClientRect().width,parent:e.parentElement.getBoundingClientRect().width,scroll:e.scrollWidth,client:e.clientWidth}))}));
   const before=await measure();await page.locator('#cardName').click();const focused=await measure();await page.locator('#cardName').press('Tab');const afterFocus=await measure();
-  await page.locator('#purchaseDate').fill('2026-09-21');const date=await page.locator('#purchaseDate').boundingBox();
+  const dateCases=[];
+  for(const value of ['', '2026-09-21']){
+   await page.locator('#purchaseDate').fill(value);
+   const geometry=await page.locator('#purchaseDate').evaluate(e=>{
+    const rect=x=>{const r=x.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}};
+    const form=e.closest('form'),style=getComputedStyle(form),f=rect(form);
+    return {value:e.value,type:e.type,valid:e.validity.valid,date:rect(e),parent:rect(e.parentElement),neighbor:rect(document.getElementById('certNumber')),grid:rect(e.closest('.formGrid')),contentRight:f.right-parseFloat(style.paddingRight)-parseFloat(style.borderRightWidth),dialogClient:e.closest('dialog').clientWidth,dialogScroll:e.closest('dialog').scrollWidth,font:getComputedStyle(e).fontSize};
+   });
+   assert.equal(geometry.value,value);assert.equal(geometry.type,'date');assert.equal(geometry.valid,true);
+   assert.ok(Math.abs(geometry.date.right-geometry.parent.right)<1,'date must align with field container');
+   assert.ok(Math.abs(geometry.date.right-geometry.neighbor.right)<1,'date must align with adjacent column field');
+   assert.ok(Math.abs(geometry.date.width-geometry.neighbor.width)<1,'date and neighbor widths');
+   assert.ok(geometry.date.right<=geometry.contentRight+1,'date exceeds form content');
+   assert.ok(geometry.dialogScroll<=geometry.dialogClient+1,'horizontal dialog overflow');
+   dateCases.push(geometry);
+  }
+  const date=await page.locator('#purchaseDate').boundingBox();
   await page.locator('#cardName').fill('Unsaved fixture edit');
   // Reach bottom by normal vertical scrolling, with no fixed action bar or zoom reset.
   await page.locator('#cardDialog').evaluate(d=>d.scrollTop=d.scrollHeight);
@@ -65,7 +81,7 @@ try{for(const engine of engines){
   if(!baseline){assert.equal(before.viewport.width,width);assert.equal(focused.viewport.scale,1);assert.equal(afterFocus.viewport.scale,1);assert.equal(afterFocus.width,before.width);assert.doesNotMatch(await page.locator('meta[name=viewport]').getAttribute('content'),/user-scalable\s*=\s*no|maximum-scale/i);assert.equal(before.scroll<=before.client+1,true,'dialog overflow');assert.equal(focused.scroll<=focused.client+1,true,'focused dialog overflow');for(const f of focused.fields){assert.ok(f.width<=f.parent+1,`field overflow ${f.id}`);if(width<850)assert.ok(parseFloat(f.font)>=16,`small font ${f.id}`)}assert.ok(date.x+date.width<=width);assert.equal(actions.visible,true,'actions reachable by vertical scroll');await page.screenshot({path:resolve(root,`test-results/collect-mobile-${engine}-${width}-dialog.png`)});}
   await page.locator('#cancelDialog').click();assert.equal(await page.locator('#cardDialog').isVisible(),false);assert.equal(await page.locator('#rows tr').count(),6);assert.equal(await page.locator('#rows').innerText().then(t=>t.includes('Unsaved fixture edit')),false);
   assert.deepEqual(await page.evaluate(()=>window.fixtureWrites),[]);assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
-  results.push({engine,version:browser.version(),width,price,slots,labels,before,focused,afterFocus,actions});console.log(`${baseline?'MEASURE':'PASS'} mobile UI ${engine} ${width}x844; writes=0`);
+  results.push({engine,version:browser.version(),width,price,slots,labels,before,focused,afterFocus,dateCases,actions});console.log(`${baseline?'MEASURE':'PASS'} mobile UI ${engine} ${width}x844; writes=0`);
   await page.close();
  }}finally{await browser.close()}
 }}finally{await server.close()}
