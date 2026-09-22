@@ -99,7 +99,7 @@
     document.querySelector('[data-tab="market"]').click();await wait(()=>document.querySelector('[data-offer="ui-vb"]'));
     document.querySelector('[data-offer="ui-vb"]').click();await wait(()=>document.getElementById('offerDialog').open);
     assert(!document.getElementById('dvBuyDialog').open,'Verhandlungsbasis verwendet weiterhin Angebotsdialog');
-    assert(document.getElementById('sendOffer').textContent==='PREISANGEBOT SENDEN'&&document.getElementById('dvOfferFlowNote').textContent.includes('automatisch eine Bestellung'),'Preisangebot erklärt den nächsten Schritt');
+    assert(document.getElementById('sendOffer').textContent==='PREISANGEBOT VERBINDLICH SENDEN'&&document.getElementById('dvOfferFlowNote').textContent.includes('Vertrag entsteht erst durch Annahme des Verkäufers'),'Preisangebot erklärt Bindung und Vertragsschluss');
     document.getElementById('offerDialog').close();
     output.textContent+='\nALL UI TESTS PASSED — mocks only, no live transaction.\n';
   }catch(error){output.textContent+='\nFAIL '+error.message;console.error(error)}
