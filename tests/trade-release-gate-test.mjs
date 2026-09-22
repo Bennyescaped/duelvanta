@@ -8,7 +8,7 @@ const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
 const dispatcher=await readFile(new URL('../api/compliance-message-dispatch.js',import.meta.url),'utf8');
 
 assert.match(html,/trade-release-gate\.css\?v=1\.1/);
-assert.match(html,/trade-release-gate\.js\?v=1\.2/);
+assert.match(html,/trade-release-gate\.js\?v=1\.3/);
 assert.match(html,/id="tradeBootScreen"/);
 assert.match(html,/class="wrap trade-runtime-loading"/);
 assert.doesNotMatch(html,/<script src="trade\.js"><\/script>/);

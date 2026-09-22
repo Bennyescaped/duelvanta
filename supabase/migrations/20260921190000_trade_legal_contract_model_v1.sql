@@ -6,78 +6,28 @@
 create schema if not exists dv_market_private;
 revoke all on schema dv_market_private from public, anon, authenticated;
 
--- Buyer account classification: one account-level declaration, snapshotted per offer/contract.
-create table if not exists dv_market_private.market_buyer_profiles (
-  buyer_id uuid primary key references auth.users(id) on delete cascade,
-  buyer_type text not null check (buyer_type in ('consumer','business')),
-  declaration_version text not null default 'buyer-profile-v1',
-  declared_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-alter table dv_market_private.market_buyer_profiles enable row level security;
-revoke all on table dv_market_private.market_buyer_profiles from public, anon, authenticated;
-
-create or replace function public.get_my_market_buyer_profile()
-returns jsonb
-language plpgsql
-stable
-security definer
-set search_path=pg_catalog,dv_market_private
-as $$
-declare v_uid uuid:=auth.uid();v_row dv_market_private.market_buyer_profiles%rowtype;
-begin
-  if v_uid is null then raise exception 'authentication_required'; end if;
-  select * into v_row from dv_market_private.market_buyer_profiles where buyer_id=v_uid;
-  if not found then return jsonb_build_object('configured',false); end if;
-  return jsonb_build_object(
-    'configured',true,'buyer_type',v_row.buyer_type,
-    'declaration_version',v_row.declaration_version,
-    'declared_at',v_row.declared_at,'updated_at',v_row.updated_at
-  );
-end
-$$;
-revoke all on function public.get_my_market_buyer_profile() from public,anon;
-grant execute on function public.get_my_market_buyer_profile() to authenticated;
-
-create or replace function public.set_my_market_buyer_profile(p_buyer_type text)
-returns jsonb
-language plpgsql
-security definer
-set search_path=pg_catalog,dv_market_private
-as $$
-declare v_uid uuid:=auth.uid();v_row dv_market_private.market_buyer_profiles%rowtype;
-begin
-  if v_uid is null then raise exception 'authentication_required'; end if;
-  if p_buyer_type not in ('consumer','business') then raise exception 'buyer_type_invalid'; end if;
-  insert into dv_market_private.market_buyer_profiles(buyer_id,buyer_type)
-  values(v_uid,p_buyer_type)
-  on conflict(buyer_id) do update
-    set buyer_type=excluded.buyer_type,updated_at=now()
-  returning * into v_row;
-  return jsonb_build_object(
-    'configured',true,'buyer_type',v_row.buyer_type,
-    'declaration_version',v_row.declaration_version,
-    'declared_at',v_row.declared_at,'updated_at',v_row.updated_at
-  );
-end
-$$;
-revoke all on function public.set_my_market_buyer_profile(text) from public,anon;
-grant execute on function public.set_my_market_buyer_profile(text) to authenticated;
-
+-- Release 1 reuses the existing private-buyer declaration; no second buyer profile.
+-- This draft remains unapplied. No legal schema readiness marker is emitted.
+-- Existing eligibility RPCs and confirmations are not replaced or auto-confirmed.
 create or replace function dv_market_private.require_market_buyer_type(p_buyer_id uuid)
 returns text
 language plpgsql
 stable
 security definer
-set search_path=pg_catalog,dv_market_private
+set search_path=pg_catalog,public,dv_market_private
 as $$
-declare v_type text;
 begin
-  select buyer_type into v_type
-  from dv_market_private.market_buyer_profiles
-  where buyer_id=p_buyer_id;
-  if v_type is null then raise exception 'buyer_profile_required'; end if;
-  return v_type;
+  perform dv_market_private.require_trade_eligibility(p_buyer_id,true);
+  -- Check the actual buyer also when called by a seller or the payment service.
+  if not exists (
+    select 1 from public.profiles p
+    where p.id=p_buyer_id
+      and coalesce(p.account_status,'active') in ('active','beta')
+      and not coalesce(p.safety_restricted,false)
+      and p.account_closure_requested_at is null
+      and p.data_processing_restricted_at is null
+  ) then raise exception 'trade_account_restricted'; end if;
+  return 'consumer';
 end
 $$;
 revoke all on function dv_market_private.require_market_buyer_type(uuid) from public,anon,authenticated;
@@ -90,15 +40,13 @@ set search_path=''
 as $$
   select case
     when p_seller_type='trader' and p_buyer_type='consumer' then 'b2c'
-    when p_seller_type='trader' and p_buyer_type='business' then 'b2b'
     when p_seller_type='private' and p_buyer_type='consumer' then 'c2c'
-    when p_seller_type='private' and p_buyer_type='business' then 'c2b'
     else null
   end
 $$;
 revoke all on function dv_market_private.market_contract_classification(text,text) from public,anon,authenticated;
 
--- Offer snapshots now freeze the buyer account purpose for the specific transaction.
+-- New offer snapshots record the existing private-buyer scope; legacy NULLs are not backfilled.
 alter table public.market_offers add column if not exists buyer_type_snapshot text;
 alter table public.market_offers add column if not exists checkout_request_id uuid;
 alter table public.market_offers add column if not exists checkout_hash_snapshot text;
@@ -108,7 +56,7 @@ alter table public.market_offers add column if not exists stripe_checkout_sessio
 
 alter table public.market_offers drop constraint if exists market_offers_buyer_type_snapshot_check;
 alter table public.market_offers add constraint market_offers_buyer_type_snapshot_check
-  check (buyer_type_snapshot is null or buyer_type_snapshot in ('consumer','business'));
+  check (buyer_type_snapshot is null or buyer_type_snapshot = 'consumer');
 alter table public.market_offers drop constraint if exists market_offers_offer_type_check;
 alter table public.market_offers add constraint market_offers_offer_type_check
   check (offer_type in ('price','fixed_price'));
@@ -122,15 +70,15 @@ create unique index if not exists market_fixed_offer_session_idx
   on public.market_offers(stripe_checkout_session_id)
   where offer_type='fixed_price' and stripe_checkout_session_id is not null;
 
--- Contract snapshots keep the buyer purpose and exact classification.
+-- Preserve existing contract evidence; new snapshots support only the existing C2C/B2C scope.
 alter table dv_market_private.market_contract_snapshots add column if not exists buyer_type text;
 alter table dv_market_private.market_contract_snapshots add column if not exists withdrawal_eligible boolean not null default false;
 alter table dv_market_private.market_contract_snapshots drop constraint if exists market_contract_snapshots_buyer_type_check;
 alter table dv_market_private.market_contract_snapshots add constraint market_contract_snapshots_buyer_type_check
-  check (buyer_type is null or buyer_type in ('consumer','business'));
+  check (buyer_type is null or buyer_type = 'consumer');
 alter table dv_market_private.market_contract_snapshots drop constraint if exists market_contract_snapshots_contract_classification_check;
 alter table dv_market_private.market_contract_snapshots add constraint market_contract_snapshots_contract_classification_check
-  check (contract_classification in ('c2c','c2b','b2c','b2b'));
+  check (contract_classification in ('c2c','b2c'));
 alter table dv_market_private.market_contract_snapshots drop constraint if exists market_contract_snapshots_payment_provider_check;
 alter table dv_market_private.market_contract_snapshots add constraint market_contract_snapshots_payment_provider_check
   check (payment_provider in ('manual_beta','stripe_connect'));
@@ -328,7 +276,8 @@ begin
   if l.active_until is not null and l.active_until<=now() then raise exception 'Angebot abgelaufen'; end if;
   if l.pricing_mode='fixed' then raise exception 'Dieses Listing wird inzwischen zum Festpreis angeboten'; end if;
   if l.status<>'active' or l.seller_id<>auth.uid() then raise exception 'Listing ist nicht aktiv'; end if;
-  if o.buyer_type_snapshot not in ('consumer','business') then raise exception 'buyer_profile_required'; end if;
+  perform dv_market_private.require_market_buyer_type(o.buyer_id);
+  if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
   v_qty:=case when l.product_kind='sealed' then coalesce(o.requested_quantity,1) else 1 end;
   if v_qty<1 or v_qty>l.quantity_available then raise exception 'Menge nicht mehr verfügbar'; end if;
   v_left:=l.quantity_available-v_qty;
@@ -465,7 +414,10 @@ begin
   if new.shipping_cost is null or new.shipping_cost<0 or new.shipping_cost>500 or new.shipping_method is null then raise exception 'checkout_shipping_incomplete'; end if;
   v_seller:=dv_market_private.market_checkout_seller_party(new.seller_id);
   if new.offer_id is not null then select * into v_offer from public.market_offers where id=new.offer_id; end if;
-  v_buyer_type:=coalesce(v_offer.buyer_type_snapshot,dv_market_private.require_market_buyer_type(new.buyer_id));
+  v_buyer_type:=dv_market_private.require_market_buyer_type(new.buyer_id);
+  if new.offer_id is not null and v_offer.buyer_type_snapshot is distinct from v_buyer_type then
+    raise exception 'buyer_snapshot_invalid';
+  end if;
   v_type:=dv_market_private.market_contract_classification(v_seller->>'seller_type',v_buyer_type);
   if v_type is null then raise exception 'contract_classification_invalid'; end if;
   v_product:=dv_market_private.market_checkout_product_snapshot(v_listing);
@@ -477,7 +429,7 @@ begin
     then 'Stripe Connect – Vertragsschluss mit Erstellung der automatischen Zahlungsaufforderung.'
     else 'Zahlung nach Vertragsschluss; in der Beta keine integrierte Onlinezahlung oder Auszahlung.' end;
   v_text:=format(
-    E'DUELVANTA BESTELLBESTÄTIGUNG\\nDokumentversion: checkout-contract-v2\\nOrder: %s\\nVertragsschluss: %s\\nVertragstyp: %s\\nKäuferprofil: %s\\nVerkäuferrolle: %s\\nVertragspartner: %s\\nAnschrift: %s, %s %s, %s\\nProdukt: %s\\nMenge: %s\\nStückpreis: %s EUR\\nWarenwert: %s EUR\\nVersand (%s): %s EUR\\nGesamtpreis: %s EUR\\nZahlungsabwicklung: %s\\nPlattformrolle: Benjamin Fritz – DUELVANTA vermittelt den Vertrag; DUELVANTA ist nicht Verkäufer der Ware.',
+    E'DUELVANTA BESTELLBESTÄTIGUNG\\nDokumentversion: checkout-contract-v2\\nOrder: %s\\nVertragsschluss: %s\\nVertragstyp: %s\\nKäuferstatus: %s\\nVerkäuferrolle: %s\\nVertragspartner: %s\\nAnschrift: %s, %s %s, %s\\nProdukt: %s\\nMenge: %s\\nStückpreis: %s EUR\\nWarenwert: %s EUR\\nVersand (%s): %s EUR\\nGesamtpreis: %s EUR\\nZahlungsabwicklung: %s\\nPlattformrolle: Benjamin Fritz – DUELVANTA vermittelt den Vertrag; DUELVANTA ist nicht Verkäufer der Ware.',
     v_order.order_number,to_char(coalesce(new.accepted_at,now()) at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'),
     upper(v_type),v_buyer_type,v_seller->>'role_label',coalesce(v_seller->>'business_name',v_seller->>'legal_name'),
     v_seller->>'street_line1',v_seller->>'postal_code',v_seller->>'city',v_seller->>'country_code',
@@ -524,6 +476,7 @@ declare
 begin
   if v_uid is null then raise exception 'authentication_required'; end if;
   if p_request_id is null or p_expected_updated_at is null then raise exception 'fixed_checkout_request_invalid'; end if;
+  v_buyer_type:=dv_market_private.require_market_buyer_type(v_uid);
   perform public.expire_market_offer_reservations_v1();
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text||':'||p_request_id::text,45));
 
@@ -663,6 +616,8 @@ begin
     return jsonb_build_object('replayed',true,'deal_id',d.id,'order_id',d.order_id,'contract_snapshot_id',snap.id,'contract_classification',snap.contract_classification);
   end if;
   if o.status<>'pending' or o.reservation_expires_at is null or o.reservation_expires_at<=now() then raise exception 'fixed_offer_expired'; end if;
+  perform dv_market_private.require_market_buyer_type(o.buyer_id);
+  if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
   select * into l from public.market_listings where id=o.listing_id for update;
   if not found then raise exception 'listing_not_available'; end if;
   select * into s from dv_market_private.market_stripe_accounts where seller_id=o.seller_id;
@@ -890,11 +845,3 @@ end
 $$;
 revoke all on function public.confirm_market_withdrawal_v1(uuid) from public,anon;
 grant execute on function public.confirm_market_withdrawal_v1(uuid) to authenticated;
-
--- Account erasure may drop the current buyer profile; contract snapshots keep transaction-time classification.
-create or replace function dv_market_private.delete_market_buyer_profile_for_erasure(p_uid uuid)
-returns void language sql security definer set search_path=pg_catalog,dv_market_private as $$
-  delete from dv_market_private.market_buyer_profiles where buyer_id=p_uid
-$$;
-revoke all on function dv_market_private.delete_market_buyer_profile_for_erasure(uuid) from public,anon,authenticated;
-grant execute on function dv_market_private.delete_market_buyer_profile_for_erasure(uuid) to service_role;

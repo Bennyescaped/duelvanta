@@ -3,7 +3,7 @@
   'use strict';
   const byId=id=>document.getElementById(id);
   const methods={standard_letter:'Standardbrief',tracked_letter:'Brief mit Tracking',parcel:'Paket mit Tracking',pickup:'Abholung',custom:'Nach Absprache'};
-  const classes={b2c:'B2C · GEWERBLICHER VERKAUF AN VERBRAUCHER',b2b:'B2B · GEWERBLICHER VERKAUF',c2c:'PRIVATVERKAUF · VERBRAUCHERKAUF',c2b:'PRIVATVERKAUF · GESCHÄFTLICHER KÄUFER'};
+  const classes={b2c:'B2C · GEWERBLICHER VERKAUF AN VERBRAUCHER',c2c:'PRIVATVERKAUF · VERBRAUCHERKAUF'};
   let current=null,busy=false,installed=false,retry=null,review=null,reviewTimer=null,reviewRequest=0;
   const cash=n=>money(n);
   function priceFor(listing,quantity){let price=Number(listing.asking_price||0);for(const tier of [...(listing.quantity_pricing||[])].sort((a,b)=>a.min_quantity-b.min_quantity)){if(quantity>=Number(tier.min_quantity))price=Number(tier.unit_price)}return price}
@@ -11,7 +11,14 @@
   function decorate(){if(!['market','mine'].includes(tab))return;byId('grid').querySelectorAll('.listing').forEach(card=>{const button=card.querySelector('[data-offer],[data-edit]'),listing=listings.find(l=>l.id===(button?.dataset.offer||button?.dataset.edit));if(!listing||card.querySelector('.dvPriceMode')||listing.listing_type==='trade')return;card.querySelector('.priceRow')?.insertAdjacentHTML('afterend',`<div class="dvPriceMode">${fixed(listing)?'FESTPREIS':'VERHANDLUNGSBASIS'}</div>`);if(button.dataset.offer)button.textContent=fixed(listing)?'JETZT KAUFEN':'PREIS VORSCHLAGEN'})}
   function selectedQuantity(){return current.product_kind==='sealed'?Number(byId('dvBuyQty').value):1}
   function address(p){return[p.street_line1,p.street_line2,[p.postal_code,p.city].filter(Boolean).join(' '),p.country_code].filter(Boolean).join(', ')}
-  function reviewError(error){const m=String(error?.message||error||'');if(m.includes('buyer_profile_required'))return'Lege zuerst in deinem Profil fest, ob du auf DUELVANTA privat als Verbraucher oder geschäftlich einkaufst.';return m}
+  function reviewError(error){
+    const m=String(error?.message||error||'');
+    if(/buyer_private_consumer_required|trade_eligibility_required/.test(m))return'Bestätige deine Berechtigung zum privaten Kauf über den bestehenden TRADE-Zugang.';
+    if(m.includes('trade_account_restricted'))return'Käufe sind für diesen Account derzeit gesperrt.';
+    if(m.includes('buyer_snapshot_invalid'))return'Der gespeicherte Käuferstatus dieses Angebots ist nicht kompatibel. Es wurde kein neuer Vertrag angelegt.';
+    return m;
+  }
+  function privateBuyerReview(data){return data?.buyer_type==='consumer'&&['b2c','c2c'].includes(data.contract_classification)}
   function renderServerReview(data){
     const seller=data.seller_party||{},business=seller.business_name||seller.legal_name||'Verkäufer';
     byId('dvCheckoutParty').innerHTML=`<div class="dvCheckoutRole"><b>${esc(classes[data.contract_classification]||String(data.contract_classification||'').toUpperCase())}</b><span>${esc(seller.role_label||'Verkäufer')}</span></div><div><strong>Vertragspartner</strong><br>${esc(business)}${seller.legal_name&&seller.business_name?` · ${esc(seller.legal_name)}`:''}<br>${esc(address(seller))}${seller.public_email?`<br>${esc(seller.public_email)}`:''}</div><div class="dvCheckoutLegal">Dein Klick gibt das verbindliche Kaufangebot ab. Der Vertrag entsteht erst, wenn DUELVANTA unmittelbar die Stripe-Zahlungsaufforderung im Namen des Verkäufers erzeugt.</div>`;
@@ -19,8 +26,8 @@
   }
   function scheduleReview(quantity){
     const request=++reviewRequest,listing=current;clearTimeout(reviewTimer);review=null;byId('dvBuyNow').disabled=true;
-    byId('dvCheckoutParty').innerHTML='<div class="msg">Verkäuferrolle, Käuferprofil und Vertragsdaten werden serverseitig geprüft …</div>';
-    reviewTimer=setTimeout(async()=>{const response=await db.rpc('review_market_checkout',{p_listing_id:listing.id,p_quantity:quantity});if(request!==reviewRequest||current?.id!==listing.id||selectedQuantity()!==quantity)return;if(response.error){byId('dvCheckoutParty').innerHTML='';byId('dvBuyMsg').textContent=reviewError(response.error);return}review=response.data;byId('dvBuyMsg').textContent='';renderServerReview(review);byId('dvBuyNow').disabled=busy},80);
+    byId('dvCheckoutParty').innerHTML='<div class="msg">Verkäuferrolle, private Käuferberechtigung und Vertragsdaten werden serverseitig geprüft …</div>';
+    reviewTimer=setTimeout(async()=>{const response=await db.rpc('review_market_checkout',{p_listing_id:listing.id,p_quantity:quantity});if(request!==reviewRequest||current?.id!==listing.id||selectedQuantity()!==quantity)return;if(response.error){byId('dvCheckoutParty').innerHTML='';byId('dvBuyMsg').textContent=reviewError(response.error);return}if(!privateBuyerReview(response.data)){byId('dvCheckoutParty').innerHTML='';byId('dvBuyMsg').textContent='Die private Käuferberechtigung wurde nicht bestätigt. Der Kauf bleibt gesperrt.';return}review=response.data;byId('dvBuyMsg').textContent='';renderServerReview(review);byId('dvBuyNow').disabled=busy},80);
   }
   function refresh(){
     const quantity=selectedQuantity(),min=current.product_kind==='sealed'?current.minimum_purchase_quantity:1,valid=Number.isInteger(quantity)&&quantity>=min&&quantity<=current.quantity_available;
@@ -38,7 +45,7 @@
   function changeQuantity(delta){if(busy||!current||current.product_kind!=='sealed')return;const input=byId('dvBuyQty'),min=Number(current.minimum_purchase_quantity||1),max=Number(current.quantity_available||min),value=Number.isInteger(Number(input.value))?Number(input.value):min;input.value=String(Math.max(min,Math.min(max,value+delta)));input.dispatchEvent(new Event('input',{bubbles:true}))}
   function purchaseRequest(quantity){const key=`dv-fixed-offer:${user.id}:${current.id}`,signature=`${current.updated_at}:${quantity}:${review.checkout_hash}`;let saved=null;try{saved=JSON.parse(sessionStorage.getItem(key))}catch(_){}if(!saved||saved.signature!==signature)saved={signature,id:crypto.randomUUID()};try{sessionStorage.setItem(key,JSON.stringify(saved))}catch(_){}if(retry?.signature===signature)saved=retry;retry={...saved,key};return retry}
   async function buy(){
-    if(busy||!current||!review||byId('dvBuyNow').disabled)return;
+    if(busy||!current||!privateBuyerReview(review)||byId('dvBuyNow').disabled)return;
     const listing=current,quantity=selectedQuantity(),checkoutReview=review,request=purchaseRequest(quantity);busy=true;
     byId('dvBuyNow').disabled=true;byId('dvBuyMinus').disabled=true;byId('dvBuyPlus').disabled=true;byId('dvBuyQty').disabled=true;
     byId('dvBuyMsg').textContent='Kaufangebot wird geprüft und die Stripe-Zahlungsaufforderung vorbereitet …';
@@ -70,7 +77,7 @@
     const dialog=document.createElement('dialog');dialog.id='dvBuyDialog';dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Kaufangebot prüfen</h2><button id="dvBuyClose" type="button" class="close" aria-label="Kaufdialog schließen">✕</button></div><div id="dvBuyBody"></div><div id="dvBuyMsg" class="msg" aria-live="polite"></div></div>';document.body.appendChild(dialog);
     byId('dvBuyClose').onclick=()=>{if(!busy)dialog.close()};dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault()});
     document.addEventListener('click',e=>{const button=e.target.closest('[data-offer]');if(!button)return;const listing=listings.find(l=>l.id===button.dataset.offer);if(!fixed(listing))return;e.preventDefault();e.stopImmediatePropagation();open(listing)},true);
-    new MutationObserver(decorate).observe(byId('grid'),{childList:true});decorate();window.DV_TRADE_CHECKOUT={version:'2.0',priceFor};return true;
+    new MutationObserver(decorate).observe(byId('grid'),{childList:true});decorate();window.DV_TRADE_CHECKOUT={version:'2.1',priceFor};return true;
   }
   const timer=setInterval(()=>{if(install())clearInterval(timer)},100);
 })();

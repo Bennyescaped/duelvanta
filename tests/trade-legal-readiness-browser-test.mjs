@@ -27,7 +27,7 @@ const fixtureDb={auth:{getSession:async()=>({data:{session:{user:{id:'fixture-us
 window.__dvAppDb=fixtureDb;
 window.DV_SUPABASE={environment:${JSON.stringify(environment)},url:'https://example.supabase.co',key:'fixture-public-key'};
 window.supabase={createClient:()=>{observed.clients++;return fixtureDb}};
-</script>${omitGuard?'':'<script src="/trade-legal-readiness.js?v=1.1"></script>'}<script src="/trade-release-gate.js?v=1.2"></script></body></html>`;
+</script>${omitGuard?'':'<script src="/trade-legal-readiness.js?v=1.1"></script>'}<script src="/trade-release-gate.js?v=1.3"></script></body></html>`;
 async function setup(mode,{width=390,environment='preview',role='player',omitGuard=false}={}){
  const context=await browser.newContext({viewport:{width,height:844}});
  const page=await context.newPage(),errors=[],unexpected=[];
@@ -91,7 +91,7 @@ try{
   assert.equal(await p.evaluate(()=>observed.calls.filter(x=>x.name==='get_my_market_buyer_profile').length),1);
   assert.deepEqual(await p.evaluate(()=>observed.calls[0].options),{get:true});
   const loaded=await p.evaluate(()=>observed.scripts);
-  for(const asset of ['trade-orders.js?v=1.7','trade-offer-details.js?v=2.0','trade-checkout.js?v=2.0'])assert.ok(loaded.includes('/'+asset));
+  for(const asset of ['trade-orders.js?v=1.7','trade-offer-details.js?v=2.0','trade-checkout.js?v=2.1'])assert.ok(loaded.includes('/'+asset));
   if(mode==='missing'&&width===390)await p.screenshot({path:new URL('step1-mobile-guard.png',out).pathname,fullPage:true});
   await finish(t,`${width}px ${mode}: actions blocked; reads/navigation retained`);
  }

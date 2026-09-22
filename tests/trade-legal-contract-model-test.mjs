@@ -17,9 +17,25 @@ const fn=(source,name)=>{
   return source.slice(start,end+4);
 };
 
-must(migration,'market_buyer_profiles','buyer account classification table missing');
-must(migration,"buyer_type in ('consumer','business')",'buyer type constraint missing');
-for(const kind of ['b2c','b2b','c2c','c2b'])must(migration,"'"+kind+"'",'contract classification missing '+kind);
+for(const retired of ['market_buyer_profiles','get_my_market_buyer_profile','set_my_market_buyer_profile','delete_market_buyer_profile_for_erasure',"'business'","'b2b'","'c2b'"])
+  mustNot(migration,retired,'retired buyer route remains in unapplied draft: '+retired);
+must(migration,'require_trade_eligibility(p_buyer_id,true)','existing private-buyer declaration is not required');
+for(const kind of ['b2c','c2c'])must(migration,"'"+kind+"'",'contract classification missing '+kind);
+const buyerGuard=fn(migration,'dv_market_private.require_market_buyer_type');
+for(const field of ['p.id=p_buyer_id','account_status','safety_restricted','account_closure_requested_at','data_processing_restricted_at'])
+  must(buyerGuard,field,'actual buyer account boundary missing: '+field);
+must(buyerGuard,"return 'consumer'",'private-buyer guard must return only consumer');
+mustNot(migration,'schema_version','unreviewed migration must not publish a schema readiness marker');
+mustNot(migration,'create or replace function dv_market_private.require_trade_eligibility','existing age/country/private checks must not be replaced');
+mustNot(migration,'update dv_market_private.market_contract_snapshots','historical contract evidence must not be rewritten');
+for(const name of ['public.respond_to_market_offer','public.accept_fixed_price_market_offer_v1']){
+ const body=fn(migration,name);
+ must(body,'require_market_buyer_type(o.buyer_id)','seller/service path must validate the actual buyer');
+ must(body,"buyer_type_snapshot is distinct from 'consumer'",'NULL or incompatible offer snapshot must fail closed');
+}
+must(fn(migration,'public.prepare_fixed_price_market_offer_v1'),'require_market_buyer_type(v_uid)','fixed buyer path lost eligibility check');
+must(fn(migration,'dv_market_private.capture_market_contract_snapshot'),'require_market_buyer_type(new.buyer_id)','new evidence must validate the actual buyer');
+
 must(migration,"offer_type in ('price','fixed_price')",'fixed-price buyer offer type missing');
 must(migration,'prepare_fixed_price_market_offer_v1','fixed-price buyer offer preparation missing');
 must(migration,'accept_fixed_price_market_offer_v1','fixed-price payment-request acceptance missing');
@@ -54,9 +70,13 @@ mustNot(offerUi,'data-checkout-offer','accepted price proposal still exposes a s
 mustNot(offerUi,'trade-offer-checkout.js','negotiated offer UI still injects retired second checkout');
 must(retiredOfferCheckout,'retired:true','legacy offer checkout file is not fail-safe retired');
 
-must(profileHtml,'buyerPurchaseType','buyer account purpose selector missing');
-must(profile,"get_my_market_buyer_profile",'buyer profile is not loaded');
-must(profile,"set_my_market_buyer_profile",'buyer profile is not persisted');
+mustNot(profileHtml,'buyerPurchaseType','duplicate buyer selector must be removed');
+mustNot(profileHtml,'Geschäftlich kaufen','business-buyer UI must not be offered');
+for(const name of ['get_my_market_buyer_profile','set_my_market_buyer_profile','confirm_my_market_private_buyer','confirm_my_market_trade_eligibility'])
+ mustNot(profile,name,'ordinary profile boot must not access/confirm a second buyer status');
+must(profileHtml,'profile.js?v=1.5','profile cache revision missing');
+must(checkoutUi,'privateBuyerReview','checkout must reject incompatible buyer review data');
+
 
 must(orders,'VERTRAG WIDERRUFEN','withdrawal entry button missing');
 must(orders,'WIDERRUF BESTÄTIGEN','withdrawal confirmation button missing');
@@ -67,7 +87,7 @@ must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
 must(tradeHtml,'trade-orders.js?v=1.7','withdrawal order UI cache revision missing');
 must(tradeHtml,'trade-offer-details.js?v=2.0','negotiated contract UI cache revision missing');
-must(tradeHtml,'trade-checkout.js?v=2.0','fixed contract UI cache revision missing');
+must(tradeHtml,'trade-checkout.js?v=2.1','fixed contract UI cache revision missing');
 
 must(tradeHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in TRADE');
 must(profileHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in PROFILE');
@@ -75,5 +95,8 @@ assert.ok(tradeHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<tradeHtml.in
 assert.ok(profileHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<profileHtml.indexOf('src="profile.js'),'schema guard must load before profile handlers');
 await import('./trade-legal-readiness-test.mjs');
 await import('./trade-legal-profile-boundary-test.mjs');
+await import('./trade-legal-private-buyer-ui-test.mjs');
 await import('./trade-legal-order-boundary-test.mjs');
+await import('./trade-legal-private-buyer-database-test.mjs');
+await import('./trade-legal-private-buyer-browser-test.mjs');
 console.log('PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance');
