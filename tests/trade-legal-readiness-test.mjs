@@ -46,7 +46,7 @@ const loadedGuard=await readFile(new URL('../trade-legal-readiness.js',import.me
 assert.doesNotMatch(loadedGuard,/createClient\(|\.supabase\.co|stripe\.com|\.from\(/);assertions++;
 const loader=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
 assert.match(loader,/guard_version!=='1\.1'/);assertions++;
-for(const asset of ['trade-orders.js?v=1.7','trade-offer-details.js?v=2.0','trade-checkout.js?v=2.1']){
+for(const asset of ['trade-orders.js?v=1.7','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.1']){
  assert.ok(loader.includes("'"+asset+"'"));assertions++;
 }
 // A not-yet-initialized global client must neither throw nor poll forever.
