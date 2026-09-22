@@ -1,5 +1,7 @@
 // The same catalog projection is used to generate the reviewed contract and at runtime.
 // No application rows, network calls, configuration markers or user-profile substitutes.
+// PG18 also exposes NOT NULL as pg_constraint type n; PG17 uses attnotnull.
+// Compare attnotnull for every column on both engines, without double-counting PG18 metadata.
 export function catalogQuery(tables,functions){
  const lit=s=>"'"+s.replaceAll("'","''")+"'";
  return `with required_tables(name) as (values ${tables.map(n=>'('+lit(n)+')').join(',')}),
@@ -9,7 +11,7 @@ export function catalogQuery(tables,functions){
  'rls',c.relrowsecurity,
  'columns',(select jsonb_agg(jsonb_build_array(a.attname,format_type(a.atttypid,a.atttypmod),a.attnotnull,a.attgenerated,pg_get_expr(d.adbin,d.adrelid)) order by a.attnum)
   from pg_attribute a left join pg_attrdef d on d.adrelid=a.attrelid and d.adnum=a.attnum where a.attrelid=c.oid and a.attnum>0 and not a.attisdropped),
- 'constraints',(select jsonb_agg(jsonb_build_array(x.conname,pg_get_constraintdef(x.oid),x.convalidated,x.condeferrable,x.condeferred) order by x.conname) from pg_constraint x where x.conrelid=c.oid),
+ 'constraints',(select jsonb_agg(jsonb_build_array(x.conname,pg_get_constraintdef(x.oid),x.convalidated,x.condeferrable,x.condeferred) order by x.conname) from pg_constraint x where x.conrelid=c.oid and x.contype<>'n'),
  'indexes',(select jsonb_agg(jsonb_build_array(i.relname,pg_get_indexdef(x.indexrelid),x.indisvalid,x.indisready) order by i.relname) from pg_index x join pg_class i on i.oid=x.indexrelid where x.indrelid=c.oid),
  'triggers',(select jsonb_agg(jsonb_build_array(t.tgname,pg_get_triggerdef(t.oid),t.tgenabled) order by t.tgname) from pg_trigger t where t.tgrelid=c.oid and not t.tgisinternal),
  'browser_privileges',(select jsonb_agg(jsonb_build_array(role,priv,has_table_privilege(role,c.oid,priv)) order by role,priv)

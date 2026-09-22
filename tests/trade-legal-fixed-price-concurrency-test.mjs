@@ -261,13 +261,23 @@ try{
   assert.equal((await release(c5,protectedOffer.offer_id)).rows[0].v,false);
   assert.equal(await stock(protectedOffer.listing),1);
   report.cases.push({case:'all-role-direct-mutation-and-cascade-denied-release-once',passed:true});
+  const priceId=randomUUID();
+  await observer.query("insert into public.market_offers(id,listing_id,buyer_id,seller_id,offer_type,status,reserved_quantity) values($1,$2,$3,$4,'price','pending',0)",[priceId,protectedOffer.listing,BUYER1,SELLER]);
+  await role(c2,'authenticated',BUYER2);
+  assert.equal((await c2.query('delete from public.market_offers where id=$1 returning id',[priceId])).rowCount,0);
+  await role(c2,'authenticated',BUYER1);
+  assert.equal((await c2.query('delete from public.market_offers where id=$1 returning id',[priceId])).rowCount,1);
+  assert.equal(await stock(protectedOffer.listing),1);
+  report.cases.push({case:'unreserved-price-owner-delete-preserved',passed:true});
 
-  for(const mode of ['release-release','accept-release','release-accept','expire-expire','release-expire','expire-release']){
+  for(const mode of ['release-release','accept-release','release-accept','accept-expire','expire-accept','expire-expire','release-expire','expire-release']){
     const p=await fixture();
-    if(mode.includes('expire'))await observer.query("update public.market_offers set reservation_expires_at=now()-interval '1 second' where id=$1",[p.offer_id]);
+    if(mode==='accept-expire')await observer.query("update public.market_offers set reservation_expires_at=clock_timestamp()+interval '1 second' where id=$1",[p.offer_id]);
+    else if(mode.includes('expire'))await observer.query("update public.market_offers set reservation_expires_at=now()-interval '1 second' where id=$1",[p.offer_id]);
     const run=(kind,c)=>kind==='accept'?accept(c,p.offer_id,p.payment_attempt_id,'cs_test_'+p.offer_id,new Date().toISOString()):kind==='expire'?expire(c):release(c,p.offer_id);
     const [first,second]=mode.split('-');
     await c5.query('begin');const winner=await run(first,c5);
+    if(mode==='accept-expire')await observer.query('select pg_sleep(1.1)');
     const task=launch(()=>run(second,c6));
     // Expire scans an MVCC snapshot; while the first transaction is uncommitted it sees the due row.
     const block=await blocked(pids.c6,pids.c5,task,mode);
@@ -282,8 +292,6 @@ try{
     assert.equal((await release(c6,p.offer_id)).rows[0].v,false);
     report.cases.push({case:mode,block,counts,passed:true});
   }
-  // A cursor which saw an expired pending row must recheck after a concurrently accepted contract wins.
-  // Hold an acceptance transaction open, then expire its old timestamp through the observer first in a separate fixture.
   assert.ok(report.cases.every(c=>c.passed));report.passed=true;
   console.log('PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence');
 }catch(error){

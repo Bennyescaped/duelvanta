@@ -6,7 +6,7 @@ const html=await readFile(new URL('../profile.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../profile.js',import.meta.url),'utf8');
 assert.doesNotMatch(html,/buyerPurchaseType|saveBuyerPurchaseType|Geschäftlich kaufen/);
 assert.doesNotMatch(source,/loadBuyerProfile|saveBuyerProfile|market_buyer_profile|confirm_my_market/);
-assert.match(html,/trade-legal-readiness\.js\?v=1\.1/);
+assert.match(html,/trade-legal-readiness\.js\?v=1\.2/);
 let checks=3;
 function element(id=''){
  const classes=new Set(id==='profileApp'?['hidden']:[]);
