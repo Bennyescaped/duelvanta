@@ -1,0 +1,12 @@
+{
+  "deletedRows": 1,
+  "listing": {
+    "quantity_available": 0,
+    "stock_quantity": 1,
+    "status": "reserved"
+  },
+  "cleanup": {
+    "expired": 0
+  },
+  "scope": "Local PGlite reconstructed staging application DDL plus exact candidate. Actual DELETE policy and DELETE trigger; synthetic reservation only. No Staging writes."
+}
