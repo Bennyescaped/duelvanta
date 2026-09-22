@@ -87,6 +87,11 @@ try{
   calls=0;global.fetch=async()=>{calls++;throw Error('network forbidden')};
   const disabled=response();await handler({method:'POST',headers:{}},disabled);
   assert.deepEqual(disabled.body,{status:'disabled',claimed:0,sent:0,failed:0});assert.equal(calls,0);
+  const withdrawalReceipt=handler.renderMessage({message_kind:'withdrawal_receipt',payload:{submitted_at:'2026-09-22T18:00:00Z',order_id:'order-1',contract_snapshot_id:'contract-1',product_title:'Testkarte',evidence_sha256:'abc123',declaration_text:'Widerrufserklärung'}});
+  const withdrawalNotice=handler.renderMessage({message_kind:'withdrawal_notice',payload:{submitted_at:'2026-09-22T18:00:00Z',order_id:'order-1',contract_snapshot_id:'contract-1',product_title:'Testkarte',evidence_sha256:'abc123',declaration_text:'Widerrufserklärung'}});
+  assert.match(withdrawalReceipt.text,/Nachweis-SHA256: abc123/);assert.match(withdrawalNotice.text,/Nachweis-SHA256: abc123/);
+  assert.match(withdrawalNotice.text,/Storno, Rücksendung und Erstattung werden technisch getrennt bearbeitet/);
+
 
   Object.assign(process.env,{COMPLIANCE_EMAIL_DELIVERY_ENABLED:'true',COMPLIANCE_DISPATCH_SECRET:'test-dispatch-secret',SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test-service-role',RESEND_API_KEY:'test-resend-key',COMPLIANCE_EMAIL_FROM:'DUELVANTA <no-reply@example.test>'});
   const unauthorized=response();await handler({method:'POST',headers:{authorization:'Bearer wrong'}},unauthorized);assert.equal(unauthorized.statusCode,401);assert.equal(calls,0);

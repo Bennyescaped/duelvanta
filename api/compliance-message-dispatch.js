@@ -99,11 +99,11 @@ function renderMessage(row){
   };
   if(row.message_kind==='withdrawal_receipt')return {
     subject:`DUELVANTA · Widerruf eingegangen ${p.order_id||''}`.trim(),
-    text:`Wir bestätigen den Eingang deines Widerrufs.\n\nEingang: ${p.submitted_at||'—'}\nOrder: ${p.order_id||'—'}\nVertrag: ${p.contract_snapshot_id||'—'}\nProdukt: ${p.product_title||'—'}\n\n${p.declaration_text||'Widerrufserklärung'}`
+    text:`Wir bestätigen den Eingang deines Widerrufs.\n\nEingang: ${p.submitted_at||'—'}\nOrder: ${p.order_id||'—'}\nVertrag: ${p.contract_snapshot_id||'—'}\nProdukt: ${p.product_title||'—'}\nNachweis-SHA256: ${p.evidence_sha256||'—'}\n\n${p.declaration_text||'Widerrufserklärung'}`
   };
   if(row.message_kind==='withdrawal_notice')return {
     subject:`DUELVANTA · Widerruf zu Order ${p.order_id||''}`.trim(),
-    text:`Für einen von dir als gewerblichem Verkäufer geschlossenen B2C-Vertrag ist über DUELVANTA ein Widerruf eingegangen.\n\nEingang: ${p.submitted_at||'—'}\nOrder: ${p.order_id||'—'}\nVertrag: ${p.contract_snapshot_id||'—'}\nProdukt: ${p.product_title||'—'}\n\n${p.declaration_text||'Widerrufserklärung'}\n\nDiese Nachricht dokumentiert die Erklärung. Storno, Rücksendung und Erstattung werden technisch getrennt bearbeitet.`
+    text:`Für einen von dir als gewerblichem Verkäufer geschlossenen B2C-Vertrag ist über DUELVANTA ein Widerruf eingegangen.\n\nEingang: ${p.submitted_at||'—'}\nOrder: ${p.order_id||'—'}\nVertrag: ${p.contract_snapshot_id||'—'}\nProdukt: ${p.product_title||'—'}\nNachweis-SHA256: ${p.evidence_sha256||'—'}\n\n${p.declaration_text||'Widerrufserklärung'}\n\nDiese Nachricht dokumentiert die Erklärung. Storno, Rücksendung und Erstattung werden technisch getrennt bearbeitet.`
   };
   const reference=p.case_reference||'DUELVANTA Meldung';
   if(row.message_kind==='notice_received')return {subject:`DUELVANTA · Meldung ${reference} eingegangen`,text:`Deine Meldung ${reference} ist eingegangen. Bewahre den bei der Einreichung einmalig angezeigten Zugangscode sicher auf.`};

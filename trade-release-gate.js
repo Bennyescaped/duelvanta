@@ -13,7 +13,7 @@
     'trade-shipping-options.js?v=1.2',
     'trade-sealed.js?v=1.2.1',
     'trade-sealed-sale-only.js?v=1.0',
-    'trade-orders.js?v=1.7',
+    'trade-orders.js?v=1.8',
     'trade-b07-order-lifecycle.js?v=1.0',
     'trade-b07-pickup-ui-fix-v2.js?v=2.1',
     'trade-offer-details.js?v=2.1',

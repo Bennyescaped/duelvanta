@@ -836,7 +836,7 @@ $$;
 revoke all on function public.accept_fixed_price_market_offer_v1(uuid,uuid,text,timestamptz,boolean) from public,anon,authenticated;
 grant execute on function public.accept_fixed_price_market_offer_v1(uuid,uuid,text,timestamptz,boolean) to service_role;
 
--- Electronic withdrawal function (§ 356a BGB): separate declaration/evidence, no automatic cancellation/refund.
+-- Electronic withdrawal declaration: immutable B2C marketplace evidence only; no automatic cancellation, refund, payout correction or return flow.
 create table if not exists dv_market_private.market_withdrawal_drafts (
   id uuid primary key default gen_random_uuid(),
   contract_snapshot_id uuid not null references dv_market_private.market_contract_snapshots(id) on delete cascade,
@@ -860,8 +860,13 @@ create table if not exists dv_market_private.market_withdrawals (
   confirmation_email text not null,
   declaration_text text not null,
   submitted_at timestamptz not null default now(),
+  evidence_snapshot jsonb not null,
   content_sha256 bytea not null
 );
+create unique index if not exists market_withdrawal_drafts_contract_buyer_uq
+  on dv_market_private.market_withdrawal_drafts(contract_snapshot_id,buyer_id);
+create unique index if not exists market_withdrawals_contract_snapshot_uq
+  on dv_market_private.market_withdrawals(contract_snapshot_id);
 alter table dv_market_private.market_withdrawal_drafts enable row level security;
 alter table dv_market_private.market_withdrawals enable row level security;
 revoke all on table dv_market_private.market_withdrawal_drafts,dv_market_private.market_withdrawals from public,anon,authenticated;
@@ -894,13 +899,18 @@ begin
   if v_uid is null then raise exception 'authentication_required'; end if;
   select coalesce(jsonb_agg(jsonb_build_object(
     'contract_snapshot_id',s.id,'order_id',s.order_id,'deal_id',s.deal_id,
-    'seller_id',s.seller_id,'seller_name',coalesce(s.seller_party->>'business_name',s.seller_party->>'legal_name'),
+    'seller_id',s.seller_id,'seller_name',coalesce(nullif(s.seller_party->>'business_name',''),s.seller_party->>'legal_name'),
     'product_title',s.product_snapshot->>'title','contract_formed_at',s.contract_formed_at,
     'total_price',s.total_price,'currency',s.currency,
     'already_submitted',exists(select 1 from dv_market_private.market_withdrawals w where w.contract_snapshot_id=s.id and w.buyer_id=v_uid)
   ) order by s.contract_formed_at desc,s.id),'[]'::jsonb) into v_result
   from dv_market_private.market_contract_snapshots s
-  where s.buyer_id=v_uid and s.contract_classification='b2c' and s.withdrawal_eligible;
+  where s.buyer_id=v_uid
+    and s.contract_classification='b2c'
+    and s.withdrawal_eligible
+    and s.seller_type='trader'
+    and s.buyer_type='consumer'
+    and nullif(trim(s.seller_party->>'public_email'),'') is not null;
   return v_result;
 end
 $$;
@@ -914,7 +924,7 @@ language plpgsql
 security definer
 set search_path=pg_catalog,public,dv_market_private
 as $$
-declare v_uid uuid:=auth.uid();s dv_market_private.market_contract_snapshots%rowtype;v_id uuid;
+declare v_uid uuid:=auth.uid();s dv_market_private.market_contract_snapshots%rowtype;v_id uuid;v_expires timestamptz;
   v_name text:=trim(coalesce(p_consumer_name,''));v_email text:=lower(trim(coalesce(p_confirmation_email,'')));
 begin
   if v_uid is null then raise exception 'authentication_required'; end if;
@@ -922,16 +932,34 @@ begin
   if v_email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'withdrawal_email_invalid'; end if;
   delete from dv_market_private.market_withdrawal_drafts where buyer_id=v_uid and expires_at<=now();
   select * into s from dv_market_private.market_contract_snapshots
-  where id=p_contract_snapshot_id and buyer_id=v_uid and contract_classification='b2c' and withdrawal_eligible;
+  where id=p_contract_snapshot_id
+    and buyer_id=v_uid
+    and contract_classification='b2c'
+    and withdrawal_eligible
+    and seller_type='trader'
+    and buyer_type='consumer'
+    and nullif(trim(seller_party->>'public_email'),'') is not null;
   if not found then raise exception 'withdrawal_contract_not_eligible'; end if;
+  perform pg_advisory_xact_lock(hashtextextended(s.id::text,0));
+  if exists(select 1 from dv_market_private.market_withdrawals where contract_snapshot_id=s.id and buyer_id=v_uid) then
+    raise exception 'withdrawal_already_submitted';
+  end if;
   insert into dv_market_private.market_withdrawal_drafts(
     contract_snapshot_id,buyer_id,seller_id,consumer_name,confirmation_email
-  ) values(s.id,v_uid,s.seller_id,v_name,v_email) returning id into v_id;
+  ) values(s.id,v_uid,s.seller_id,v_name,v_email)
+  on conflict (contract_snapshot_id,buyer_id) do update set
+    seller_id=excluded.seller_id,
+    consumer_name=excluded.consumer_name,
+    confirmation_email=excluded.confirmation_email,
+    created_at=now(),
+    expires_at=now()+interval '15 minutes'
+  returning id,expires_at into v_id,v_expires;
   return jsonb_build_object(
-    'draft_id',v_id,'contract_snapshot_id',s.id,'order_id',s.order_id,
+    'draft_id',v_id,'contract_snapshot_id',s.id,'order_id',s.order_id,'deal_id',s.deal_id,
     'consumer_name',v_name,'confirmation_email',v_email,
-    'seller_name',coalesce(s.seller_party->>'business_name',s.seller_party->>'legal_name'),
-    'product_title',s.product_snapshot->>'title','expires_at',now()+interval '15 minutes'
+    'seller_name',coalesce(nullif(s.seller_party->>'business_name',''),s.seller_party->>'legal_name'),
+    'product_title',s.product_snapshot->>'title','contract_formed_at',s.contract_formed_at,
+    'total_price',s.total_price,'currency',s.currency,'expires_at',v_expires
   );
 end
 $$;
@@ -946,53 +974,88 @@ set search_path=pg_catalog,public,dv_market_private,extensions
 as $$
 declare v_uid uuid:=auth.uid();d dv_market_private.market_withdrawal_drafts%rowtype;
   s dv_market_private.market_contract_snapshots%rowtype;w dv_market_private.market_withdrawals%rowtype;
-  v_text text;v_submitted timestamptz:=now();
+  v_contract_id uuid;v_text text;v_evidence jsonb;v_submitted timestamptz:=clock_timestamp();
+  v_seller_email text;v_seller_name text;
 begin
   if v_uid is null then raise exception 'authentication_required'; end if;
   select * into w from dv_market_private.market_withdrawals where draft_id=p_draft_id;
   if found then
     if w.buyer_id<>v_uid then raise exception 'withdrawal_access_denied'; end if;
     return jsonb_build_object('replayed',true,'withdrawal_id',w.id,'submitted_at',w.submitted_at,
-      'contract_snapshot_id',w.contract_snapshot_id,'confirmation_email',w.confirmation_email);
+      'contract_snapshot_id',w.contract_snapshot_id,'confirmation_email',w.confirmation_email,
+      'receipt_sha256',encode(w.content_sha256,'hex'));
   end if;
+  select contract_snapshot_id into v_contract_id
+  from dv_market_private.market_withdrawal_drafts where id=p_draft_id and buyer_id=v_uid;
+  if not found then raise exception 'withdrawal_draft_expired'; end if;
+  perform pg_advisory_xact_lock(hashtextextended(v_contract_id::text,0));
   select * into d from dv_market_private.market_withdrawal_drafts where id=p_draft_id and buyer_id=v_uid for update;
-  if not found or d.expires_at<=now() then raise exception 'withdrawal_draft_expired'; end if;
+  if not found then
+    select * into w from dv_market_private.market_withdrawals where draft_id=p_draft_id;
+    if found then
+      return jsonb_build_object('replayed',true,'withdrawal_id',w.id,'submitted_at',w.submitted_at,
+        'contract_snapshot_id',w.contract_snapshot_id,'confirmation_email',w.confirmation_email,
+        'receipt_sha256',encode(w.content_sha256,'hex'));
+    end if;
+    raise exception 'withdrawal_draft_expired';
+  end if;
+  if d.expires_at<=now() then raise exception 'withdrawal_draft_expired'; end if;
+  select * into w from dv_market_private.market_withdrawals
+  where contract_snapshot_id=d.contract_snapshot_id and buyer_id=v_uid;
+  if found then
+    delete from dv_market_private.market_withdrawal_drafts where id=d.id;
+    return jsonb_build_object('replayed',true,'withdrawal_id',w.id,'submitted_at',w.submitted_at,
+      'contract_snapshot_id',w.contract_snapshot_id,'confirmation_email',w.confirmation_email,
+      'receipt_sha256',encode(w.content_sha256,'hex'));
+  end if;
   select * into s from dv_market_private.market_contract_snapshots
-  where id=d.contract_snapshot_id and buyer_id=v_uid and contract_classification='b2c' and withdrawal_eligible;
+  where id=d.contract_snapshot_id
+    and buyer_id=v_uid
+    and contract_classification='b2c'
+    and withdrawal_eligible
+    and seller_type='trader'
+    and buyer_type='consumer'
+    and nullif(trim(seller_party->>'public_email'),'') is not null;
   if not found then raise exception 'withdrawal_contract_not_eligible'; end if;
+  if s.seller_id<>d.seller_id then raise exception 'withdrawal_snapshot_mismatch'; end if;
+  v_seller_email:=lower(trim(s.seller_party->>'public_email'));
+  v_seller_name:=coalesce(nullif(s.seller_party->>'business_name',''),s.seller_party->>'legal_name');
   v_text:=format(
-    E'Widerrufserklärung\\nName: %s\\nVertrag: %s\\nOrder: %s\\nProdukt: %s\\nErklärung: Hiermit widerrufe ich den oben bezeichneten Vertrag.\\nEingang: %s',
+    E'Widerrufserklärung\nName: %s\nVertrag: %s\nOrder: %s\nProdukt: %s\nErklärung: Hiermit widerrufe ich den oben bezeichneten Vertrag.\nEingang: %s',
     d.consumer_name,s.id,s.order_id,coalesce(s.product_snapshot->>'title','DUELVANTA Produkt'),
     to_char(v_submitted at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"')
   );
+  v_evidence:=jsonb_build_object(
+    'contract_domain','marketplace_b2c','contract_snapshot_id',s.id,'order_id',s.order_id,'deal_id',s.deal_id,
+    'buyer_id',v_uid,'seller_id',s.seller_id,'seller_recipient_email',v_seller_email,
+    'consumer_name',d.consumer_name,'confirmation_email',d.confirmation_email,
+    'declaration_text',v_text,'submitted_at',v_submitted
+  );
   insert into dv_market_private.market_withdrawals(
-    draft_id,contract_snapshot_id,order_id,deal_id,buyer_id,seller_id,consumer_name,
-    confirmation_email,declaration_text,submitted_at,content_sha256
+    draft_id,contract_snapshot_id,order_id,deal_id,buyer_id,seller_id,contract_domain,consumer_name,
+    confirmation_email,declaration_text,submitted_at,evidence_snapshot,content_sha256
   ) values(
-    d.id,s.id,s.order_id,s.deal_id,v_uid,s.seller_id,d.consumer_name,d.confirmation_email,
-    v_text,v_submitted,digest(convert_to(v_text,'UTF8'),'sha256')
+    d.id,s.id,s.order_id,s.deal_id,v_uid,s.seller_id,'marketplace_b2c',d.consumer_name,d.confirmation_email,
+    v_text,v_submitted,v_evidence,digest(convert_to(v_evidence::text,'UTF8'),'sha256')
   ) returning * into w;
-
   insert into dv_market_private.marketplace_message_outbox(
     contract_snapshot_id,recipient_kind,recipient_user_id,recipient_email,message_kind,payload,dedupe_key
   ) values(
     s.id,'buyer',v_uid,d.confirmation_email,'withdrawal_receipt',
-    jsonb_build_object('withdrawal_id',w.id,'contract_snapshot_id',s.id,'order_id',s.order_id,
+    jsonb_build_object('withdrawal_id',w.id,'contract_domain','marketplace_b2c','contract_snapshot_id',s.id,'order_id',s.order_id,
       'product_title',s.product_snapshot->>'title','consumer_name',d.consumer_name,
-      'submitted_at',v_submitted,'declaration_text',v_text),
-    'withdrawal_receipt:'||w.id::text
+      'submitted_at',v_submitted,'declaration_text',v_text,'evidence_sha256',encode(w.content_sha256,'hex')),
+    'withdrawal_receipt:'||s.id::text
   ) on conflict(dedupe_key) do nothing;
-
   insert into dv_market_private.marketplace_message_outbox(
     contract_snapshot_id,recipient_kind,recipient_user_id,recipient_email,message_kind,payload,dedupe_key
   ) values(
-    s.id,'seller',s.seller_id,s.seller_party->>'public_email','withdrawal_notice',
-    jsonb_build_object('withdrawal_id',w.id,'contract_snapshot_id',s.id,'order_id',s.order_id,
-      'product_title',s.product_snapshot->>'title','consumer_name',d.consumer_name,
-      'submitted_at',v_submitted,'declaration_text',v_text),
-    'withdrawal_notice:'||w.id::text
+    s.id,'seller',s.seller_id,v_seller_email,'withdrawal_notice',
+    jsonb_build_object('withdrawal_id',w.id,'contract_domain','marketplace_b2c','contract_snapshot_id',s.id,'order_id',s.order_id,
+      'product_title',s.product_snapshot->>'title','seller_name',v_seller_name,'consumer_name',d.consumer_name,
+      'submitted_at',v_submitted,'declaration_text',v_text,'evidence_sha256',encode(w.content_sha256,'hex')),
+    'withdrawal_notice:'||s.id::text
   ) on conflict(dedupe_key) do nothing;
-
   delete from dv_market_private.market_withdrawal_drafts where id=d.id;
   return jsonb_build_object('replayed',false,'withdrawal_id',w.id,'submitted_at',w.submitted_at,
     'contract_snapshot_id',w.contract_snapshot_id,'confirmation_email',w.confirmation_email,
@@ -1001,3 +1064,55 @@ end
 $$;
 revoke all on function public.confirm_market_withdrawal_v1(uuid) from public,anon;
 grant execute on function public.confirm_market_withdrawal_v1(uuid) to authenticated;
+
+-- Keep withdrawal evidence in the existing own-data export without creating a new retention period.
+create or replace function public.export_my_duelvanta_data()
+returns jsonb language plpgsql security definer
+set search_path=pg_catalog,public,dv_market_private,extensions as $$
+declare v_uid uuid:=auth.uid();v_payload jsonb;v_profile jsonb;v_seller jsonb;v_legal jsonb;v_tax jsonb;
+begin
+  if v_uid is null then raise exception 'authentication_required'; end if;
+  select to_jsonb(p) into v_profile from public.profiles p where p.id=v_uid;
+  select to_jsonb(s) into v_seller from public.market_seller_accounts s where s.seller_id=v_uid;
+  select to_jsonb(l) into v_legal from dv_market_private.seller_legal_profiles l where l.seller_id=v_uid;
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'identifier_kind',t.identifier_kind,'issuing_country_code',t.issuing_country_code,
+    'created_at',t.created_at,'updated_at',t.updated_at
+  )),'[]'::jsonb) into v_tax from dv_market_private.seller_tax_identifiers t where t.seller_id=v_uid;
+
+  v_payload:=jsonb_build_object(
+    'export_version','duelvanta-data-export-v1','generated_at',now(),
+    'account',coalesce(v_profile,'{}'::jsonb),
+    'collection',jsonb_build_object(
+      'folders',dv_market_private.json_rows(format('select * from public.collection_folders where user_id=%L order by created_at,id',v_uid)),
+      'items',dv_market_private.json_rows(format('select * from public.collection_items where user_id=%L order by created_at,id',v_uid))
+    ),
+    'marketplace',jsonb_build_object(
+      'seller_account',coalesce(v_seller,'null'::jsonb),
+      'seller_legal_profile',coalesce(v_legal,'null'::jsonb),
+      'tax_identifier_references',v_tax,
+      'seller_declarations',dv_market_private.json_rows(format('select declaration_kind,document_version,accepted_at,withdrawn_at from dv_market_private.seller_declarations where seller_id=%L order by accepted_at,id',v_uid)),
+      'listings',dv_market_private.json_rows(format('select to_jsonb(l)-array[''seller_id'',''deal_buyer_id''] row_data from public.market_listings l where seller_id=%L order by created_at,id',v_uid)),
+      'offers',dv_market_private.json_rows(format('select to_jsonb(o)-array[''seller_id'',''buyer_id''] row_data from public.market_offers o where seller_id=%L or buyer_id=%L order by created_at,id',v_uid,v_uid)),
+      'orders',dv_market_private.json_rows(format('select to_jsonb(o)-array[''seller_id'',''buyer_id'',''provider_payment_ref'',''provider_payout_ref'',''provider_refund_ref''] row_data from public.market_orders o where seller_id=%L or buyer_id=%L order by created_at,id',v_uid,v_uid)),
+      'deals',dv_market_private.json_rows(format('select to_jsonb(d)-array[''seller_id'',''buyer_id'',''provider_payment_ref'',''provider_payout_ref''] row_data from public.market_deals d where seller_id=%L or buyer_id=%L order by accepted_at,id',v_uid,v_uid)),
+      'default_shipping_address',dv_market_private.json_rows(format('select * from public.market_default_shipping_addresses where user_id=%L',v_uid)),
+      'shipping_profiles',dv_market_private.json_rows(format('select * from public.market_shipping_profiles where seller_id=%L order by created_at,id',v_uid)),
+      'contract_documents',dv_market_private.json_rows(format('select id,order_id,deal_id,contract_classification,seller_party,platform_operator,product_snapshot,quantity,unit_price,goods_total,shipping_method,shipping_cost,total_price,currency,payment_provider,contract_formed_at,snapshot_version,confirmation_format,confirmation_text,encode(content_sha256,''hex'') content_sha256 from dv_market_private.market_contract_snapshots where seller_id=%L or buyer_id=%L order by contract_formed_at,id',v_uid,v_uid)),
+      'withdrawals',dv_market_private.json_rows(format('select id,contract_snapshot_id,order_id,deal_id,contract_domain,consumer_name,confirmation_email,declaration_text,submitted_at,encode(content_sha256,''hex'') content_sha256 from dv_market_private.market_withdrawals where buyer_id=%L or seller_id=%L order by submitted_at,id',v_uid,v_uid)),
+      'payment_attempts',case when to_regclass('dv_market_private.market_payment_attempts') is null then '[]'::jsonb else dv_market_private.json_rows(format('select id,order_id,state,currency,amount_due_cents,platform_fee_cents,seller_net_cents,paid_cents,refunded_cents,prepared_at,paid_at,updated_at from dv_market_private.market_payment_attempts where seller_id=%L or buyer_id=%L order by prepared_at,id',v_uid,v_uid)) end,
+      'financial_documents',case when to_regclass('dv_market_private.market_financial_documents') is null then '[]'::jsonb else dv_market_private.json_rows(format('select d.id,d.attempt_id,d.document_kind,d.document_status,d.issuer_role,d.authorization_version,d.currency,d.net_cents,d.tax_cents,d.gross_cents,d.tax_treatment,encode(d.content_sha256,''hex'') content_sha256,d.issued_at,d.created_at from dv_market_private.market_financial_documents d join dv_market_private.market_payment_attempts a on a.id=d.attempt_id where a.seller_id=%L or a.buyer_id=%L order by d.created_at,d.id',v_uid,v_uid)) end,
+      'tax_events',dv_market_private.json_rows(format('select event_type,occurred_at,reporting_year,reporting_quarter,currency,gross_consideration_delta,platform_fee_delta,commission_delta,withheld_tax_delta,remuneration_delta,activity_count_delta,source_type,created_at from dv_market_private.market_tax_events where seller_id=%L order by occurred_at,id',v_uid)),
+      'my_notices',dv_market_private.json_rows(format('select case_reference,listing_id,category,explanation,alleged_legal_basis,exact_url,status,decision_action,decision_basis_kind,decision_reference,decision_reason,decision_scope,decision_duration,automated_means_used,submitted_at,decided_at from dv_market_private.listing_notices where reporter_user_id=%L order by submitted_at,id',v_uid)),
+      'my_appeals',dv_market_private.json_rows(format('select a.id,n.case_reference,a.appellant_kind,a.grounds,a.status,a.decision_reason,a.submitted_at,a.decided_at from dv_market_private.listing_notice_appeals a join dv_market_private.listing_notices n on n.id=a.notice_id where a.appellant_user_id=%L order by a.submitted_at,a.id',v_uid))
+    ),
+    'scope_note','Enthält eigene Daten und Vertragsdokumente. Fremde interne Kennungen, Zustellprotokolle und verschlüsselte Steuerwerte sind ausgeschlossen.'
+  );
+  insert into dv_market_private.user_data_export_events(user_id_hash,export_format,export_version,content_sha256)
+  values(digest(v_uid::text,'sha256'),'application/json','duelvanta-data-export-v1',digest(v_payload::text,'sha256'));
+  return v_payload;
+end
+$$;
+revoke all on function public.export_my_duelvanta_data() from public, anon;
+grant execute on function public.export_my_duelvanta_data() to authenticated;
+

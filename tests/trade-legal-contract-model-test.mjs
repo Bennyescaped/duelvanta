@@ -74,6 +74,31 @@ must(confirmWithdrawal,"'withdrawal_receipt'",'consumer durable-medium receipt i
 must(confirmWithdrawal,"'withdrawal_notice'",'seller withdrawal notice is not queued');
 mustNot(confirmWithdrawal,'prepare_market_stripe_full_refund','withdrawal declaration improperly triggers a refund');
 mustNot(confirmWithdrawal,'cancel_market','withdrawal declaration improperly triggers cancellation');
+const prepareWithdrawal=fn(migration,'public.prepare_market_withdrawal_v1');
+const listWithdrawal=fn(migration,'public.get_my_market_withdrawable_contracts');
+const withdrawalExport=fn(migration,'public.export_my_duelvanta_data');
+for(const source of [prepareWithdrawal,listWithdrawal,confirmWithdrawal]){
+  must(source,"contract_classification='b2c'",'withdrawal path must be limited to B2C snapshots');
+  must(source,"seller_type='trader'",'withdrawal path must require the trader snapshot');
+  must(source,"buyer_type='consumer'",'withdrawal path must require the consumer snapshot');
+  must(source,"seller_party->>'public_email'",'withdrawal path must require the frozen trader recipient');
+}
+must(migration,'market_withdrawals_contract_snapshot_uq','one immutable withdrawal per contract snapshot is not enforced');
+must(migration,'market_withdrawal_drafts_contract_buyer_uq','multiple active drafts per buyer/contract remain possible');
+must(confirmWithdrawal,'pg_advisory_xact_lock','withdrawal confirmation lacks a contract-scoped concurrency lock');
+must(confirmWithdrawal,"where contract_snapshot_id=d.contract_snapshot_id and buyer_id=v_uid",'contract-level replay is not handled');
+must(confirmWithdrawal,"'contract_domain','marketplace_b2c'",'marketplace B2C contract domain is not explicit');
+must(confirmWithdrawal,"s.id,'seller',s.seller_id,v_seller_email,'withdrawal_notice'",'seller notice does not use the frozen seller recipient');
+must(confirmWithdrawal,"'withdrawal_receipt:'||s.id::text",'buyer receipt is not deduplicated per contract');
+must(confirmWithdrawal,"'withdrawal_notice:'||s.id::text",'seller notice is not deduplicated per contract');
+must(confirmWithdrawal,"'evidence_sha256'",'withdrawal outbox lacks immutable evidence hash');
+must(confirmWithdrawal,'evidence_snapshot','withdrawal hash is not bound to an immutable evidence snapshot');
+must(withdrawalExport,"'withdrawals'",'withdrawal evidence is missing from own-data export');
+must(withdrawalExport,'market_withdrawals','withdrawal export does not use the private evidence table');
+mustNot(withdrawalExport,'marketplace_message_outbox','private delivery internals must not leak into own-data export');
+mustNot(confirmWithdrawal,'prepare_market_stripe','withdrawal must not initiate Stripe work');
+mustNot(confirmWithdrawal,'payment_status','withdrawal must not alter payment status');
+
 
 must(checkoutApi,"stripeMode('payments')",'fixed contract path bypasses Stripe payment gate');
 must(checkoutApi,'prepare_fixed_price_market_offer_v1','API does not create buyer offer before payment request');
@@ -114,7 +139,7 @@ must(orders,"confirm_market_withdrawal_v1",'withdrawal confirmation missing from
 must(dispatcher,"withdrawal_receipt",'withdrawal durable-medium receipt renderer missing');
 must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
-must(tradeHtml,'trade-orders.js?v=1.7','withdrawal order UI cache revision missing');
+must(tradeHtml,'trade-orders.js?v=1.8','withdrawal order UI cache revision missing');
 must(tradeHtml,'trade-offer-details.js?v=2.1','negotiated contract UI cache revision missing');
 must(tradeHtml,'trade-checkout.js?v=2.2','fixed contract UI cache revision missing');
 

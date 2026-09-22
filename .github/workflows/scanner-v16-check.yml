@@ -155,6 +155,7 @@ jobs:
           node tests/account-data-erasure-username-guard-test.mjs | tee test-results/collect-f3-username-erasure.log
           node tests/collect-binder-delete-concurrency-test.mjs
           node tests/trade-legal-fixed-price-concurrency-test.mjs | tee test-results/trade-fixed-price-postgres.log
+          node tests/trade-legal-withdrawal-database-test.mjs | tee test-results/trade-withdrawal-postgres.log
       - name: F3 PostgreSQL evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -168,6 +169,13 @@ jobs:
         with:
           name: trade-fixed-price-postgres-evidence
           path: test-results/trade-fixed-price-*
+          if-no-files-found: error
+      - name: Withdrawal PostgreSQL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trade-withdrawal-postgres-evidence
+          path: test-results/trade-withdrawal-*
           if-no-files-found: error
   quota_database:
     runs-on: ubuntu-latest
@@ -360,6 +368,7 @@ jobs:
           node tests/trade-browser-e2e.mjs
           node tests/trade-legal-readiness-browser-test.mjs
           node tests/trade-legal-order-browser-test.mjs
+          node tests/trade-legal-withdrawal-browser-test.mjs
           node tests/market-notice-action-browser-test.mjs
       - name: Second mobile acceptance regressions
         run: node tests/scanner-v16-acceptance-regression-test.mjs
