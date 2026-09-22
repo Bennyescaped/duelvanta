@@ -71,7 +71,7 @@ must(checkout,'Zahlungspflichtig bestellen','Legally explicit checkout action is
 must(checkout,'Erst die unmittelbar danach erzeugte Stripe-Zahlungsaufforderung','Contract-forming payment-request wording is missing');
 must(checkout,"db.rpc('review_market_checkout'",'Server-side seller and checkout review is missing');
 must(checkout,"fetch('/api/market-stripe-checkout'",'Fixed-price buyer offer is not routed through the Stripe acceptance API');
-must(checkout,"version:'2.1'",'Checkout module version mismatch');
+must(checkout,"version:'2.2'",'Checkout module version mismatch');
 must(shippingOptions,'Bitte Versandkosten ergänzen.','An empty shipping price must not appear as free shipping');
 must(shippingOptions,"version:'1.2'",'Shipping options module version mismatch');
 must(css,'.dvTradePrimary','Primary Marketplace navigation styles are missing');
