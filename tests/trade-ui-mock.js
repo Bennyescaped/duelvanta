@@ -16,6 +16,7 @@
   }
   const db={auth:{getSession:async()=>({data:{session:{access_token:'ui-buyer-token',user:{id:'ui-buyer',email:'buyer@example.test'}}}}),onAuthStateChange:()=>({}),signOut:async()=>({})},from:query,storage:{from:()=>({createSignedUrl:async()=>({data:{signedUrl:null}})})},rpc:async(name,args)=>{
     calls.push({name,args});
+    if(name==='get_my_market_buyer_profile')return {data:{configured:true,buyer_type:'consumer',schema_version:'trade-legal-contract-model-v1'},error:null};
     if(name==='get_my_market_trade_eligibility')return {data:{eligible:true,buyer_eligible:true,residence_country_code:'DE',private_buyer_confirmed:true},error:null};
     if(name==='get_my_market_swaps_v1')return {data:[],error:null};
     if(name==='get_my_market_order_b07_status')return {data:[],error:null};
@@ -38,7 +39,7 @@
     const url=String(input);
     if(url==='/api/market-stripe-checkout'){
       const args=JSON.parse(String(init.body||'{}'));calls.push({name:'market-stripe-checkout',args});
-      return new Response(JSON.stringify({error:'Lokaler simulierter Verbindungsabbruch'}),{status:409,headers:{'content-type':'application/json'}});
+      return {ok:false,status:409,json:async()=>({error:'Lokaler simulierter Verbindungsabbruch'})};
     }
     throw new Error('unexpected_local_fetch_'+url);
   };

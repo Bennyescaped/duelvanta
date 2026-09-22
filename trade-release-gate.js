@@ -13,11 +13,11 @@
     'trade-shipping-options.js?v=1.2',
     'trade-sealed.js?v=1.2.0',
     'trade-sealed-sale-only.js?v=1.0',
-    'trade-orders.js?v=1.5',
+    'trade-orders.js?v=1.7',
     'trade-b07-order-lifecycle.js?v=1.0',
     'trade-b07-pickup-ui-fix-v2.js?v=2.1',
-    'trade-offer-details.js?v=1.1',
-    'trade-checkout.js?v=1.1',
+    'trade-offer-details.js?v=2.0',
+    'trade-checkout.js?v=2.0',
     'trade-automation.js?v=2.0',
     'trade-shipping-profiles.js?v=1.1',
     'trade-order-resolution.js?v=1.1',
@@ -75,6 +75,7 @@
   };
 
   const loadTradeStack=async()=>{
+    if(window.DV_TRADE_LEGAL_SCHEMA?.guard_version!=='1.1')throw new Error('trade_legal_schema_guard_missing');
     const pending=TRADE_SCRIPTS.map(src=>new Promise((resolve,reject)=>{
       const script=document.createElement('script');
       script.src=src;

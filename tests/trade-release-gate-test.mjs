@@ -8,7 +8,7 @@ const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
 const dispatcher=await readFile(new URL('../api/compliance-message-dispatch.js',import.meta.url),'utf8');
 
 assert.match(html,/trade-release-gate\.css\?v=1\.1/);
-assert.match(html,/trade-release-gate\.js\?v=1\.1/);
+assert.match(html,/trade-release-gate\.js\?v=1\.2/);
 assert.match(html,/id="tradeBootScreen"/);
 assert.match(html,/class="wrap trade-runtime-loading"/);
 assert.doesNotMatch(html,/<script src="trade\.js"><\/script>/);
@@ -49,6 +49,7 @@ async function runGate({environment,role=null,session=true}){
   };
   window.supabase={createClient:()=>db};
   window.DV_SUPABASE={url:'https://example.supabase.co',key:'sb_publishable_test',environment};
+  window.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:'1.1',available:false});
   const context=vm.createContext({window,document,location:{href:'https://example.test/trade.html'},console,queueMicrotask,setTimeout,clearTimeout,Object,Error,Promise,Date});
   vm.runInContext(gate,context,{filename:'trade-release-gate.js'});
   await wait(80);

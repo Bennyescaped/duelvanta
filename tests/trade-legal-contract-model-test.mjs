@@ -65,8 +65,15 @@ must(orders,"confirm_market_withdrawal_v1",'withdrawal confirmation missing from
 must(dispatcher,"withdrawal_receipt",'withdrawal durable-medium receipt renderer missing');
 must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
-must(tradeHtml,'trade-orders.js?v=1.6','withdrawal order UI cache revision missing');
+must(tradeHtml,'trade-orders.js?v=1.7','withdrawal order UI cache revision missing');
 must(tradeHtml,'trade-offer-details.js?v=2.0','negotiated contract UI cache revision missing');
 must(tradeHtml,'trade-checkout.js?v=2.0','fixed contract UI cache revision missing');
 
-console.log('PASS: lawyer-approved contract timing, buyer classification and two-step withdrawal stay wired without automatic refund/cancel');
+must(tradeHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in TRADE');
+must(profileHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in PROFILE');
+assert.ok(tradeHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<tradeHtml.indexOf('src="trade-release-gate.js'),'schema guard must load before contract handlers');
+assert.ok(profileHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<profileHtml.indexOf('src="profile.js'),'schema guard must load before profile handlers');
+await import('./trade-legal-readiness-test.mjs');
+await import('./trade-legal-profile-boundary-test.mjs');
+await import('./trade-legal-order-boundary-test.mjs');
+console.log('PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance');

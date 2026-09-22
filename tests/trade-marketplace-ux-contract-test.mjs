@@ -15,11 +15,11 @@ const sealedSaleOnlySql=await readFile(new URL('../database/b07-sealed-sale-only
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 
 must(html,'trade-marketplace-ux.css?v=1.1','Marketplace UX stylesheet is not loaded');
-must(html,'trade-release-gate.js?v=1.1','TRADE release gate is not loaded');
+must(html,'trade-release-gate.js?v=1.2','TRADE release gate is not loaded');
 must(releaseGate,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not routed through the release gate');
 must(releaseGate,'trade-search-archive.js?v=1.1','Search/archive cache version is stale');
-must(releaseGate,'trade-checkout.js?v=1.1','Checkout cache version is stale');
-must(releaseGate,'trade-orders.js?v=1.5','Orders cache version is stale');
+must(releaseGate,'trade-checkout.js?v=2.0','Checkout cache version is stale');
+must(releaseGate,'trade-orders.js?v=1.7','Orders cache version is stale');
 must(releaseGate,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
 must(releaseGate,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
 for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
