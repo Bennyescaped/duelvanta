@@ -10,7 +10,9 @@ for(const table of ['market_contract_snapshots','marketplace_message_delivery_ev
 for(const table of ['market_contract_snapshots','marketplace_message_delivery_events'])
   must(sql,`alter table dv_market_private.${table} enable row level security`,'private checkout table lacks RLS defense in depth: '+table);
 must(sql,'market_contract_snapshot_is_immutable','contract snapshot mutation is not blocked');
-must(legal,"contract_classification in ('c2c','c2b','b2c','b2b')",'buyer-aware contract classification is not constrained');
+must(legal,"contract_classification in ('c2c','b2c')",'private-buyer contract classification is not constrained');
+assert.doesNotMatch(legal,/'b2b'|'c2b'|'business'|market_buyer_profiles/,'unapproved business-buyer expansion remains in the draft');
+must(legal,'require_trade_eligibility(p_buyer_id,true)','existing private buyer eligibility is not reused');
 must(sql,'seller_party jsonb not null','contract party snapshot is missing');
 must(sql,'product_snapshot jsonb not null','product snapshot is missing');
 must(sql,'content_sha256 bytea not null','confirmation integrity hash is missing');
