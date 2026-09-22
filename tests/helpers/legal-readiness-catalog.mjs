@@ -24,6 +24,7 @@ export function catalogQuery(tables,functions){
  select 'function',r.name||'('||pg_get_function_identity_arguments(p.oid)||')',
  jsonb_build_object('body',md5(p.prosrc),'result',pg_get_function_result(p.oid),'definer',p.prosecdef,'volatility',p.provolatile,
  'config',p.proconfig,'language',l.lanname,'kind',p.prokind,
+ 'owner',p.proowner::regrole::text,'arguments',pg_get_function_arguments(p.oid),'strict',p.proisstrict,'leakproof',p.proleakproof,
  'grants',(select jsonb_agg(jsonb_build_array(role,has_function_privilege(role,p.oid,'EXECUTE')) order by role) from unnest(array['anon','authenticated','service_role']) role))
  from required_functions r left join pg_proc p on p.pronamespace::regnamespace::text||'.'||p.proname=r.name left join pg_language l on l.oid=p.prolang
  union all

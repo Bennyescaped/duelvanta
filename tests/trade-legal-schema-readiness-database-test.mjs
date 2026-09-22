@@ -35,6 +35,8 @@ try{
  ['missing column','alter table public.market_offers rename column checkout_hash_snapshot to missing_hash'],
  ['missing rpc','alter function public.review_market_price_offer_v1(uuid,integer,numeric) rename to broken_review'],
  ['wrong function body',`create or replace function public.release_fixed_price_market_offer_v1(p_offer_id uuid,p_reason text default 'payment_request_failed') returns boolean language sql security definer as $$select true$$`],
+ ['wrong function owner','alter function public.prepare_market_withdrawal_v1(uuid,text,text) owner to authenticated'],
+ ['changed null-call behavior','alter function public.release_fixed_price_market_offer_v1(uuid,text) strict'],
  ['wrong signature','alter function public.prepare_market_withdrawal_v1(uuid,text,text) rename to missing_prepare'],
  ['missing uniqueness','drop index public.market_fixed_offer_request_key_idx'],
  ['disabled immutable contract trigger','alter table dv_market_private.market_contract_snapshots disable trigger user'],
