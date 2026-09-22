@@ -47,6 +47,7 @@ try{
  ['backend direct mutation','grant delete on public.market_offers to service_role'],
  ['retired rpc exposed','grant execute on function public.buy_market_listing_v3(uuid,integer,uuid,timestamptz,text) to authenticated'],
  ['new rpc revoked','revoke execute on function public.confirm_market_withdrawal_v1(uuid) from authenticated'],
+ ['missing reservation state constraint','alter table public.market_offers drop constraint market_fixed_reservation_state_check'],
  ['weakened delete policy','drop policy offers_delete_unreserved_only on public.market_offers'],
  ['foreign key missing','alter table dv_market_private.market_withdrawals drop constraint market_withdrawals_contract_snapshot_id_fkey'],
  ['outbox check missing','alter table dv_market_private.marketplace_message_outbox drop constraint marketplace_message_outbox_message_kind_check']

@@ -254,6 +254,14 @@ try{
   }
   // Privileged and FK-cascade deletion is blocked as well: trigger, not only RLS.
   await assert.rejects(()=>observer.query('delete from public.market_offers where id=$1',[protectedOffer.offer_id]),/market_reservation_requires_release/);
+  await role(c2,'authenticated',BUYER1);
+  await assert.rejects(()=>c2.query('select public.withdraw_my_market_offer($1)',[protectedOffer.offer_id]),/Offer cannot be withdrawn/);
+  // Old seller-edit/cancel implementations bypass RLS but cannot strand reserved stock.
+  for(const status of ['withdrawn','declined','cancelled'])
+    await assert.rejects(()=>observer.query('update public.market_offers set status=$2 where id=$1',[protectedOffer.offer_id,status]),e=>e.code==='23514');
+  assert.equal((await observer.query('select status from public.market_offers where id=$1',[protectedOffer.offer_id])).rows[0].status,'pending');
+  assert.equal(await stock(protectedOffer.listing),0);
+  report.cases.push({case:'legacy-withdraw-and-status-only-rpc-bypass-denied',passed:true});
   await observer.query('alter table public.market_offers add constraint fixture_listing_fk foreign key(listing_id) references public.market_listings(id) on delete cascade');
   await assert.rejects(()=>observer.query('delete from public.market_listings where id=$1',[protectedOffer.listing]),/market_reservation_requires_release/);
   await role(c5,'service_role');await role(c6,'service_role');
