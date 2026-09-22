@@ -59,9 +59,9 @@ try{
  const grants=eligibility.split('\n').filter(line=>/^(revoke all|grant execute) on function /.test(line)&&/require_trade_eligibility\(|get_my_market_trade_eligibility\(|confirm_my_market_trade_eligibility\(|confirm_my_market_private_buyer\(/.test(line));
  assert.equal(grants.length,7);await db.exec(grants.join('\n'));
  await db.exec(before(candidate,'-- Sale-only guard'));
- for(const name of ['public.review_market_checkout','public.create_market_offer_v2','dv_market_private.capture_market_contract_snapshot'])await db.exec(fn(candidate,name));
- await db.exec(`revoke all on function public.review_market_checkout(uuid,integer),public.create_market_offer_v2(uuid,integer,numeric,text) from public,anon;
- grant execute on function public.review_market_checkout(uuid,integer),public.create_market_offer_v2(uuid,integer,numeric,text) to authenticated;
+ for(const name of ['public.review_market_checkout','public.review_market_price_offer_v1','public.create_market_offer_v3','dv_market_private.capture_market_contract_snapshot'])await db.exec(fn(candidate,name));
+ await db.exec(`revoke all on function public.review_market_checkout(uuid,integer),public.review_market_price_offer_v1(uuid,integer,numeric),public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) from public,anon;
+ grant execute on function public.review_market_checkout(uuid,integer),public.review_market_price_offer_v1(uuid,integer,numeric),public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) to authenticated;
  grant insert on public.market_deals to service_role;
  create trigger isolated_snapshot_capture after insert or update of order_id on public.market_deals for each row execute function dv_market_private.capture_market_contract_snapshot();`);
  assert.equal(await value("select to_regclass('dv_market_private.market_buyer_profiles') value"),null);
@@ -92,7 +92,8 @@ try{
  }
  await owner();await db.exec(`update public.profiles set account_status='beta' where id='${BUYER}'`);await claim(BUYER);assert.equal((await review()).buyer_type,'consumer');success('existing beta account remains eligible');
  await owner();await db.exec(`update public.market_listings set pricing_mode='negotiable' where id='${LIST2}'`);await claim(BUYER);
- const offer=await value(`select public.create_market_offer_v2('${LIST2}',1,8,null) value`);
+ const offerReview=await value('select public.review_market_price_offer_v1($1,$2,$3) value',[LIST2,1,8]);
+ const offer=await value('select public.create_market_offer_v3($1,$2,$3,$4,$5,$6) value',[LIST2,1,8,null,offerReview.listing_updated_at,offerReview.offer_review_hash]);
  assert.deepEqual(await value('select public.get_my_market_trade_eligibility() value'),declared);success('review/offer do not change existing declaration timestamps or status');
  await owner();assert.equal(await value('select buyer_type_snapshot value from public.market_offers where id=$1',[offer]),'consumer');success('new offer freezes consumer only');
  for(const buyerType of [null,'business','unknown'])for(const sellerType of ['private','trader']){assert.equal(await value('select dv_market_private.market_contract_classification($1,$2) value',[sellerType,buyerType]),null);success('unsupported classification rejected '+sellerType+'/'+buyerType)}
