@@ -58,7 +58,7 @@ must(orders,"result.live_mode!==false",'existing sandbox UI no longer rejects li
 must(orders,"sessionStorage.getItem(key)",'order UI does not preserve its checkout idempotency key');
 must(orders,"['not_required','failed'].includes(o.payment_status)",'pending payments can incorrectly start again');
 must(orders,'STRIPE-TESTZAHLUNG WIRD GEPRÜFT','pending payment status is not explained');
-must(trade,'trade-orders.js?v=1.7','Stripe sandbox order UI cache version is not loaded');
+must(trade,'trade-orders.js?v=1.8','Stripe sandbox order UI cache version is not loaded');
 
 must(liveMode,'market_payment_configuration_mode_check','database live/sandbox mutual exclusion is missing');
 must(liveMode,'add column if not exists live_mode boolean not null default false','live evidence does not default closed');
