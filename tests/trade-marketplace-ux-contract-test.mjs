@@ -19,7 +19,7 @@ must(html,'trade-release-gate.js?v=1.3','TRADE release gate is not loaded');
 must(releaseGate,'trade-marketplace-ux.js?v=1.1','Marketplace UX module is not routed through the release gate');
 must(releaseGate,'trade-search-archive.js?v=1.1','Search/archive cache version is stale');
 must(releaseGate,'trade-checkout.js?v=2.2','Checkout cache version is stale');
-must(releaseGate,'trade-orders.js?v=1.7','Orders cache version is stale');
+must(releaseGate,'trade-orders.js?v=1.8','Orders cache version is stale');
 must(releaseGate,'trade-shipping-options.js?v=1.2','Shipping options cache version is stale');
 must(releaseGate,'trade-sealed-sale-only.js?v=1.0','Sealed sale-only guard is not loaded');
 for(const label of ['MARKT','MEINE INSERATE','PREISANGEBOTE','BESTELLUNGEN','BEWERTUNGEN','VERSAND'])must(ux,`'${label}'`,'Missing simplified navigation label '+label);
@@ -85,7 +85,7 @@ must(css,'#dvSwapEditor .dvSwapCandidates label{display:grid;grid-template-colum
 must(css,'overflow-wrap:anywhere','Swap candidate text must wrap instead of overflowing the dialog');
 
 const orders=await readFile(new URL('../trade-orders.js',import.meta.url),'utf8');
-must(orders,"version:'1.5'",'Orders module version mismatch');
+must(orders,"version:'1.8'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
 
