@@ -85,7 +85,7 @@ must(checkoutApi,'fixed_checkout_payment_recovery_unknown','formed-contract paym
 must(checkoutApi,'contract_formed_payment_retry_required','expired formed-contract payment session has no safe recovery state');
 must(checkoutApi,'contract_formed_payment_processing','completed formed-contract payment session is not distinguished from retry');
 must(checkoutApi,'fixedSession(','Stripe session response is not amount/metadata-bound before contract formation');
-must(checkoutApi,'/expire','failed fixed-price finalization does not expire Stripe Checkout session');
+mustNot(checkoutApi,'/expire','ambiguous fixed-price finalization must not expire Stripe Checkout session');
 
 must(checkoutUi,'VERBINDLICHES KAUFANGEBOT','fixed checkout does not explain buyer offer');
 must(checkoutUi,'Zahlungspflichtig bestellen','required order button wording missing');
