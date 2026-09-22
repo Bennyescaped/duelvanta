@@ -109,3 +109,10 @@ Vor jeder Staging-Mutation Phase A vollständig neu mit aktualisiertem Kandidate
 - `DUELVANTA_LEGAL_SCHRITT2_PREVIEW_NACHTEST_2026-09-22.md`
 - `DUELVANTA_LEGAL_SCHRITT1_VEROEFFENTLICHUNG_CI_2026-09-22.md`
 - `DUELVANTA_LEGAL_SCHRITT1_PREVIEW_NACHTEST_2026-09-22.md`
+
+## CI-Nachtrag zum veröffentlichten Dokumentationsstand
+Auch auf `eee644816ca9f3933034d68efb678b6b856b1948` wurden beide vollständigen Workflows automatisch ausgeführt und erfolgreich abgeschlossen:
+- Scanner V16 #675, Run `35781624402`: `collect_f3_database` Job `106928252888`, `quota_database` Job `106928253243`, `validate` Job `106928253257` – alle SUCCESS.
+- Battle WebRTC #151, Run `35781624388`: `battle_webrtc` Job `106928252752`, `spectator_database` Job `106928253063` – beide SUCCESS.
+
+Dies ist vollständige Bestandsregression auf dem Dokumentations-/Evidenzcommit, keine erfolgreiche Schritt-6-Migrationsabnahme. S6-A01 bleibt reproduzierbar und ungefixt; Staging bleibt unmigriert. Dieser spätere Nachtrag ändert ausschließlich Dokumentation. Die expliziten Phasen- und Testgrenzen bleiben bestehen.

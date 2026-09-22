@@ -137,3 +137,10 @@ Evidenz: `evidence/legal-step6-preflight-20260922/`.
 Die Reproduktion endet erfolgreich, wenn sie den **unbehobenen Fehler** nachweist; ihr Prozess-Exitcode darf nicht als Produkt-PASS interpretiert werden.
 
 **Schritt 6 bleibt blockiert; Masterhandout V35 dokumentiert ausschließlich diesen kontrollierten Stopp.**
+
+## CI-Nachtrag zum veröffentlichten Dokumentationsstand
+Auch auf `eee644816ca9f3933034d68efb678b6b856b1948` wurden beide vollständigen Workflows automatisch ausgeführt und erfolgreich abgeschlossen:
+- Scanner V16 #675, Run `35781624402`: `collect_f3_database` Job `106928252888`, `quota_database` Job `106928253243`, `validate` Job `106928253257` – alle SUCCESS.
+- Battle WebRTC #151, Run `35781624388`: `battle_webrtc` Job `106928252752`, `spectator_database` Job `106928253063` – beide SUCCESS.
+
+Dies ist vollständige Bestandsregression auf dem Dokumentations-/Evidenzcommit, keine erfolgreiche Schritt-6-Migrationsabnahme. S6-A01 bleibt reproduzierbar und ungefixt; Staging bleibt unmigriert. Dieser spätere Nachtrag ändert ausschließlich Dokumentation. Die expliziten Phasen- und Testgrenzen bleiben bestehen.
