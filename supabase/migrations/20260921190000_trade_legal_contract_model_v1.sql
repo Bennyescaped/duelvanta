@@ -339,20 +339,26 @@ begin
       or (o.offer_type='price' and o.status='accepted' and not exists(select 1 from public.market_deals d where d.offer_id=o.id))
     )
     and o.reservation_expires_at is not null and o.reservation_expires_at<=now()
-    order by o.reservation_expires_at,o.id
+    order by o.listing_id,o.id
   loop
     select listing_id into v_listing_id from public.market_offers where id=v_offer_id;
     if v_listing_id is null then continue; end if;
     select * into v_listing from public.market_listings where id=v_listing_id for update;
     select * into v_offer from public.market_offers where id=v_offer_id for update;
-    if not found or v_offer.reservation_expires_at is null or v_offer.reservation_expires_at>now()
+    if not found or not ((v_offer.offer_type='fixed_price' and v_offer.status='pending')
+       or (v_offer.offer_type='price' and v_offer.status='accepted'))
+       or v_offer.reservation_expires_at is null or v_offer.reservation_expires_at>now()
        or exists(select 1 from public.market_deals d where d.offer_id=v_offer.id) then continue; end if;
-    v_restore:=greatest(coalesce(v_offer.reserved_quantity,v_offer.requested_quantity,1),1);
+    v_restore:=v_offer.reserved_quantity;
+    if v_listing.id is null or v_restore is null or v_restore<=0
+       or v_listing.quantity_available+v_restore>v_listing.stock_quantity then
+      raise exception 'market_reservation_inventory_inconsistent';
+    end if;
     update public.market_offers set status='expired',reserved_quantity=0,reservation_expires_at=null,updated_at=now()
     where id=v_offer.id;
     if v_listing.id is not null then
       update public.market_listings
-      set quantity_available=least(stock_quantity,quantity_available+v_restore),
+      set quantity_available=quantity_available+v_restore,
           status=case when status='reserved' then 'active' else status end,
           accepted_offer_id=case when accepted_offer_id=v_offer.id then null else accepted_offer_id end,
           deal_price=case when deal_buyer_id=v_offer.buyer_id then null else deal_price end,
@@ -365,6 +371,32 @@ begin
   return v_count;
 end
 $$;
+
+-- Reservations are server-managed. Retain only the legacy unreserved price-offer deletion.
+revoke insert, update, delete, truncate on public.market_offers from public, anon, authenticated, service_role;
+grant delete on public.market_offers to authenticated;
+drop policy if exists offers_delete_buyer on public.market_offers;
+create policy offers_delete_buyer on public.market_offers for delete to authenticated
+using (buyer_id=(select auth.uid()) and status='pending' and offer_type='price'
+  and coalesce(reserved_quantity,0)=0 and reservation_expires_at is null);
+drop policy if exists offers_delete_unreserved_only on public.market_offers;
+create policy offers_delete_unreserved_only on public.market_offers as restrictive for delete to authenticated
+using (offer_type='price' and status='pending' and coalesce(reserved_quantity,0)=0 and reservation_expires_at is null);
+
+-- Also reject privileged/cascading removal of a live reservation; cleanup must run first.
+create or replace function dv_market_private.protect_market_reservation_delete()
+returns trigger language plpgsql set search_path=pg_catalog as $$
+begin
+  if coalesce(old.reserved_quantity,0)>0 or old.reservation_expires_at is not null then
+    raise exception 'market_reservation_requires_release';
+  end if;
+  return old;
+end
+$$;
+revoke all on function dv_market_private.protect_market_reservation_delete() from public,anon,authenticated,service_role;
+drop trigger if exists market_reservation_delete_guard on public.market_offers;
+create trigger market_reservation_delete_guard before delete on public.market_offers
+for each row execute function dv_market_private.protect_market_reservation_delete();
 
 -- Orders created by Stripe-forming fixed-price acceptance are never merged into an older manual-beta order.
 
@@ -662,20 +694,26 @@ language plpgsql
 security definer
 set search_path=pg_catalog,public
 as $$
-declare o public.market_offers;l public.market_listings;v_restore integer;
+declare o public.market_offers;l public.market_listings;v_restore integer;v_listing_id uuid;
 begin
+  select listing_id into v_listing_id from public.market_offers where id=p_offer_id;
+  if not found then return false; end if;
+  select * into l from public.market_listings where id=v_listing_id for update;
   select * into o from public.market_offers where id=p_offer_id for update;
-  if not found or o.offer_type<>'fixed_price' then return false; end if;
-  if o.status<>'pending' then return false; end if;
-  select * into l from public.market_listings where id=o.listing_id for update;
-  v_restore:=greatest(coalesce(o.reserved_quantity,o.requested_quantity,1),1);
+  if not found or o.offer_type<>'fixed_price' or o.status<>'pending'
+     or exists(select 1 from public.market_deals where offer_id=o.id) then return false; end if;
+  v_restore:=o.reserved_quantity;
+  if l.id is null or o.listing_id is distinct from l.id or v_restore is null or v_restore<=0
+     or l.quantity_available+v_restore>l.stock_quantity then
+    raise exception 'market_reservation_inventory_inconsistent';
+  end if;
   update public.market_offers
   set status='expired',message=left(coalesce(p_reason,'payment_request_failed'),500),
       reserved_quantity=0,reservation_expires_at=null,updated_at=now()
   where id=o.id;
   if l.id is not null then
     update public.market_listings
-    set quantity_available=least(stock_quantity,quantity_available+v_restore),
+    set quantity_available=quantity_available+v_restore,
         status=case when status='reserved' then 'active' else status end,updated_at=now()
     where id=l.id;
   end if;
@@ -697,7 +735,7 @@ declare
   o public.market_offers;l public.market_listings;d public.market_deals;s dv_market_private.market_stripe_accounts%rowtype;
   c dv_market_private.market_payment_configuration%rowtype;snap dv_market_private.market_contract_snapshots%rowtype;
   v_total integer;v_fee integer;v_prefix text:=case when p_live_mode then 'cs_live_' else 'cs_test_' end;
-  v_review jsonb;v_f jsonb;v_hash text;v_qty integer;
+  v_review jsonb;v_f jsonb;v_hash text;v_qty integer;v_listing_id uuid;
 begin
   if p_offer_id is null or p_attempt_id is null or p_payment_requested_at is null then raise exception 'fixed_acceptance_invalid'; end if;
   if p_session_id is null or position(v_prefix in p_session_id)<>1 then raise exception 'stripe_session_invalid'; end if;
@@ -705,8 +743,11 @@ begin
     raise exception 'payment_request_timestamp_invalid';
   end if;
 
+  select listing_id into v_listing_id from public.market_offers where id=p_offer_id;
+  select * into l from public.market_listings where id=v_listing_id for update;
+  if not found then raise exception 'listing_not_available'; end if;
   select * into o from public.market_offers where id=p_offer_id for update;
-  if not found or o.offer_type<>'fixed_price' or o.payment_attempt_id<>p_attempt_id then raise exception 'fixed_offer_not_found'; end if;
+  if not found or o.listing_id is distinct from l.id or o.offer_type<>'fixed_price' or o.payment_attempt_id<>p_attempt_id then raise exception 'fixed_offer_not_found'; end if;
 
   if o.payment_live_mode_snapshot is distinct from p_live_mode
      or o.stripe_account_id_snapshot is null
@@ -745,8 +786,9 @@ begin
   perform dv_market_private.require_market_buyer_type(o.buyer_id);
   if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
 
-  select * into l from public.market_listings where id=o.listing_id for update;
-  if not found then raise exception 'listing_not_available'; end if;
+  if o.reserved_quantity is distinct from o.requested_quantity or o.reserved_quantity<=0 then
+    raise exception 'market_reservation_inventory_inconsistent';
+  end if;
   select * into s from dv_market_private.market_stripe_accounts where seller_id=o.seller_id;
   if not found or s.stripe_account_id<>o.stripe_account_id_snapshot
      or s.live_mode is distinct from p_live_mode or s.onboarding_status<>'ready' or not s.charges_enabled then
@@ -769,7 +811,7 @@ begin
   perform set_config('dv_market.offer_checkout_authorized',o.id::text,true);
   update public.market_offers
   set status='accepted',responded_at=p_payment_requested_at,payment_requested_at=p_payment_requested_at,
-      stripe_checkout_session_id=p_session_id,reservation_expires_at=null,updated_at=now()
+      stripe_checkout_session_id=p_session_id,reserved_quantity=0,reservation_expires_at=null,updated_at=now()
   where id=o.id;
 
   insert into public.market_deals(

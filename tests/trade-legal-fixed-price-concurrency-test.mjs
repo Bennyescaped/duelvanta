@@ -1,7 +1,7 @@
 // Real PostgreSQL 17 concurrency proof for Legal Step 4; isolated CI database only.
 import assert from 'node:assert/strict';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import {createDatabase} from './helpers/f3-native-db.mjs';
 
 const migrationPath='supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql';
@@ -46,7 +46,7 @@ const accept=(client,offer,attempt,session,at)=>client.query('select public.acce
 
 try{
   await db.exec(`
-    create role anon;create role authenticated;create role service_role;
+    create role anon;create role authenticated;create role service_role bypassrls;
     create schema auth;create schema extensions;create schema dv_market_private;
     create extension if not exists pgcrypto with schema extensions;
     create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
@@ -116,7 +116,14 @@ try{
       select jsonb_strip_nulls(jsonb_build_object('listing_id',p.id,'product_kind',p.product_kind,'title',p.card_name,'set_name',p.set_name,
         'language',p.language,'sealed_category',p.sealed_category,'package_contents',p.package_contents,'listing_updated_at',p.updated_at))
     $$;
-    create function public.expire_market_offer_reservations_v1() returns integer language sql security definer as $$select 0$$;
+    grant usage on schema auth,public to anon,authenticated,service_role;
+    alter table public.market_offers enable row level security;
+    grant select,insert,delete on public.market_offers to authenticated;
+    grant all on public.market_offers to service_role;
+    create policy offers_read_participants on public.market_offers for select to authenticated
+      using (buyer_id=auth.uid() or seller_id=auth.uid());
+    create policy offers_delete_buyer on public.market_offers for delete to authenticated
+      using (buyer_id=auth.uid() and status='pending');
 
     create function public.fixture_fixed_contract() returns trigger language plpgsql security definer set search_path=pg_catalog,public,dv_market_private,extensions as $$
     declare o public.market_offers;r jsonb;ord uuid:=gen_random_uuid();snap uuid;
@@ -142,12 +149,18 @@ try{
       ('82000000-0000-4000-8000-000000000003','81000000-0000-4000-8000-000000000001',1,1,100,'parcel',5,'Tracked','Acceptance race','Set','DE','display','24 Booster',600);
   `);
 
+  await db.exec(fn('public.expire_market_offer_reservations_v1'));
+  await db.exec(migration.slice(migration.indexOf('-- Reservations are server-managed.'),migration.indexOf('-- Orders created by Stripe-forming')));
+  await db.exec(fn('public.release_fixed_price_market_offer_v1'));
   await db.exec(fn('public.review_market_checkout'));
   await db.exec(fn('public.prepare_fixed_price_market_offer_v1'));
   await db.exec(fn('public.accept_fixed_price_market_offer_v1'));
   await db.exec(`
     grant execute on function public.review_market_checkout(uuid,integer) to authenticated;
     grant execute on function public.prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean) to authenticated;
+    revoke all on function public.accept_fixed_price_market_offer_v1(uuid,uuid,text,timestamptz,boolean) from public,anon,authenticated;
+    revoke all on function public.release_fixed_price_market_offer_v1(uuid,text) from public,anon,authenticated;
+    grant execute on function public.release_fixed_price_market_offer_v1(uuid,text) to service_role;
     grant execute on function public.accept_fixed_price_market_offer_v1(uuid,uuid,text,timestamptz,boolean) to service_role;
   `);
 
@@ -214,7 +227,64 @@ try{
   assert.equal(payment.amount_due_cents,10500);assert.equal(payment.platform_fee_cents,293);assert.equal(payment.stripe_account_id,'acct_ConcurrencySeller');
   report.cases.push({case:'service-role-acceptance-replay',block:acceptBlock,offer:prepared.offer_id,order:firstAccept.order_id,passed:true});
 
-  assert.ok(report.cases.every(c=>c.passed&&c.block.waiting_lock));report.passed=true;
+  assert.ok(report.cases.every(c=>c.passed&&c.block.waiting_lock));
+  const release=(c,id)=>c.query('select public.release_fixed_price_market_offer_v1($1) v',[id]);
+  const expire=c=>c.query('select public.expire_market_offer_reservations_v1() v');
+  const stock=async id=>(await observer.query('select quantity_available from public.market_listings where id=$1',[id])).rows[0].quantity_available;
+  const fixture=async()=>{
+    const listing=randomUUID(),request=randomUUID();
+    await observer.query(`insert into public.market_listings(id,seller_id,quantity_available,stock_quantity,asking_price,shipping_method,shipping_cost,card_name)
+      values($1,$2,1,1,100,'parcel',5,'Synthetic concurrency fixture')`,[listing,SELLER]);
+    await role(c1,'authenticated',BUYER1);
+    const r=await review(c1,listing,1),p=(await prepare(c1,listing,1,request,r)).rows[0].v;
+    return {...p,listing};
+  };
+  const protectedOffer=await fixture();
+  for(const [kind,uid] of [['authenticated',BUYER1],['authenticated',BUYER2],['anon',null],['service_role',null]]){
+    await role(c2,kind,uid);
+    const deletion=await launch(()=>c2.query('delete from public.market_offers where id=$1 returning id',[protectedOffer.offer_id])).promise;
+    if(kind==='authenticated'){assert.equal(deletion.ok,true);assert.equal(deletion.value.rowCount,0)}
+    else {assert.equal(deletion.ok,false);assert.equal(deletion.code,'42501')}
+    for(const sql of ['update public.market_offers set reserved_quantity=0 where id=$1',
+      'update public.market_offers set status=\'expired\' where id=$1',
+      'insert into public.market_offers(id) values($1)'])
+      await assert.rejects(()=>c2.query(sql,[protectedOffer.offer_id]),e=>e.code==='42501');
+    if(kind!=='service_role')await assert.rejects(()=>release(c2,protectedOffer.offer_id),e=>e.code==='42501');
+    assert.equal(await stock(protectedOffer.listing),0);
+  }
+  // Privileged and FK-cascade deletion is blocked as well: trigger, not only RLS.
+  await assert.rejects(()=>observer.query('delete from public.market_offers where id=$1',[protectedOffer.offer_id]),/market_reservation_requires_release/);
+  await observer.query('alter table public.market_offers add constraint fixture_listing_fk foreign key(listing_id) references public.market_listings(id) on delete cascade');
+  await assert.rejects(()=>observer.query('delete from public.market_listings where id=$1',[protectedOffer.listing]),/market_reservation_requires_release/);
+  await role(c5,'service_role');await role(c6,'service_role');
+  assert.equal((await release(c5,protectedOffer.offer_id)).rows[0].v,true);
+  assert.equal((await release(c5,protectedOffer.offer_id)).rows[0].v,false);
+  assert.equal(await stock(protectedOffer.listing),1);
+  report.cases.push({case:'all-role-direct-mutation-and-cascade-denied-release-once',passed:true});
+
+  for(const mode of ['release-release','accept-release','release-accept','expire-expire','release-expire','expire-release']){
+    const p=await fixture();
+    if(mode.includes('expire'))await observer.query("update public.market_offers set reservation_expires_at=now()-interval '1 second' where id=$1",[p.offer_id]);
+    const run=(kind,c)=>kind==='accept'?accept(c,p.offer_id,p.payment_attempt_id,'cs_test_'+p.offer_id,new Date().toISOString()):kind==='expire'?expire(c):release(c,p.offer_id);
+    const [first,second]=mode.split('-');
+    await c5.query('begin');const winner=await run(first,c5);
+    const task=launch(()=>run(second,c6));
+    // Expire scans an MVCC snapshot; while the first transaction is uncommitted it sees the due row.
+    const block=await blocked(pids.c6,pids.c5,task,mode);
+    await c5.query('commit');const loser=await task.promise;
+    if(second==='accept'){assert.equal(loser.ok,false);assert.match(loser.message,/fixed_offer_expired/)}
+    else {assert.equal(loser.ok,true);assert.equal(loser.value.rows[0].v,second==='expire'?0:false)}
+    assert.equal(await stock(p.listing),first==='accept'?0:1);
+    const counts=(await observer.query(`select (select count(*)::int from public.market_deals where offer_id=$1) deals,
+      (select count(*)::int from dv_market_private.market_payment_attempts where id=$2) attempts,
+      (select count(*)::int from dv_market_private.market_payment_allocations where attempt_id=$2) allocations`,[p.offer_id,p.payment_attempt_id])).rows[0];
+    assert.deepEqual(counts,{deals:first==='accept'?1:0,attempts:first==='accept'?1:0,allocations:first==='accept'?1:0});
+    assert.equal((await release(c6,p.offer_id)).rows[0].v,false);
+    report.cases.push({case:mode,block,counts,passed:true});
+  }
+  // A cursor which saw an expired pending row must recheck after a concurrently accepted contract wins.
+  // Hold an acceptance transaction open, then expire its old timestamp through the observer first in a separate fixture.
+  assert.ok(report.cases.every(c=>c.passed));report.passed=true;
   console.log('PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence');
 }catch(error){
   report.failure={message:error.message,code:error.code};throw error;
