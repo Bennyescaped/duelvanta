@@ -246,7 +246,7 @@ begin
  );
  return v_review||jsonb_build_object('offer_review_hash',encode(digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex'));
 end
-$;
+$$;
 revoke all on function public.review_market_price_offer_v1(uuid,integer,numeric) from public,anon;
 grant execute on function public.review_market_price_offer_v1(uuid,integer,numeric) to authenticated;
 
@@ -268,7 +268,7 @@ begin
    v_review-'offer_review_hash',v_hash) returning id into v_id;
  return v_id;
 end
-$;
+$$;
 revoke all on function public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) from public,anon;
 grant execute on function public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) to authenticated;
 
@@ -314,7 +314,7 @@ begin
  on conflict (offer_id) do nothing returning id into v_deal_id;
  if v_deal_id is null then select id into v_deal_id from public.market_deals where offer_id=o.id;end if;if v_deal_id is null then raise exception 'offer_contract_creation_failed'; end if;
 end
-$;
+$$;
 
 -- Cleanup: pending fixed-price offers are short technical reservations only.
 create or replace function public.expire_market_offer_reservations_v1()
