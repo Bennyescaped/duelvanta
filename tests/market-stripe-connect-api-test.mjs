@@ -113,7 +113,7 @@ try{
     if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
     if(String(url).includes('prepare_fixed_price_market_offer_v1'))return new Response(JSON.stringify({
       accepted:false,offer_id:FIXED_OFFER,payment_attempt_id:FIXED_ATTEMPT,stripe_account_id:'acct_TestSeller',
-      amount_due_cents:1099,platform_fee_cents:99,live_mode:false
+      amount_due_cents:1099,platform_fee_cents:99,currency:'EUR',live_mode:false
     }),{status:200});
     if(String(url).includes('api.stripe.com/v1/checkout/sessions'))return new Response(JSON.stringify({
       id:'cs_test_FixedSession',url:'https://checkout.stripe.com/c/pay/cs_test_FixedSession',created:fixedCreated,
