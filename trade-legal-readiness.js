@@ -7,23 +7,21 @@
   if(root?.document)api.install(root);
 })(typeof globalThis==='object'?globalThis:this,function(){
   'use strict';
-  const VERSION='1.1';
-  const SCHEMA_VERSION='trade-legal-contract-model-v1';
+  const VERSION='1.2';
+  const SCHEMA_VERSION='trade-legal-contract-model-v1.2';
   const ACTIONS='#dvBuyNow,#sendOffer,[data-accept-offer],[data-checkout-offer],[data-o-stripe],[data-o-withdraw],#oWithdrawalPrepare,#oWithdrawalConfirm,#saveBuyerPurchaseType';
   const COPY='LEGAL-ENTWURF · Neue Vertragsaktionen sind in dieser Vorschau gesperrt. Das Datenbankschema fehlt oder seine Kompatibilität ist nicht bestätigt. Bestehende Bestellungen bleiben einsehbar.';
   function supportsCandidate(response){
     const data=response?.data;
-    // The original configured:boolean only proves ONE RPC exists. No automatic
-    // unlock for partial schemas. The version marker is intentionally not added
-    // to the unapplied migration in this safety-only patch.
+    // Compatibility is computed from real catalogs by a STABLE, read-only RPC.
     return !!response&&!response.error&&!!data&&!Array.isArray(data)&&
-      typeof data.configured==='boolean'&&data.schema_version===SCHEMA_VERSION;
+      data.compatible===true&&data.revision===SCHEMA_VERSION;
   }
   async function probe(client,{timeoutMs=5000,schedule=setTimeout,cancel=clearTimeout}={}){
     if(typeof client?.rpc!=='function')return false;
     let timer;
     try{
-      const request=Promise.resolve().then(()=>client.rpc('get_my_market_buyer_profile',{}, {get:true}));
+      const request=Promise.resolve().then(()=>client.rpc('get_market_legal_schema_readiness_v1',{}, {get:true}));
       return await Promise.race([
         request.then(supportsCandidate,()=>false),
         new Promise(resolve=>{timer=schedule(()=>resolve(false),timeoutMs)})

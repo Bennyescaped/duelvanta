@@ -23,7 +23,7 @@ try{
      throw Error('unexpected table '+table);
     },rpc:async(name,args,options)=>{
      observed.rpc.push({name,args,options});
-     if(name==='get_my_market_buyer_profile')return mode==='missing'?{data:null,error:{code:'PGRST202',message:'missing fixture function'}}:{data:{configured:false,schema_version:'trade-legal-contract-model-v1'},error:null};
+     if(name==='get_market_legal_schema_readiness_v1')return mode==='missing'?{data:null,error:{code:'PGRST202',message:'missing fixture function'}}:{data:{compatible:true,revision:'trade-legal-contract-model-v1.2'},error:null};
      if(name==='get_my_default_shipping_address')return {data:{recipient_name:'Fixture recipient',country_code:'DE'},error:null};
      throw Error('unexpected RPC '+name);
     }};
@@ -38,8 +38,8 @@ try{
    assert.equal(await page.locator('#saveIdentity').isEnabled(),true);
    assert.equal(await page.locator('#dvTradeLegalSchemaNotice').count(),mode==='missing'?1:0);
    const calls=await page.evaluate(()=>observed.rpc);
-   assert.deepEqual(calls.map(x=>x.name).sort(),['get_my_default_shipping_address','get_my_market_buyer_profile']);
-   assert.deepEqual(calls.find(x=>x.name==='get_my_market_buyer_profile').options,{get:true});
+   assert.deepEqual(calls.map(x=>x.name).sort(),['get_my_default_shipping_address','get_market_legal_schema_readiness_v1']);
+   assert.deepEqual(calls.find(x=>x.name==='get_market_legal_schema_readiness_v1').options,{get:true});
    assert.deepEqual(errors,[]);assert.deepEqual(unexpected,[]);
    results.push({width,mode,status:'PASS',profileMutationCalls:0,secondBuyerControls:0});
   }finally{await context.close()}

@@ -16,7 +16,7 @@
   }
   const db={auth:{getSession:async()=>({data:{session:{access_token:'ui-buyer-token',user:{id:'ui-buyer',email:'buyer@example.test'}}}}),onAuthStateChange:()=>({}),signOut:async()=>({})},from:query,storage:{from:()=>({createSignedUrl:async()=>({data:{signedUrl:null}})})},rpc:async(name,args)=>{
     calls.push({name,args});
-    if(name==='get_my_market_buyer_profile')return {data:{configured:true,buyer_type:'consumer',schema_version:'trade-legal-contract-model-v1'},error:null};
+    if(name==='get_market_legal_schema_readiness_v1')return {data:{compatible:true,revision:'trade-legal-contract-model-v1.2'},error:null};
     if(name==='get_my_market_trade_eligibility')return {data:{eligible:true,buyer_eligible:true,residence_country_code:'DE',private_buyer_confirmed:true},error:null};
     if(name==='get_my_market_swaps_v1')return {data:[],error:null};
     if(name==='get_my_market_order_b07_status')return {data:[],error:null};

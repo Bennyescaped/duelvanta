@@ -139,14 +139,14 @@ must(orders,"confirm_market_withdrawal_v1",'withdrawal confirmation missing from
 must(dispatcher,"withdrawal_receipt",'withdrawal durable-medium receipt renderer missing');
 must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
-must(tradeHtml,'trade-orders.js?v=1.8','withdrawal order UI cache revision missing');
+must(tradeHtml,'trade-orders.js?v=1.9','withdrawal order UI cache revision missing');
 must(tradeHtml,'trade-offer-details.js?v=2.1','negotiated contract UI cache revision missing');
 must(tradeHtml,'trade-checkout.js?v=2.2','fixed contract UI cache revision missing');
 
-must(tradeHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in TRADE');
-must(profileHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in PROFILE');
-assert.ok(tradeHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<tradeHtml.indexOf('src="trade-release-gate.js'),'schema guard must load before contract handlers');
-assert.ok(profileHtml.indexOf('src="trade-legal-readiness.js?v=1.1"')<profileHtml.indexOf('src="profile.js'),'schema guard must load before profile handlers');
+must(tradeHtml,'trade-legal-readiness.js?v=1.2','missing-schema protection is not loaded in TRADE');
+must(profileHtml,'trade-legal-readiness.js?v=1.2','missing-schema protection is not loaded in PROFILE');
+assert.ok(tradeHtml.indexOf('src="trade-legal-readiness.js?v=1.2"')<tradeHtml.indexOf('src="trade-release-gate.js'),'schema guard must load before contract handlers');
+assert.ok(profileHtml.indexOf('src="trade-legal-readiness.js?v=1.2"')<profileHtml.indexOf('src="profile.js'),'schema guard must load before profile handlers');
 await import('./trade-legal-readiness-test.mjs');
 await import('./trade-legal-profile-boundary-test.mjs');
 await import('./trade-legal-private-buyer-ui-test.mjs');

@@ -6,31 +6,31 @@ const require=createRequire(import.meta.url);
 const guard=require('../trade-legal-readiness.js');
 let assertions=0;
 const equal=(a,b,message)=>{assert.equal(a,b,message);assertions++};
-const valid=configured=>({data:{configured,schema_version:guard.SCHEMA_VERSION},error:null});
+const valid=compatible=>({data:{compatible,revision:guard.SCHEMA_VERSION},error:null});
 for(const [name,value] of Object.entries({
   missing:null,empty:{},array:{data:[]},missingData:{data:null},
-  nonBoolean:{data:{configured:'true',schema_version:guard.SCHEMA_VERSION}},
+  nonBoolean:{data:{compatible:'true',revision:guard.SCHEMA_VERSION}},
   legacyShape:{data:{configured:false}},
-  partialSchema:{data:{configured:true,schema_version:'other-version'}},
-  malformedVersion:{data:{configured:true,schema_version:1}},
+  partialSchema:{data:{compatible:true,revision:'other-version'}},
+  malformedVersion:{data:{compatible:true,revision:1}},
   providerError:{...valid(true),error:{message:'permission denied'}}
 }))equal(guard.supportsCandidate(value),false,name+' must fail closed');
-for(const configured of [true,false])equal(guard.supportsCandidate(valid(configured)),true,'versioned compatibility marker');
+for(const compatible of [true,false])equal(guard.supportsCandidate(valid(compatible)),compatible,'real catalog compatibility required');
 equal(await guard.probe(null),false,'missing client');
 equal(await guard.probe({rpc:()=>{throw Error('sync failure')}}),false,'sync failure');
 equal(await guard.probe({rpc:async()=>{throw Error('network failure')}}),false,'network failure');
 let calls=0;
 equal(await guard.probe({rpc:async(name,args,options)=>{
-  equal(name,'get_my_market_buyer_profile','only existing read RPC');
+  equal(name,'get_market_legal_schema_readiness_v1','only catalog read RPC');
   assert.deepEqual(args,{});assert.deepEqual(options,{get:true});assertions+=2;
-  calls++;return valid(false);
+  calls++;return valid(true);
 }}),true,'read probe');
 equal(calls,1,'only one read probe');
 let expire,resolve,cleared=0;
 const delayed=new Promise(r=>{resolve=r});
 const timed=guard.probe({rpc:()=>delayed},{schedule:fn=>{expire=fn;return 10},cancel:id=>{equal(id,10);cleared++}});
 await Promise.resolve();expire();equal(await timed,false,'unanswered probe times out');
-resolve(valid(false));await Promise.resolve();equal(await timed,false,'late response cannot reverse a timeout');
+resolve(valid(true));await Promise.resolve();equal(await timed,false,'late response cannot reverse a timeout');
 equal(cleared,1,'deadline cleaned up');
 
 // No Response global exists in this VM, as in the original project DOM runner.
@@ -46,8 +46,8 @@ equal(await guard.probe(sandbox.window.supabase.createClient()),true,'full UI fi
 const loadedGuard=await readFile(new URL('../trade-legal-readiness.js',import.meta.url),'utf8');
 assert.doesNotMatch(loadedGuard,/createClient\(|\.supabase\.co|stripe\.com|\.from\(/);assertions++;
 const loader=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
-assert.match(loader,/guard_version!=='1\.1'/);assertions++;
-for(const asset of ['trade-orders.js?v=1.8','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.2']){
+assert.match(loader,/guard_version!=='1\.2'/);assertions++;
+for(const asset of ['trade-orders.js?v=1.9','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.2']){
  assert.ok(loader.includes("'"+asset+"'"));assertions++;
 }
 // A not-yet-initialized global client must neither throw nor poll forever.

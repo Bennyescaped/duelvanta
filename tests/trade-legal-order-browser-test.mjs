@@ -32,10 +32,10 @@ async function scenario(width,mode){
    window.mode=mode;window.observed={calls:[],writes:[],results:[]};
    window.db={rpc(name,args,options){
     observed.calls.push({name,args,options});
-    if(name==='get_my_market_buyer_profile'){
+    if(name==='get_market_legal_schema_readiness_v1'){
      if(mode==='missing-schema')return Promise.resolve({data:null,error:{code:'PGRST202'}});
      if(mode==='partial-schema')return Promise.resolve({data:{configured:false},error:null});
-     return Promise.resolve({data:{configured:false,schema_version:'trade-legal-contract-model-v1'},error:null});
+     return Promise.resolve({data:{compatible:true,revision:'trade-legal-contract-model-v1.2'},error:null});
     }
     if(name==='get_my_market_orders')return Promise.resolve({data:[{order_id:'existing-order',order_number:'DV-FIXTURE',total_amount:12.5}],error:null});
     if(name==='get_market_payment_sandbox_status')return Promise.resolve({data:{sandbox_enabled:false,live_mode:false},error:null});

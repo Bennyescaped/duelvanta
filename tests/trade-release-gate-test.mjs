@@ -49,7 +49,7 @@ async function runGate({environment,role=null,session=true}){
   };
   window.supabase={createClient:()=>db};
   window.DV_SUPABASE={url:'https://example.supabase.co',key:'sb_publishable_test',environment};
-  window.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:'1.1',available:false});
+  window.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:'1.2',available:false});
   const context=vm.createContext({window,document,location:{href:'https://example.test/trade.html'},console,queueMicrotask,setTimeout,clearTimeout,Object,Error,Promise,Date});
   vm.runInContext(gate,context,{filename:'trade-release-gate.js'});
   await wait(80);

@@ -38,7 +38,7 @@ function setup({guard,mode='ok',orderError=false}={}){
  vm.runInContext('let stripeSandbox;\n'+source,context);
  return{context,calls,scheduled,cleared,run:()=>vm.runInContext('load()',context)};
 }
-for(const guard of [undefined,{}, {available:false,guard_version:'1.1'}, {available:true,guard_version:'wrong'}, {available:true}]){
+for(const guard of [undefined,{}, {available:false,guard_version:'1.2'}, {available:true,guard_version:'wrong'}, {available:true}]){
  const t=setup({guard,mode:'never'}),result=await t.run();
  equal(result.orders.length,1,'old order is readable without compatibility');
  equal(result.items.get('existing-order')[0].item_title,'Existing card','items are retained');
@@ -47,7 +47,7 @@ for(const guard of [undefined,{}, {available:false,guard_version:'1.1'}, {availa
  equal(t.scheduled.length,0,'no deadline needed for skipped RPC');
 }
 for(const mode of ['ok','throw','reject','never','late','null','error','malformed','bad-row']){
- const t=setup({guard:{available:true,guard_version:'1.1'},mode});
+ const t=setup({guard:{available:true,guard_version:'1.2'},mode});
  const pending=t.run();await Promise.resolve();
  if(mode==='never'||mode==='late')t.scheduled[0].fn();
  const result=await pending;
@@ -62,7 +62,7 @@ for(const mode of ['ok','throw','reject','never','late','null','error','malforme
   equal(result.withdrawals.size,0,'late response does not change a completed result');
  }
 }
-const denied=setup({guard:{available:false,guard_version:'1.1'},orderError:true});
+const denied=setup({guard:{available:false,guard_version:'1.2'},orderError:true});
 await assert.rejects(denied.run(),/order access denied/);checks++;
 equal(denied.calls.filter(c=>c.name==='get_market_order_items').length,0,'real order errors stay visible, not fake empty data');
 assert.doesNotMatch(source,/\.from\(|createClient\(|\.supabase\.co|\/api\/market-stripe-checkout|set_my_|confirm_market|prepare_market/);checks++;

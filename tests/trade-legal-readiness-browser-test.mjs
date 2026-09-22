@@ -13,13 +13,15 @@ const results=[];
 const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox']});
 const fixture=(mode,environment,role,omitGuard)=>`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px system-ui;margin:20px}button,select{font:inherit;min-height:44px;margin:5px;padding:8px}section{margin:12px 0}.msg{padding:12px;border:1px solid;margin:8px 0;overflow-wrap:anywhere}.trade-release-locked #contractActions{display:none}</style></head><body><main id="app" class="wrap trade-runtime-loading" aria-busy="true"><header><h1>DUELVANTA – isolierter Schutztest</h1><button id="logout">Abmelden</button></header><section class="hero"></section><nav><button id="orders">Bestellungen</button><button id="evidence">Bestellbestätigung</button><button id="normalProfile">Profil speichern</button></nav><section id="orderContent"></section><section id="contractActions"><button id="dvBuyNow"><span>Kaufangebot senden</span></button><div id="dvBuyMsg"></div><form id="offerForm"><button id="sendOffer" type="submit">Preisangebot senden</button><div id="offerMsg"></div></form><button data-accept-offer="test">Annehmen</button><button data-checkout-offer="test">Alter Checkout</button><button data-o-stripe="test">Zahlung</button><button data-o-withdraw="test">Vertrag widerrufen</button><button id="oWithdrawalPrepare">Widerruf vorbereiten</button><button id="oWithdrawalConfirm">Widerruf bestätigen</button><div id="dvODMsg"></div><select id="buyerPurchaseType"><option value="consumer">Privat</option></select><button id="saveBuyerPurchaseType">Käuferstatus speichern</button><div id="buyerPurchaseTypeMsg"></div></section></main><script>
 window.testMode=${JSON.stringify(mode)};window.observed={calls:[],writes:[],navigation:[],scripts:[],clients:0};
-window.responseForProbe=()=>({data:{configured:false,schema_version:'trade-legal-contract-model-v1'},error:null});
+window.responseForProbe=()=>({data:{compatible:true,revision:'trade-legal-contract-model-v1.2'},error:null});
 const fixtureDb={auth:{getSession:async()=>({data:{session:{user:{id:'fixture-user'}}}}),signOut:async()=>{}},from:()=>({select:()=>({eq:()=>({single:async()=>({data:{role:${JSON.stringify(role)}},error:null})})})}),rpc:async(name,args,options)=>{
  observed.calls.push({name,args,options});
- if(name!=='get_my_market_buyer_profile')return {data:[],error:null};
+ if(name!=='get_market_legal_schema_readiness_v1')return {data:[],error:null};
  if(testMode==='missing')return {data:null,error:{code:'PGRST202',message:'missing function'}};
  if(testMode==='legacy')return {data:{configured:false},error:null};
- if(testMode==='malformed')return {data:{configured:'true',schema_version:'trade-legal-contract-model-v1'},error:null};
+ if(testMode==='malformed')return {data:{compatible:'true',revision:'trade-legal-contract-model-v1.2'},error:null};
+ if(testMode==='partial')return {data:{compatible:false,revision:'trade-legal-contract-model-v1.2'},error:null};
+ if(testMode==='version')return {data:{compatible:true,revision:'other'},error:null};
  if(testMode==='throw')throw Error('fixture network failure');
  if(testMode==='delayed'||testMode==='late')return new Promise(resolve=>window.resolveProbe=()=>resolve(responseForProbe()));
  return responseForProbe();
@@ -27,7 +29,7 @@ const fixtureDb={auth:{getSession:async()=>({data:{session:{user:{id:'fixture-us
 window.__dvAppDb=fixtureDb;
 window.DV_SUPABASE={environment:${JSON.stringify(environment)},url:'https://example.supabase.co',key:'fixture-public-key'};
 window.supabase={createClient:()=>{observed.clients++;return fixtureDb}};
-</script>${omitGuard?'':'<script src="/trade-legal-readiness.js?v=1.1"></script>'}<script src="/trade-release-gate.js?v=1.3"></script></body></html>`;
+</script>${omitGuard?'':'<script src="/trade-legal-readiness.js?v=1.2"></script>'}<script src="/trade-release-gate.js?v=1.4"></script></body></html>`;
 async function setup(mode,{width=390,environment='preview',role='player',omitGuard=false}={}){
  const context=await browser.newContext({viewport:{width,height:844}});
  const page=await context.newPage(),errors=[],unexpected=[];
@@ -71,7 +73,7 @@ async function finish(t,name){
  await t.context.close();
 }
 try{
- for(const width of [390,1363])for(const mode of ['missing','legacy','malformed','throw']){
+ for(const width of [390,1363])for(const mode of ['missing','legacy','malformed','partial','version','throw']){
   const t=await setup(mode,{width}),p=t.page;
   await p.waitForFunction(()=>DV_TRADE_LEGAL_SCHEMA.state==='schema-unavailable');
   for(const selector of selectors){
@@ -88,10 +90,10 @@ try{
   assert.deepEqual(await p.evaluate(()=>observed.navigation),['orders','evidence','profile']);
   assert.equal(await p.locator('#buyerPurchaseType').isDisabled(),true);
   assert.equal(await p.locator('#dvTradeLegalSchemaNotice').count(),1);
-  assert.equal(await p.evaluate(()=>observed.calls.filter(x=>x.name==='get_my_market_buyer_profile').length),1);
+  assert.equal(await p.evaluate(()=>observed.calls.filter(x=>x.name==='get_market_legal_schema_readiness_v1').length),1);
   assert.deepEqual(await p.evaluate(()=>observed.calls[0].options),{get:true});
   const loaded=await p.evaluate(()=>observed.scripts);
-  for(const asset of ['trade-orders.js?v=1.8','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.2'])assert.ok(loaded.includes('/'+asset));
+  for(const asset of ['trade-orders.js?v=1.9','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.2'])assert.ok(loaded.includes('/'+asset));
   if(mode==='missing'&&width===390)await p.screenshot({path:new URL('step1-mobile-guard.png',out).pathname,fullPage:true});
   await finish(t,`${width}px ${mode}: actions blocked; reads/navigation retained`);
  }

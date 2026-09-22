@@ -3,7 +3,7 @@ function style(){if(document.getElementById('dvOrdersStyle'))return;const s=docu
 function dialogs(){if(document.getElementById('dvOrderDialog'))return;const d=document.createElement('dialog');d.id='dvOrderDialog';d.className='dvOrderDialog';d.innerHTML='<div class="modal" style="max-width:700px"><div class="modalHead"><h2 id="dvODTitle">DUELVANTA Order</h2><button id="dvODClose" class="close" type="button">✕</button></div><div id="dvODBody"></div><div id="dvODMsg" class="msg"></div></div>';document.body.appendChild(d);document.getElementById('dvODClose').onclick=()=>d.close()}
 async function loadWithdrawalContracts(){
   // Compatibility only: ordinary order reads must not depend on an unapplied schema.
-  if(window.DV_TRADE_LEGAL_SCHEMA?.guard_version!=='1.1'||window.DV_TRADE_LEGAL_SCHEMA?.available!==true)return new Map();
+  if(window.DV_TRADE_LEGAL_SCHEMA?.guard_version!=='1.2'||window.DV_TRADE_LEGAL_SCHEMA?.available!==true)return new Map();
   let timer;
   try{
     const response=await Promise.race([
