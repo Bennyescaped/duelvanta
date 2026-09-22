@@ -38,7 +38,7 @@ try{
    assert.equal(await page.locator('#saveIdentity').isEnabled(),true);
    assert.equal(await page.locator('#dvTradeLegalSchemaNotice').count(),mode==='missing'?1:0);
    const calls=await page.evaluate(()=>observed.rpc);
-   assert.deepEqual(calls.map(x=>x.name).sort(),['get_my_default_shipping_address','get_market_legal_schema_readiness_v1']);
+   assert.deepEqual(calls.map(x=>x.name).sort(),['get_market_legal_schema_readiness_v1','get_my_default_shipping_address']);
    assert.deepEqual(calls.find(x=>x.name==='get_market_legal_schema_readiness_v1').options,{get:true});
    assert.deepEqual(errors,[]);assert.deepEqual(unexpected,[]);
    results.push({width,mode,status:'PASS',profileMutationCalls:0,secondBuyerControls:0});

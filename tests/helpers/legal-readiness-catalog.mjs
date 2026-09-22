@@ -33,5 +33,5 @@ export function catalogQuery(tables,functions){
  'offer_policies',(select jsonb_agg(jsonb_build_array(p.polname,p.polcmd,p.polpermissive,
  (select jsonb_agg(r.rolname order by r.rolname) from pg_roles r where r.oid=any(p.polroles)),pg_get_expr(p.polqual,p.polrelid),pg_get_expr(p.polwithcheck,p.polrelid)) order by p.polname)
  from pg_policy p where p.polrelid='public.market_offers'::regclass))
- ) select jsonb_agg(jsonb_build_array(kind,name,md5(value::text)) order by kind,name) from checks`;
+ ) select jsonb_agg(jsonb_build_array(kind,name,md5(value::text)) order by kind collate "C",name collate "C") from checks`;
 }

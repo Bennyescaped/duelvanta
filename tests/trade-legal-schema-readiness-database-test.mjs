@@ -24,6 +24,7 @@ try{
   const sql=migration.slice(migration.indexOf('with required_tables')).split(' into actual;')[0];
   const actual=(await db.query(sql)).rows[0].jsonb_agg;
   const expected=JSON.parse(migration.split('$catalog$')[1]);
+  console.error('Catalog counts/order:',{actual:actual.length,expected:expected.length,ordered:JSON.stringify(actual)===JSON.stringify(expected)});
   console.error('Catalog differences:',expected.filter(e=>!actual.some(a=>JSON.stringify(a)===JSON.stringify(e))).map(e=>e.slice(0,2)));
  }
  await expect(true,'complete exact candidate');
