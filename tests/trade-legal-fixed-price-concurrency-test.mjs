@@ -1,3 +1,4 @@
+// Real PostgreSQL 17 concurrency proof for Legal Step 4; isolated CI database only.
 import assert from 'node:assert/strict';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
