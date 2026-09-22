@@ -64,12 +64,12 @@
     const message = document.getElementById('offerMessage');
     const messageLabel = message?.closest('.field')?.querySelector('label');
     if (messageLabel) messageLabel.textContent = 'Nachricht optional';
-    if (send) send.textContent = 'PREISANGEBOT SENDEN';
+    if (send) send.textContent = 'PREISANGEBOT VERBINDLICH SENDEN';
     if (!document.getElementById('dvOfferFlowNote')) {
       const note = document.createElement('div');
       note.id = 'dvOfferFlowNote';
       note.className = 'dvOfferFlowNote';
-      note.textContent = 'Bei Annahme entsteht automatisch eine Bestellung. In der Beta wird dabei noch keine Onlinezahlung ausgeführt.';
+      note.textContent = 'Dein Preisangebot ist verbindlich. Vor dem Senden werden Vertragspartner, Ware, Versand und Gesamtpreis geprüft; der Vertrag entsteht erst durch Annahme des Verkäufers. In der Beta wird dabei noch keine Onlinezahlung ausgeführt.';
       send?.insertAdjacentElement('beforebegin', note);
     }
   }

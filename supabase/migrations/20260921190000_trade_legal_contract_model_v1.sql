@@ -53,6 +53,8 @@ alter table public.market_offers add column if not exists checkout_hash_snapshot
 alter table public.market_offers add column if not exists payment_attempt_id uuid;
 alter table public.market_offers add column if not exists payment_requested_at timestamptz;
 alter table public.market_offers add column if not exists stripe_checkout_session_id text;
+alter table public.market_offers add column if not exists contract_review_snapshot jsonb;
+alter table public.market_offers add column if not exists offer_review_hash text;
 
 alter table public.market_offers drop constraint if exists market_offers_buyer_type_snapshot_check;
 alter table public.market_offers add constraint market_offers_buyer_type_snapshot_check
@@ -209,107 +211,107 @@ revoke all on function public.buy_market_listing_v3(uuid,integer,uuid,timestampt
 revoke all on function public.checkout_accepted_market_offer_v1(uuid,uuid,text) from public,anon,authenticated;
 
 -- Price proposals freeze buyer status when the buyer makes the binding offer.
-create or replace function public.create_market_offer_v2(
-  p_listing_id uuid,p_requested_quantity integer,p_amount numeric,p_message text default null
-) returns uuid
-language plpgsql
-security definer
-set search_path=pg_catalog,public,dv_market_private
-as $$
-declare l public.market_listings;v_id uuid;v_list_unit numeric;t jsonb;v_buyer_type text;
+-- Negotiated price offer review: freezes buyer-facing contract information before binding.
+create or replace function public.review_market_price_offer_v1(p_listing_id uuid,p_requested_quantity integer,p_amount numeric)
+returns jsonb language plpgsql stable security definer set search_path=pg_catalog,public,dv_market_private,extensions as $$
+declare l public.market_listings;v_buyer text;v_seller jsonb;v_product jsonb;v_class text;v_list numeric;v_goods numeric;v_ship numeric;v_review jsonb;t jsonb;
 begin
-  if auth.uid() is null then raise exception 'Nicht angemeldet'; end if;
-  v_buyer_type:=dv_market_private.require_market_buyer_type(auth.uid());
-  select * into l from public.market_listings where id=p_listing_id and status='active' for update;
-  if l.id is null or l.seller_id=auth.uid() then raise exception 'Angebot nicht möglich'; end if;
-  if l.pricing_mode='fixed' then raise exception 'Dieses Produkt wird zum Festpreis angeboten'; end if;
-  if p_requested_quantity is null or p_requested_quantity not between 1 and 1000 then raise exception 'Ungültige Menge'; end if;
-  if l.active_until is not null and l.active_until<=now() then raise exception 'Angebot abgelaufen'; end if;
-  if (l.product_kind='sealed' and (p_requested_quantity<l.minimum_purchase_quantity or p_requested_quantity>l.quantity_available))
-     or (l.product_kind<>'sealed' and p_requested_quantity<>1) then raise exception 'Gewünschte Menge ist nicht verfügbar'; end if;
-  if p_amount::text in ('NaN','Infinity','-Infinity') or coalesce(round(p_amount,2),0)<=0 then raise exception 'Ungültige Angebotssumme'; end if;
-  v_list_unit:=l.asking_price;
-  if l.product_kind='sealed' then
-    for t in select value from jsonb_array_elements(coalesce(l.quantity_pricing,'[]'::jsonb)) order by (value->>'min_quantity')::int loop
-      if p_requested_quantity >= (t->>'min_quantity')::int then v_list_unit:=(t->>'unit_price')::numeric; end if;
-    end loop;
-  end if;
-  insert into public.market_offers(
-    listing_id,buyer_id,seller_id,offer_type,amount,currency,message,requested_quantity,
-    unit_price_snapshot,listed_unit_price_snapshot,listed_total_snapshot,buyer_type_snapshot
-  ) values(
-    l.id,auth.uid(),l.seller_id,'price',round(p_amount,2),'EUR',
-    nullif(left(trim(coalesce(p_message,'')),500),''),p_requested_quantity,
-    round(p_amount/p_requested_quantity,2),round(v_list_unit,2),round(v_list_unit*p_requested_quantity,2),v_buyer_type
-  ) returning id into v_id;
-  update public.market_offers set listing_snapshot=jsonb_build_object(
-    'card_name',l.card_name,'product_kind',l.product_kind,'sealed_category',l.sealed_category,
-    'language',l.language,'set_name',l.set_name,'base_unit_price',l.asking_price,
-    'shipping_method',l.shipping_method,'shipping_cost',l.shipping_cost
-  ) where id=v_id;
-  return v_id;
-end
-$$;
+ if auth.uid() is null then raise exception 'not_authenticated'; end if;
+ v_buyer:=dv_market_private.require_market_buyer_type(auth.uid());
+ select * into l from public.market_listings where id=p_listing_id;
+ if not found or l.status<>'active' or l.seller_id=auth.uid() then raise exception 'offer_not_available'; end if;
+ if l.listing_type not in ('sale','sale_or_trade') or l.pricing_mode='fixed' then raise exception 'negotiated_offer_required'; end if;
+ if l.active_until is not null and l.active_until<=now() then raise exception 'offer_expired'; end if;
+ if p_requested_quantity is null or p_requested_quantity not between 1 and 1000 then raise exception 'offer_quantity_invalid'; end if;
+ if (l.product_kind='sealed' and (p_requested_quantity<l.minimum_purchase_quantity or p_requested_quantity>l.quantity_available))
+    or (l.product_kind<>'sealed' and (p_requested_quantity<>1 or l.quantity_available<1)) then raise exception 'offer_quantity_unavailable'; end if;
+ if p_amount::text in ('NaN','Infinity','-Infinity') or coalesce(round(p_amount,2),0)<=0 then raise exception 'offer_amount_invalid'; end if;
+ if l.shipping_cost is null or l.shipping_cost<0 or l.shipping_cost>500 or l.shipping_method is null then raise exception 'offer_shipping_incomplete'; end if;
+ v_list:=l.asking_price;
+ if l.product_kind='sealed' then for t in select value from jsonb_array_elements(coalesce(l.quantity_pricing,'[]'::jsonb)) order by (value->>'min_quantity')::int loop
+   if p_requested_quantity >= (t->>'min_quantity')::int then v_list:=(t->>'unit_price')::numeric; end if;
+ end loop; end if;
+ if v_list is null or v_list<=0 then raise exception 'offer_list_price_invalid'; end if;
+ v_goods:=round(p_amount,2);v_ship:=round(l.shipping_cost,2);
+ v_seller:=dv_market_private.market_checkout_seller_party(l.seller_id);v_product:=dv_market_private.market_checkout_product_snapshot(l);
+ v_class:=dv_market_private.market_contract_classification(v_seller->>'seller_type',v_buyer);if v_class is null then raise exception 'contract_classification_invalid'; end if;
+ v_review:=jsonb_build_object(
+   'snapshot_version','price-offer-contract-v1','listing_id',l.id,'listing_updated_at',l.updated_at,'seller_id',l.seller_id,
+   'seller_type',v_seller->>'seller_type','buyer_type',v_buyer,'contract_classification',v_class,'seller_party',v_seller,'product',v_product,
+   'quantity',p_requested_quantity,'offer_unit_price',round(v_goods/p_requested_quantity,2),'offered_goods_total',v_goods,
+   'listed_unit_price',round(v_list,2),'listed_goods_total',round(v_list*p_requested_quantity,2),
+   'shipping_method',l.shipping_method,'shipping_cost',v_ship,'shipping_note',l.shipping_note,'total_price',round(v_goods+v_ship,2),'currency','EUR',
+   'fulfillment_snapshot',jsonb_strip_nulls(jsonb_build_object('product_kind',l.product_kind,'sealed_category',l.sealed_category,'package_contents',l.package_contents,'unit_weight_grams',l.weight_grams,'length_mm',l.length_mm,'width_mm',l.width_mm,'height_mm',l.height_mm)),
+   'offer_notice','Mit dem Senden gibst du ein verbindliches Kaufangebot ab. Der Vertrag entsteht erst, wenn der Verkäufer dieses Angebot annimmt. Die Zahlung erfolgt danach über die Order.'
+ );
+ return v_review||jsonb_build_object('offer_review_hash',encode(digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex'));
+end $$;
+revoke all on function public.review_market_price_offer_v1(uuid,integer,numeric) from public,anon;
+grant execute on function public.review_market_price_offer_v1(uuid,integer,numeric) to authenticated;
 
--- Negotiated price: seller acceptance is now the contract-forming event.
+revoke all on function public.create_market_offer_v2(uuid,integer,numeric,text) from public,anon,authenticated;
+
+create or replace function public.create_market_offer_v3(p_listing_id uuid,p_requested_quantity integer,p_amount numeric,p_message text,p_expected_updated_at timestamptz,p_offer_review_hash text)
+returns uuid language plpgsql security definer set search_path=pg_catalog,public,dv_market_private as $$
+declare l public.market_listings;v_id uuid;v_review jsonb;v_hash text;
+begin
+ if auth.uid() is null then raise exception 'not_authenticated'; end if;
+ if p_expected_updated_at is null or nullif(lower(trim(coalesce(p_offer_review_hash,''))),'') is null then raise exception 'offer_review_required'; end if;
+ select * into l from public.market_listings where id=p_listing_id for update;if not found then raise exception 'offer_not_available'; end if;
+ v_review:=public.review_market_price_offer_v1(p_listing_id,p_requested_quantity,p_amount);v_hash:=v_review->>'offer_review_hash';
+ if l.updated_at is distinct from p_expected_updated_at or (v_review->>'listing_updated_at')::timestamptz is distinct from p_expected_updated_at or lower(trim(p_offer_review_hash))<>v_hash then raise exception 'offer_review_changed'; end if;
+ insert into public.market_offers(listing_id,buyer_id,seller_id,offer_type,amount,currency,message,requested_quantity,unit_price_snapshot,listed_unit_price_snapshot,listed_total_snapshot,buyer_type_snapshot,listing_snapshot,contract_review_snapshot,offer_review_hash)
+ values(l.id,auth.uid(),l.seller_id,'price',(v_review->>'offered_goods_total')::numeric,'EUR',nullif(left(trim(coalesce(p_message,'')),500),''),p_requested_quantity,
+   (v_review->>'offer_unit_price')::numeric,(v_review->>'listed_unit_price')::numeric,(v_review->>'listed_goods_total')::numeric,v_review->>'buyer_type',
+   jsonb_build_object('card_name',v_review->'product'->>'title','product_kind',v_review->'fulfillment_snapshot'->>'product_kind','sealed_category',v_review->'fulfillment_snapshot'->>'sealed_category','language',v_review->'product'->>'language','set_name',v_review->'product'->>'set_name','base_unit_price',l.asking_price,'shipping_method',v_review->>'shipping_method','shipping_cost',(v_review->>'shipping_cost')::numeric),
+   v_review-'offer_review_hash',v_hash) returning id into v_id;
+ return v_id;
+end $$;
+revoke all on function public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) from public,anon;
+grant execute on function public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) to authenticated;
+
+create or replace function public.get_my_market_offers_v2() returns jsonb language sql stable security definer set search_path=public as $$
+select coalesce(jsonb_agg(jsonb_build_object('id',o.id,'listing_id',o.listing_id,'seller_id',o.seller_id,'buyer_id',o.buyer_id,'status',o.status,'amount',o.amount,'message',o.message,'requested_quantity',o.requested_quantity,'unit_price_snapshot',o.unit_price_snapshot,'listed_unit_price_snapshot',o.listed_unit_price_snapshot,'listed_total_snapshot',o.listed_total_snapshot,'created_at',o.created_at,
+ 'listing_snapshot',coalesce(o.listing_snapshot,jsonb_build_object('card_name',l.card_name,'product_kind',l.product_kind,'sealed_category',l.sealed_category,'language',l.language,'set_name',l.set_name,'base_unit_price',l.asking_price,'shipping_method',l.shipping_method,'shipping_cost',l.shipping_cost)),
+ 'contract_review_snapshot',o.contract_review_snapshot,'offer_review_hash',o.offer_review_hash,'historical_price',o.listed_total_snapshot is not null,'order_id',d.order_id,'order_number',ord.order_number,
+ 'other_name',case when auth.uid()=o.seller_id then coalesce(pb.display_name,pb.username) else coalesce(ps.display_name,ps.username) end,'other_username',case when auth.uid()=o.seller_id then pb.username else ps.username end) order by o.created_at desc),'[]'::jsonb)
+from public.market_offers o join public.market_listings l on l.id=o.listing_id left join public.market_deals d on d.offer_id=o.id left join public.market_orders ord on ord.id=d.order_id
+left join public.profiles pb on pb.id=o.buyer_id left join public.profiles ps on ps.id=o.seller_id
+where auth.uid() in (o.seller_id,o.buyer_id) and o.offer_type='price' and l.listing_type<>'trade';
+$$;
+revoke all on function public.get_my_market_offers_v2() from public,anon;
+grant execute on function public.get_my_market_offers_v2() to authenticated;
+
+-- Negotiated price: seller acceptance is the single contract-forming event using the buyer's frozen review.
 create or replace function public.respond_to_market_offer(p_offer_id uuid,p_action text)
-returns void
-language plpgsql
-security definer
-set search_path=pg_catalog,public,dv_market_private
-as $$
-declare o public.market_offers;l public.market_listings;v_qty integer;v_left integer;v_deal_id uuid;
+returns void language plpgsql security definer set search_path=pg_catalog,public,dv_market_private,extensions as $$
+declare o public.market_offers;l public.market_listings;v_qty integer;v_left integer;v_deal_id uuid;v_review jsonb;v_f jsonb;v_at timestamptz:=clock_timestamp();
 begin
-  if auth.uid() is null or p_action not in ('accepted','declined') then raise exception 'Nicht erlaubt'; end if;
-  perform public.expire_market_offer_reservations_v1();
-  select * into o from public.market_offers where id=p_offer_id;
-  if o.id is null or o.seller_id<>auth.uid() or o.offer_type<>'price' then raise exception 'Angebot nicht verfügbar'; end if;
-  select * into l from public.market_listings where id=o.listing_id for update;
-  select * into o from public.market_offers where id=p_offer_id for update;
-  if o.status=p_action then return; end if;
-  if o.status='accepted' and exists(select 1 from public.market_deals d where d.offer_id=o.id) then return; end if;
-  if o.status<>'pending' then raise exception 'Angebot ist nicht verfügbar'; end if;
-  if p_action='declined' then
-    update public.market_offers set status='declined',responded_at=now(),updated_at=now() where id=o.id;
-    return;
-  end if;
-  if l.active_until is not null and l.active_until<=now() then raise exception 'Angebot abgelaufen'; end if;
-  if l.pricing_mode='fixed' then raise exception 'Dieses Listing wird inzwischen zum Festpreis angeboten'; end if;
-  if l.status<>'active' or l.seller_id<>auth.uid() then raise exception 'Listing ist nicht aktiv'; end if;
-  perform dv_market_private.require_market_buyer_type(o.buyer_id);
-  if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
-  v_qty:=case when l.product_kind='sealed' then coalesce(o.requested_quantity,1) else 1 end;
-  if v_qty<1 or v_qty>l.quantity_available then raise exception 'Menge nicht mehr verfügbar'; end if;
-  v_left:=l.quantity_available-v_qty;
-
-  update public.market_offers
-  set status='accepted',responded_at=now(),reserved_quantity=null,reservation_expires_at=null,updated_at=now()
-  where id=o.id;
-
-  update public.market_offers
-  set status='declined',responded_at=now(),updated_at=now()
-  where listing_id=o.listing_id and id<>o.id and offer_type='price' and status='pending'
-    and requested_quantity>v_left;
-
-  update public.market_listings
-  set quantity_available=v_left,status=case when v_left=0 then 'reserved' else 'active' end,
-      accepted_offer_id=o.id,deal_price=o.amount,deal_buyer_id=o.buyer_id,updated_at=now()
-  where id=l.id;
-
-  insert into public.market_deals(
-    listing_id,offer_id,seller_id,buyer_id,amount,currency,status,accepted_at,
-    shipping_method,shipping_cost,shipping_note,product_kind,sealed_category,item_quantity,
-    package_contents,weight_grams,length_mm,width_mm,height_mm
-  ) values(
-    l.id,o.id,o.seller_id,o.buyer_id,round(o.amount,2),'EUR','accepted',now(),
-    l.shipping_method,l.shipping_cost,l.shipping_note,l.product_kind,l.sealed_category,v_qty,
-    l.package_contents,case when l.weight_grams is null then null else l.weight_grams*v_qty end,
-    l.length_mm,l.width_mm,l.height_mm
-  ) returning id into v_deal_id;
-
-  if v_deal_id is null then raise exception 'offer_contract_creation_failed'; end if;
-end
-$$;
+ if auth.uid() is null or p_action not in ('accepted','declined') then raise exception 'Nicht erlaubt'; end if;
+ perform public.expire_market_offer_reservations_v1();select * into o from public.market_offers where id=p_offer_id;
+ if o.id is null or o.seller_id<>auth.uid() or o.offer_type<>'price' then raise exception 'Angebot nicht verfügbar'; end if;
+ select * into l from public.market_listings where id=o.listing_id for update;select * into o from public.market_offers where id=p_offer_id for update;
+ if o.status=p_action then return; end if;if o.status='accepted' and exists(select 1 from public.market_deals d where d.offer_id=o.id) then return; end if;
+ if o.status<>'pending' then raise exception 'Angebot ist nicht verfügbar'; end if;
+ if p_action='declined' then update public.market_offers set status='declined',responded_at=v_at,updated_at=v_at where id=o.id;return;end if;
+ if l.status<>'active' or l.seller_id<>auth.uid() then raise exception 'Listing ist nicht aktiv'; end if;
+ perform dv_market_private.require_market_buyer_type(o.buyer_id);if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
+ v_review:=o.contract_review_snapshot;
+ if v_review is null or jsonb_typeof(v_review)<>'object' or v_review->>'snapshot_version'<>'price-offer-contract-v1' or o.offer_review_hash is null
+    or encode(digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex')<>o.offer_review_hash then raise exception 'offer_contract_snapshot_invalid'; end if;
+ if (v_review->>'listing_id')::uuid<>o.listing_id or (v_review->>'seller_id')::uuid<>o.seller_id or v_review->>'buyer_type'<>'consumer' or v_review->>'currency'<>'EUR'
+    or round((v_review->>'offered_goods_total')::numeric,2)<>round(o.amount,2) or (v_review->>'quantity')::integer<>coalesce(o.requested_quantity,1) then raise exception 'offer_contract_snapshot_mismatch'; end if;
+ v_qty:=(v_review->>'quantity')::integer;if v_qty<1 or v_qty>l.quantity_available then raise exception 'Menge nicht mehr verfügbar'; end if;v_left:=l.quantity_available-v_qty;v_f:=coalesce(v_review->'fulfillment_snapshot','{}'::jsonb);
+ update public.market_offers set status='accepted',responded_at=v_at,reserved_quantity=null,reservation_expires_at=null,updated_at=v_at where id=o.id;
+ update public.market_offers set status='declined',responded_at=v_at,updated_at=v_at where listing_id=o.listing_id and id<>o.id and offer_type='price' and status='pending' and requested_quantity>v_left;
+ update public.market_listings set quantity_available=v_left,status=case when v_left=0 then 'reserved' else 'active' end,accepted_offer_id=o.id,deal_price=(v_review->>'offered_goods_total')::numeric,deal_buyer_id=o.buyer_id,updated_at=v_at where id=l.id;
+ insert into public.market_deals(listing_id,offer_id,seller_id,buyer_id,amount,currency,status,accepted_at,shipping_method,shipping_cost,shipping_note,product_kind,sealed_category,item_quantity,package_contents,weight_grams,length_mm,width_mm,height_mm)
+ values(l.id,o.id,o.seller_id,o.buyer_id,(v_review->>'offered_goods_total')::numeric,'EUR','accepted',v_at,v_review->>'shipping_method',(v_review->>'shipping_cost')::numeric,v_review->>'shipping_note',
+   coalesce(v_f->>'product_kind',l.product_kind),v_f->>'sealed_category',v_qty,v_f->>'package_contents',case when nullif(v_f->>'unit_weight_grams','') is null then null else (v_f->>'unit_weight_grams')::integer*v_qty end,
+   nullif(v_f->>'length_mm','')::integer,nullif(v_f->>'width_mm','')::integer,nullif(v_f->>'height_mm','')::integer)
+ on conflict (offer_id) do nothing returning id into v_deal_id;
+ if v_deal_id is null then select id into v_deal_id from public.market_deals where offer_id=o.id;end if;if v_deal_id is null then raise exception 'offer_contract_creation_failed'; end if;
+end $$;
 
 -- Cleanup: pending fixed-price offers are short technical reservations only.
 create or replace function public.expire_market_offer_reservations_v1()
@@ -412,15 +414,20 @@ begin
   if not found then raise exception 'checkout_order_missing'; end if;
   if new.currency<>'EUR' or v_goods<=0 then raise exception 'checkout_amount_invalid'; end if;
   if new.shipping_cost is null or new.shipping_cost<0 or new.shipping_cost>500 or new.shipping_method is null then raise exception 'checkout_shipping_incomplete'; end if;
-  v_seller:=dv_market_private.market_checkout_seller_party(new.seller_id);
   if new.offer_id is not null then select * into v_offer from public.market_offers where id=new.offer_id; end if;
   v_buyer_type:=dv_market_private.require_market_buyer_type(new.buyer_id);
-  if new.offer_id is not null and v_offer.buyer_type_snapshot is distinct from v_buyer_type then
-    raise exception 'buyer_snapshot_invalid';
+  if new.offer_id is not null and v_offer.buyer_type_snapshot is distinct from v_buyer_type then raise exception 'buyer_snapshot_invalid'; end if;
+  if v_offer.offer_type='price' then
+    if v_offer.contract_review_snapshot is null or v_offer.contract_review_snapshot->>'snapshot_version'<>'price-offer-contract-v1' or v_offer.offer_review_hash is null
+       or encode(digest(convert_to(v_offer.contract_review_snapshot::text,'UTF8'),'sha256'),'hex')<>v_offer.offer_review_hash then raise exception 'offer_contract_snapshot_invalid'; end if;
+    v_seller:=v_offer.contract_review_snapshot->'seller_party';v_product:=v_offer.contract_review_snapshot->'product';v_type:=v_offer.contract_review_snapshot->>'contract_classification';
+    if v_type not in ('c2c','b2c') or (v_offer.contract_review_snapshot->>'quantity')::integer<>v_qty or round((v_offer.contract_review_snapshot->>'offered_goods_total')::numeric,2)<>v_goods
+       or v_offer.contract_review_snapshot->>'shipping_method' is distinct from new.shipping_method or round((v_offer.contract_review_snapshot->>'shipping_cost')::numeric,2)<>round(new.shipping_cost,2)
+       or v_offer.contract_review_snapshot->>'currency' is distinct from new.currency then raise exception 'offer_contract_snapshot_mismatch'; end if;
+  else
+    v_seller:=dv_market_private.market_checkout_seller_party(new.seller_id);v_type:=dv_market_private.market_contract_classification(v_seller->>'seller_type',v_buyer_type);
+    if v_type is null then raise exception 'contract_classification_invalid'; end if;v_product:=dv_market_private.market_checkout_product_snapshot(v_listing);
   end if;
-  v_type:=dv_market_private.market_contract_classification(v_seller->>'seller_type',v_buyer_type);
-  if v_type is null then raise exception 'contract_classification_invalid'; end if;
-  v_product:=dv_market_private.market_checkout_product_snapshot(v_listing);
   v_shipping_label:=case new.shipping_method
     when 'standard_letter' then 'Standardbrief' when 'tracked_letter' then 'Brief mit Tracking'
     when 'parcel' then 'Paket mit Tracking' when 'pickup' then 'Abholung' else 'Individuell / nach Absprache' end;

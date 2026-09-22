@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
-const [migration,checkoutApi,checkoutUi,offerUi,retiredOfferCheckout,orders,profile,profileHtml,dispatcher,tradeHtml]=await Promise.all([
+const [migration,checkoutApi,checkoutUi,offerUi,retiredOfferCheckout,orders,profile,profileHtml,dispatcher,tradeHtml,tradeSealed]=await Promise.all([
   'supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql',
   'api/market-stripe-checkout.js','trade-checkout.js','trade-offer-details.js','trade-offer-checkout.js',
-  'trade-orders.js','profile.js','profile.html','api/compliance-message-dispatch.js','trade.html'
+  'trade-orders.js','profile.js','profile.html','api/compliance-message-dispatch.js','trade.html','trade-sealed.js'
 ].map(read));
 const must=(source,text,message)=>assert.ok(source.includes(text),message);
 const mustNot=(source,text,message)=>assert.ok(!source.includes(text),message);
@@ -42,6 +42,14 @@ must(migration,'accept_fixed_price_market_offer_v1','fixed-price payment-request
 must(fn(migration,'public.accept_fixed_price_market_offer_v1'),"'accepted',p_payment_requested_at",'fixed contract is not timestamped at payment request');
 must(fn(migration,'public.accept_fixed_price_market_offer_v1'),'select * into d from public.market_deals where id=d.id','fixed acceptance does not reload the order attached by the AFTER trigger');
 must(fn(migration,'public.respond_to_market_offer'),'insert into public.market_deals','seller acceptance does not form negotiated contract');
+must(migration,'review_market_price_offer_v1','negotiated buyer offer review is missing');
+must(migration,'create_market_offer_v3','review-bound negotiated offer writer is missing');
+must(migration,'revoke all on function public.create_market_offer_v2(uuid,integer,numeric,text) from public,anon,authenticated','unreviewed negotiated offer writer remains browser-accessible');
+for(const frozen of ['contract_review_snapshot','offer_review_hash',"snapshot_version'<>'price-offer-contract-v1'","v_review->>'shipping_method'","on conflict (offer_id) do nothing"])must(fn(migration,'public.respond_to_market_offer'),frozen,'negotiated acceptance is not bound/idempotent: '+frozen);
+must(fn(migration,'dv_market_private.capture_market_contract_snapshot'),"v_offer.contract_review_snapshot->'seller_party'",'negotiated evidence rereads current seller instead of frozen party');
+must(tradeSealed,"db.rpc('review_market_price_offer_v1'",'price offer UI lacks pre-binding review');
+must(tradeSealed,"db.rpc('create_market_offer_v3'",'price offer UI still uses unreviewed writer');
+must(tradeSealed,'GESAMTPREIS','price offer UI does not show total price before binding');
 mustNot(fn(migration,'public.respond_to_market_offer'),"now()+interval '2 hours'",'negotiated acceptance still creates a two-hour pre-contract reservation');
 must(migration,'market_withdrawal_drafts','withdrawal confirmation draft missing');
 must(migration,'market_withdrawals','immutable withdrawal receipt missing');
@@ -66,6 +74,8 @@ must(checkoutUi,"fetch('/api/market-stripe-checkout'",'fixed checkout does not r
 mustNot(checkoutUi,"db.rpc('buy_market_listing_v3'",'legacy immediate fixed-price contract RPC is still used by UI');
 
 must(offerUi,'VERTRAG GESCHLOSSEN','accepted price proposal does not show immediate contract');
+must(offerUi,'VERTRAGSDATEN DES PREISANGEBOTS','seller does not see frozen terms before acceptance');
+must(offerUi,'Dieses ältere Angebot enthält keinen vollständigen Vertrags-Snapshot','legacy pending offers are not fail-closed');
 mustNot(offerUi,'data-checkout-offer','accepted price proposal still exposes a second contract checkout');
 mustNot(offerUi,'trade-offer-checkout.js','negotiated offer UI still injects retired second checkout');
 must(retiredOfferCheckout,'retired:true','legacy offer checkout file is not fail-safe retired');
@@ -86,7 +96,7 @@ must(dispatcher,"withdrawal_receipt",'withdrawal durable-medium receipt renderer
 must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
 must(tradeHtml,'trade-orders.js?v=1.7','withdrawal order UI cache revision missing');
-must(tradeHtml,'trade-offer-details.js?v=2.0','negotiated contract UI cache revision missing');
+must(tradeHtml,'trade-offer-details.js?v=2.1','negotiated contract UI cache revision missing');
 must(tradeHtml,'trade-checkout.js?v=2.1','fixed contract UI cache revision missing');
 
 must(tradeHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in TRADE');
@@ -99,4 +109,5 @@ await import('./trade-legal-private-buyer-ui-test.mjs');
 await import('./trade-legal-order-boundary-test.mjs');
 await import('./trade-legal-private-buyer-database-test.mjs');
 await import('./trade-legal-private-buyer-browser-test.mjs');
+await import('./trade-legal-price-offer-database-test.mjs');
 console.log('PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance');

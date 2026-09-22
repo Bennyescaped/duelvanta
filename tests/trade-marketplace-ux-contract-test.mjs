@@ -27,7 +27,7 @@ for(const view of ['market','mine','offers','orders','deals','shipping_profiles'
 must(ux,"app.dataset.tradeView = view",'Marketplace view state is not exposed to responsive CSS');
 must(ux,"hero.after(tabs)",'Primary Marketplace navigation must precede secondary content');
 must(ux,"tabs.after(automation)",'Required actions must stay directly below primary navigation');
-must(ux,'Bei Annahme entsteht automatisch eine Bestellung.','Offer acceptance flow is not explained');
+must(ux,'Dein Preisangebot ist verbindlich.','Binding negotiated offer flow is not explained');
 must(ux,"buildAdvanced(form,'dvSingleAdvanced',['listingType','dvShippingNote','note'])",'Single and graded optional fields are not grouped');
 must(ux,"buildAdvanced(form,'dvSealedAdvanced',['dvSUnits','dvSContents','dvSWeight','dvSL','dvSListingType','dvSMinQty','dvSTier1Qty','dvSShippingNote','dvSNote'])",'Sealed optional fields are not grouped');
 must(ux,'Name, Set, Nummer, Sprache, Zustand, Variante, Grading und Bild kommen aus deiner Collection.','Automatic Collection data reuse is not explained');
