@@ -53,6 +53,10 @@ alter table public.market_offers add column if not exists checkout_hash_snapshot
 alter table public.market_offers add column if not exists payment_attempt_id uuid;
 alter table public.market_offers add column if not exists payment_requested_at timestamptz;
 alter table public.market_offers add column if not exists stripe_checkout_session_id text;
+alter table public.market_offers add column if not exists stripe_account_id_snapshot text;
+alter table public.market_offers add column if not exists payment_live_mode_snapshot boolean;
+alter table public.market_offers add column if not exists amount_due_cents_snapshot integer;
+alter table public.market_offers add column if not exists platform_fee_cents_snapshot integer;
 alter table public.market_offers add column if not exists contract_review_snapshot jsonb;
 alter table public.market_offers add column if not exists offer_review_hash text;
 
@@ -198,7 +202,10 @@ begin
       'street_line1','Landhausstraße 12','postal_code','75399','city','Unterreichenbach',
       'country_code','DE','email','info@duelvanta.de'),
     'product',v_product,'quantity',p_quantity,'unit_price',v_unit,'goods_total',v_goods,
-    'shipping_method',v_listing.shipping_method,'shipping_cost',v_shipping,
+    'shipping_method',v_listing.shipping_method,'shipping_cost',v_shipping,'shipping_note',v_listing.shipping_note,
+    'fulfillment_snapshot',jsonb_strip_nulls(jsonb_build_object(
+      'product_kind',v_listing.product_kind,'sealed_category',v_listing.sealed_category,'package_contents',v_listing.package_contents,
+      'weight_grams',v_listing.weight_grams,'length_mm',v_listing.length_mm,'width_mm',v_listing.width_mm,'height_mm',v_listing.height_mm)),
     'total_price',round(v_goods+v_shipping,2),'currency','EUR','payment_provider','stripe_connect',
     'payment_notice','Dein Klick gibt ein verbindliches Kaufangebot ab. Der Vertrag entsteht erst, wenn DUELVANTA unmittelbar die Stripe-Zahlungsaufforderung für den Verkäufer erzeugt.'
   );
@@ -309,7 +316,7 @@ begin
  update public.market_listings set quantity_available=v_left,status=case when v_left=0 then 'reserved' else 'active' end,accepted_offer_id=o.id,deal_price=(v_review->>'offered_goods_total')::numeric,deal_buyer_id=o.buyer_id,updated_at=v_at where id=l.id;
  insert into public.market_deals(listing_id,offer_id,seller_id,buyer_id,amount,currency,status,accepted_at,shipping_method,shipping_cost,shipping_note,product_kind,sealed_category,item_quantity,package_contents,weight_grams,length_mm,width_mm,height_mm)
  values(l.id,o.id,o.seller_id,o.buyer_id,(v_review->>'offered_goods_total')::numeric,'EUR','accepted',v_at,v_review->>'shipping_method',(v_review->>'shipping_cost')::numeric,v_review->>'shipping_note',
-   coalesce(v_f->>'product_kind',l.product_kind),v_f->>'sealed_category',v_qty,v_f->>'package_contents',case when nullif(v_f->>'unit_weight_grams','') is null then null else (v_f->>'unit_weight_grams')::integer*v_qty end,
+   v_f->>'product_kind',v_f->>'sealed_category',v_qty,v_f->>'package_contents',case when nullif(v_f->>'unit_weight_grams','') is null then null else (v_f->>'unit_weight_grams')::integer*v_qty end,
    nullif(v_f->>'length_mm','')::integer,nullif(v_f->>'width_mm','')::integer,nullif(v_f->>'height_mm','')::integer)
  on conflict (offer_id) do nothing returning id into v_deal_id;
  if v_deal_id is null then select id into v_deal_id from public.market_deals where offer_id=o.id;end if;if v_deal_id is null then raise exception 'offer_contract_creation_failed'; end if;
@@ -360,6 +367,7 @@ end
 $$;
 
 -- Orders created by Stripe-forming fixed-price acceptance are never merged into an older manual-beta order.
+
 create or replace function public.attach_market_deal_to_order()
 returns trigger
 language plpgsql
@@ -388,7 +396,11 @@ begin
       new.payment_provider,new.payment_status,0
     ) returning id into v_order;
   end if;
-  select card_name into v_title from public.market_listings where id=new.listing_id;
+  select coalesce(o.contract_review_snapshot->'product'->>'title',l.card_name)
+  into v_title
+  from public.market_listings l
+  left join public.market_offers o on o.id=new.offer_id
+  where l.id=new.listing_id;
   insert into public.market_order_items(order_id,deal_id,listing_id,item_title,product_kind,sealed_category,quantity,item_amount,individual_shipping_cost,shipping_method,weight_grams)
   values(v_order,new.id,new.listing_id,coalesce(v_title,'DUELVANTA Produkt'),coalesce(new.product_kind,'single'),new.sealed_category,coalesce(new.item_quantity,1),coalesce(new.amount,0),coalesce(new.shipping_cost,0),new.shipping_method,new.weight_grams)
   on conflict(deal_id) do nothing;
@@ -427,6 +439,16 @@ begin
     if v_type not in ('c2c','b2c') or (v_offer.contract_review_snapshot->>'quantity')::integer<>v_qty or round((v_offer.contract_review_snapshot->>'offered_goods_total')::numeric,2)<>v_goods
        or v_offer.contract_review_snapshot->>'shipping_method' is distinct from new.shipping_method or round((v_offer.contract_review_snapshot->>'shipping_cost')::numeric,2)<>round(new.shipping_cost,2)
        or v_offer.contract_review_snapshot->>'currency' is distinct from new.currency then raise exception 'offer_contract_snapshot_mismatch'; end if;
+  elsif v_offer.offer_type='fixed_price' then
+    if v_offer.contract_review_snapshot is null or v_offer.contract_review_snapshot->>'snapshot_version'<>'checkout-contract-v2' or v_offer.checkout_hash_snapshot is null
+       or encode(digest(convert_to(v_offer.contract_review_snapshot::text,'UTF8'),'sha256'),'hex')<>v_offer.checkout_hash_snapshot then raise exception 'fixed_checkout_snapshot_invalid'; end if;
+    v_seller:=v_offer.contract_review_snapshot->'seller_party';v_product:=v_offer.contract_review_snapshot->'product';v_type:=v_offer.contract_review_snapshot->>'contract_classification';
+    if v_type not in ('c2c','b2c') or (v_offer.contract_review_snapshot->>'quantity')::integer<>v_qty
+       or round((v_offer.contract_review_snapshot->>'goods_total')::numeric,2)<>v_goods
+       or v_offer.contract_review_snapshot->>'shipping_method' is distinct from new.shipping_method
+       or round((v_offer.contract_review_snapshot->>'shipping_cost')::numeric,2)<>round(new.shipping_cost,2)
+       or v_offer.contract_review_snapshot->>'currency' is distinct from new.currency
+       or v_offer.contract_review_snapshot->>'payment_provider'<>'stripe_connect' then raise exception 'fixed_contract_snapshot_mismatch'; end if;
   else
     v_seller:=dv_market_private.market_checkout_seller_party(new.seller_id);v_type:=dv_market_private.market_contract_classification(v_seller->>'seller_type',v_buyer_type);
     if v_type is null then raise exception 'contract_classification_invalid'; end if;v_product:=dv_market_private.market_checkout_product_snapshot(v_listing);
@@ -471,21 +493,24 @@ end
 $$;
 
 -- Fixed-price buyer offer: short reservation while Stripe creates the payment request.
+
 create or replace function public.prepare_fixed_price_market_offer_v1(
   p_listing_id uuid,p_quantity integer,p_request_id uuid,p_expected_updated_at timestamptz,p_checkout_hash text,p_live_mode boolean default false
 ) returns jsonb
 language plpgsql
 security definer
-set search_path=pg_catalog,public,dv_market_private
+set search_path=pg_catalog,public,dv_market_private,extensions
 as $$
 declare
   v_uid uuid:=auth.uid();v_existing public.market_offers%rowtype;v_listing public.market_listings%rowtype;
   v_review jsonb;v_config dv_market_private.market_payment_configuration%rowtype;v_account dv_market_private.market_stripe_accounts%rowtype;
   v_buyer_type text;v_qty integer;v_left integer;v_total_cents integer;v_fee_cents integer;v_attempt uuid:=gen_random_uuid();
-  v_offer uuid;v_deal public.market_deals;v_attempt_row dv_market_private.market_payment_attempts%rowtype;
+  v_offer uuid;v_deal public.market_deals;v_attempt_row dv_market_private.market_payment_attempts%rowtype;v_hash text;
 begin
   if v_uid is null then raise exception 'authentication_required'; end if;
-  if p_request_id is null or p_expected_updated_at is null then raise exception 'fixed_checkout_request_invalid'; end if;
+  if p_request_id is null or p_expected_updated_at is null or nullif(lower(trim(coalesce(p_checkout_hash,''))),'') is null then
+    raise exception 'fixed_checkout_request_invalid';
+  end if;
   v_buyer_type:=dv_market_private.require_market_buyer_type(v_uid);
   perform public.expire_market_offer_reservations_v1();
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text||':'||p_request_id::text,45));
@@ -493,26 +518,74 @@ begin
   select * into v_existing from public.market_offers
   where buyer_id=v_uid and offer_type='fixed_price' and checkout_request_id=p_request_id;
   if found then
-    if v_existing.listing_id<>p_listing_id or v_existing.requested_quantity<>p_quantity then raise exception 'fixed_checkout_request_reused'; end if;
+    if v_existing.listing_id<>p_listing_id or v_existing.requested_quantity<>p_quantity
+       or lower(trim(p_checkout_hash)) is distinct from v_existing.checkout_hash_snapshot
+       or (v_existing.contract_review_snapshot->>'listing_updated_at')::timestamptz is distinct from p_expected_updated_at then
+      raise exception 'fixed_checkout_request_reused';
+    end if;
+    if v_existing.payment_live_mode_snapshot is distinct from p_live_mode
+       or v_existing.stripe_account_id_snapshot is null
+       or v_existing.amount_due_cents_snapshot is null or v_existing.amount_due_cents_snapshot<=0
+       or v_existing.platform_fee_cents_snapshot is null
+       or v_existing.platform_fee_cents_snapshot<0
+       or v_existing.platform_fee_cents_snapshot>v_existing.amount_due_cents_snapshot
+       or v_existing.contract_review_snapshot is null
+       or v_existing.contract_review_snapshot->>'snapshot_version'<>'checkout-contract-v2'
+       or v_existing.checkout_hash_snapshot is null then
+      raise exception 'fixed_checkout_snapshot_invalid';
+    end if;
+    v_hash:=encode(digest(convert_to(v_existing.contract_review_snapshot::text,'UTF8'),'sha256'),'hex');
+    if v_hash<>v_existing.checkout_hash_snapshot
+       or (v_existing.contract_review_snapshot->>'listing_id')::uuid<>v_existing.listing_id
+       or (v_existing.contract_review_snapshot->>'seller_id')::uuid<>v_existing.seller_id
+       or (v_existing.contract_review_snapshot->>'quantity')::integer<>v_existing.requested_quantity
+       or v_existing.contract_review_snapshot->>'buyer_type'<>'consumer'
+       or v_existing.contract_review_snapshot->>'contract_classification' not in ('c2c','b2c')
+       or jsonb_typeof(v_existing.contract_review_snapshot->'seller_party')<>'object'
+       or jsonb_typeof(v_existing.contract_review_snapshot->'product')<>'object'
+       or jsonb_typeof(v_existing.contract_review_snapshot->'fulfillment_snapshot')<>'object'
+       or nullif(v_existing.contract_review_snapshot->'fulfillment_snapshot'->>'product_kind','') is null
+       or v_existing.contract_review_snapshot->>'currency'<>'EUR'
+       or v_existing.contract_review_snapshot->>'payment_provider'<>'stripe_connect'
+       or round((v_existing.contract_review_snapshot->>'goods_total')::numeric,2)<>round(v_existing.amount,2)
+       or round((v_existing.contract_review_snapshot->>'total_price')::numeric*100)::integer<>v_existing.amount_due_cents_snapshot then
+      raise exception 'fixed_checkout_snapshot_invalid';
+    end if;
+
     if v_existing.status='accepted' then
       select * into v_deal from public.market_deals where offer_id=v_existing.id;
       select * into v_attempt_row from dv_market_private.market_payment_attempts where id=v_existing.payment_attempt_id;
-      if v_deal.id is null or v_attempt_row.id is null then raise exception 'fixed_checkout_acceptance_incomplete'; end if;
+      if v_deal.id is null or v_attempt_row.id is null
+         or v_attempt_row.stripe_account_id<>v_existing.stripe_account_id_snapshot
+         or v_attempt_row.amount_due_cents<>v_existing.amount_due_cents_snapshot
+         or v_attempt_row.platform_fee_cents<>v_existing.platform_fee_cents_snapshot
+         or v_attempt_row.currency<>'EUR' then raise exception 'fixed_checkout_acceptance_incomplete'; end if;
       return jsonb_build_object(
         'replayed',true,'accepted',true,'offer_id',v_existing.id,'payment_attempt_id',v_existing.payment_attempt_id,
-        'stripe_checkout_session_id',v_existing.stripe_checkout_session_id,'stripe_account_id',v_attempt_row.stripe_account_id,
-        'order_id',v_deal.order_id,'live_mode',p_live_mode
+        'stripe_checkout_session_id',v_existing.stripe_checkout_session_id,'stripe_account_id',v_existing.stripe_account_id_snapshot,
+        'amount_due_cents',v_existing.amount_due_cents_snapshot,'platform_fee_cents',v_existing.platform_fee_cents_snapshot,
+        'currency','EUR','order_id',v_deal.order_id,'live_mode',v_existing.payment_live_mode_snapshot
       );
     end if;
+
     if v_existing.status='pending' and v_existing.reservation_expires_at>now() then
       select * into v_config from dv_market_private.market_payment_configuration where singleton;
+      if not found then raise exception 'stripe_payment_configuration_missing'; end if;
+      if p_live_mode then
+        if not v_config.live_mode then raise exception 'stripe_live_database_disabled'; end if;
+      else
+        if v_config.live_mode or not v_config.sandbox_enabled then raise exception 'stripe_sandbox_disabled'; end if;
+      end if;
       select * into v_account from dv_market_private.market_stripe_accounts where seller_id=v_existing.seller_id;
-      v_total_cents:=round((coalesce(v_existing.amount,0)+coalesce((v_existing.listing_snapshot->>'shipping_cost')::numeric,0))*100)::integer;
-      v_fee_cents:=least(v_total_cents,round(v_total_cents*v_config.platform_fee_bps/10000.0)::integer+v_config.platform_fee_fixed_cents);
+      if not found or v_account.stripe_account_id<>v_existing.stripe_account_id_snapshot
+         or v_account.live_mode is distinct from p_live_mode
+         or v_account.onboarding_status<>'ready' or not v_account.charges_enabled then
+        raise exception 'stripe_seller_not_ready';
+      end if;
       return jsonb_build_object(
         'replayed',true,'accepted',false,'offer_id',v_existing.id,'payment_attempt_id',v_existing.payment_attempt_id,
-        'stripe_account_id',v_account.stripe_account_id,'amount_due_cents',v_total_cents,'platform_fee_cents',v_fee_cents,
-        'live_mode',p_live_mode
+        'stripe_account_id',v_existing.stripe_account_id_snapshot,'amount_due_cents',v_existing.amount_due_cents_snapshot,
+        'platform_fee_cents',v_existing.platform_fee_cents_snapshot,'currency','EUR','live_mode',v_existing.payment_live_mode_snapshot
       );
     end if;
     raise exception 'fixed_checkout_request_expired';
@@ -527,18 +600,28 @@ begin
   end if;
 
   v_review:=public.review_market_checkout(p_listing_id,p_quantity);
-  if lower(trim(coalesce(p_checkout_hash,'')))<>(v_review->>'checkout_hash') then raise exception 'checkout_review_changed'; end if;
-  if (v_review->>'listing_updated_at')::timestamptz is distinct from p_expected_updated_at then raise exception 'checkout_review_changed'; end if;
+  if lower(trim(p_checkout_hash))<>(v_review->>'checkout_hash')
+     or (v_review->>'listing_updated_at')::timestamptz is distinct from p_expected_updated_at then
+    raise exception 'checkout_review_changed';
+  end if;
   v_buyer_type:=v_review->>'buyer_type';
 
   select * into v_listing from public.market_listings where id=p_listing_id for update;
-  if not found or v_listing.status<>'active' or v_listing.updated_at is distinct from p_expected_updated_at then raise exception 'listing_not_available'; end if;
+  if not found or v_listing.status<>'active' or v_listing.updated_at is distinct from p_expected_updated_at then
+    raise exception 'listing_not_available';
+  end if;
   v_qty:=case when v_listing.product_kind='sealed' then p_quantity else 1 end;
   if v_qty<1 or v_qty>v_listing.quantity_available then raise exception 'checkout_quantity_unavailable'; end if;
+
   select * into v_account from dv_market_private.market_stripe_accounts where seller_id=v_listing.seller_id;
-  if not found or v_account.live_mode is distinct from p_live_mode or v_account.onboarding_status<>'ready' or not v_account.charges_enabled then
+  if not found or v_account.live_mode is distinct from p_live_mode
+     or v_account.onboarding_status<>'ready' or not v_account.charges_enabled then
     raise exception 'stripe_seller_not_ready';
   end if;
+
+  v_total_cents:=round((v_review->>'total_price')::numeric*100)::integer;
+  v_fee_cents:=least(v_total_cents,round(v_total_cents*v_config.platform_fee_bps/10000.0)::integer+v_config.platform_fee_fixed_cents);
+  if v_total_cents<=0 or v_fee_cents<0 or v_fee_cents>v_total_cents then raise exception 'fixed_checkout_amount_invalid'; end if;
 
   v_left:=v_listing.quantity_available-v_qty;
   update public.market_listings
@@ -547,22 +630,22 @@ begin
 
   insert into public.market_offers(
     listing_id,buyer_id,seller_id,offer_type,amount,currency,status,requested_quantity,
-    unit_price_snapshot,listed_unit_price_snapshot,listed_total_snapshot,listing_snapshot,
-    reserved_quantity,reservation_expires_at,buyer_type_snapshot,checkout_request_id,checkout_hash_snapshot,payment_attempt_id
+    unit_price_snapshot,listed_unit_price_snapshot,listed_total_snapshot,listing_snapshot,contract_review_snapshot,
+    reserved_quantity,reservation_expires_at,buyer_type_snapshot,checkout_request_id,checkout_hash_snapshot,payment_attempt_id,
+    stripe_account_id_snapshot,payment_live_mode_snapshot,amount_due_cents_snapshot,platform_fee_cents_snapshot
   ) values(
     v_listing.id,v_uid,v_listing.seller_id,'fixed_price',(v_review->>'goods_total')::numeric,'EUR','pending',v_qty,
     (v_review->>'unit_price')::numeric,(v_review->>'unit_price')::numeric,(v_review->>'goods_total')::numeric,
     jsonb_build_object(
       'card_name',v_review->'product'->>'title','product_kind',v_listing.product_kind,'sealed_category',v_listing.sealed_category,
       'language',v_listing.language,'set_name',v_listing.set_name,'base_unit_price',(v_review->>'unit_price')::numeric,
-      'shipping_method',v_listing.shipping_method,'shipping_cost',(v_review->>'shipping_cost')::numeric,
+      'shipping_method',v_review->>'shipping_method','shipping_cost',(v_review->>'shipping_cost')::numeric,
       'total_price',(v_review->>'total_price')::numeric
     ),
-    v_qty,now()+interval '15 minutes',v_buyer_type,p_request_id,lower(p_checkout_hash),v_attempt
+    v_review-'checkout_hash',v_qty,now()+interval '15 minutes',v_buyer_type,p_request_id,lower(p_checkout_hash),v_attempt,
+    v_account.stripe_account_id,p_live_mode,v_total_cents,v_fee_cents
   ) returning id into v_offer;
 
-  v_total_cents:=round((v_review->>'total_price')::numeric*100)::integer;
-  v_fee_cents:=least(v_total_cents,round(v_total_cents*v_config.platform_fee_bps/10000.0)::integer+v_config.platform_fee_fixed_cents);
   return jsonb_build_object(
     'replayed',false,'accepted',false,'offer_id',v_offer,'payment_attempt_id',v_attempt,
     'stripe_account_id',v_account.stripe_account_id,'amount_due_cents',v_total_cents,'platform_fee_cents',v_fee_cents,
@@ -602,23 +685,55 @@ $$;
 revoke all on function public.release_fixed_price_market_offer_v1(uuid,text) from public,anon,authenticated;
 grant execute on function public.release_fixed_price_market_offer_v1(uuid,text) to service_role;
 
+
 create or replace function public.accept_fixed_price_market_offer_v1(
   p_offer_id uuid,p_attempt_id uuid,p_session_id text,p_payment_requested_at timestamptz,p_live_mode boolean default false
 ) returns jsonb
 language plpgsql
 security definer
-set search_path=pg_catalog,public,dv_market_private
+set search_path=pg_catalog,public,dv_market_private,extensions
 as $$
 declare
   o public.market_offers;l public.market_listings;d public.market_deals;s dv_market_private.market_stripe_accounts%rowtype;
   c dv_market_private.market_payment_configuration%rowtype;snap dv_market_private.market_contract_snapshots%rowtype;
   v_total integer;v_fee integer;v_prefix text:=case when p_live_mode then 'cs_live_' else 'cs_test_' end;
+  v_review jsonb;v_f jsonb;v_hash text;v_qty integer;
 begin
   if p_offer_id is null or p_attempt_id is null or p_payment_requested_at is null then raise exception 'fixed_acceptance_invalid'; end if;
   if p_session_id is null or position(v_prefix in p_session_id)<>1 then raise exception 'stripe_session_invalid'; end if;
-  if p_payment_requested_at<now()-interval '15 minutes' or p_payment_requested_at>now()+interval '2 minutes' then raise exception 'payment_request_timestamp_invalid'; end if;
+  if p_payment_requested_at<now()-interval '15 minutes' or p_payment_requested_at>now()+interval '2 minutes' then
+    raise exception 'payment_request_timestamp_invalid';
+  end if;
+
   select * into o from public.market_offers where id=p_offer_id for update;
   if not found or o.offer_type<>'fixed_price' or o.payment_attempt_id<>p_attempt_id then raise exception 'fixed_offer_not_found'; end if;
+
+  if o.payment_live_mode_snapshot is distinct from p_live_mode
+     or o.stripe_account_id_snapshot is null
+     or o.amount_due_cents_snapshot is null or o.amount_due_cents_snapshot<=0
+     or o.platform_fee_cents_snapshot is null or o.platform_fee_cents_snapshot<0
+     or o.platform_fee_cents_snapshot>o.amount_due_cents_snapshot
+     or o.contract_review_snapshot is null or o.contract_review_snapshot->>'snapshot_version'<>'checkout-contract-v2'
+     or o.checkout_hash_snapshot is null then raise exception 'fixed_checkout_snapshot_invalid'; end if;
+  v_review:=o.contract_review_snapshot;
+  v_hash:=encode(digest(convert_to(v_review::text,'UTF8'),'sha256'),'hex');
+  if v_hash<>o.checkout_hash_snapshot
+     or (v_review->>'listing_id')::uuid<>o.listing_id
+     or (v_review->>'seller_id')::uuid<>o.seller_id
+     or (v_review->>'quantity')::integer<>o.requested_quantity
+     or v_review->>'buyer_type'<>'consumer'
+     or v_review->>'contract_classification' not in ('c2c','b2c')
+     or jsonb_typeof(v_review->'seller_party')<>'object'
+     or jsonb_typeof(v_review->'product')<>'object'
+     or jsonb_typeof(v_review->'fulfillment_snapshot')<>'object'
+     or nullif(v_review->'fulfillment_snapshot'->>'product_kind','') is null
+     or v_review->>'currency'<>'EUR'
+     or v_review->>'payment_provider'<>'stripe_connect'
+     or round((v_review->>'goods_total')::numeric,2)<>round(o.amount,2)
+     or round((v_review->>'total_price')::numeric*100)::integer<>o.amount_due_cents_snapshot then
+    raise exception 'fixed_checkout_snapshot_invalid';
+  end if;
+
   if o.status='accepted' then
     select * into d from public.market_deals where offer_id=o.id;
     select * into snap from dv_market_private.market_contract_snapshots where deal_id=d.id;
@@ -626,18 +741,30 @@ begin
     return jsonb_build_object('replayed',true,'deal_id',d.id,'order_id',d.order_id,'contract_snapshot_id',snap.id,'contract_classification',snap.contract_classification);
   end if;
   if o.status<>'pending' or o.reservation_expires_at is null or o.reservation_expires_at<=now() then raise exception 'fixed_offer_expired'; end if;
+
   perform dv_market_private.require_market_buyer_type(o.buyer_id);
   if o.buyer_type_snapshot is distinct from 'consumer' then raise exception 'buyer_snapshot_invalid'; end if;
+
   select * into l from public.market_listings where id=o.listing_id for update;
   if not found then raise exception 'listing_not_available'; end if;
   select * into s from dv_market_private.market_stripe_accounts where seller_id=o.seller_id;
-  if not found or s.live_mode is distinct from p_live_mode or s.onboarding_status<>'ready' or not s.charges_enabled then raise exception 'stripe_seller_not_ready'; end if;
+  if not found or s.stripe_account_id<>o.stripe_account_id_snapshot
+     or s.live_mode is distinct from p_live_mode or s.onboarding_status<>'ready' or not s.charges_enabled then
+    raise exception 'stripe_seller_not_ready';
+  end if;
   select * into c from dv_market_private.market_payment_configuration where singleton;
+  if not found then raise exception 'stripe_payment_configuration_missing'; end if;
   if p_live_mode then
     if not c.live_mode then raise exception 'stripe_live_database_disabled'; end if;
   else
     if c.live_mode or not c.sandbox_enabled then raise exception 'stripe_sandbox_disabled'; end if;
   end if;
+
+  v_total:=round((v_review->>'total_price')::numeric*100)::integer;
+  v_fee:=o.platform_fee_cents_snapshot;
+  if v_total<>o.amount_due_cents_snapshot then raise exception 'fixed_checkout_amount_mismatch'; end if;
+  v_qty:=greatest(coalesce(o.requested_quantity,1),1);
+  v_f:=coalesce(v_review->'fulfillment_snapshot','{}'::jsonb);
 
   perform set_config('dv_market.offer_checkout_authorized',o.id::text,true);
   update public.market_offers
@@ -651,11 +778,18 @@ begin
     package_contents,weight_grams,length_mm,width_mm,height_mm,checkout_request_id,
     payment_provider,payment_status
   ) values(
-    l.id,o.id,o.seller_id,o.buyer_id,round(o.amount,2),'EUR','accepted',p_payment_requested_at,
-    l.shipping_method,l.shipping_cost,l.shipping_note,l.product_kind,l.sealed_category,greatest(coalesce(o.requested_quantity,1),1),
-    l.package_contents,case when l.weight_grams is null then null else l.weight_grams*greatest(coalesce(o.requested_quantity,1),1) end,
-    l.length_mm,l.width_mm,l.height_mm,o.checkout_request_id,'stripe_connect','pending'
-  ) returning * into d;
+    l.id,o.id,o.seller_id,o.buyer_id,(v_review->>'goods_total')::numeric,'EUR','accepted',p_payment_requested_at,
+    v_review->>'shipping_method',(v_review->>'shipping_cost')::numeric,v_review->>'shipping_note',
+    coalesce(v_f->>'product_kind',l.product_kind),v_f->>'sealed_category',v_qty,
+    v_f->>'package_contents',
+    case when nullif(v_f->>'weight_grams','') is null then null else (v_f->>'weight_grams')::integer*v_qty end,
+    nullif(v_f->>'length_mm','')::integer,nullif(v_f->>'width_mm','')::integer,nullif(v_f->>'height_mm','')::integer,
+    o.checkout_request_id,'stripe_connect','pending'
+  ) on conflict (offer_id) do nothing
+  returning * into d;
+
+  if d.id is null then select * into d from public.market_deals where offer_id=o.id; end if;
+  if d.id is null then raise exception 'fixed_contract_creation_failed'; end if;
 
   -- AFTER INSERT order attachment updates market_deals.order_id; reload the post-trigger row before payment evidence.
   select * into d from public.market_deals where id=d.id;
@@ -663,19 +797,31 @@ begin
 
   select * into snap from dv_market_private.market_contract_snapshots where deal_id=d.id;
   if not found then raise exception 'checkout_snapshot_missing'; end if;
-  v_total:=round(snap.total_price*100)::integer;
-  v_fee:=least(v_total,round(v_total*c.platform_fee_bps/10000.0)::integer+c.platform_fee_fixed_cents);
+  if round(snap.total_price*100)::integer<>v_total
+     or snap.seller_party is distinct from v_review->'seller_party'
+     or snap.product_snapshot is distinct from v_review->'product'
+     or snap.contract_classification is distinct from v_review->>'contract_classification' then
+    raise exception 'fixed_contract_snapshot_mismatch';
+  end if;
 
   insert into dv_market_private.market_payment_attempts(
     id,order_id,buyer_id,seller_id,stripe_account_id,idempotency_key,state,currency,
     amount_due_cents,platform_fee_cents,stripe_checkout_session_id,prepared_at,updated_at
   ) values(
-    p_attempt_id,d.order_id,o.buyer_id,o.seller_id,s.stripe_account_id,o.checkout_request_id,'session_created','EUR',
+    p_attempt_id,d.order_id,o.buyer_id,o.seller_id,o.stripe_account_id_snapshot,o.checkout_request_id,'session_created','EUR',
     v_total,v_fee,p_session_id,p_payment_requested_at,now()
-  );
+  ) on conflict (id) do nothing;
+
+  select * into s from dv_market_private.market_stripe_accounts where seller_id=o.seller_id;
+  if not exists(
+    select 1 from dv_market_private.market_payment_attempts a
+    where a.id=p_attempt_id and a.order_id=d.order_id and a.stripe_account_id=o.stripe_account_id_snapshot
+      and a.amount_due_cents=v_total and a.platform_fee_cents=v_fee and a.stripe_checkout_session_id=p_session_id
+  ) then raise exception 'fixed_payment_attempt_conflict'; end if;
 
   insert into dv_market_private.market_payment_allocations(attempt_id,contract_snapshot_id,gross_cents,platform_fee_cents)
-  values(p_attempt_id,snap.id,v_total,v_fee);
+  values(p_attempt_id,snap.id,v_total,v_fee)
+  on conflict (attempt_id,contract_snapshot_id) do nothing;
 
   update public.market_orders
   set payment_provider='stripe_connect',payment_status='pending',paid_amount=0,updated_at=now()

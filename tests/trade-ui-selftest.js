@@ -48,7 +48,7 @@
     amountInput('3');await wait(()=>document.getElementById('dvBuyNow').disabled===false);document.getElementById('dvBuyNow').click();document.getElementById('dvBuyNow').click();
     await wait(()=>!document.getElementById('dvBuyNow').disabled);
     assert(TRADE_UI_FIXTURE.calls.filter(x=>x.name==='market-stripe-checkout').length===1,'Doppelklick sendet nur eine Anfrage');
-    assert(document.getElementById('dvBuyMsg').textContent.includes('Verbindungsabbruch'),'Netzwerkfehler sichtbar und erneut versuchbar');
+    assert(document.getElementById('dvBuyMsg').textContent.includes('nicht eindeutig'),'Unklarer Provider-/DB-Status ist sichtbar und mit derselben Anfrage erneut versuchbar');
     document.getElementById('dvBuyNow').click();await wait(()=>!document.getElementById('dvBuyNow').disabled);
     const attempts=TRADE_UI_FIXTURE.calls.filter(x=>x.name==='market-stripe-checkout');
     assert(attempts.length===2&&attempts[0].args.request_key===attempts[1].args.request_key,'Wiederholung verwendet identische Request-ID');

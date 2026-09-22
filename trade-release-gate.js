@@ -17,7 +17,7 @@
     'trade-b07-order-lifecycle.js?v=1.0',
     'trade-b07-pickup-ui-fix-v2.js?v=2.1',
     'trade-offer-details.js?v=2.1',
-    'trade-checkout.js?v=2.1',
+    'trade-checkout.js?v=2.2',
     'trade-automation.js?v=2.0',
     'trade-shipping-profiles.js?v=1.1',
     'trade-order-resolution.js?v=1.1',

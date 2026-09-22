@@ -41,6 +41,20 @@ must(migration,'prepare_fixed_price_market_offer_v1','fixed-price buyer offer pr
 must(migration,'accept_fixed_price_market_offer_v1','fixed-price payment-request acceptance missing');
 must(fn(migration,'public.accept_fixed_price_market_offer_v1'),"'accepted',p_payment_requested_at",'fixed contract is not timestamped at payment request');
 must(fn(migration,'public.accept_fixed_price_market_offer_v1'),'select * into d from public.market_deals where id=d.id','fixed acceptance does not reload the order attached by the AFTER trigger');
+const fixedPrepare=fn(migration,'public.prepare_fixed_price_market_offer_v1');
+for(const frozen of ['contract_review_snapshot','checkout_hash_snapshot','stripe_account_id_snapshot','payment_live_mode_snapshot','amount_due_cents_snapshot','platform_fee_cents_snapshot'])
+  must(fixedPrepare,frozen,'fixed prepare does not freeze '+frozen);
+must(fixedPrepare,"lower(trim(p_checkout_hash)) is distinct from v_existing.checkout_hash_snapshot",'fixed request-key replay is not bound to the original review hash');
+must(fixedPrepare,"contract_review_snapshot->>'listing_updated_at'",'fixed request-key replay is not bound to the original listing version');
+must(fn(migration,'public.review_market_checkout'),"'fulfillment_snapshot'",'fixed review does not freeze fulfillment dimensions/packaging');
+const fixedAccept=fn(migration,'public.accept_fixed_price_market_offer_v1');
+for(const frozen of ['contract_review_snapshot','checkout_hash_snapshot','stripe_account_id_snapshot','payment_live_mode_snapshot','amount_due_cents_snapshot','platform_fee_cents_snapshot'])
+  must(fixedAccept,frozen,'fixed acceptance is not bound to '+frozen);
+must(fixedAccept,"on conflict (offer_id) do nothing",'fixed acceptance does not suppress duplicate deal creation');
+must(fixedAccept,"on conflict (id) do nothing",'fixed payment evidence is not replay-safe');
+must(fixedAccept,"v_review->>'shipping_method'",'fixed acceptance rereads current shipping instead of frozen review');
+must(fn(migration,'dv_market_private.capture_market_contract_snapshot'),"elsif v_offer.offer_type='fixed_price'",'fixed contract evidence does not use frozen checkout review');
+must(fn(migration,'public.attach_market_deal_to_order'),"o.contract_review_snapshot->'product'->>'title'",'order item title is not bound to frozen contract product');
 must(fn(migration,'public.respond_to_market_offer'),'insert into public.market_deals','seller acceptance does not form negotiated contract');
 must(migration,'review_market_price_offer_v1','negotiated buyer offer review is missing');
 must(migration,'create_market_offer_v3','review-bound negotiated offer writer is missing');
@@ -65,7 +79,12 @@ must(checkoutApi,"stripeMode('payments')",'fixed contract path bypasses Stripe p
 must(checkoutApi,'prepare_fixed_price_market_offer_v1','API does not create buyer offer before payment request');
 must(checkoutApi,'accept_fixed_price_market_offer_v1','API does not finalize contract after payment request');
 must(checkoutApi,'session.created','provider-created payment-request time is not used for acceptance');
-must(checkoutApi,'release_fixed_price_market_offer_v1','failed payment request does not release fixed-price offer');
+mustNot(checkoutApi,'release_fixed_price_market_offer_v1','ambiguous fixed-price outcome must not destructively release the reservation');
+must(checkoutApi,'fixed_checkout_outcome_unknown','ambiguous fixed-price outcome is not surfaced as retryable');
+must(checkoutApi,'fixed_checkout_payment_recovery_unknown','formed-contract payment recovery is not distinguished');
+must(checkoutApi,'contract_formed_payment_retry_required','expired formed-contract payment session has no safe recovery state');
+must(checkoutApi,'contract_formed_payment_processing','completed formed-contract payment session is not distinguished from retry');
+must(checkoutApi,'fixedSession(','Stripe session response is not amount/metadata-bound before contract formation');
 must(checkoutApi,'/expire','failed fixed-price finalization does not expire Stripe Checkout session');
 
 must(checkoutUi,'VERBINDLICHES KAUFANGEBOT','fixed checkout does not explain buyer offer');
@@ -97,7 +116,7 @@ must(dispatcher,"withdrawal_notice",'seller withdrawal renderer missing');
 
 must(tradeHtml,'trade-orders.js?v=1.7','withdrawal order UI cache revision missing');
 must(tradeHtml,'trade-offer-details.js?v=2.1','negotiated contract UI cache revision missing');
-must(tradeHtml,'trade-checkout.js?v=2.1','fixed contract UI cache revision missing');
+must(tradeHtml,'trade-checkout.js?v=2.2','fixed contract UI cache revision missing');
 
 must(tradeHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in TRADE');
 must(profileHtml,'trade-legal-readiness.js?v=1.1','missing-schema protection is not loaded in PROFILE');

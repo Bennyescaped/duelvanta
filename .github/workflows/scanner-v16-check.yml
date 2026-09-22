@@ -154,12 +154,20 @@ jobs:
           node tests/account-data-rights-database-test.mjs | tee test-results/collect-f3-account-erasure.log
           node tests/account-data-erasure-username-guard-test.mjs | tee test-results/collect-f3-username-erasure.log
           node tests/collect-binder-delete-concurrency-test.mjs
+          node tests/trade-legal-fixed-price-concurrency-test.mjs | tee test-results/trade-fixed-price-postgres.log
       - name: F3 PostgreSQL evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: collect-f3-postgres-evidence
           path: test-results/collect-f3-*
+          if-no-files-found: error
+      - name: Fixed-price PostgreSQL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trade-fixed-price-postgres-evidence
+          path: test-results/trade-fixed-price-*
           if-no-files-found: error
   quota_database:
     runs-on: ubuntu-latest

@@ -3,7 +3,52 @@
 const {authenticatedUser,json,required,rpc,stripeGetRequest,stripeMode,stripeRequest}=require('./market-stripe-lib');
 
 const UUID=/^[0-9a-f-]{36}$/i;
+const ACCOUNT=/^acct_[A-Za-z0-9_]+$/;
 const sessionPrefix=live=>live?'cs_live_':'cs_test_';
+
+function fixedPrepared(data,liveMode){
+  if(!data||typeof data!=='object')throw new Error('fixed_checkout_prepare_invalid');
+  if(data.live_mode!==liveMode)throw new Error('stripe_database_mode_mismatch');
+  if(!UUID.test(String(data.offer_id||''))||!UUID.test(String(data.payment_attempt_id||''))||
+     !ACCOUNT.test(String(data.stripe_account_id||''))||data.currency!=='EUR'||
+     !Number.isInteger(data.amount_due_cents)||data.amount_due_cents<=0||
+     !Number.isInteger(data.platform_fee_cents)||data.platform_fee_cents<0||
+     data.platform_fee_cents>data.amount_due_cents)throw new Error('fixed_checkout_prepare_invalid');
+  if(data.accepted===true){
+    if(!String(data.stripe_checkout_session_id||'').startsWith(sessionPrefix(liveMode))||
+       !UUID.test(String(data.order_id||'')))throw new Error('fixed_checkout_prepare_invalid');
+  }else if(data.accepted!==false){
+    throw new Error('fixed_checkout_prepare_invalid');
+  }
+  return data;
+}
+
+function fixedSession(session,prepared,liveMode,expectedId=null){
+  if(!session||typeof session!=='object')throw new Error('stripe_checkout_session_invalid');
+  if(!String(session.id||'').startsWith(sessionPrefix(liveMode))||
+     (expectedId&&session.id!==expectedId)||
+     !Number.isInteger(Number(session.amount_total))||Number(session.amount_total)!==prepared.amount_due_cents||
+     String(session.currency||'').toLowerCase()!=='eur'||
+     String(session.client_reference_id||'')!==prepared.payment_attempt_id||
+     session.metadata?.duelvanta_attempt_id!==prepared.payment_attempt_id||
+     session.metadata?.duelvanta_fixed_offer_id!==prepared.offer_id||
+     !Number.isFinite(Number(session.created))||Number(session.created)<=0)throw new Error('stripe_checkout_session_invalid');
+  let url=null;
+  if(session.url){
+    const target=new URL(session.url);
+    if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw new Error('stripe_checkout_url_invalid');
+    url=target.href;
+  }
+  const status=String(session.status||'');
+  return {url,created:Number(session.created),status,expired:status==='expired',complete:status==='complete'};
+}
+
+function samePrepared(a,b){
+  return !!a&&!!b&&a.accepted===false&&b.accepted===false&&
+    a.offer_id===b.offer_id&&a.payment_attempt_id===b.payment_attempt_id&&
+    a.stripe_account_id===b.stripe_account_id&&a.amount_due_cents===b.amount_due_cents&&
+    a.platform_fee_cents===b.platform_fee_cents&&a.live_mode===b.live_mode;
+}
 
 function checkoutUrl(session,liveMode){
   const prefix=sessionPrefix(liveMode);
@@ -22,17 +67,42 @@ async function fixedPriceCheckout(req,res,mode,user,accessToken){
     p_listing_id:listingId,p_quantity:quantity,p_request_id:requestKey,
     p_expected_updated_at:expected,p_checkout_hash:checkoutHash,p_live_mode:mode.liveMode
   };
-  let prepared=await rpc('prepare_fixed_price_market_offer_v1',prepareBody,accessToken);
-  if(mode.liveMode?prepared?.live_mode!==true:prepared?.live_mode===true)throw new Error('stripe_database_mode_mismatch');
+  let prepared=fixedPrepared(await rpc('prepare_fixed_price_market_offer_v1',prepareBody,accessToken),mode.liveMode);
 
-  if(prepared.accepted===true&&prepared.stripe_checkout_session_id){
-    const existing=await stripeGetRequest(`checkout/sessions/${encodeURIComponent(prepared.stripe_checkout_session_id)}`,{},{
-      account:prepared.stripe_account_id
-    });
+  if(prepared.accepted===true){
+    let existing;
+    try{
+      existing=await stripeGetRequest(`checkout/sessions/${encodeURIComponent(prepared.stripe_checkout_session_id)}`,{},{
+        account:prepared.stripe_account_id
+      });
+    }catch(error){
+      return json(res,503,{error:'fixed_checkout_payment_recovery_unknown',retryable:true,contract_formed:true,
+        attempt_id:prepared.payment_attempt_id,order_id:prepared.order_id,live_mode:mode.liveMode,replayed:true});
+    }
+    let checked;
+    try{checked=fixedSession(existing,prepared,mode.liveMode,prepared.stripe_checkout_session_id)}
+    catch(error){
+      return json(res,503,{error:'fixed_checkout_payment_recovery_unknown',retryable:true,contract_formed:true,
+        attempt_id:prepared.payment_attempt_id,order_id:prepared.order_id,live_mode:mode.liveMode,replayed:true});
+    }
+    if(checked.complete){
+      return json(res,200,{status:'contract_formed_payment_processing',checkout_url:null,
+        attempt_id:prepared.payment_attempt_id,order_id:prepared.order_id,live_mode:mode.liveMode,
+        replayed:true,contract_formed:true,payment_retry_required:false});
+    }
+    if(checked.expired){
+      return json(res,200,{status:'contract_formed_payment_retry_required',checkout_url:null,
+        attempt_id:prepared.payment_attempt_id,order_id:prepared.order_id,live_mode:mode.liveMode,
+        replayed:true,contract_formed:true,payment_retry_required:true});
+    }
+    if(!checked.url){
+      return json(res,503,{error:'fixed_checkout_payment_recovery_unknown',retryable:true,contract_formed:true,
+        attempt_id:prepared.payment_attempt_id,order_id:prepared.order_id,live_mode:mode.liveMode,replayed:true});
+    }
     return json(res,200,{
       status:mode.liveMode?'live_checkout_created':'sandbox_checkout_created',
-      checkout_url:checkoutUrl(existing,mode.liveMode),attempt_id:prepared.payment_attempt_id,
-      order_id:prepared.order_id,live_mode:mode.liveMode,replayed:true
+      checkout_url:checked.url,attempt_id:prepared.payment_attempt_id,
+      order_id:prepared.order_id,live_mode:mode.liveMode,replayed:true,contract_formed:true
     });
   }
 
@@ -44,44 +114,64 @@ async function fixedPriceCheckout(req,res,mode,user,accessToken){
   };
   const intentData={metadata};
   if(prepared.platform_fee_cents>0)intentData.application_fee_amount=prepared.platform_fee_cents;
-  const session=await stripeRequest('checkout/sessions',{
-    mode:'payment',
-    success_url:`${origin}/trade.html?payment=return`,
-    cancel_url:`${origin}/trade.html?payment=cancelled`,
-    client_reference_id:prepared.payment_attempt_id,
-    line_items:[{quantity:1,price_data:{
-      currency:'eur',unit_amount:prepared.amount_due_cents,
-      product_data:{name:'DUELVANTA Marketplace-Bestellung'}
-    }}],
-    payment_intent_data:intentData,
-    metadata
-  },{account:prepared.stripe_account_id,idempotencyKey:`duelvanta-fixed-${requestKey}`});
-  const url=checkoutUrl(session,mode.liveMode);
+
+  let session;
+  try{
+    session=await stripeRequest('checkout/sessions',{
+      mode:'payment',
+      success_url:`${origin}/trade.html?payment=return`,
+      cancel_url:`${origin}/trade.html?payment=cancelled`,
+      client_reference_id:prepared.payment_attempt_id,
+      line_items:[{quantity:1,price_data:{
+        currency:'eur',unit_amount:prepared.amount_due_cents,
+        product_data:{name:'DUELVANTA Marketplace-Bestellung'}
+      }}],
+      payment_intent_data:intentData,
+      metadata
+    },{account:prepared.stripe_account_id,idempotencyKey:`duelvanta-fixed-${requestKey}`});
+  }catch(error){
+    throw new Error('fixed_checkout_outcome_unknown');
+  }
+
+  let checked;
+  try{checked=fixedSession(session,prepared,mode.liveMode)}
+  catch(error){throw new Error('fixed_checkout_outcome_unknown')}
+  if(checked.expired||checked.complete||!checked.url)throw new Error('fixed_checkout_outcome_unknown');
+
   const acceptBody={
     p_offer_id:prepared.offer_id,p_attempt_id:prepared.payment_attempt_id,p_session_id:session.id,
-    p_payment_requested_at:new Date(Number(session.created)*1000).toISOString(),p_live_mode:mode.liveMode
+    p_payment_requested_at:new Date(checked.created*1000).toISOString(),p_live_mode:mode.liveMode
   };
 
   let accepted;
   try{
     accepted=await rpc('accept_fixed_price_market_offer_v1',acceptBody);
   }catch(firstError){
-    // Resolve an ambiguous DB response before expiring a payment request that may already have formed the contract.
-    const state=await rpc('prepare_fixed_price_market_offer_v1',prepareBody,accessToken).catch(()=>null);
-    if(state?.accepted===true&&state?.stripe_checkout_session_id===session.id){
+    let state=null;
+    try{state=fixedPrepared(await rpc('prepare_fixed_price_market_offer_v1',prepareBody,accessToken),mode.liveMode)}catch(_){}
+    if(state?.accepted===true&&state.stripe_checkout_session_id===session.id){
       accepted={order_id:state.order_id,replayed:true};
+    }else if(samePrepared(prepared,state)){
+      try{
+        accepted=await rpc('accept_fixed_price_market_offer_v1',acceptBody);
+      }catch(secondError){
+        let finalState=null;
+        try{finalState=fixedPrepared(await rpc('prepare_fixed_price_market_offer_v1',prepareBody,accessToken),mode.liveMode)}catch(_){}
+        if(finalState?.accepted===true&&finalState.stripe_checkout_session_id===session.id){
+          accepted={order_id:finalState.order_id,replayed:true};
+        }else{
+          throw new Error('fixed_checkout_outcome_unknown');
+        }
+      }
     }else{
-      try{await stripeRequest(`checkout/sessions/${encodeURIComponent(session.id)}/expire`,{},{
-        account:prepared.stripe_account_id,idempotencyKey:`duelvanta-fixed-expire-${requestKey}`
-      })}catch(expireError){console.warn('MARKET_FIXED_CHECKOUT_EXPIRE',String(expireError.message||expireError).slice(0,160))}
-      await rpc('release_fixed_price_market_offer_v1',{p_offer_id:prepared.offer_id,p_reason:'payment_request_finalize_failed'}).catch(()=>null);
-      throw firstError;
+      throw new Error('fixed_checkout_outcome_unknown');
     }
   }
+
   return json(res,200,{
     status:mode.liveMode?'live_checkout_created':'sandbox_checkout_created',
-    checkout_url:url,attempt_id:prepared.payment_attempt_id,order_id:accepted?.order_id||null,
-    live_mode:mode.liveMode,replayed:accepted?.replayed===true
+    checkout_url:checked.url,attempt_id:prepared.payment_attempt_id,order_id:accepted?.order_id||null,
+    live_mode:mode.liveMode,replayed:accepted?.replayed===true,contract_formed:true
   });
 }
 
@@ -117,6 +207,8 @@ module.exports=async function handler(req,res){
     if(req.body?.listing_id)return await fixedPriceCheckout(req,res,mode,user,accessToken);
     return await existingOrderCheckout(req,res,mode,user);
   }catch(error){
-    return json(res,409,{error:String(error.message||error).slice(0,180)});
+    const code=String(error.message||error).slice(0,180);
+    if(code==='fixed_checkout_outcome_unknown')return json(res,503,{error:code,retryable:true,contract_formed:false});
+    return json(res,409,{error:code});
   }
 };

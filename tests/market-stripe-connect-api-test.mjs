@@ -116,7 +116,9 @@ try{
       amount_due_cents:1099,platform_fee_cents:99,live_mode:false
     }),{status:200});
     if(String(url).includes('api.stripe.com/v1/checkout/sessions'))return new Response(JSON.stringify({
-      id:'cs_test_FixedSession',url:'https://checkout.stripe.com/c/pay/cs_test_FixedSession',created:fixedCreated
+      id:'cs_test_FixedSession',url:'https://checkout.stripe.com/c/pay/cs_test_FixedSession',created:fixedCreated,
+      amount_total:1099,currency:'eur',client_reference_id:FIXED_ATTEMPT,status:'open',
+      metadata:{duelvanta_attempt_id:FIXED_ATTEMPT,duelvanta_fixed_offer_id:FIXED_OFFER}
     }),{status:200});
     if(String(url).includes('accept_fixed_price_market_offer_v1'))return new Response(JSON.stringify({
       order_id:'90000000-0000-4000-8000-000000000014',replayed:false
@@ -138,6 +140,98 @@ try{
   assert.equal(fixedAcceptBody.p_offer_id,FIXED_OFFER);assert.equal(fixedAcceptBody.p_attempt_id,FIXED_ATTEMPT);
   assert.equal(fixedAcceptBody.p_session_id,'cs_test_FixedSession');
   assert.equal(fixedAcceptBody.p_payment_requested_at,new Date(fixedCreated*1000).toISOString());
+
+  // Provider response is incomplete/ambiguous: preserve the same request key and reservation.
+  const UNKNOWN_REQUEST='90000000-0000-4000-8000-000000000021';
+  const UNKNOWN_OFFER='90000000-0000-4000-8000-000000000022',UNKNOWN_ATTEMPT='90000000-0000-4000-8000-000000000023';
+  let unknownStripePosts=0,unknownAccepts=0,unknownReleaseCalls=0;const unknownKeys=[];
+  global.fetch=async(url,options={})=>{
+    const target=String(url);
+    if(target.endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
+    if(target.includes('prepare_fixed_price_market_offer_v1'))return new Response(JSON.stringify({
+      accepted:false,offer_id:UNKNOWN_OFFER,payment_attempt_id:UNKNOWN_ATTEMPT,stripe_account_id:'acct_TestSeller',
+      amount_due_cents:1200,platform_fee_cents:100,currency:'EUR',live_mode:false
+    }),{status:200});
+    if(target.includes('release_fixed_price_market_offer_v1')){unknownReleaseCalls++;return new Response('true',{status:200})}
+    if(target.includes('api.stripe.com/v1/checkout/sessions')&&String(options.method||'POST').toUpperCase()==='POST'){
+      unknownStripePosts++;unknownKeys.push(options.headers['idempotency-key']);
+      if(unknownStripePosts===1)return new Response(JSON.stringify({
+        id:'cs_test_UnknownSession',url:'https://checkout.stripe.com/c/pay/cs_test_UnknownSession',created:fixedCreated
+      }),{status:200});
+      return new Response(JSON.stringify({
+        id:'cs_test_UnknownSession',url:'https://checkout.stripe.com/c/pay/cs_test_UnknownSession',created:fixedCreated,
+        amount_total:1200,currency:'eur',client_reference_id:UNKNOWN_ATTEMPT,status:'open',
+        metadata:{duelvanta_attempt_id:UNKNOWN_ATTEMPT,duelvanta_fixed_offer_id:UNKNOWN_OFFER}
+      }),{status:200});
+    }
+    if(target.includes('accept_fixed_price_market_offer_v1')){unknownAccepts++;return new Response(JSON.stringify({
+      order_id:'90000000-0000-4000-8000-000000000024',replayed:false
+    }),{status:200})}
+    throw new Error('unexpected_unknown_fetch_'+target);
+  };
+  const unknownFirst=response();await checkout({method:'POST',headers:{authorization:'Bearer buyer-token'},body:{
+    listing_id:FIXED_LISTING,quantity:1,request_key:UNKNOWN_REQUEST,
+    expected_updated_at:'2026-09-21T17:00:00.000Z',checkout_hash:'b'.repeat(64)
+  }},unknownFirst);
+  assert.equal(unknownFirst.statusCode,503);assert.equal(unknownFirst.body.error,'fixed_checkout_outcome_unknown');
+  assert.equal(unknownFirst.body.retryable,true);assert.equal(unknownFirst.body.contract_formed,false);
+  assert.equal(unknownAccepts,0);assert.equal(unknownReleaseCalls,0);
+  const unknownSecond=response();await checkout({method:'POST',headers:{authorization:'Bearer buyer-token'},body:{
+    listing_id:FIXED_LISTING,quantity:1,request_key:UNKNOWN_REQUEST,
+    expected_updated_at:'2026-09-21T17:00:00.000Z',checkout_hash:'b'.repeat(64)
+  }},unknownSecond);
+  assert.equal(unknownSecond.statusCode,200);assert.equal(unknownSecond.body.order_id,'90000000-0000-4000-8000-000000000024');
+  assert.equal(unknownStripePosts,2);assert.equal(unknownKeys[0],unknownKeys[1]);
+  assert.equal(unknownKeys[0],`duelvanta-fixed-${UNKNOWN_REQUEST}`);assert.equal(unknownReleaseCalls,0);
+
+  // Acceptance response is ambiguous: do not expire/release; a retry resolves the already-formed contract.
+  const AMBIG_REQUEST='90000000-0000-4000-8000-000000000031';
+  const AMBIG_OFFER='90000000-0000-4000-8000-000000000032',AMBIG_ATTEMPT='90000000-0000-4000-8000-000000000033';
+  const AMBIG_ORDER='90000000-0000-4000-8000-000000000034';let ambiguousPhase=1,ambigPrepareCalls=0,ambigStripePosts=0,ambigReleaseCalls=0;
+  global.fetch=async(url,options={})=>{
+    const target=String(url),method=String(options.method||'GET').toUpperCase();
+    if(target.endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:USER}),{status:200});
+    if(target.includes('prepare_fixed_price_market_offer_v1')){
+      ambigPrepareCalls++;
+      if(ambiguousPhase===1&&ambigPrepareCalls>1)return new Response('',{status:504});
+      return new Response(JSON.stringify(ambiguousPhase===1?{
+        accepted:false,offer_id:AMBIG_OFFER,payment_attempt_id:AMBIG_ATTEMPT,stripe_account_id:'acct_TestSeller',
+        amount_due_cents:1300,platform_fee_cents:110,currency:'EUR',live_mode:false
+      }:{
+        accepted:true,offer_id:AMBIG_OFFER,payment_attempt_id:AMBIG_ATTEMPT,stripe_account_id:'acct_TestSeller',
+        stripe_checkout_session_id:'cs_test_AmbigSession',amount_due_cents:1300,platform_fee_cents:110,
+        currency:'EUR',order_id:AMBIG_ORDER,live_mode:false
+      }),{status:200});
+    }
+    if(target.includes('release_fixed_price_market_offer_v1')){ambigReleaseCalls++;return new Response('true',{status:200})}
+    if(target.includes('api.stripe.com/v1/checkout/sessions')&&method==='POST'){
+      ambigStripePosts++;return new Response(JSON.stringify({
+        id:'cs_test_AmbigSession',url:'https://checkout.stripe.com/c/pay/cs_test_AmbigSession',created:fixedCreated,
+        amount_total:1300,currency:'eur',client_reference_id:AMBIG_ATTEMPT,status:'open',
+        metadata:{duelvanta_attempt_id:AMBIG_ATTEMPT,duelvanta_fixed_offer_id:AMBIG_OFFER}
+      }),{status:200});
+    }
+    if(target.includes('api.stripe.com/v1/checkout/sessions/cs_test_AmbigSession')&&method==='GET')return new Response(JSON.stringify({
+      id:'cs_test_AmbigSession',url:'https://checkout.stripe.com/c/pay/cs_test_AmbigSession',created:fixedCreated,
+      amount_total:1300,currency:'eur',client_reference_id:AMBIG_ATTEMPT,status:'open',
+      metadata:{duelvanta_attempt_id:AMBIG_ATTEMPT,duelvanta_fixed_offer_id:AMBIG_OFFER}
+    }),{status:200});
+    if(target.includes('accept_fixed_price_market_offer_v1'))return new Response('',{status:504});
+    throw new Error('unexpected_ambiguous_fetch_'+target);
+  };
+  const ambiguousFirst=response();await checkout({method:'POST',headers:{authorization:'Bearer buyer-token'},body:{
+    listing_id:FIXED_LISTING,quantity:1,request_key:AMBIG_REQUEST,
+    expected_updated_at:'2026-09-21T17:00:00.000Z',checkout_hash:'c'.repeat(64)
+  }},ambiguousFirst);
+  assert.equal(ambiguousFirst.statusCode,503);assert.equal(ambiguousFirst.body.error,'fixed_checkout_outcome_unknown');
+  assert.equal(ambigStripePosts,1);assert.equal(ambigReleaseCalls,0);
+  ambiguousPhase=2;
+  const ambiguousSecond=response();await checkout({method:'POST',headers:{authorization:'Bearer buyer-token'},body:{
+    listing_id:FIXED_LISTING,quantity:1,request_key:AMBIG_REQUEST,
+    expected_updated_at:'2026-09-21T17:00:00.000Z',checkout_hash:'c'.repeat(64)
+  }},ambiguousSecond);
+  assert.equal(ambiguousSecond.statusCode,200);assert.equal(ambiguousSecond.body.replayed,true);
+  assert.equal(ambiguousSecond.body.order_id,AMBIG_ORDER);assert.equal(ambigStripePosts,1);assert.equal(ambigReleaseCalls,0);
 
   const event={id:'evt_TestEvent',type:'payment_intent.succeeded',livemode:false,account:'acct_TestSeller',created:1789308000,
     data:{object:{id:'pi_TestIntent',amount_received:10500,currency:'eur',latest_charge:'ch_TestCharge',metadata:{duelvanta_attempt_id:UUID}}}};

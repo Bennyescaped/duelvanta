@@ -16,6 +16,8 @@
     if(/buyer_private_consumer_required|trade_eligibility_required/.test(m))return'Bestätige deine Berechtigung zum privaten Kauf über den bestehenden TRADE-Zugang.';
     if(m.includes('trade_account_restricted'))return'Käufe sind für diesen Account derzeit gesperrt.';
     if(m.includes('buyer_snapshot_invalid'))return'Der gespeicherte Käuferstatus dieses Angebots ist nicht kompatibel. Es wurde kein neuer Vertrag angelegt.';
+    if(m.includes('fixed_checkout_outcome_unknown'))return'Der Status der Zahlungsaufforderung ist noch nicht eindeutig. Bitte erneut versuchen; DUELVANTA verwendet dabei dieselbe Anfrage und legt keinen zweiten Kauf an.';
+    if(m.includes('fixed_checkout_payment_recovery_unknown'))return'Der Vertrag ist bereits geschlossen, aber die vorhandene Zahlungsaufforderung konnte gerade nicht sicher geladen werden. Öffne deine Bestellungen und versuche die Zahlung dort erneut.';
     return m;
   }
   function privateBuyerReview(data){return data?.buyer_type==='consumer'&&['b2c','c2c'].includes(data.contract_classification)}
@@ -56,8 +58,23 @@
       })});
       const result=await response.json().catch(()=>({}));
       if(!response.ok){
+        if(result.contract_formed===true){
+          try{sessionStorage.removeItem(request.key)}catch(_){}retry=null;busy=false;
+          byId('dvBuyMsg').textContent='Der Vertrag ist bereits geschlossen. Die vorhandene Zahlungsaufforderung konnte gerade nicht sicher geladen werden. Öffne BESTELLUNGEN und setze die Zahlung dort fort.';
+          await loadListings();return;
+        }
         if(result.error==='stripe_sandbox_disabled')throw Error('Die Stripe-Zahlungsaufforderung ist in dieser Umgebung noch nicht freigeschaltet. Es wurde kein Vertrag geschlossen.');
         throw Error(result.error||`checkout_${response.status}`);
+      }
+      if(result.status==='contract_formed_payment_processing'){
+        try{sessionStorage.removeItem(request.key)}catch(_){}retry=null;busy=false;
+        byId('dvBuyMsg').textContent='Der Vertrag ist geschlossen. Die Stripe-Zahlung wurde bereits abgeschlossen oder wird noch verarbeitet. Den aktuellen Stand findest du unter BESTELLUNGEN.';
+        await loadListings();return;
+      }
+      if(result.payment_retry_required===true||result.status==='contract_formed_payment_retry_required'){
+        try{sessionStorage.removeItem(request.key)}catch(_){}retry=null;busy=false;
+        byId('dvBuyMsg').textContent='Der Vertrag ist geschlossen, die ursprüngliche Stripe-Zahlungsaufforderung ist aber nicht mehr verwendbar. Öffne BESTELLUNGEN und starte dort die Zahlung erneut.';
+        await loadListings();return;
       }
       const target=new URL(result.checkout_url);
       if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw Error('Ungültige Stripe-Zahlungsaufforderung.');
@@ -77,7 +94,7 @@
     const dialog=document.createElement('dialog');dialog.id='dvBuyDialog';dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Kaufangebot prüfen</h2><button id="dvBuyClose" type="button" class="close" aria-label="Kaufdialog schließen">✕</button></div><div id="dvBuyBody"></div><div id="dvBuyMsg" class="msg" aria-live="polite"></div></div>';document.body.appendChild(dialog);
     byId('dvBuyClose').onclick=()=>{if(!busy)dialog.close()};dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault()});
     document.addEventListener('click',e=>{const button=e.target.closest('[data-offer]');if(!button)return;const listing=listings.find(l=>l.id===button.dataset.offer);if(!fixed(listing))return;e.preventDefault();e.stopImmediatePropagation();open(listing)},true);
-    new MutationObserver(decorate).observe(byId('grid'),{childList:true});decorate();window.DV_TRADE_CHECKOUT={version:'2.1',priceFor};return true;
+    new MutationObserver(decorate).observe(byId('grid'),{childList:true});decorate();window.DV_TRADE_CHECKOUT={version:'2.2',priceFor};return true;
   }
   const timer=setInterval(()=>{if(install())clearInterval(timer)},100);
 })();

@@ -39,7 +39,7 @@
     const url=String(input);
     if(url==='/api/market-stripe-checkout'){
       const args=JSON.parse(String(init.body||'{}'));calls.push({name:'market-stripe-checkout',args});
-      return {ok:false,status:409,json:async()=>({error:'Lokaler simulierter Verbindungsabbruch'})};
+      return {ok:false,status:503,json:async()=>({error:'fixed_checkout_outcome_unknown',retryable:true,contract_formed:false})};
     }
     throw new Error('unexpected_local_fetch_'+url);
   };
