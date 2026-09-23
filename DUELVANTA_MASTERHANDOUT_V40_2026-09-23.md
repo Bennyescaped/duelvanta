@@ -2,7 +2,9 @@
 
 Stand: 23.09.2026. Ausschließlich `Bennyescaped/duelvanta`, Branch `marketplace-ux-v1`.
 
-**Staging-Migration weiterhin erfolgreich; aktuelle Preview bis zur DUELVANTA-Loginseite erreichbar. Angemeldeter Integrationsnachtest weiterhin BLOCKIERT mangels sicherer vorhandener Käufer-Testsession. Keine Migration wiederholt, keine technischen Änderungen. Nach V40 STOP.**
+**Aktualisiert nach Nutzeranmeldung: Staging-Migration erfolgreich, Käufer-Lesewege teilweise PASS. Reproduzierbarer FAIL beim Öffnen archivierter Order; Nachtest gestoppt. Keine Reparatur, Migration oder wirtschaftliche Aktion.**
+
+Der folgende ursprüngliche Stand bis 08:43 UTC bleibt historisch. Der Nachtrag am Ende und der aktualisierte Nachtestbericht haben Vorrang.
 
 ## Verbindlicher Stand
 
@@ -44,3 +46,15 @@ Details und PASS/BLOCKIERT/FAIL-Matrix: `DUELVANTA_LEGAL_SCHRITT6_LIVE_INTEGRATI
 Kein beobachteter Anwendungs-FAIL; mangels Authentisierung keine vollständige Integrationsabnahme und keine technische Abschlussaussage für Schritt 6 im vollständigen Umfang. Eine weitere Fortsetzung benötigt eine sichere vorhandene normale Käufer-Testsession. Fehlende positive Datenzustände dürfen nicht künstlich erzeugt werden. Keine Produktions-, Rechts-, Stripe-Live-, Merge- oder kommerzielle Freigabe.
 
 **Nach V40 STOP.** Keine erneute Migration und keine spontane technische Reparatur. Veröffentlichungshead separat im Abschluss; vor jeder späteren Arbeit Remote frisch prüfen.
+
+## Verbindlicher Nachtrag 09:11 UTC – angemeldet, FAIL, STOP
+
+Fortsetzung auf Remote `8ea7964143e790336d0a736fb893477ee571e3d5`. Nutzer meldete bestehenden Testkäufer sicher an; Judge ohne zusätzliche Marketplace-Rechte laut ausdrücklicher Nutzerbestätigung. Authentisierungsblocker geschlossen. Profil und aktive Orders laden, alter B2C-Vertragsnachweis als Download verfügbar. Keine zweite Checkout-Aktion und keine Widerrufsbuttons in sichtbaren alten Orders. Aktive Preisangebote und Markt leer; positive Preisangebots-, Festpreis- und B2C-Widerrufswege weiterhin ohne geeigneten sichtbaren Testzustand. Exakter Browser-RPC-Trace, private Direktzugriffsprobe und heruntergeladener Dokumentinhalt nicht vollständig abgenommen.
+
+**FAIL:** ARCHIV → ORDER ÖFFNEN bei DV-260917-000010 wechselt in die Bestellansicht, die abgeschlossene Zielorder bleibt unsichtbar. Zweimal reproduziert. Zielnummer existiert im versteckten DOM, nicht im sichtbaren Seitentext. Kein Datenverlust behauptet. Ursache vermutlich Ausblendung abgeschlossener Orders im Zusammenspiel mit open(id), noch nicht abschließend isoliert. STOP ohne Reparatur gemäß Auftrag.
+
+DOM-Skriptreferenzen Guard1.2 / Loader1.4 / Orders1.9 / Checkout2.2; Freigabe internal-preview, kein Owner-Bypass. Kein Mock, kein manuelles Guardsetzen, keine versteckten Tokens gelesen. Browserreferenzen und SQL-Readiness ersetzen keinen vollständigen Netzwerk-/Guardablaufnachweis.
+
+Read-only 09:08:25/09:11:14 UTC identisch: Listings14, Offers2, Deals8, Orders6, Snapshots8, Withdrawal drafts0, Withdrawals0, Payment attempts2. Readiness true mit Revision trade-legal-contract-model-v1.2, Stripe sandbox/live false. E-Mail unverändert manuell bestätigtes unset, keine Probe. Migration History unverändert. Keine wirtschaftlichen Aktionen oder erneute Migration. main/Production unverändert; PR #5 offen/Draft/unmerged.
+
+Aktualisierte Einzelmatrix im Nachtestbericht, Evidenz authenticated-followup.json im zugehörigen Evidenzordner. Keine technische Änderung/CI erforderlich für diesen Dokumentationsnachtrag. Kein vollständiger Schritt-6-Abschluss. Ein separater autorisierter Fixblock muss den Archivfehler isolieren und beheben; keine Reparatur in diesem Nachtest. Nach aktualisiertem V40 STOP.

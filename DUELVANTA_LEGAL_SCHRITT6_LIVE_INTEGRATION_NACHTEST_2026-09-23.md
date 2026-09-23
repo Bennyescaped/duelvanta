@@ -1,6 +1,8 @@
 # DUELVANTA – Schritt 6: Live-Integrationsnachtest
 
-Stand: 23.09.2026, 08:43 UTC. **Live-Basis PASS; Preview-Zugang bis zur DUELVANTA-Loginseite PASS; angemeldete Integration BLOCKIERT mangels sicherer vorhandener Testsession. Kein beobachteter Anwendungs-FAIL, aber keine vollständige Integrationsabnahme.**
+**Aktueller Stand 09:11 UTC: Anmeldung erfolgt, Lesewege teilweise PASS; reproduzierbarer Archiv-Order-FAIL, deshalb STOP. Verbindlicher Nachtrag am Ende.**
+
+Historischer erster Durchlauf: 23.09.2026, 08:43 UTC. Die damalige Klassifikation ist durch den nachstehenden angemeldeten Nachtrag teilweise überholt. **Live-Basis PASS; Preview-Zugang bis zur DUELVANTA-Loginseite PASS; angemeldete Integration BLOCKIERT mangels sicherer vorhandener Testsession. Kein beobachteter Anwendungs-FAIL, aber keine vollständige Integrationsabnahme.**
 
 ## Verbindliche Basis und Git
 
@@ -78,3 +80,39 @@ Evidenz: `evidence/legal-step6-integration-20260923/live-readonly.json` enthält
 main unverändert, Production durch diesen Block unverändert und nicht verbunden, PR #5 offen/Draft/unmerged. Kein Merge, Force-Push, Production-Deploy oder Schemaeingriff. Die Dokumentationsveröffentlichung kann die bestehende automatische Preview-CI auslösen; kein Deployment wurde eigens für den Test angefordert.
 
 **Schritt 6 erhält hier keine vollständige technische Integrationsabschlussaussage.** Die Migration bleibt erfolgreich abgenommen; die wesentlichen angemeldeten Wege sind weiterhin offen. Für deren Fortsetzung wird eine sicher vorhandene normale Staging-Käufer-Testsession benötigt. Fehlende positive Preisangebots-/Widerrufsfixtures bleiben zusätzlich BLOCKIERT. Keine künstlichen Testdaten erzeugen. V40 erstellen, danach STOP. Keine Produktions-, Rechts-, Stripe-Live-, Merge- oder kommerzielle Freigabe.
+
+## Verbindlicher Nachtrag: angemeldeter Test, 09:08–09:11 UTC
+
+**FAIL – Archivierte Order lässt sich über „ORDER ÖFFNEN“ nicht sichtbar öffnen. Nach zweimaliger Reproduktion STOP, keine Reparatur.** Dieser Nachtrag hat Vorrang vor den historischen BLOCKIERT-Aussagen des ersten Durchlaufs.
+
+Ausgangsremote dieser Fortsetzung frisch `8ea7964143e790336d0a736fb893477ee571e3d5`; main weiterhin `50f88213571be13255bb52eb489cc28cca660001`. Vorhandene Preview unverändert `dpl_36h91ZCxYFKV54erdj8wruQmUq78` auf 464408a; zwischenzeitlicher Remote-Commit ausschließlich Dokumentation. Nutzer hat sich über die sichere Anmeldefunktion mit dem bereits vorhandenen Testkäufer angemeldet und bestätigt: Judge, keine zusätzlichen Marketplace-Rechte. Kein Admin-/Owner-Ersatz. Keine Credentials dokumentiert. Sichtbarer DOM-Freigabestatus `internal-preview`, kein `owner-bypass`.
+
+| Teil | Aktueller Status | Frische Evidenz / verbleibende Grenze |
+|---|---|---|
+| Anmeldung | PASS | Angemeldeter bestehender Testkäufer, sichtbarer Accountbereich und Abmelden |
+| Profil | PASS | Gewöhnliche Identitäts-/Adressfelder geladen; keine Business-Buyer-Auswahl oder zweites Käuferprofil; nichts gespeichert |
+| TRADE-Leseansicht | PASS | Marketplace, Bestellungen, Preisangebote und Archiv laden |
+| Guard/Loader-Assets | PASS im Teilumfang | DOM referenziert trade-legal-readiness.js?v=1.2, trade-release-gate.js?v=1.4, trade-orders.js?v=1.9, trade-checkout.js?v=2.2; Runtime-Handler vorhanden, kein Schema-Sperrhinweis |
+| Exakter Browser-RPC-/Guard-Zustand und Reihenfolge | BLOCKIERT | Kein Zugriff auf versteckte JS-Zustände/Tokens, kein Browser-Netzwerkbeleg; SQL-Readiness true ersetzt ihn nicht. Keine Fail-closed-Fehler künstlich injiziert |
+| Aktive Orders | PASS | Drei verschiedene bestehende Ordernummern 000007, 000006, 000004 mit Details sichtbar; keine zweite Checkout-Aktion sichtbar |
+| Bestellbestätigung | PASS im Teilumfang | Bei B2C-Order DV-260913-000006 lädt Dialog einen Vertragsnachweis, checkout-contract-v1, Downloadaktion vorhanden. Dateiinhalt/Download nicht abgenommen |
+| Archivierte Order öffnen | FAIL | DV-260917-000010 zweimal aus Archiv angeklickt; Bestellseite zeigt nur aktive Orders, Zielorder bleibt unsichtbar |
+| Private Browsertabellen-Zugriffsprobe | BLOCKIERT | Vor STOP nicht ausgeführt; historische Katalogprüfung bleibt getrennt |
+| Preisangebote | PASS für leeren aktiven Lesezustand | „Keine aktiven Vorgänge“; keine Darstellung eines geeigneten bestehenden Angebots nachgewiesen, Positivfall BLOCKIERT |
+| Festpreis-Review | BLOCKIERT | Markt zeigt „Noch keine passenden Angebote“; kein Kaufdialog und keine Reservation ausgelöst |
+| C2C / alter B2C | PASS im sichtbaren Umfang | Bei den sichtbaren alten Orders kein Widerrufsbutton; kein aktiver elektronischer Widerruf beim alten B2C-Vertrag |
+| B2C positiv / neuer Preisangebotssnapshot | BLOCKIERT | Geeignete bestehende Zustände fehlen weiterhin |
+| Stripe / Datenvergleich | PASS | Frische Vor-/Nachwerte unverändert, siehe unten |
+
+### Reproduzierbarer FAIL und Abbruch
+
+1. Angemeldet TRADE → ARCHIV: drei abgeschlossene Orders sichtbar, darunter DV-260917-000010.
+2. Bei dieser Order „ORDER ÖFFNEN“ klicken.
+3. Wechsel zur Ansicht „Käufe und Verkäufe“, aber Zielorder nicht sichtbar; kein Dialog geöffnet.
+4. Über ARCHIV denselben vorhandenen Eintrag erneut öffnen: gleiches Ergebnis.
+
+DOM bestätigt `targetVisible=false`, `openDialogs=0`. Die Ordernummer ist zwar in versteckten DOM-Elementen vorhanden, nicht im sichtbaren Seitentext. Deshalb kein Datenverlust behauptet. Read-only Quelleneingrenzung: trade-search-archive.js ruft DV_TRADE_ORDERS.open(id); trade-orders.js wechselt zu orders/renderOrders(id). Vermutung: Zusammenspiel mit Ausblendung abgeschlossener Orders; Ursache noch nicht abschließend isoliert. Keine spontane Code-/Schema-/Datenreparatur. Keine weiteren funktionalen Tests nach der Reproduktion, nur read-only Abschlusszählung und Dokumentation.
+
+Vorher 09:08:25 UTC / nachher 09:11:14 UTC jeweils: Listings14, Offers2, Deals8, Orders6, Contract snapshots8, Withdrawal drafts0, Withdrawals0, Payment attempts2. Readiness beide Male compatible=true / trade-legal-contract-model-v1.2. Migration History unverändert 20260923081953 / trade_legal_contract_model_v1. Stripe false/false. E-Mail weiterhin ausschließlich manuell bestätigtes unset gemäß Nutzerevidenz, keine POST-Probe.
+
+Keine wirtschaftlichen Aktionen, Formularbestätigungen, Profiländerungen, Reservationen, neuen Angebote/Deals, Payments, Refunds, Payouts oder E-Mails. Keine erneute Migration. Evidenz: evidence/legal-step6-integration-20260923/authenticated-followup.json. Nur Dokumentationsnachtrag, keine technische CI als neue Live-Abnahme ausgegeben. main/Production unverändert, PR #5 offen/Draft/unmerged. Schritt 6 nicht vollständig abgeschlossen; separater Fixauftrag für den reproduzierten Archivfehler erforderlich. Danach erneuter gezielter Nachtest. STOP.
