@@ -63,6 +63,20 @@
     raf(()=>resolve());
   });
 
+  const waitForLegalSchema=async()=>{
+    const deadline=Date.now()+20000;
+    while(Date.now()<deadline){
+      const guard=window.DV_TRADE_LEGAL_SCHEMA;
+      if(guard?.guard_version!=='1.2')throw new Error('trade_legal_schema_guard_missing');
+      if(guard.state==='schema-compatible'||guard.state==='schema-unavailable'){
+        trace('guard-settled',{guard_state:guard.state,available:guard.available===true});
+        return guard;
+      }
+      await new Promise(resolve=>setTimeout(resolve,25));
+    }
+    throw new Error('trade_legal_schema_guard_timeout');
+  };
+
   const waitForRuntimeUi=async()=>{
     const deadline=Date.now()+4000;
     while(Date.now()<deadline){
@@ -136,11 +150,13 @@
     const runtime=window.DV_SUPABASE;
     if(!runtime?.url||!runtime?.key||!window.supabase?.createClient)throw new Error('trade_release_runtime_missing');
     const db=window.supabase.createClient(runtime.url,runtime.key,{auth:{persistSession:true,autoRefreshToken:true}});
+    window.__dvAppDb=db;
     const environment=runtime.environment||'development';
     trace('release-start',{environment});
 
     if(environment!=='production'){
       setState('internal-preview',environment);
+      await waitForLegalSchema();
       await loadTradeStack();
       await revealTradeRuntime();
       return;
@@ -156,6 +172,7 @@
     if(role==='owner'){
       setState('owner-bypass',environment,role);
       addOwnerLink();
+      await waitForLegalSchema();
       await loadTradeStack();
       await revealTradeRuntime();
       return;

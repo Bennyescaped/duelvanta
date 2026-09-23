@@ -8,10 +8,10 @@ const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
 const dispatcher=await readFile(new URL('../api/compliance-message-dispatch.js',import.meta.url),'utf8');
 
 assert.match(html,/trade-release-gate\.css\?v=1\.1/);
-assert.match(html,/trade-release-gate\.js\?v=1\.4/);
-assert.match(html,/trade-legal-live-diagnostics\.js\?v=1\.0/);
-assert.ok(html.indexOf('trade-legal-live-diagnostics.js?v=1.0')<html.indexOf('trade-legal-readiness.js?v=1.2'));
-assert.ok(html.indexOf('trade-legal-readiness.js?v=1.2')<html.indexOf('trade-release-gate.js?v=1.4'));
+assert.match(html,/trade-release-gate\.js\?v=1\.5/);
+assert.match(html,/trade-legal-live-diagnostics\.js\?v=1\.1/);
+assert.ok(html.indexOf('trade-legal-live-diagnostics.js?v=1.1')<html.indexOf('trade-legal-readiness.js?v=1.2'));
+assert.ok(html.indexOf('trade-legal-readiness.js?v=1.2')<html.indexOf('trade-release-gate.js?v=1.5'));
 assert.match(html,/id="tradeBootScreen"/);
 assert.match(html,/class="wrap trade-runtime-loading"/);
 assert.doesNotMatch(html,/<script src="trade\.js"><\/script>/);
@@ -52,11 +52,11 @@ async function runGate({environment,role=null,session=true}){
   };
   window.supabase={createClient:()=>db};
   window.DV_SUPABASE={url:'https://example.supabase.co',key:'sb_publishable_test',environment};
-  window.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:'1.2',available:false});
+  window.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:'1.2',available:true,state:'schema-compatible'});
   const context=vm.createContext({window,document,location:{href:'https://example.test/trade.html'},console,queueMicrotask,setTimeout,clearTimeout,Object,Error,Promise,Date});
   vm.runInContext(gate,context,{filename:'trade-release-gate.js'});
   await wait(80);
-  return{window,document,loaded,bootObserved,firstLoadAppendCount};
+  return{window,document,loaded,bootObserved,firstLoadAppendCount,sharedDb:window.__dvAppDb};
 }
 
 const locked=await runGate({environment:'production',role:'player'});
@@ -82,6 +82,7 @@ assert.equal(owner.document.getElementById('app').getAttribute('aria-busy'),'fal
 
 const preview=await runGate({environment:'preview',role:'player'});
 assert.equal(preview.window.DV_TRADE_RELEASE.state,'internal-preview');
+assert.ok(preview.sharedDb?.auth?.getSession,'Release gate must publish the authenticated app client before legal guard settlement');
 assert.ok(preview.loaded.some(src=>src.includes('trade.js')));
 assert.ok(preview.loaded.some(src=>src.includes('trade-pickup-messages.js')));
 assert.equal(preview.bootObserved,true);
