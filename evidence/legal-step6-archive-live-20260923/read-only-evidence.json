@@ -1,0 +1,154 @@
+{
+  "remote": "d47e92941d052070a27dc391bfe565ef82291458",
+  "deployment": {
+    "id": "dpl_Bc9bQaRCFzjw42j3bp6ogp2YJe9D",
+    "name": "duelvanta_v5_vision",
+    "url": "duelvantav5vision-j8865cbrx-bennyescaped-3783.vercel.app",
+    "created": 1790158870721,
+    "state": "READY",
+    "target": null,
+    "creator": {
+      "uid": "P1NoYHFtKgUtcMngsFTONyeT",
+      "username": "bennyescaped-3783"
+    },
+    "meta": {
+      "githubCommitRef": "marketplace-ux-v1",
+      "githubCommitSha": "d47e92941d052070a27dc391bfe565ef82291458",
+      "githubCommitMessage": "docs: record archive order fix and masterhandout V41",
+      "githubRepo": "duelvanta",
+      "githubOrg": "Bennyescaped"
+    },
+    "inspectorUrl": "https://vercel.com/bennyescaped-3783/duelvanta_v5_vision/Bc9bQaRCFzjw42j3bp6ogp2YJe9D",
+    "isRollbackCandidate": false
+  },
+  "runtime": {
+    "environment": "preview",
+    "supabase": "xhmjxrcskfhbovhitdej",
+    "http": 200
+  },
+  "before": {
+    "evidence": {
+      "at": "2026-09-23T10:29:17.092247+00:00",
+      "counts": {
+        "deals": 8,
+        "offers": 2,
+        "orders": 6,
+        "listings": 14,
+        "withdrawals": 0,
+        "payment_attempts": 2,
+        "withdrawal_drafts": 0,
+        "contract_snapshots": 8
+      },
+      "stripe": {
+        "live_mode": false,
+        "sandbox_enabled": false
+      },
+      "history": [
+        {
+          "name": "trade_legal_contract_model_v1",
+          "version": "20260923081953"
+        }
+      ],
+      "postgres": "17.6",
+      "readiness": {
+        "revision": "trade-legal-contract-model-v1.2",
+        "compatible": true
+      }
+    }
+  },
+  "after": {
+    "evidence": {
+      "at": "2026-09-23T10:33:21.913283+00:00",
+      "counts": {
+        "deals": 8,
+        "offers": 2,
+        "orders": 6,
+        "listings": 14,
+        "withdrawals": 0,
+        "payment_attempts": 2,
+        "withdrawal_drafts": 0,
+        "contract_snapshots": 8
+      },
+      "stripe": {
+        "live_mode": false,
+        "sandbox_enabled": false
+      },
+      "history": [
+        {
+          "name": "trade_legal_contract_model_v1",
+          "version": "20260923081953"
+        }
+      ],
+      "postgres": "17.6",
+      "readiness": {
+        "revision": "trade-legal-contract-model-v1.2",
+        "compatible": true
+      }
+    }
+  },
+  "first_open": [
+    {
+      "type": "text",
+      "text": "{\n  cards: [\n    {\n      hidden: false,\n      inViewport: true,\n      marker: '1',\n      number: 'DV-260917-000010',\n      status: 'ABGESCHLOSSEN',\n      visible: true\n    },\n    {\n      hidden: true,\n      inViewport: false,\n      marker: null,\n      number: 'DV-260917-000009',\n      status: 'ABGESCHLOSSEN',\n      visible: false\n    },\n    {\n      hidden: true,\n      inViewport: false,\n      marker: null,\n      number: 'DV-260917-000008',\n      status: 'ABGESCHLOSSEN',\n      visible: false\n    },\n    {\n      hidden: false,\n      inViewport: true,\n      marker: null,\n      number: 'DV-260915-000007',\n      status: 'OFFEN',\n      visible: true\n    },\n    {\n      hidden: false,\n      inViewport: false,\n      marker: null,\n      number: 'DV-260913-000006',\n      status: 'OFFEN',\n      visible: true\n    },\n    {\n      hidden: false,\n      inViewport: false,\n      marker: null,\n      number: 'DV-260913-000004',\n      status: 'STRITTIG',\n      visible: true\n    }\n  ],\n  heading: 'Käufe und Verkäufe.'\n}"
+    }
+  ],
+  "second_open": [
+    {
+      "type": "text",
+      "text": "[\n  {\n    hidden: false,\n    inViewport: true,\n    marker: '1',\n    number: 'DV-260917-000010',\n    visible: true\n  },\n  {\n    hidden: true,\n    inViewport: false,\n    marker: null,\n    number: 'DV-260917-000009',\n    visible: false\n  },\n  {\n    hidden: true,\n    inViewport: false,\n    marker: null,\n    number: 'DV-260917-000008',\n    visible: false\n  },\n  {\n    hidden: false,\n    inViewport: true,\n    marker: null,\n    number: 'DV-260915-000007',\n    visible: true\n  },\n  {\n    hidden: false,\n    inViewport: false,\n    marker: null,\n    number: 'DV-260913-000006',\n    visible: true\n  },\n  {\n    hidden: false,\n    inViewport: false,\n    marker: null,\n    number: 'DV-260913-000004',\n    visible: true\n  }\n]"
+    }
+  ],
+  "normal_view": [
+    {
+      "type": "text",
+      "text": "{\n  assets: [\n    'site-nav.js',\n    'session-guard.js?v=20260908-2',\n    'trade-seller-compliance.js?v=1.0',\n    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',\n    '/api/compliance-message-dispatch?runtime_config=1',\n    'i18n.js',\n    'site-nav.js',\n    'trade-legal-readiness.js?v=1.2',\n    'trade-release-gate.js?v=1.4',\n    'trade.js',\n    'trade-b07-eligibility.js?v=1.1',\n    'offers-fix.js?v=1.0',\n    'seller-trust.js?v=2.0',\n    'trade-v2.js?v=2.1',\n    'trade-b07-reviews.js?v=1.0',\n    'trade-payment-flow.js?v=1.0',\n    'trade-shipping-address.js?v=1.1',\n    'trade-shipping-options.js?v=1.2',\n    'trade-sealed.js?v=1.2.1',\n    'trade-sealed-sale-only.js?v=1.0',\n    'trade-orders.js?v=1.9',\n    'trade-b07-order-lifecycle.js?v=1.0',\n    'trade-b07-pickup-ui-fix-v2.js?v=2.1',\n    'trade-offer-details.js?v=2.1',\n    'trade-checkout.js?v=2.2',\n    'trade-automation.js?v=2.0',\n    'trade-shipping-profiles.js?v=1.1',\n    'trade-order-resolution.js?v=1.1',\n    'trade-marketplace-ux.js?v=1.1',\n    'trade-b07-share.js?v=1.0',\n    'trade-pickup-messages.js?v=1.0',\n    'trade-search-archive.js?v=1.1',\n    'https://vercel.live/_next-live/feedback/feedback.js',\n    'trade-notice-action.js?v=1.0',\n    'trade-seller-moderation.js?v=1.0'\n  ],\n  cards: [\n    {\n      hidden: true,\n      marker: null,\n      number: 'DV-260917-000010',\n      visible: false\n    },\n    {\n      hidden: true,\n      marker: null,\n      number: 'DV-260917-000009',\n      visible: false\n    },\n    {\n      hidden: true,\n      marker: null,\n      number: 'DV-260917-000008',\n      visible: false\n    },\n    {\n      hidden: false,\n      marker: null,\n      number: 'DV-260915-000007',\n      visible: true\n    },\n    {\n      hidden: false,\n      marker: null,\n      number: 'DV-260913-000006',\n      visible: true\n    },\n    {\n      hidden: false,\n      marker: null,\n      number: 'DV-260913-000004',\n      visible: true\n    }\n  ],\n  release: 'internal-preview'\n}"
+    }
+  ],
+  "document": [
+    {
+      "type": "text",
+      "text": "{\n  dialog: 'Unveränderbare Bestellbestätigung\\n' +\n    '✕\\n' +\n    '1 VERTRAGSNACHWEIS\\n' +\n    'Der Stand jedes einzelnen Vertragsschlusses bleibt auch bei späterem Combined Shipping unverändert.\\n' +\n    'Dokumentversion: checkout-contract-v1 · SHA-256-Prüfsumme gespeichert.\\n' +\n    'ALS TEXTDATEI HERUNTERLADEN',\n  visibleWithdrawalButtons: 0\n}"
+    }
+  ],
+  "market": [
+    {
+      "type": "text",
+      "text": "{ buyButtons: 0, noListings: true }"
+    }
+  ],
+  "offers": [
+    {
+      "type": "text",
+      "text": "{ empty: true, heading: 'Deine Preisangebote.', visibleCheckout: 0 }"
+    }
+  ],
+  "private_catalog": {
+    "boundaries": {
+      "tables": [
+        {
+          "table": "market_contract_snapshots",
+          "select": false
+        },
+        {
+          "table": "market_withdrawal_drafts",
+          "select": false
+        },
+        {
+          "table": "market_withdrawals",
+          "select": false
+        },
+        {
+          "table": "marketplace_message_outbox",
+          "select": false
+        }
+      ],
+      "private_schema_usage": false
+    }
+  },
+  "limitations": [
+    "No direct authenticated browser private-table request",
+    "No browser RPC response trace or forced error/timeout checks",
+    "No positive price-offer/fixed-price/eligible-withdrawal fixture",
+    "Contract document dialog tested, downloaded file not tested"
+  ]
+}
