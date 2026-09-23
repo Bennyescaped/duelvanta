@@ -31,7 +31,7 @@ exception when others then
   return jsonb_build_object('revision','trade-legal-contract-model-v1.2','compatible',false);
 end
 $$;
-revoke all on function public.get_market_legal_schema_readiness_v1() from public,anon;
+revoke all on function public.get_market_legal_schema_readiness_v1() from public,anon,authenticated,service_role;
 grant execute on function public.get_market_legal_schema_readiness_v1() to authenticated;
 `;
  if(process.argv.includes('--check')){

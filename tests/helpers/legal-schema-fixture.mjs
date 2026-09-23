@@ -16,6 +16,7 @@ export async function legalSchemaFixture(db){
  }
  for(const c of [...b.constraints.filter(c=>c.type!=='f'),...b.constraints.filter(c=>c.type==='f')])await db.exec(`alter table ${c.table} add constraint ${qi(c.name)} ${c.definition}`);
  for(const i of a.indexes)await db.exec(i.indexdef.replace('CREATE UNIQUE INDEX ','CREATE UNIQUE INDEX IF NOT EXISTS ').replace('CREATE INDEX ','CREATE INDEX IF NOT EXISTS '));
+ await db.exec(await readFile(new URL('../fixtures/legal-readiness/reviewed-baseline-indexes.sql',import.meta.url),'utf8'));
  for(const f of b.functions)await db.exec(f.definition);
  for(const t of b.triggers.filter(t=>!t.definition.includes('battle_spectator_private.')))await db.exec(t.definition);
  for(const t of a.rls){
@@ -36,4 +37,5 @@ export async function legalSchemaFixture(db){
  create policy offers_read_participants on public.market_offers for select to authenticated using (buyer_id=(select auth.uid()) or seller_id=(select auth.uid()));
  create policy offers_delete_buyer on public.market_offers for delete to authenticated using (buyer_id=(select auth.uid()) and status='pending');
  set check_function_bodies=on;`);
+ await db.exec(await readFile(new URL('../fixtures/legal-readiness/reviewed-default-privileges.sql',import.meta.url),'utf8'));
 }
