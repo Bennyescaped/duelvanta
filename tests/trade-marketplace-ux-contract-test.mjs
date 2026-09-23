@@ -47,6 +47,8 @@ must(archive,'Abgeschlossene und beendete Vorgänge werden hier nur aus der akti
 must(archive,'Keine aktiven Vorgänge. Abgeschlossene Einträge findest du im Archiv.','Active/archive empty-state handoff is missing');
 must(archive,"new MutationObserver(queueActiveFilter).observe(grid, {childList: true, subtree: true})",'Active archive filtering must refresh after real browser renders');
 assert.ok(!archive.includes('.delete('),'Archive UI must not delete retained records');
+must(orders,"x.dataset.archiveOpenTarget='1'",'Archived order target must be marked before active-order filtering runs');
+must(archive,"card.dataset.archiveOpenTarget !== '1'",'Active-order filter must keep an explicitly opened archived order visible');
 
 must(listingRules,"type.value === 'trade'",'Trade-only mode is not detected');
 must(listingRules,'stashAndClear(asking)','Single/graded trade-only price is not cleared');

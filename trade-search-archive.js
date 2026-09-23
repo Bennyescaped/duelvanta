@@ -266,7 +266,7 @@
       candidates = [...grid.querySelectorAll('.dvOrderCard')];
       candidates.forEach(card => {
         const status = card.querySelector('.dvOrderStatus');
-        card.hidden = !!status?.classList.contains('completed') || !!status?.classList.contains('cancelled');
+        card.hidden = card.dataset.archiveOpenTarget !== '1' && (!!status?.classList.contains('completed') || !!status?.classList.contains('cancelled'));
       });
     } else if (view === 'swaps') {
       candidates = [...grid.querySelectorAll('.dvSwapCard')];

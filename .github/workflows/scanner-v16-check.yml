@@ -376,6 +376,7 @@ jobs:
           node tests/trade-browser-e2e.mjs
           node tests/trade-legal-readiness-browser-test.mjs
           node tests/trade-legal-order-browser-test.mjs
+          node tests/trade-archive-order-browser-test.mjs
           node tests/trade-legal-withdrawal-browser-test.mjs
           node tests/market-notice-action-browser-test.mjs
       - name: Second mobile acceptance regressions
