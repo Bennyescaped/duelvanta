@@ -47,8 +47,6 @@ must(archive,'Abgeschlossene und beendete Vorgänge werden hier nur aus der akti
 must(archive,'Keine aktiven Vorgänge. Abgeschlossene Einträge findest du im Archiv.','Active/archive empty-state handoff is missing');
 must(archive,"new MutationObserver(queueActiveFilter).observe(grid, {childList: true, subtree: true})",'Active archive filtering must refresh after real browser renders');
 assert.ok(!archive.includes('.delete('),'Archive UI must not delete retained records');
-must(orders,"x.dataset.archiveOpenTarget='1'",'Archived order target must be marked before active-order filtering runs');
-must(archive,"card.dataset.archiveOpenTarget !== '1'",'Active-order filter must keep an explicitly opened archived order visible');
 
 must(listingRules,"type.value === 'trade'",'Trade-only mode is not detected');
 must(listingRules,'stashAndClear(asking)','Single/graded trade-only price is not cleared');
@@ -87,6 +85,8 @@ must(css,'#dvSwapEditor .dvSwapCandidates label{display:grid;grid-template-colum
 must(css,'overflow-wrap:anywhere','Swap candidate text must wrap instead of overflowing the dialog');
 
 const orders=await readFile(new URL('../trade-orders.js',import.meta.url),'utf8');
+must(orders,"x.dataset.archiveOpenTarget='1'",'Archived order target must be marked before active-order filtering runs');
+must(archive,"card.dataset.archiveOpenTarget !== '1'",'Active-order filter must keep an explicitly opened archived order visible');
 must(orders,"version:'1.8'",'Orders module version mismatch');
 must(orders,'DV_TRADE_MARKETPLACE_UX?.sync()','Direct order navigation must synchronize the simplified Marketplace UI');
 must(orders,"db.rpc('get_my_market_order_contract_documents'",'Immutable order confirmation download is missing');
