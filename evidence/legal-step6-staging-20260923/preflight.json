@@ -1,0 +1,138 @@
+{
+  "date": "2026-09-23",
+  "decision": "STOP_BEFORE_MIGRATION",
+  "remote_head": "ffc9d5a6d338f640be712cab0e31f1a9e319e627",
+  "technical_head": "b89cecc22e7eb2eb80716078a29584f383dd653e",
+  "main": "50f88213571be13255bb52eb489cc28cca660001",
+  "staging": "xhmjxrcskfhbovhitdej",
+  "production_negative_boundary": "enifiaqsnqtbzylnfrpi",
+  "migration_blob": "f1714dc1b5fc9ebeab0dbff5c974ac1696dc28ef",
+  "migration_sha256": "a02e01bba93bda7e942850e776410fae1d752edb629b80319d9970859270d25f",
+  "database": {
+    "postgres_version": "17.6",
+    "database": "postgres",
+    "db_role": "postgres",
+    "extensions": [
+      {
+        "name": "pg_cron",
+        "schema": "pg_catalog",
+        "version": "1.6.4"
+      },
+      {
+        "name": "pg_net",
+        "schema": "extensions",
+        "version": "0.20.4"
+      },
+      {
+        "name": "pg_stat_statements",
+        "schema": "extensions",
+        "version": "1.11"
+      },
+      {
+        "name": "pgcrypto",
+        "schema": "extensions",
+        "version": "1.3"
+      },
+      {
+        "name": "plpgsql",
+        "schema": "pg_catalog",
+        "version": "1.0"
+      },
+      {
+        "name": "supabase_vault",
+        "schema": "vault",
+        "version": "0.3.1"
+      },
+      {
+        "name": "uuid-ossp",
+        "schema": "extensions",
+        "version": "1.1"
+      }
+    ],
+    "readiness": null,
+    "old_readiness": null
+  },
+  "data": {
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "contract_snapshots": 8
+    },
+    "offers": [
+      {
+        "count": 2,
+        "status": "accepted",
+        "expired": 0,
+        "reserved": 0,
+        "offer_type": "price"
+      }
+    ],
+    "cleanup": {
+      "signature": "expire_market_offer_reservations_v1()",
+      "service_execute": true
+    },
+    "payment": {
+      "live_mode": false,
+      "sandbox_enabled": false,
+      "seller_invoice_issuance_enabled": false
+    },
+    "over_restore": 0,
+    "orphan_offers": 0,
+    "bad_listing_quantity": 0,
+    "expired_without_deal": 0,
+    "bad_reserved_quantity": 0,
+    "reservation_with_deal": 0
+  },
+  "runtime": {
+    "deployment": "dpl_y9q3HB7ADR4tUeGVkLxWz9JaRQdW",
+    "url": "https://duelvantav5vision-7uvjqqbbh-bennyescaped-3783.vercel.app",
+    "status": 200,
+    "environment": "preview",
+    "supabase_ref": "xhmjxrcskfhbovhitdej",
+    "method": "GET runtime_config=1 via authorized Vercel preview access; no secret values retained"
+  },
+  "email": {
+    "off_verified": false,
+    "probe": "POST rejected by automatic approval review because dispatch could send email; not retried; no result claimed"
+  },
+  "migration": {
+    "attempted": false,
+    "ddl_calls": 0,
+    "dml_calls": 0,
+    "partial_state": false
+  },
+  "ci": {
+    "workflow_runs": [
+      {
+        "id": 35786443880,
+        "name": "Battle WebRTC Check",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 158,
+        "jobs_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/runs/35786443880/jobs",
+        "logs_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/runs/35786443880/logs",
+        "workflow_id": 361160338
+      },
+      {
+        "id": 35786444298,
+        "name": "Scanner V16 Check",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 682,
+        "jobs_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/runs/35786444298/jobs",
+        "logs_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/runs/35786444298/logs",
+        "workflow_id": 354216617
+      }
+    ]
+  },
+  "ci_scope": "Historical technical regression, freshly reverified. Not live migration evidence.",
+  "integration": "BLOCKED; unauthenticated preview landing accessible, no application login or economic action",
+  "pr": {
+    "number": 5,
+    "state": "open",
+    "draft": true,
+    "merged": false
+  }
+}
