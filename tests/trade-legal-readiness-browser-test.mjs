@@ -103,8 +103,8 @@ try{
  await finish(compatible,'Explicit synthetic compatibility does not replace handler authorization');
  const delayed=await setup('delayed');
  await delayed.page.locator('#dvBuyNow').focus();await delayed.page.keyboard.press('Enter');await delayed.page.keyboard.press('Space');
- await delayed.page.locator('#dvBuyNow').dblclick();
- await delayed.page.locator('#saveBuyerPurchaseType').click();
+ await delayed.page.locator('#dvBuyNow').dispatchEvent('dblclick');
+ await delayed.page.locator('#saveBuyerPurchaseType').dispatchEvent('click');
  assert.deepEqual(await delayed.page.evaluate(()=>observed.writes),[]);
  await delayed.page.evaluate(()=>resolveProbe());await delayed.page.waitForFunction(()=>DV_TRADE_LEGAL_SCHEMA.available);
  assert.equal(await delayed.page.locator('#saveBuyerPurchaseType').isDisabled(),false);
