@@ -1,0 +1,1 @@
+PASS: catalog readiness PostgreSQL17 109 checks; full migration rehearsal and corruption fail-closed
