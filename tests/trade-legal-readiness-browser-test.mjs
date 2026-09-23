@@ -64,7 +64,7 @@ async function setup(mode,{width=390,environment='preview',role='player',omitGua
  },{selectors});
  if(!omitGuard)await page.addScriptTag({content:guard});
  await page.addScriptTag({content:loader});
- if(!omitGuard&&environment!=='production')await page.waitForSelector('#app.dv-trade-ready');
+ if(!omitGuard&&environment!=='production'&&!['delayed','late'].includes(mode))await page.waitForSelector('#app.dv-trade-ready');
  return {context,page,errors,unexpected};
 }
 async function finish(t,name){
@@ -107,11 +107,13 @@ try{
  await delayed.page.locator('#saveBuyerPurchaseType').dispatchEvent('click');
  assert.deepEqual(await delayed.page.evaluate(()=>observed.writes),[]);
  await delayed.page.evaluate(()=>resolveProbe());await delayed.page.waitForFunction(()=>DV_TRADE_LEGAL_SCHEMA.available);
+ await delayed.page.waitForSelector('#app.dv-trade-ready');
  assert.equal(await delayed.page.locator('#saveBuyerPurchaseType').isDisabled(),false);
  assert.equal(await delayed.page.locator('#buyerPurchaseType').isDisabled(),false);
  assert.equal(await delayed.page.locator('#buyerPurchaseTypeMsg').textContent(),'');
  await finish(delayed,'Early click remains blocked without permanently disabling compatible profile');
  const late=await setup('late');await late.page.waitForFunction(()=>DV_TRADE_LEGAL_SCHEMA.state==='schema-unavailable',{},{timeout:7000});
+ await late.page.waitForSelector('#app.dv-trade-ready');
  await late.page.evaluate(()=>resolveProbe());await late.page.waitForTimeout(100);
  assert.equal(await late.page.evaluate(()=>DV_TRADE_LEGAL_SCHEMA.available),false);
  await finish(late,'Real five-second timeout; late success cannot unlock');
