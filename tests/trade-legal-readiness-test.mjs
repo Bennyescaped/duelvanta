@@ -48,7 +48,11 @@ assert.doesNotMatch(loadedGuard,/createClient\(|\.supabase\.co|stripe\.com|\.fro
 const loader=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
 const diagnostics=await readFile(new URL('../trade-legal-live-diagnostics.js',import.meta.url),'utf8');
 for(const forbidden of ['.insert(','.update(','.delete(','.upsert(','signInWith','signUp(','resetPassword'])assert.ok(!diagnostics.includes(forbidden),'live diagnostics must stay read-only: '+forbidden);
-assert.match(diagnostics,/select\('id',\{head:true\}\)/);assertions++;
+assert.match(diagnostics,/method:'GET'/);assertions++;
+assert.match(diagnostics,/'accept-profile':'dv_market_private'/);assertions++;
+assert.match(diagnostics,/DENIED_CODES=new Set\(\['42501','PGRST106','PGRST205'\]\)/);assertions++;
+assert.match(loader,/waitForLegalSchema/);assertions++;
+assert.ok(loader.indexOf('await waitForLegalSchema()')<loader.indexOf('await loadTradeStack()'));assertions++;
 assert.match(loadedGuard,/probe-start/);assert.match(loadedGuard,/probe-result/);assertions+=2;
 assert.match(loader,/loader-start/);assert.match(loader,/runtime-ready/);assertions+=2;
 assert.match(loader,/guard_version!=='1\.2'/);assertions++;
