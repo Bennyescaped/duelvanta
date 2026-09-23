@@ -1,6 +1,22 @@
 (()=>{
   'use strict';
 
+  const diagnosticsEnabled=()=>{
+    try{
+      return window.DV_SUPABASE?.environment==='preview' &&
+        new URLSearchParams(window.location?.search||'').get('dv_legal_diag')==='1';
+    }catch{return false}
+  };
+  const trace=(phase,detail={})=>{
+    if(!diagnosticsEnabled())return;
+    try{
+      const list=window.__DV_TRADE_LEGAL_TRACE||(window.__DV_TRADE_LEGAL_TRACE=[]);
+      const entry=Object.freeze({seq:list.length+1,source:'loader',phase,...detail});
+      list.push(entry);
+      window.dispatchEvent?.(new CustomEvent('dv:trade-legal-trace',{detail:entry}));
+    }catch{}
+  };
+
   const TRADE_SCRIPTS=[
     'trade.js',
     'trade-b07-eligibility.js?v=1.1',
@@ -30,6 +46,7 @@
   const setState=(state,environment,role=null)=>{
     window.DV_TRADE_RELEASE=Object.freeze({state,environment,role});
     document.documentElement.dataset.dvTradeRelease=state;
+    trace('release-state',{state,environment});
   };
 
   const setBootLoading=active=>{
@@ -62,6 +79,7 @@
     await nextFrame();
     await nextFrame();
     setBootLoading(false);
+    trace('runtime-ready',{release_state:window.DV_TRADE_RELEASE?.state||null});
   };
 
   const addOwnerLink=()=>{
@@ -76,6 +94,7 @@
 
   const loadTradeStack=async()=>{
     if(window.DV_TRADE_LEGAL_SCHEMA?.guard_version!=='1.2')throw new Error('trade_legal_schema_guard_missing');
+    trace('loader-start',{guard_state:window.DV_TRADE_LEGAL_SCHEMA?.state||'missing'});
     const pending=TRADE_SCRIPTS.map(src=>new Promise((resolve,reject)=>{
       const script=document.createElement('script');
       script.src=src;
@@ -86,6 +105,7 @@
       document.body.appendChild(script);
     }));
     await Promise.all(pending);
+    trace('loader-loaded',{script_count:TRADE_SCRIPTS.length});
   };
 
   const showLocked=async(db,session,environment)=>{
@@ -117,6 +137,7 @@
     if(!runtime?.url||!runtime?.key||!window.supabase?.createClient)throw new Error('trade_release_runtime_missing');
     const db=window.supabase.createClient(runtime.url,runtime.key,{auth:{persistSession:true,autoRefreshToken:true}});
     const environment=runtime.environment||'development';
+    trace('release-start',{environment});
 
     if(environment!=='production'){
       setState('internal-preview',environment);

@@ -46,6 +46,11 @@ equal(await guard.probe(sandbox.window.supabase.createClient()),true,'full UI fi
 const loadedGuard=await readFile(new URL('../trade-legal-readiness.js',import.meta.url),'utf8');
 assert.doesNotMatch(loadedGuard,/createClient\(|\.supabase\.co|stripe\.com|\.from\(/);assertions++;
 const loader=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
+const diagnostics=await readFile(new URL('../trade-legal-live-diagnostics.js',import.meta.url),'utf8');
+for(const forbidden of ['.insert(','.update(','.delete(','.upsert(','signInWith','signUp(','resetPassword'])assert.ok(!diagnostics.includes(forbidden),'live diagnostics must stay read-only: '+forbidden);
+assert.match(diagnostics,/select\('id',\{head:true\}\)/);assertions++;
+assert.match(loadedGuard,/probe-start/);assert.match(loadedGuard,/probe-result/);assertions+=2;
+assert.match(loader,/loader-start/);assert.match(loader,/runtime-ready/);assertions+=2;
 assert.match(loader,/guard_version!=='1\.2'/);assertions++;
 for(const asset of ['trade-orders.js?v=1.9','trade-offer-details.js?v=2.1','trade-checkout.js?v=2.2']){
  assert.ok(loader.includes("'"+asset+"'"));assertions++;

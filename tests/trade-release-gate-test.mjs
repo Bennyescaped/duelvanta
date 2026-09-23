@@ -9,6 +9,9 @@ const dispatcher=await readFile(new URL('../api/compliance-message-dispatch.js',
 
 assert.match(html,/trade-release-gate\.css\?v=1\.1/);
 assert.match(html,/trade-release-gate\.js\?v=1\.4/);
+assert.match(html,/trade-legal-live-diagnostics\.js\?v=1\.0/);
+assert.ok(html.indexOf('trade-legal-live-diagnostics.js?v=1.0')<html.indexOf('trade-legal-readiness.js?v=1.2'));
+assert.ok(html.indexOf('trade-legal-readiness.js?v=1.2')<html.indexOf('trade-release-gate.js?v=1.4'));
 assert.match(html,/id="tradeBootScreen"/);
 assert.match(html,/class="wrap trade-runtime-loading"/);
 assert.doesNotMatch(html,/<script src="trade\.js"><\/script>/);

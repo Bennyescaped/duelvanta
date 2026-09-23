@@ -11,6 +11,21 @@
   const SCHEMA_VERSION='trade-legal-contract-model-v1.2';
   const ACTIONS='#dvBuyNow,#sendOffer,[data-accept-offer],[data-checkout-offer],[data-o-stripe],[data-o-withdraw],#oWithdrawalPrepare,#oWithdrawalConfirm,#saveBuyerPurchaseType';
   const COPY='LEGAL-ENTWURF · Neue Vertragsaktionen sind in dieser Vorschau gesperrt. Das Datenbankschema fehlt oder seine Kompatibilität ist nicht bestätigt. Bestehende Bestellungen bleiben einsehbar.';
+  function diagnosticsEnabled(root){
+    try{
+      return root?.DV_SUPABASE?.environment==='preview' &&
+        new root.URLSearchParams(root.location?.search||'').get('dv_legal_diag')==='1';
+    }catch{return false}
+  }
+  function trace(root,phase,detail={}){
+    if(!diagnosticsEnabled(root))return;
+    try{
+      const list=root.__DV_TRADE_LEGAL_TRACE||(root.__DV_TRADE_LEGAL_TRACE=[]);
+      const entry=Object.freeze({seq:list.length+1,source:'guard',phase,...detail});
+      list.push(entry);
+      if(typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('dv:trade-legal-trace',{detail:entry}));
+    }catch{}
+  }
   function supportsCandidate(response){
     const data=response?.data;
     // Compatibility is computed from real catalogs by a STABLE, read-only RPC.
@@ -31,10 +46,12 @@
   function install(root){
     if(root.DV_TRADE_LEGAL_SCHEMA)return;
     const doc=root.document,outputs=new Set();
+    trace(root,'installed',{guard_version:VERSION,schema_revision:SCHEMA_VERSION});
     let available=false,settled=false,attempts=0,poll=null,observer=null;
     const state=()=>{
       root.DV_TRADE_LEGAL_SCHEMA=Object.freeze({guard_version:VERSION,available,
         state:settled?(available?'schema-compatible':'schema-unavailable'):'checking'});
+      trace(root,'state',{state:root.DV_TRADE_LEGAL_SCHEMA.state,available});
       if(settled&&typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('dv:trade-legal-schema',{detail:root.DV_TRADE_LEGAL_SCHEMA}));
     };
     function lockControls(){
@@ -91,7 +108,10 @@
         if(++attempts>=150){finish(false);return}
         poll=root.setTimeout(check,100);return;
       }
-      finish(await probe(current,{schedule:root.setTimeout.bind(root),cancel:root.clearTimeout.bind(root)}));
+      trace(root,'probe-start',{rpc:'get_market_legal_schema_readiness_v1',method:'GET'});
+      const ok=await probe(current,{schedule:root.setTimeout.bind(root),cancel:root.clearTimeout.bind(root)});
+      trace(root,'probe-result',{compatible:ok,revision:ok?SCHEMA_VERSION:null});
+      finish(ok);
     }
     state();
     doc.addEventListener('click',block,true);

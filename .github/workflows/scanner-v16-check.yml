@@ -322,6 +322,7 @@ jobs:
           node --check trade-marketplace-ux.js
           node --check trade-checkout.js
           node --check trade-legal-readiness.js
+          node --check trade-legal-live-diagnostics.js
           node --check trade-offer-details.js
           node --check trade-offer-checkout.js
           node --check trade-orders.js
@@ -375,6 +376,7 @@ jobs:
           node tests/trade-dom-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/trade-browser-e2e.mjs
           node tests/trade-legal-readiness-browser-test.mjs
+          node tests/trade-legal-live-diagnostics-browser-test.mjs
           node tests/trade-legal-order-browser-test.mjs
           node tests/trade-archive-order-browser-test.mjs
           node tests/trade-legal-withdrawal-browser-test.mjs
