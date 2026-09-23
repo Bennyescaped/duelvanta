@@ -1,0 +1,1332 @@
+[
+  [
+    "boundary",
+    "private",
+    "21aae20a7972c1783f34560b9c804995"
+  ],
+  [
+    "function",
+    "dv_market_private.account_deletion_blockers(p_uid uuid)",
+    "bf5b8b7d20ba0c3a606e79ae0c4a23b6"
+  ],
+  [
+    "function",
+    "dv_market_private.audit_market_seller_account()",
+    "937e6aee7152cf9cc03eeea3316206dd"
+  ],
+  [
+    "function",
+    "dv_market_private.b07_add_workdays_de(p_start timestamp with time zone, p_days integer)",
+    "fdef63f64f1173388dfa0c2b118cd616"
+  ],
+  [
+    "function",
+    "dv_market_private.b07_complete_order(p_order_id uuid, p_reason text, p_completed_at timestamp with time zone)",
+    "4a806ff63b9214e28d01fcd403f71c59"
+  ],
+  [
+    "function",
+    "dv_market_private.b07_release1_shipping_windows()",
+    "dd58f4c86ba8741bf548da21b46185a0"
+  ],
+  [
+    "function",
+    "dv_market_private.b07_set_shipping_due()",
+    "7c402c77213c29c8778dfef8031bc17c"
+  ],
+  [
+    "function",
+    "dv_market_private.b07_tracking_complete_order(p_order_id uuid, p_reason text, p_completed_at timestamp with time zone)",
+    "fb9bef018506be5dc63c5f4efad119ea"
+  ],
+  [
+    "function",
+    "dv_market_private.block_data_rights_audit_mutation()",
+    "243fb627bb90095cf18d3f916eddbdba"
+  ],
+  [
+    "function",
+    "dv_market_private.block_market_contract_snapshot_mutation()",
+    "e190cd3d1e3e72065421adaa2900a5d8"
+  ],
+  [
+    "function",
+    "dv_market_private.block_market_payment_evidence_mutation()",
+    "116a0e842d30cf17539c4936fe9e5529"
+  ],
+  [
+    "function",
+    "dv_market_private.block_market_swap_evidence_mutation()",
+    "60691325ae44409ec6efc46af99451bb"
+  ],
+  [
+    "function",
+    "dv_market_private.block_market_tax_evidence_mutation()",
+    "ad83921efc81e32cc9ec2a5ab54f88fe"
+  ],
+  [
+    "function",
+    "dv_market_private.block_market_withdrawal_mutation()",
+    "0e41955fd7c672077b0b7ac581920b92"
+  ],
+  [
+    "function",
+    "dv_market_private.block_money_offer_for_trade_only_listing()",
+    "0794af897645f730a403236b5a5573d1"
+  ],
+  [
+    "function",
+    "dv_market_private.block_notice_event_mutation()",
+    "d41a357f618d70a3fac2d854ffe2c2ce"
+  ],
+  [
+    "function",
+    "dv_market_private.block_restricted_account_mutation()",
+    "c8000f257ad3f154afd4bf913f863c0c"
+  ],
+  [
+    "function",
+    "dv_market_private.capture_market_contract_snapshot()",
+    "2fe1ac10b20b913a22f5c05ba400310b"
+  ],
+  [
+    "function",
+    "dv_market_private.capture_market_tax_contract_event()",
+    "f2c30f247e919cdcdc91772b5b5a8a28"
+  ],
+  [
+    "function",
+    "dv_market_private.create_market_swap_revision(p_thread_id uuid, p_proposed_by uuid, p_party_a_listing_ids uuid[], p_party_b_listing_ids uuid[])",
+    "0ce5078c1c36cb3a84a7838f766d7fdb"
+  ],
+  [
+    "function",
+    "dv_market_private.enforce_sale_only_deal()",
+    "701b96fc1bf09a22051c94a9456411c6"
+  ],
+  [
+    "function",
+    "dv_market_private.enforce_sale_only_listing()",
+    "6c6b3ea24a9ab2a7fc08ed3efb77fb03"
+  ],
+  [
+    "function",
+    "dv_market_private.enforce_sale_only_offer()",
+    "a2f9383cd90996a2bf866e44e2efa996"
+  ],
+  [
+    "function",
+    "dv_market_private.guard_listing_during_offer_reservation_b07()",
+    "931f0e42931193954c14071a0f1c22bc"
+  ],
+  [
+    "function",
+    "dv_market_private.guard_market_listing_seller_status()",
+    "d036793b06b370969fa92805570adcac"
+  ],
+  [
+    "function",
+    "dv_market_private.guard_reserved_offer_deal_insert_b07()",
+    "718b6462e018d5d5ce6e19470b61b6eb"
+  ],
+  [
+    "function",
+    "dv_market_private.is_market_owner_caller()",
+    "5b2b2bdc91db2d6ce63e47f371c638a2"
+  ],
+  [
+    "function",
+    "dv_market_private.json_rows(p_sql text)",
+    "775e353ea9924bdd8a434c5cf41928ea"
+  ],
+  [
+    "function",
+    "dv_market_private.keep_moderated_listing_paused()",
+    "0f7a1b74773b7ed9783382bc197a8562"
+  ],
+  [
+    "function",
+    "dv_market_private.market_checkout_product_snapshot(p_listing market_listings)",
+    "456dc5f2d85c13328fa59e0a51bf8189"
+  ],
+  [
+    "function",
+    "dv_market_private.market_checkout_seller_party(p_seller_id uuid)",
+    "0d57626ea83aa4b6cf3b98b1a264a52c"
+  ],
+  [
+    "function",
+    "dv_market_private.market_contract_classification(p_seller_type text, p_buyer_type text)",
+    "fea7a7a476325e9f1157b79eec1570e9"
+  ],
+  [
+    "function",
+    "dv_market_private.market_tax_csv_field(p_value text)",
+    "f60c25acb170286f5e43a51390464048"
+  ],
+  [
+    "function",
+    "dv_market_private.market_tax_export_dataset(p_reporting_year integer, p_reporting_quarter integer)",
+    "472811e8cc561361c2eb2b6a87cbd3e4"
+  ],
+  [
+    "function",
+    "dv_market_private.notice_owner_caller()",
+    "5b2b2bdc91db2d6ce63e47f371c638a2"
+  ],
+  [
+    "function",
+    "dv_market_private.pause_listings_after_seller_restriction()",
+    "ef6a74bf75af13b657ba3c816dead509"
+  ],
+  [
+    "function",
+    "dv_market_private.pickup_messages_for_export(p_uid uuid)",
+    "cce1dccea7b4652bd4ade7d09fb80a44"
+  ],
+  [
+    "function",
+    "dv_market_private.protect_market_reservation_delete()",
+    "337ec70c6d44c4d5ecd5910e8c9f9433"
+  ],
+  [
+    "function",
+    "dv_market_private.reject_retired_swap_write()",
+    "26813e15be005f3ce82bea04877f0f39"
+  ],
+  [
+    "function",
+    "dv_market_private.require_market_buyer_type(p_buyer_id uuid)",
+    "634b93cf74ebc51dbab5ee2d7c3e4db6"
+  ],
+  [
+    "function",
+    "dv_market_private.require_pickup_message_context(p_context_type text, p_context_id uuid, p_user_id uuid, p_for_write boolean)",
+    "f6fae72a4b54a7495ce7860f26879a5f"
+  ],
+  [
+    "function",
+    "dv_market_private.require_private_c2c_user(p_user_id uuid)",
+    "227582cd320c248af2a3e75d122fd27c"
+  ],
+  [
+    "function",
+    "dv_market_private.require_trade_eligibility(p_user_id uuid, p_require_private_buyer boolean)",
+    "1cb660de9e1b59648648a9cd17b90d94"
+  ],
+  [
+    "function",
+    "dv_market_private.user_has_pickup_messages(p_uid uuid)",
+    "45edfc72dd0bbac38759fc143ba165dc"
+  ],
+  [
+    "function",
+    "public.accept_fixed_price_market_offer_v1(p_offer_id uuid, p_attempt_id uuid, p_session_id text, p_payment_requested_at timestamp with time zone, p_live_mode boolean)",
+    "351bb926776c6dba25f60cc31b0820eb"
+  ],
+  [
+    "function",
+    "public.add_my_market_listing_image(p_listing_id uuid, p_storage_path text, p_sort_order integer)",
+    "369a732bc7ca43c80cc51d2869bf61f8"
+  ],
+  [
+    "function",
+    "public.advance_market_order_lifecycle_b07()",
+    "a2bd8886ddaf3bb73e6c4b4618c6bda3"
+  ],
+  [
+    "function",
+    "public.apply_market_stripe_event(p_event_id text, p_event_type text, p_account_id text, p_live_mode boolean, p_object_id text, p_payload_sha256 text, p_provider_created_at timestamp with time zone, p_data jsonb)",
+    "7e00099d70da25a635e1c6ba2c5cd4d3"
+  ],
+  [
+    "function",
+    "public.attach_market_deal_to_order()",
+    "48ed678ad6e5e205e7d0346ba9c75fae"
+  ],
+  [
+    "function",
+    "public.begin_market_deal(p_deal_id uuid)",
+    "89ff0d0f0a2bcf06768427a0a84b1ff7"
+  ],
+  [
+    "function",
+    "public.bind_market_stripe_checkout_session(p_attempt_id uuid, p_session_id text)",
+    "75ba4565e56210ccc2a9f7e0d71d97ae"
+  ],
+  [
+    "function",
+    "public.buy_market_listing_v1(p_listing_id uuid, p_quantity integer)",
+    "f3117595ac32275a9984439b553c946a"
+  ],
+  [
+    "function",
+    "public.buy_market_listing_v2(p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone)",
+    "3a9a50cb4cdfc475d18c2a2b39f73a02"
+  ],
+  [
+    "function",
+    "public.buy_market_listing_v3(p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone, p_checkout_hash text)",
+    "02c1cfb32c5b4af51146d72f6ead1fd9"
+  ],
+  [
+    "function",
+    "public.cancel_market_deal(p_deal_id uuid, p_reason text)",
+    "09a7e70f250b28d2fac5560b9f8a2a46"
+  ],
+  [
+    "function",
+    "public.checkout_accepted_market_offer_v1(p_offer_id uuid, p_request_id uuid, p_checkout_hash text)",
+    "bcaf4691b67a22b41205e37abca753e0"
+  ],
+  [
+    "function",
+    "public.claim_account_deletion_requests(p_limit integer, p_lock_token uuid)",
+    "73cc48dc077ddfa6a438bcb59e8737e1"
+  ],
+  [
+    "function",
+    "public.claim_marketplace_message_delivery(p_limit integer, p_lock_token uuid)",
+    "ca893b2f94063897aaf984611a84aedc"
+  ],
+  [
+    "function",
+    "public.close_market_swap_thread_v1(p_thread_id uuid, p_action text)",
+    "1f6e58f42b120293ccdfe3ae31e52653"
+  ],
+  [
+    "function",
+    "public.complete_market_deal(p_listing_id uuid)",
+    "38426336b99ef13975b05353192fb34f"
+  ],
+  [
+    "function",
+    "public.confirm_market_deal_complete(p_deal_id uuid)",
+    "c7e865083e1752c27c4c0fcfc647c6c3"
+  ],
+  [
+    "function",
+    "public.confirm_market_deal_received(p_deal_id uuid)",
+    "4f02c94d41bcb012d2525f9e51a201bd"
+  ],
+  [
+    "function",
+    "public.confirm_market_order_complete(p_order_id uuid)",
+    "0b787bfa6d6ba97aca9c5e162ee9621f"
+  ],
+  [
+    "function",
+    "public.confirm_market_order_received(p_order_id uuid)",
+    "1271493ac36b79df27a508f5e3738f8d"
+  ],
+  [
+    "function",
+    "public.confirm_market_order_shipping(p_order_id uuid, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "65c24bd81ba54792c083c3fd25213d38"
+  ],
+  [
+    "function",
+    "public.confirm_market_pickup_handover_b07(p_order_id uuid, p_code text)",
+    "4185c1440f7e72a35992bf95763b012d"
+  ],
+  [
+    "function",
+    "public.confirm_market_swap_pickup_v1(p_thread_id uuid, p_code text)",
+    "b3437ded177cb22cf109da8068ceb021"
+  ],
+  [
+    "function",
+    "public.confirm_market_swap_received_v1(p_thread_id uuid, p_sender_id uuid)",
+    "099b1c4b4a6ab0bde8cb5aa46447daa5"
+  ],
+  [
+    "function",
+    "public.confirm_market_swap_revision_v1(p_thread_id uuid, p_revision_id uuid)",
+    "5b975fda973934900ac91201ae5e3985"
+  ],
+  [
+    "function",
+    "public.confirm_market_withdrawal_v1(p_draft_id uuid)",
+    "98c09e3925705a66271985524b82b315"
+  ],
+  [
+    "function",
+    "public.confirm_my_market_trade_eligibility(p_date_of_birth date, p_residence_country_code text, p_confirm_private_buyer boolean)",
+    "b45746f05d7b5c637edf6436ad9b166e"
+  ],
+  [
+    "function",
+    "public.correct_market_tax_remuneration(p_original_event_id uuid, p_event_key text, p_occurred_at timestamp with time zone, p_gross_reversal numeric, p_platform_fee_reversal numeric, p_commission_reversal numeric, p_withheld_tax_reversal numeric, p_void_activity boolean, p_source_reference text, p_evidence jsonb)",
+    "ff628695bc462d36e43257d8933802b1"
+  ],
+  [
+    "function",
+    "public.create_market_offer_v2(p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text)",
+    "64e49b43b3a80267fa86d15153c8e2d7"
+  ],
+  [
+    "function",
+    "public.create_market_offer_v3(p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text, p_expected_updated_at timestamp with time zone, p_offer_review_hash text)",
+    "90b091ba116f531d16e77b09032f2e81"
+  ],
+  [
+    "function",
+    "public.create_market_pickup_handover_code_b07(p_order_id uuid)",
+    "cdab90a54d7d8f05c13cb3e7c469c55f"
+  ],
+  [
+    "function",
+    "public.create_market_swap_pickup_code_v1(p_thread_id uuid)",
+    "a5ed80c399ab13939768b21b7f48ebbf"
+  ],
+  [
+    "function",
+    "public.create_market_swap_proposal_v1(p_target_listing_id uuid, p_offered_listing_ids uuid[])",
+    "bd0f4aa47a898061116e751fd2ef96b2"
+  ],
+  [
+    "function",
+    "public.create_market_swap_proposal_v2(p_target_listing_id uuid, p_offered_listing_ids uuid[], p_fulfillment_mode text)",
+    "d426f6274ab6d715ed7b3020d99ace06"
+  ],
+  [
+    "function",
+    "public.create_sealed_market_listing_draft(p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_bundle_quantity integer, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "1964dcf1c075ff8ab1980b1ab12c531c"
+  ],
+  [
+    "function",
+    "public.create_sealed_market_listing_draft_v2(p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "15d85a5ecc66100a0741bd6cadd84d7a"
+  ],
+  [
+    "function",
+    "public.create_sealed_market_listing_draft_v3(p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "544b855f3c0f313780b1439e9772f273"
+  ],
+  [
+    "function",
+    "public.decide_marketplace_listing_notice(p_notice_id uuid, p_action text, p_basis_kind text, p_reference text, p_reason text, p_scope text, p_duration text, p_automated_means_used boolean)",
+    "b329706097ba4ca0ef1aef5fef10a75e"
+  ],
+  [
+    "function",
+    "public.delete_my_market_shipping_profile(p_profile_id uuid)",
+    "3d99b99e4db9013101510e659dc70456"
+  ],
+  [
+    "function",
+    "public.delete_my_sealed_market_listing_draft(p_listing_id uuid)",
+    "27fa8dff75ba6ef54aa663796d8666d0"
+  ],
+  [
+    "function",
+    "public.edit_my_market_listing(p_listing_id uuid, p_listing_type text, p_asking_price numeric, p_seller_note text)",
+    "94a8c61fb09981f1a2c90d9794e64fec"
+  ],
+  [
+    "function",
+    "public.edit_my_market_listing_v2(p_listing_id uuid, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "394ab7a43bc0212d4bed9a812eff7955"
+  ],
+  [
+    "function",
+    "public.edit_my_market_listing_v3(p_listing_id uuid, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "33bd09e0262e36d004a19c1c3f0b94ce"
+  ],
+  [
+    "function",
+    "public.edit_my_sealed_market_listing(p_listing_id uuid, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_bundle_quantity integer, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "4be74e38931b55f805dc8869ab58288f"
+  ],
+  [
+    "function",
+    "public.edit_my_sealed_market_listing_v2(p_listing_id uuid, p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "409b4479a1e6a73e68e7f0cdd0ce4283"
+  ],
+  [
+    "function",
+    "public.edit_my_sealed_market_listing_v3(p_listing_id uuid, p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text)",
+    "9769b2988fa8c40d97e8e758f75b2919"
+  ],
+  [
+    "function",
+    "public.emit_market_offer_notification()",
+    "40a75b0e9d7fe08e116c5a321f18d520"
+  ],
+  [
+    "function",
+    "public.emit_market_order_status_notification()",
+    "6f79b1e9c21b81588ac53d7bebcda5b0"
+  ],
+  [
+    "function",
+    "public.emit_market_purchase_notification()",
+    "8f832c36d5b658e83ed3311c55aaa8f4"
+  ],
+  [
+    "function",
+    "public.expire_market_listings()",
+    "128bc2d3bfc9ae63cc77658fa28ecae8"
+  ],
+  [
+    "function",
+    "public.expire_market_offer_reservations_v1()",
+    "6e9b3bb116fdb354d26fc8b7f5c892e0"
+  ],
+  [
+    "function",
+    "public.export_my_duelvanta_data()",
+    "b773288566c4a89399af5fb38660dbdb"
+  ],
+  [
+    "function",
+    "public.finalize_market_order_cancellation(p_order_id uuid, p_cancelled_by uuid, p_reason text)",
+    "477f1fd7401603275a4fda7576480043"
+  ],
+  [
+    "function",
+    "public.finish_account_deletion_request(p_request_id uuid, p_lock_token uuid, p_success boolean, p_error text)",
+    "3aeba31c0886ca7c5bc8be72c247ec99"
+  ],
+  [
+    "function",
+    "public.finish_marketplace_message_delivery(p_message_id uuid, p_lock_token uuid, p_success boolean, p_provider_message_id text, p_error text)",
+    "3ffa58069e9abecb44e4cf00463a782e"
+  ],
+  [
+    "function",
+    "public.finish_my_market_listing(p_listing_id uuid, p_reason text)",
+    "d701790c011b76da6f71977603911327"
+  ],
+  [
+    "function",
+    "public.generate_market_tax_export(p_reporting_year integer, p_reporting_quarter integer, p_format text)",
+    "125108edd7d500b011e70e6bbdabe658"
+  ],
+  [
+    "function",
+    "public.get_market_deal_shipping_address(p_deal_id uuid)",
+    "28f8cd65ed11db28240ebb38e30c181a"
+  ],
+  [
+    "function",
+    "public.get_market_listing_image_manifest(p_listing_ids uuid[])",
+    "55cfc113a14601fd582d895c36f88808"
+  ],
+  [
+    "function",
+    "public.get_market_listing_images(p_listing_id uuid)",
+    "9c64b61c5bb6f32b26c6b48772896fd5"
+  ],
+  [
+    "function",
+    "public.get_market_order_items(p_order_id uuid)",
+    "a19331e7c080bcd302f7e067b20cb3fb"
+  ],
+  [
+    "function",
+    "public.get_market_order_shipping_address(p_order_id uuid)",
+    "11136af8a1102ebe72d368cf2c8097a6"
+  ],
+  [
+    "function",
+    "public.get_market_payment_sandbox_status()",
+    "82ee4441ca472a8975861a4567b65b99"
+  ],
+  [
+    "function",
+    "public.get_market_pickup_conversation_v1(p_context_type text, p_context_id uuid)",
+    "dfbfb6478b50880eb63692de5e969bfd"
+  ],
+  [
+    "function",
+    "public.get_market_seller_disclosure(p_seller_id uuid)",
+    "11f92abdba0ef7519299a065800f49ca"
+  ],
+  [
+    "function",
+    "public.get_market_seller_disclosures(p_seller_ids uuid[])",
+    "707c652165d732a1302067295fe8901c"
+  ],
+  [
+    "function",
+    "public.get_market_seller_profile(p_seller_id uuid)",
+    "59e0ad3c339b8b08845efef4989ea1d9"
+  ],
+  [
+    "function",
+    "public.get_market_tax_export(p_export_id uuid)",
+    "91b2fa1f1949efc4f5fd9601e279f3f4"
+  ],
+  [
+    "function",
+    "public.get_marketplace_notice_status(p_case_reference text, p_access_code text)",
+    "544e857192c8e6db8b211df25f7d4227"
+  ],
+  [
+    "function",
+    "public.get_my_market_deals()",
+    "ec5912a5998b1b2505a845fb0ebd3247"
+  ],
+  [
+    "function",
+    "public.get_my_market_notifications(p_limit integer)",
+    "cf85a227419c09c20dad1d871123a195"
+  ],
+  [
+    "function",
+    "public.get_my_market_offers_v2()",
+    "d5c91122a2bb409e139e37ca6e3dc261"
+  ],
+  [
+    "function",
+    "public.get_my_market_order_b07_status()",
+    "3e31e31702e3ca05879c0d8e731ef9fb"
+  ],
+  [
+    "function",
+    "public.get_my_market_order_cases()",
+    "2bb083ff1cb1b255b9552c50b5bf0609"
+  ],
+  [
+    "function",
+    "public.get_my_market_order_contract_documents(p_order_id uuid)",
+    "f685f7f173d2e0ad787c487cbf98226b"
+  ],
+  [
+    "function",
+    "public.get_my_market_orders()",
+    "f55aa35beabcfdd116d92d65e9c08b28"
+  ],
+  [
+    "function",
+    "public.get_my_market_owner_access()",
+    "81f9277b45a102b139fd39899465292d"
+  ],
+  [
+    "function",
+    "public.get_my_market_payment_records(p_order_id uuid)",
+    "222d9f538eba253624243918a49a8c53"
+  ],
+  [
+    "function",
+    "public.get_my_market_seller_onboarding()",
+    "48780209aff5a4b523a0dc84a34eaa63"
+  ],
+  [
+    "function",
+    "public.get_my_market_shipping_profiles()",
+    "7133727f0f5eefa73161d5ff6289911f"
+  ],
+  [
+    "function",
+    "public.get_my_market_shipping_status()",
+    "2667e205802538c712c558499f86b278"
+  ],
+  [
+    "function",
+    "public.get_my_market_swap_cases_v1()",
+    "5646fb7735a857c6fe29f3468c2e6a0c"
+  ],
+  [
+    "function",
+    "public.get_my_market_swaps_v1()",
+    "867a8884faff5a90b4d4ddfe6fc10eeb"
+  ],
+  [
+    "function",
+    "public.get_my_market_trade_eligibility()",
+    "bb68d873b48b0847e6fb749be07d9001"
+  ],
+  [
+    "function",
+    "public.get_my_market_withdrawable_contracts()",
+    "14fcab0ebabd33a394b6dc2561b1122c"
+  ],
+  [
+    "function",
+    "public.get_my_marketplace_moderation_cases()",
+    "f1df8185caac169bdcd0248cf2f3f460"
+  ],
+  [
+    "function",
+    "public.get_owner_market_delivery_reviews_b07(p_status text)",
+    "c6b4fbf141290be78ed5421484c930c2"
+  ],
+  [
+    "function",
+    "public.get_owner_market_seller_reviews(p_status text)",
+    "108cc71d367adfa594abee0314e60eed"
+  ],
+  [
+    "function",
+    "public.get_owner_marketplace_notices(p_status text)",
+    "56f4c05ee53e3e97bc4df36cf1f80d03"
+  ],
+  [
+    "function",
+    "public.get_public_market_listing_v1(p_listing_id uuid)",
+    "33eb03e11c873ae44758851c35b732ea"
+  ],
+  [
+    "function",
+    "public.get_public_market_reviews(p_seller_id uuid, p_limit integer)",
+    "2c62c44728599b31e7a359419f66943f"
+  ],
+  [
+    "function",
+    "public.issue_market_financial_document(p_attempt_id uuid, p_document_kind text, p_snapshot jsonb, p_net_cents integer, p_tax_cents integer, p_gross_cents integer)",
+    "c7a6f3919c359b19dac60352f5b62552"
+  ],
+  [
+    "function",
+    "public.list_my_market_pickup_conversations_v1()",
+    "654b4078794e4a919b7496636200508b"
+  ],
+  [
+    "function",
+    "public.mark_all_market_notifications_read()",
+    "fbf5a28affa02d0818fbf72c350dc175"
+  ],
+  [
+    "function",
+    "public.mark_market_deal_shipped(p_deal_id uuid, p_carrier text, p_tracking_code text)",
+    "4c6ccca0b0134dce88cdd80e30dbecd9"
+  ],
+  [
+    "function",
+    "public.mark_market_notification_read(p_notification_id uuid)",
+    "8f5896408329435dc1ed6e0ee8d66e67"
+  ],
+  [
+    "function",
+    "public.mark_market_order_shipped(p_order_id uuid, p_carrier text, p_tracking_code text)",
+    "1e12d6d66619dfeebbc581ddc29f1bf7"
+  ],
+  [
+    "function",
+    "public.mark_market_stripe_onboarding_link_created(p_onboarding_request_id uuid, p_account_id text)",
+    "9d615dc90fc90f655e82b0f6413116b3"
+  ],
+  [
+    "function",
+    "public.mark_market_stripe_refund_submitted(p_request_id uuid, p_refund_id text)",
+    "e985564599374ef9e0c97f036828dec9"
+  ],
+  [
+    "function",
+    "public.mark_market_swap_shipped_v1(p_thread_id uuid, p_carrier text, p_tracking_code text)",
+    "750f280ab7ea9c2c536cddce9b0b4a8f"
+  ],
+  [
+    "function",
+    "public.normalize_market_listing_product_kind()",
+    "64d258990daff40af779a3671a954763"
+  ],
+  [
+    "function",
+    "public.normalize_market_notification_v2_read_state()",
+    "e66473e6de8bd6005034ce91dd931efb"
+  ],
+  [
+    "function",
+    "public.open_market_deal_dispute(p_deal_id uuid, p_reason text)",
+    "22c995c7577d19505078558112ff1ad7"
+  ],
+  [
+    "function",
+    "public.open_market_order_dispute(p_order_id uuid, p_reason text)",
+    "9d84a810cc8b83c7e80b53ab6e0cecf3"
+  ],
+  [
+    "function",
+    "public.open_market_order_problem_v2(p_order_id uuid, p_category text, p_reason text)",
+    "b2891fb364cc1f38b7d68c3e179caca9"
+  ],
+  [
+    "function",
+    "public.open_market_swap_problem_v1(p_thread_id uuid, p_fulfillment_sender_id uuid, p_category text, p_reason text)",
+    "4d3fb29cf28d1d88c5f0f4dfc3259da6"
+  ],
+  [
+    "function",
+    "public.prepare_account_deletion_data(p_request_id uuid, p_lock_token uuid)",
+    "5f67e7ba7917817ed6fee553efd9d607"
+  ],
+  [
+    "function",
+    "public.prepare_fixed_price_market_offer_v1(p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone, p_checkout_hash text, p_live_mode boolean)",
+    "62327de5497064116b0809ecff3a697e"
+  ],
+  [
+    "function",
+    "public.prepare_market_stripe_full_refund(p_order_id uuid, p_request_key uuid, p_reason text)",
+    "09fad54ebc1df5361cc5d3172adf5167"
+  ],
+  [
+    "function",
+    "public.prepare_market_stripe_onboarding(p_seller_id uuid, p_request_key uuid)",
+    "079b3d0c28034e08bfbe5bc192606017"
+  ],
+  [
+    "function",
+    "public.prepare_market_stripe_payment(p_order_id uuid, p_buyer_id uuid, p_idempotency_key uuid)",
+    "6c21d2d533d2bac564d13123a8cfb312"
+  ],
+  [
+    "function",
+    "public.prepare_market_withdrawal_v1(p_contract_snapshot_id uuid, p_consumer_name text, p_confirmation_email text)",
+    "64c1f2315d319cdc4d5174a752790e8e"
+  ],
+  [
+    "function",
+    "public.propose_market_swap_revision_v1(p_thread_id uuid, p_party_a_listing_ids uuid[], p_party_b_listing_ids uuid[])",
+    "461d100b4381dcd71d95997dd0ce09f4"
+  ],
+  [
+    "function",
+    "public.propose_market_swap_revision_v2(p_thread_id uuid, p_party_a_listing_ids uuid[], p_party_b_listing_ids uuid[], p_fulfillment_mode text)",
+    "548f7732f5ceb90563e2232366f13977"
+  ],
+  [
+    "function",
+    "public.publish_my_sealed_market_listing(p_listing_id uuid)",
+    "e080a604a2e24dae163b0f06425bf458"
+  ],
+  [
+    "function",
+    "public.recalc_market_order_after_address_change()",
+    "eceebe598aec382b6b13babcf610b010"
+  ],
+  [
+    "function",
+    "public.recalculate_market_order(p_order_id uuid)",
+    "33f8455af1c224617d296c5e881127fa"
+  ],
+  [
+    "function",
+    "public.reconcile_market_stripe_refund_evidence(p_event_id text, p_account_id text, p_charge_id text, p_refund_id text)",
+    "390500fb1e33f105ae6b48a2d4e464cc"
+  ],
+  [
+    "function",
+    "public.record_market_order_delivery_evidence_b07(p_order_id uuid, p_delivered_at timestamp with time zone, p_source text, p_reference text)",
+    "bd0f94af6a1326c4adf8d43afa1c22d5"
+  ],
+  [
+    "function",
+    "public.record_market_tax_remuneration(p_contract_snapshot_id uuid, p_event_key text, p_occurred_at timestamp with time zone, p_gross_consideration numeric, p_platform_fee numeric, p_commission numeric, p_withheld_tax numeric, p_source_type text, p_source_reference text, p_evidence jsonb)",
+    "16f4906cd352739e1485c2c6c33d4373"
+  ],
+  [
+    "function",
+    "public.register_market_stripe_test_account(p_onboarding_request_id uuid, p_seller_id uuid, p_account_id text)",
+    "0c116278034d13f621baf81f118fa2f7"
+  ],
+  [
+    "function",
+    "public.register_my_market_listing_image(p_listing_id uuid, p_storage_path text, p_sort_order smallint)",
+    "03ffc6f2b1f91ca6d17a3279562e78f3"
+  ],
+  [
+    "function",
+    "public.release_account_deletion_hold(p_hold_id uuid, p_reason text)",
+    "130a6f8454a9ff4b2cf8d745aaf575f7"
+  ],
+  [
+    "function",
+    "public.release_fixed_price_market_offer_v1(p_offer_id uuid, p_reason text)",
+    "701d954d1755446d642bb7075aeae827"
+  ],
+  [
+    "function",
+    "public.remove_my_market_listing_image(p_image_id uuid)",
+    "c9140f7760832eebcb14098a6c088e46"
+  ],
+  [
+    "function",
+    "public.renew_my_market_listing(p_listing_id uuid)",
+    "29660e760d0461bba47b4e9429acc7a2"
+  ],
+  [
+    "function",
+    "public.request_market_order_cancellation(p_order_id uuid, p_reason text)",
+    "7a3f70de1fd9ddad8115a71b1148e808"
+  ],
+  [
+    "function",
+    "public.request_market_order_delivery_review_b07(p_order_id uuid)",
+    "dab3d0260d2e8743817a7c9ab2af6e50"
+  ],
+  [
+    "function",
+    "public.request_my_account_deletion(p_confirmation text, p_request_key uuid)",
+    "7edcac0363cc9442d8bff42fca690a81"
+  ],
+  [
+    "function",
+    "public.respond_market_order_cancellation(p_case_id uuid, p_accept boolean, p_note text)",
+    "8b4547e093b20ae4e8cc7be1bcd0b298"
+  ],
+  [
+    "function",
+    "public.respond_market_order_problem(p_case_id uuid, p_note text)",
+    "11833feaa5442c5c1691c7a5ac60c346"
+  ],
+  [
+    "function",
+    "public.respond_market_swap_problem_v1(p_case_id uuid, p_note text)",
+    "46e63b490a864415f7af91f716b539bc"
+  ],
+  [
+    "function",
+    "public.respond_to_market_offer(p_offer_id uuid, p_action text)",
+    "b41d1a9b6a0ee152caa6676a6f7002b8"
+  ],
+  [
+    "function",
+    "public.review_market_checkout(p_listing_id uuid, p_quantity integer)",
+    "eb5353b574e0b1009912c77d4b151aa6"
+  ],
+  [
+    "function",
+    "public.review_market_offer_checkout_v1(p_offer_id uuid)",
+    "a670504136c5d8aca278d71716bf59e7"
+  ],
+  [
+    "function",
+    "public.review_market_order_delivery_b07(p_order_id uuid, p_decision text, p_delivered_at timestamp with time zone, p_reference text, p_note text)",
+    "1bf8f1883c1bc2110fe2b0a59a01d716"
+  ],
+  [
+    "function",
+    "public.review_market_price_offer_v1(p_listing_id uuid, p_requested_quantity integer, p_amount numeric)",
+    "ca4f506fc0ea7ffda689e801554166f9"
+  ],
+  [
+    "function",
+    "public.review_market_seller_onboarding(p_seller_id uuid, p_decision text, p_reason text)",
+    "06b9e0b68747fd7c675f0930cfa2dbfb"
+  ],
+  [
+    "function",
+    "public.review_marketplace_notice_appeal(p_appeal_id uuid, p_outcome text, p_reason text)",
+    "263d975a235b2ffb9dc83d2340af0831"
+  ],
+  [
+    "function",
+    "public.save_my_market_seller_legal_profile(p_legal_first_name text, p_legal_last_name text, p_date_of_birth date, p_street_line1 text, p_street_line2 text, p_postal_code text, p_city text, p_country_code text, p_tax_residence_country_code text, p_business_name text, p_legal_form text, p_representative_name text, p_public_email text, p_public_phone text, p_register_name text, p_register_number text, p_register_court text, p_vat_id_present boolean)",
+    "92e04ba953df3d613279772c61c0e796"
+  ],
+  [
+    "function",
+    "public.seed_market_order_default_shipping_address()",
+    "be0d2faf5b213b38e9053e02bd900d64"
+  ],
+  [
+    "function",
+    "public.send_market_pickup_message_v1(p_context_type text, p_context_id uuid, p_body text)",
+    "fe773efd6e6e6e13629325e7258ba282"
+  ],
+  [
+    "function",
+    "public.set_marketplace_seller_onboarding_enforcement(p_enabled boolean)",
+    "418fd5475c9e029e8dff4f8bef12ee21"
+  ],
+  [
+    "function",
+    "public.set_my_market_seller_type(p_seller_type text)",
+    "27720e15edcc93fc1660dd2fb0e90fcb"
+  ],
+  [
+    "function",
+    "public.submit_market_review(p_deal_id uuid, p_rating text, p_comment text)",
+    "c27c9db81d9dd848e7b848b875044b11"
+  ],
+  [
+    "function",
+    "public.submit_marketplace_listing_notice(p_listing_id uuid, p_category text, p_explanation text, p_alleged_legal_basis text, p_reporter_name text, p_reporter_email text, p_exact_url text, p_good_faith_confirmed boolean)",
+    "7d8125414869472e493d8e2dfe137d53"
+  ],
+  [
+    "function",
+    "public.submit_marketplace_notice_appeal(p_case_reference text, p_access_code text, p_grounds text)",
+    "ce779ed2006ea569a9ce087dd0baea9b"
+  ],
+  [
+    "function",
+    "public.submit_my_market_seller_onboarding(p_accept_seller_terms boolean, p_confirm_data_accuracy boolean, p_confirm_lawful_goods boolean)",
+    "bd57a12a30f3c9278391b04a3925227a"
+  ],
+  [
+    "function",
+    "public.submit_my_marketplace_moderation_appeal(p_notice_id uuid, p_grounds text)",
+    "71bfcf945de8ab6935400de589243cfc"
+  ],
+  [
+    "function",
+    "public.sync_market_order_address_to_default()",
+    "437e45209504ec06d38b80b06946abad"
+  ],
+  [
+    "function",
+    "public.upsert_my_market_order_shipping_address(p_order_id uuid, p_recipient_name text, p_street_line1 text, p_postal_code text, p_city text, p_country_code text, p_street_line2 text)",
+    "0186915b79fad1b4bf3a651fd9e0d872"
+  ],
+  [
+    "function",
+    "public.upsert_my_market_shipping_address(p_deal_id uuid, p_recipient_name text, p_street_line1 text, p_postal_code text, p_city text, p_country_code text, p_street_line2 text)",
+    "981d7983cffbd6df448576c997f35e75"
+  ],
+  [
+    "function",
+    "public.upsert_my_market_shipping_profile(p_profile_id uuid, p_name text, p_destination_country_code text, p_shipping_method text, p_carrier_label text, p_product_scope text, p_is_active boolean, p_rules jsonb)",
+    "68ec3233c51ec8f3167b4c007e29dce0"
+  ],
+  [
+    "function",
+    "public.validate_market_shipping_profile_rule()",
+    "150fec3739fe2bc12f8be4dae2a6100f"
+  ],
+  [
+    "function",
+    "public.withdraw_market_order_cancellation(p_case_id uuid)",
+    "8a67eb938da9a75d4374901256936ae7"
+  ],
+  [
+    "function",
+    "public.withdraw_market_order_problem(p_case_id uuid, p_note text)",
+    "b8d9b4d2440984ab8dc15d7722e35630"
+  ],
+  [
+    "function",
+    "public.withdraw_market_swap_problem_v1(p_case_id uuid, p_note text)",
+    "4f2f1d66cfb9717c8331360b17d2bf06"
+  ],
+  [
+    "function",
+    "public.withdraw_my_market_offer(p_offer_id uuid)",
+    "85e2c8126f23b974a8fe246789e9286e"
+  ],
+  [
+    "table",
+    "dv_market_private.account_data_rights_audit",
+    "8ffb9c134d99e764d958245f450524ed"
+  ],
+  [
+    "table",
+    "dv_market_private.account_deletion_holds",
+    "4fa835dd710a2b4fbfddb15800beb23f"
+  ],
+  [
+    "table",
+    "dv_market_private.account_deletion_requests",
+    "13f6f506c591badfe57303638c194374"
+  ],
+  [
+    "table",
+    "dv_market_private.data_retention_rules",
+    "dc5f606c50fb55e211ad89c4f5190623"
+  ],
+  [
+    "table",
+    "dv_market_private.listing_notice_appeals",
+    "1418287b27984c699b08643f1b02137e"
+  ],
+  [
+    "table",
+    "dv_market_private.listing_notice_events",
+    "e3a0a5a8220fced971a308a297638aed"
+  ],
+  [
+    "table",
+    "dv_market_private.listing_notices",
+    "e082b5c7fb5d0f7ee4c3763c9934ebd5"
+  ],
+  [
+    "table",
+    "dv_market_private.market_contract_snapshots",
+    "7b802539997fa99337ec92963cef3501"
+  ],
+  [
+    "table",
+    "dv_market_private.market_financial_documents",
+    "95101440bdcdc7d1a3042d08da065337"
+  ],
+  [
+    "table",
+    "dv_market_private.market_invoice_authorizations",
+    "386d4851c5bc336e980644f5d92d394e"
+  ],
+  [
+    "table",
+    "dv_market_private.market_payment_allocations",
+    "fbdffe150d1a7b3f70701aed3f81fed0"
+  ],
+  [
+    "table",
+    "dv_market_private.market_payment_attempts",
+    "622ea7ccd166fe35bec0e311eeafaf89"
+  ],
+  [
+    "table",
+    "dv_market_private.market_payment_configuration",
+    "b7bbaf3afc9dc3d005d83d6b2a83367f"
+  ],
+  [
+    "table",
+    "dv_market_private.market_pickup_handovers",
+    "e24f21b24d6c61317d6ad77e18328a84"
+  ],
+  [
+    "table",
+    "dv_market_private.market_pickup_messages",
+    "8c6950a5f72d78099e109154845f1dd8"
+  ],
+  [
+    "table",
+    "dv_market_private.market_refund_requests",
+    "f951129af285199afeea4826d12fdbb2"
+  ],
+  [
+    "table",
+    "dv_market_private.market_stripe_accounts",
+    "26435f86fedbf0fb02f53bca9c377d87"
+  ],
+  [
+    "table",
+    "dv_market_private.market_stripe_events",
+    "b779333361c369d7bd775c08a5b77eb6"
+  ],
+  [
+    "table",
+    "dv_market_private.market_stripe_onboarding_requests",
+    "ba1b909eb6619c718a641d0b835323f3"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_cases",
+    "0c9c7c470c94b1e6dbb50fedcfa2639e"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_confirmations",
+    "eab09357f03a5058319a88e9fc7edc26"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_fulfillments",
+    "a16adee4ca5fb733953749dd6cab0225"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_pickup_handovers",
+    "7e4af6fda7f7426745de1e9c8c817a8e"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_reservations",
+    "e3d6512e8767d357a504de8ef42fb35e"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_revision_items",
+    "843ead7d66905aa2982bb79101115c1b"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_revisions",
+    "245b5e7df63250513545e2289dc1c03a"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_shipping_addresses",
+    "cd67b3f8d11d9698b34c9f8104185333"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_threads",
+    "c7560b33e72e78676ef45dc28a8403b3"
+  ],
+  [
+    "table",
+    "dv_market_private.market_swap_value_snapshots",
+    "7319b389eee9f9e4c25da2148fce6571"
+  ],
+  [
+    "table",
+    "dv_market_private.market_tax_events",
+    "5afb92b3bd8ae82227be1ce1d73455bb"
+  ],
+  [
+    "table",
+    "dv_market_private.market_tax_export_rows",
+    "af0ef17bf58dcb839869bbff750ab253"
+  ],
+  [
+    "table",
+    "dv_market_private.market_tax_exports",
+    "d780aa05ea7fb8748e7e5a56b2b03f09"
+  ],
+  [
+    "table",
+    "dv_market_private.market_withdrawal_drafts",
+    "b04194172e04c6dc98ad2268f2e8a535"
+  ],
+  [
+    "table",
+    "dv_market_private.market_withdrawals",
+    "5e5363cdec0b3c6af4a91869a171d669"
+  ],
+  [
+    "table",
+    "dv_market_private.marketplace_compliance_policy",
+    "213c4591522a7193504b949c9534aa87"
+  ],
+  [
+    "table",
+    "dv_market_private.marketplace_message_delivery_events",
+    "7513b1a7adca2c9397723192085415fc"
+  ],
+  [
+    "table",
+    "dv_market_private.marketplace_message_outbox",
+    "e7b0e879d33520695fb33cc93513c9bb"
+  ],
+  [
+    "table",
+    "dv_market_private.seller_account_audit",
+    "8bd42ac80eb5e66e0f7e5fc76361e698"
+  ],
+  [
+    "table",
+    "dv_market_private.seller_declarations",
+    "12d0174d96366178fdeb14ae6547b798"
+  ],
+  [
+    "table",
+    "dv_market_private.seller_legal_profiles",
+    "ab240204aa14e07c50a8d958319b0b39"
+  ],
+  [
+    "table",
+    "dv_market_private.seller_review_actions",
+    "e491cc8bbb68ca3d16b78e4e7b2e89d1"
+  ],
+  [
+    "table",
+    "dv_market_private.seller_tax_identifiers",
+    "510d54f5c67b6ae1dfffd3210d82b800"
+  ],
+  [
+    "table",
+    "dv_market_private.trade_user_eligibility",
+    "d2a13b3f3d4465ddcd5afdeba265a3a5"
+  ],
+  [
+    "table",
+    "dv_market_private.user_data_export_events",
+    "0f955d883238dcecf95b5c79bc9ff507"
+  ],
+  [
+    "table",
+    "public.market_deal_shipping_addresses",
+    "53f83d375af7bb8e5496665836cec0fb"
+  ],
+  [
+    "table",
+    "public.market_deals",
+    "4247d807b9bdc6c618467a4a2ea0fbc2"
+  ],
+  [
+    "table",
+    "public.market_default_shipping_addresses",
+    "612d98323a154637102173d6050f0bfa"
+  ],
+  [
+    "table",
+    "public.market_listing_images",
+    "c0aec5ee1128187bc4a5db75b25616b0"
+  ],
+  [
+    "table",
+    "public.market_listings",
+    "baf4da3b34b3de8241c2e5d6c2222701"
+  ],
+  [
+    "table",
+    "public.market_notification_sync_state",
+    "a51ab791bbacede4f16efc5ce415fad6"
+  ],
+  [
+    "table",
+    "public.market_notifications",
+    "472b821dc6d999819e29aeca156b3638"
+  ],
+  [
+    "table",
+    "public.market_offers",
+    "ea45a2034b998b3352a9ddefe1ef9e22"
+  ],
+  [
+    "table",
+    "public.market_order_cases",
+    "53697ff7fcd897597e207a0af97ae35b"
+  ],
+  [
+    "table",
+    "public.market_order_items",
+    "3d06bbf6ad2e049f74110551aef17641"
+  ],
+  [
+    "table",
+    "public.market_order_payments",
+    "48833a618cadf2d72fe416a813b9a64f"
+  ],
+  [
+    "table",
+    "public.market_order_shipping_access_log",
+    "fb4adf539a3995952bdcb2c734016f4d"
+  ],
+  [
+    "table",
+    "public.market_order_shipping_addresses",
+    "dc76e6bce741ff6460a83fbd9b3b6679"
+  ],
+  [
+    "table",
+    "public.market_orders",
+    "1121e41ada8f98c1e651c0d4cf4d2a55"
+  ],
+  [
+    "table",
+    "public.market_reviews",
+    "9d3b459e08587b4c0c3e3668873d83c0"
+  ],
+  [
+    "table",
+    "public.market_seller_accounts",
+    "89fc0aa549cfe51443048cf80ea8104a"
+  ],
+  [
+    "table",
+    "public.market_shipping_address_access_log",
+    "462d6e894b8e68464fabc3a3d64f3c43"
+  ],
+  [
+    "table",
+    "public.market_shipping_profile_rules",
+    "cb6f8db5c1a5ad297d8e424016b88bc3"
+  ],
+  [
+    "table",
+    "public.market_shipping_profiles",
+    "0ab87ddf77e4de52a2627a1d1f95b935"
+  ],
+  [
+    "table",
+    "public.profiles",
+    "0a6ea8af112ea57312b79a45b7b2405d"
+  ]
+]

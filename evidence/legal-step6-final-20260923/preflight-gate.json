@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "startingHead": "ab99beb250a660b4e9d1a27bb196ec67afffb545",
+  "technicalHead": "91bad0f6546d579f4d8adc99f26027e45a36e891",
+  "project": "xhmjxrcskfhbovhitdej",
+  "productionNegativeBoundary": "enifiaqsnqtbzylnfrpi",
+  "preview": {
+    "id": "dpl_4W3XsD45jY75uZxUsSepbsYfAHzK",
+    "environment": "preview",
+    "supabaseUrl": "https://xhmjxrcskfhbovhitdej.supabase.co",
+    "runtimeHttpStatus": 200
+  },
+  "catalog": {
+    "compared": 266,
+    "differences": 0,
+    "allTwelveIndexesExact": true
+  },
+  "email": {
+    "variable": "COMPLIANCE_EMAIL_DELIVERY_ENABLED",
+    "value": "unset",
+    "source": "manuell im Vercel-Dashboard bestätigt",
+    "date": "2026-09-23",
+    "providedBy": "Nutzer",
+    "projectAndSharedVariablesChecked": true,
+    "apiRead": false
+  },
+  "guardBefore": {
+    "readinessMissing": true,
+    "legacyMissing": true,
+    "version": "1.2",
+    "reason": "Missing RPC fails closed; local exact candidate guard tests PASS 42. No authenticated preview UI acceptance claimed."
+  },
+  "state": {
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "contract_snapshots": 8
+    },
+    "offers": [
+      {
+        "count": 2,
+        "status": "accepted",
+        "expired": 0,
+        "reserved": 0,
+        "offer_type": "price"
+      }
+    ],
+    "cleanup": {
+      "signature": "expire_market_offer_reservations_v1()",
+      "service_execute": true
+    },
+    "payment": {
+      "live_mode": false,
+      "sandbox_enabled": false,
+      "seller_invoice_issuance_enabled": false
+    },
+    "over_restore": 0,
+    "orphan_offers": 0,
+    "bad_listing_quantity": 0,
+    "expired_without_deal": 0,
+    "bad_reserved_quantity": 0,
+    "reservation_with_deal": 0
+  },
+  "integrationAccess": "Vercel login protection currently blocks authenticated preview; post-migration integration may remain BLOCKIERT."
+}

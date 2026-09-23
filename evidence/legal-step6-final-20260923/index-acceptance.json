@@ -1,0 +1,14 @@
+{
+  "account_deletion_one_open_request_idx": true,
+  "listing_notice_appeals_queue_idx": true,
+  "listing_notice_events_notice_idx": true,
+  "listing_notices_listing_idx": true,
+  "listing_notices_queue_idx": true,
+  "listing_notices_reporter_idx": true,
+  "profiles_founder_generation_idx": true,
+  "profiles_username_unique_ci": true,
+  "seller_account_audit_seller_idx": true,
+  "seller_declarations_seller_idx": true,
+  "seller_review_actions_seller_idx": true,
+  "seller_tax_identifiers_seller_idx": true
+}
