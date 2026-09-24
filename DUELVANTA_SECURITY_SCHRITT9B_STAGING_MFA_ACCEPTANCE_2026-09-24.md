@@ -1,6 +1,8 @@
 # DUELVANTA – Schritt 9B: Staging MFA Acceptance
 
-24.09.2026. **Staging-Kandidat angewandt; Schemaabnahme und echter Owner-AAL2-Zugang PASS. Vollständige geforderte Live-Abnahme noch BLOCKIERT/offen. Keine Production-Freigabe.**
+24.09.2026. **V54-Abschluss: echte Owner/Admin/Moderator/Judge-AAL1/AAL2-Abnahme, echter Sessionwiderruf und Geschäftssmokes PASS. Streng vollständige Live-Abnahme weiterhin BLOCKIERT: Sessionablauf und fremde Session-ID-Bindung nur isoliert geprüft. Keine Production-Freigabe.**
+
+Die folgenden ursprünglichen Abschnitte dokumentieren den V53-Zwischenstand. Für den aktuellen Zustand hat der Abschnitt „V54 – Fortsetzung und Abschluss“ am Ende Vorrang; insbesondere sind Staffzugänge und direkte RPC-Nachweise inzwischen vorhanden.
 
 ## Repository und verbindlicher Ausgangspunkt
 
@@ -95,3 +97,74 @@ Beide Hashes frisch aus confirmation_text geprüft und unverändert. Keine Fixtu
 ## Abschlussgrenze
 
 Keine Production-Mutation/-Migration/-Deployment, kein Merge/main-Eingriff, kein Stripe Live, keine echte Zahlung/E-Mail, keine Domainumschaltung, keine neue Rechts-/Steuerentscheidung, kein TinyFish. P0-02 ist auf Staging technisch angewandt, aber insgesamt noch nicht operativ geschlossen. Production bleibt NO-GO. V53 legt ausschließlich die Vervollständigung der offenen Schritt9B-Live-Abnahme fest, nicht9C.
+
+
+## V54 – Fortsetzung und Abschluss
+
+Verbindlich vollständig gelesen: V53, dieser Bericht und database/security-privilege-mfa-matrix-v1.md sowie die ausdrücklich erteilte Staff-MFA-Autorisierung. Fortsetzungsbasis `db706f405fa49b943df0d1c1e24a0077a35e2022`; technischer Abschluss `a40e4b7d03cd9877b80b7b751ae12a4f31d3c3df`. main unverändert `50f88213571be13255bb52eb489cc28cca660001`, PR5 frisch open/Draft/unmerged bestätigt. Abschlusshead ist der Commit mit diesem aktualisierten Bericht, V54 und den neuen Evidenzdateien; konkrete SHA/Abschluss-CI im Chatabschluss. Keine selbstreferenzielle SHA.
+
+### Minimale Branch-Ergänzung und CI
+
+Versionierte Preview-Prüfoberfläche security-live-acceptance.html/.js verwendet den bestehenden zentralen Runtime-Resolver, reguläre Supabase-Browsersitzung und eine feste Liste von 19 Prüfungen. Keine freie RPC-/SQL-Eingabe. Keine Token-/Seed-Ausgabe. NULL-Ziele für zwei privilegierte Mutationspfade brechen nach Autorisierung vor der Geschäftsänderung ab; Invite-Aufrufe enthalten ausschließlich eine leere E-Mail. Production-Routing wird nicht freigeschaltet.
+
+Commit14f11b0933b65d925f5928090c1d277b491b3d34 ergänzte Oberfläche und isolierte Tests. CI718/194 erkannte eine doppelte hartcodierte Staging-URL. Commita40e4b7 korrigierte die Oberfläche auf die bestehende zentrale Routingarchitektur. Kein Test oder Readiness-Fingerprint wurde gelockert. Scanner719 Run35998601938 und Battle195 Run35998601930 SUCCESS; nativer PostgreSQL17-Job107629425333 SUCCESS, inklusive bestehender Rollen-/ACL-/RLS-/Defaults-/Session-/Geschäftsregressionen. Finale Dokumentations-CI wird zusätzlich kontrolliert.
+
+READY Preview der Liveprüfungen: dpl_7NmLkn9bSG7cook46KrXhFM5yoHw, https://duelvantav5vision-mew9qr0vy-bennyescaped-3783.vercel.app. Anonymer Erstlauf noch auf erstem Oberflächenhead; authentifizierte Staff-/Owner-Nachweise auf korrigiertem technischen Head.
+
+### Echte Staffidentitäten und MFA
+
+Der Benutzer hat alle drei Authkonten regulär angelegt, persönlich angemeldet und ihre TOTP-Faktoren über den Produktpfad verifiziert. Jeder AAL2-Nachweis wurde read-only gegen Session-AAL, aktive Session, zugehörige Benutzer-ID und denselben verifizierten Faktor geprüft. Kein künstlicher Faktor, kein manipuliertes JWT und keine künstliche auth.sessions-Zeile.
+
+| Rolle im Test | Synthetische E-Mail | Benutzer-ID |
+|---|---|---|
+|Admin|dv-step9b-admin-20260924@invalid.example|5c3d1d09-6fd3-4cb8-a091-a24023bbc5d8|
+|Moderator|dv-step9b-moderator-20260924@invalid.example|4e4d60fb-cc94-4104-a50b-75e57ad892e4|
+|Judge|dv-step9b-judge-20260924@invalid.example|2b46a3c4-6bc7-428c-a65f-f87b395b3677|
+
+Gezieltes Fixture-Setup: Waitlist12/13/14, source synthetic-step9b-staff-authorized-20260924, consent=false, invited_at=NULL, keine Founderrechte. Rollen active und jeweils ausschließlich battle_moderate für den erlaubten Staffpfad. Audit step9b_synthetic_staff_provisioned mit actor_id=NULL und expliziter administrativer Fixture-Herkunft; kein behaupteter menschlicher Owneraufruf.
+
+### Live-Ergebnismatrix
+
+| Prüfung | Ergebnis / Beweisgrenze |
+|---|---|
+|Owner, Admin, Moderator, Judge unter echter AAL1|Jeweils sieben direkte privilegierte RPCs HTTP403/42501 mfa_step_up_required; beide Invites403 owner_mfa_session_required|
+|Owner unter echter AAL2|owner=true/privileged=true; Scanner, Disputes, Notices, Seller Reviews und Delivery Reviews jeweils200|
+|Owner NULL-Mutationsziele|review_staff_application: Application unavailable; join_battle_as_moderator: Match not found. Autorisierung bestanden, keine Geschäftsänderung|
+|Admin/Moderator/Judge unter echter AAL2|privileged=true/owner=false; Disputes200, joinNULL: Match not found; Ownerfunktionen verweigert. review_staff_application bleibt Owner approval required during beta|
+|Beide Invite-Namen unter Owner-AAL2|Je400 invalid_email mit leerer E-Mail. Guard passiert, Versand nicht erreicht|
+|Beide Invite-Namen unter Staff-AAL2|Je403 owner_mfa_session_required|
+|Echter Admin-Sessionwiderruf|Zweite reguläre Admin-Anmeldung auf anderem Preview-Origin; reguläres globales SDK-signOut entfernte beide Sessions. Ursprünglicher unveränderter Browserclient verweigert danach sieben RPCs mit403/42501 privileged_session_required. Kein Token ausgelesen oder injiziert|
+|Dashboard-Ban-Versuch|Temporäres24h-Ban entfernte die Session nicht. Unmittelbar regulär aufgehoben; nicht als Widerrufs-PASS gewertet. Danach obiger echter globaler Logout|
+|Alte dv_core-Namen|Zwei direkte Namen liefern404/PGRST202: nicht vorhandene API, kein erreichbarer Bypass. Bestehende übrige Varianten und Servicegrenzen über Sollvergleich/native Tests geprüft|
+|Private/Auth-Schemaaufrufe|HEAD406 ohne Fehlerbody; belegt fehlende API-Erreichbarkeit, allein kein RLS-Verhaltenstest|
+|RLS/ACL/Default Privileges|Live-Sollvergleich kompatibel; native Negativtests einschließlich TRUNCATE, Sequenzmutation und RLS bei absichtlichem Fehlgrant PASS. Kein destruktiver TRUNCATE-/MAINTAIN-Versuch gegen Stagingdaten|
+
+Die echten Staffkonten beweisen fremde Rollenabgrenzung gegenüber dem Owner. Das ist ausdrücklich **kein** Test eines JWT mit fremder session_id. Der echte Widerruf beweist fehlende Session; er ist ausdrücklich **kein** Test eines natürlichen Ablaufs von not_after/JWT.
+
+### Normale Geschäftssmokes
+
+Mit der ausdrücklich autorisierten synthetischen Judge-Fixture, nicht mit erfundenen persönlichen Angaben des Betreibers:
+
+- COLLECT: normaler Browser-INSERT eines zweitseitigen Binders SYNTHETIC STEP9B 20260924; Reload zeigt persistierten Binder. ID89b8eea0-dafe-44ea-aae6-8d9e66d40ea7.
+- TRADE: normale Berechtigungsmaske mit synthetischem Geburtsdatum1990-01-01/DE gespeichert; optionale private Käufererklärung blieb false. Markt- und Bestellansicht laden, null eigene/fremde Bestellungen sichtbar. Kein neuer Kauf-/Vertragsabschluss; vollständige Rechts-/Paymentabläufe weiterhin frühere7A/7B plus native Regressionen.
+- BATTLE: synthetische18+-/Arena-Fixture über normale UI; Judge Desk lädt. Privates Casual-Match257accd3-7e7e-4253-9876-887731a910ff erstellt und normal verlassen; DBstatus cancelled, guest_idNULL. Keine Kamera/Übertragung aktiviert; kein neues Mehrgeräte-WebRTC-E2E behauptet.
+
+Evidenz: live-business-smokes.json sowie live-collect-binder.png, live-trade-orders.png, live-battle-private.png. Binder, abgebrochenes Match und synthetische Eligibility bleiben als markierte Stagingdaten erhalten und sind von Geschäftsauswertungen auszuschließen.
+
+### Sicherer Endzustand
+
+Alle drei synthetischen Staffkonten regulär abgemeldet; Sessions jeweils0. Anschließend gezielt role=player/account_status=suspended, Staffpermissions jeweils0. Je1 echter verifizierter MFA-Faktor bleibt unverändert erhalten. Audit step9b_synthetic_staff_deactivated dokumentiert vorherige Rolle/Status und administrative Herkunft. Keine immutable Evidenz gelöscht. Betreiberbindung und Ownerzugang unverändert; dessen echte AAL2-Sitzungen bleiben verfügbar.
+
+Frische read-only Abschlussabfrage24.09.2026 13:47:59UTC: History53, ausschließlich die ursprünglichen drei9B-Migrationen an der Spitze. Security privilege-mfa-v1 compatible=true; Legal trade-legal-contract-model-v1.2 compatible=true. Kernzähler16/4/10/8/10/1/3/3, beide7A/7B-SHA256 unverändert und korrekt. Outbox12pending/0Versuche/0Fehler/0gesendet. Stripe sandbox_enabled=false/live_mode=false. Vollständige maschinenlesbare Zusammenfassung: live-final-state-v54.json.
+
+### Verbleibende harte Nachweisgrenze und Status
+
+**Operativ getestete Rollen-/MFA-/Widerrufs-/Geschäftssmokes PASS. Gesamte wörtlich geforderte Live-Abnahme BLOCKIERT, P0-02 noch nicht vollständig geschlossen.**
+
+Es fehlt der echte Live-Negativnachweis für (a) natürlich abgelaufene Session und (b) fremde Session-ID-Zuordnung. Beide Fälle sind im nativen PG17 isoliert bestanden; Code prüft die Benutzerbindung und not_after. Eine regulär ausgestellte Sitzung kann nicht absichtlich einem fremden Benutzer zugeordnet werden, ohne die ausdrücklich verbotene Session-/JWT-Manipulation oder einen gesonderten Testmechanismus. Solche Manipulationen wurden nicht durchgeführt. Kein globales Sessionlimit geändert, keine Auth-Sicherheitsgrenze gelockert und keine SQL-Claim-Simulation als Livebeweis ausgegeben. Ein Ablaufbeweis benötigt einen vorher definierten natürlichen Ablauf und einen regulären Client ohne vorherigen Refresh; dieser Beobachtungsaufbau wurde nicht abgeschlossen.
+
+Die Grenze liegt im noch nicht sicher vereinbarten echten Nachweisverfahren, nicht in einem beobachteten Sicherheitsbypass. Kein pauschales PASS und kein automatischer Übergang zu9C. V54 definiert ausschließlich die Auflösung dieser verbliebenen9B-Nachweisgrenze. Alle übrigen V51-Blocker bleiben bestehen.
+
+### Nicht ausgeführt
+
+Keine erneute/zusätzliche Staging-Migration in dieser Fortsetzung, keine Production-Abfrage mit Mutation, keine Production-SQL/Migration/Deployment, kein Merge/main-Eingriff, keine Sandbox-/Stripe-Live-Aktivierung, keine Zahlung/Refund/Payout, keine echte E-Mail/Einladung, keine Domain-/Environment-Änderung, keine neue Rechts-/Steuerentscheidung, kein TinyFish. V54 wird erst nach Abschluss dieser Nachweise und sicherer Fixture-Rückführung erstellt. Danach STOP.

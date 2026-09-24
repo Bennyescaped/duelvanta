@@ -1,0 +1,140 @@
+{
+  "head": "14f11b0933b65d925f5928090c1d277b491b3d34",
+  "authentication": "anonymous",
+  "project": "xhmjxrcskfhbovhitdej",
+  "source": "real_browser_sdk",
+  "at": "2026-09-24T12:20:36.412Z",
+  "results": [
+    {
+      "test": "public.get_my_privileged_access_v1",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_security_schema_readiness_v1",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_market_legal_schema_readiness_v1",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.dv_v16_owner_openai_scan_settings",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_battle_disputes_for_moderation",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_owner_marketplace_notices",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_owner_market_seller_reviews",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.get_owner_market_delivery_reviews_b07",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.review_staff_application",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.join_battle_as_moderator",
+      "http": 401,
+      "ok": false,
+      "code": "42501",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.dv_core_set_staff_role",
+      "http": 404,
+      "ok": false,
+      "code": "PGRST202",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "public.dv_core_join_battle_as_moderator",
+      "http": 404,
+      "ok": false,
+      "code": "PGRST202",
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "dv_v16_private.operator_identity_v1",
+      "http": 406,
+      "ok": false,
+      "code": null,
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "dv_market_private.market_pickup_handovers",
+      "http": 406,
+      "ok": false,
+      "code": null,
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "dv_market_private.trade_user_eligibility",
+      "http": 406,
+      "ok": false,
+      "code": null,
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "auth.sessions",
+      "http": 406,
+      "ok": false,
+      "code": null,
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "auth.mfa_factors",
+      "http": 406,
+      "ok": false,
+      "code": null,
+      "reason": "backend_error_redacted"
+    },
+    {
+      "test": "owner-invite-beta-user",
+      "http": 401,
+      "ok": false,
+      "reason": "not_authenticated"
+    },
+    {
+      "test": "invite-beta-user",
+      "http": 401,
+      "ok": false,
+      "reason": "not_authenticated"
+    }
+  ]
+}
