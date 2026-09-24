@@ -1,0 +1,292 @@
+{
+  "migrations": [
+    {
+      "version": "20260904184344",
+      "name": "create_beta_waitlist"
+    },
+    {
+      "version": "20260907112224",
+      "name": "add_founder_generation_one"
+    },
+    {
+      "version": "20260907112706",
+      "name": "secure_beta_control_center_owner_access"
+    },
+    {
+      "version": "20260907115916",
+      "name": "phase1_account_model"
+    },
+    {
+      "version": "20260907122514",
+      "name": "phase1b_activation_flow"
+    },
+    {
+      "version": "20260907124255",
+      "name": "fix_founder_auto_assignment"
+    },
+    {
+      "version": "20260907134751",
+      "name": "phase1c_account_security"
+    },
+    {
+      "version": "20260907134801",
+      "name": "phase1c_remove_password_rpc"
+    },
+    {
+      "version": "20260907140554",
+      "name": "phase2_collect_collection_items"
+    },
+    {
+      "version": "20260907150936",
+      "name": "phase2_collect_albums_and_card_images"
+    },
+    {
+      "version": "20260907184209",
+      "name": "phase3_trade_marketplace_v1"
+    },
+    {
+      "version": "20260907184249",
+      "name": "phase3_trade_seller_identity_snapshot"
+    },
+    {
+      "version": "20260907184351",
+      "name": "phase3_trade_offer_policy_hardening"
+    },
+    {
+      "version": "20260907194426",
+      "name": "phase3_trade_listing_lifecycle"
+    },
+    {
+      "version": "20260907200152",
+      "name": "phase3_trade_offer_transactions"
+    },
+    {
+      "version": "20260907201555",
+      "name": "phase3_seller_trust_v1"
+    },
+    {
+      "version": "20260907202901",
+      "name": "phase4_i18n_profile_locale"
+    },
+    {
+      "version": "20260908043935",
+      "name": "phase5_battle_v1_core"
+    },
+    {
+      "version": "20260908045129",
+      "name": "phase5_safety_age_conduct_foundation"
+    },
+    {
+      "version": "20260908045515",
+      "name": "phase5_battle_safety_gate_rpc"
+    },
+    {
+      "version": "20260908050116",
+      "name": "phase5_battle_webrtc_signaling"
+    },
+    {
+      "version": "20260908051700",
+      "name": "phase5_battle_moderation_roles"
+    },
+    {
+      "version": "20260908054528",
+      "name": "phase5_staff_applications_permissions_audit"
+    },
+    {
+      "version": "20260908060358",
+      "name": "phase5_reports_review_workflow"
+    },
+    {
+      "version": "20260908060759",
+      "name": "lock_owner_identity_and_role"
+    },
+    {
+      "version": "20260908061055",
+      "name": "phase5_staff_capability_enforcement"
+    },
+    {
+      "version": "20260908061343",
+      "name": "phase5_fix_safety_self_declaration"
+    },
+    {
+      "version": "20260908062035",
+      "name": "phase5_enforce_battle_moderation_pause"
+    },
+    {
+      "version": "20260908073323",
+      "name": "profile_v1_privacy_foundation"
+    },
+    {
+      "version": "20260908074648",
+      "name": "username_stability_90_day_reservation"
+    },
+    {
+      "version": "20260908080553",
+      "name": "fix_profile_avatar_storage_rls"
+    },
+    {
+      "version": "20260908080847",
+      "name": "add_profile_avatar_select_policy_for_upsert"
+    },
+    {
+      "version": "20260908083534",
+      "name": "public_profile_safe_api_username_guard"
+    },
+    {
+      "version": "20260908084704",
+      "name": "fix_profiles_rls_recursion_safe_update_v2"
+    },
+    {
+      "version": "20260908095435",
+      "name": "public_profile_username_lookup"
+    },
+    {
+      "version": "20260908123327",
+      "name": "battle_v2_preserve_completed_history"
+    },
+    {
+      "version": "20260908125310",
+      "name": "battle_history_participant_identity"
+    },
+    {
+      "version": "20260908132939",
+      "name": "public_battle_recent_matches"
+    },
+    {
+      "version": "20260908134038",
+      "name": "battle_ranked_rating_v1"
+    },
+    {
+      "version": "20260908135110",
+      "name": "battle_ranked_rating_permissions_hardening"
+    },
+    {
+      "version": "20260908151456",
+      "name": "battle_leaderboard_public_ranked_profile"
+    },
+    {
+      "version": "20260908165118",
+      "name": "trade_v2_deals_reviews_trust_v2"
+    },
+    {
+      "version": "20260908172836",
+      "name": "trade_v2_payment_fulfillment_ready"
+    },
+    {
+      "version": "20260908175128",
+      "name": "trade_v2_private_shipping_address"
+    },
+    {
+      "version": "20260908194521",
+      "name": "trade_v2_shipping_method_cost_snapshot"
+    },
+    {
+      "version": "20260908194808",
+      "name": "trade_v2_shipping_method_guards"
+    },
+    {
+      "version": "20260909050902",
+      "name": "trade_v2_sealed_products_v1"
+    },
+    {
+      "version": "20260909055632",
+      "name": "trade_sealed_images_rpc"
+    },
+    {
+      "version": "20260909065106",
+      "name": "trade_v2_orders_combined_shipping"
+    },
+    {
+      "version": "20260909065255",
+      "name": "trade_v2_order_enforcement_and_deal_bridge"
+    },
+    {
+      "version": "20260909071657",
+      "name": "trade_sealed_inventory_columns_v2"
+    },
+    {
+      "version": "20260909071804",
+      "name": "trade_sealed_inventory_functions_v2"
+    },
+    {
+      "version": "20260909071856",
+      "name": "trade_sealed_offer_quantities_v2"
+    },
+    {
+      "version": "20260909072037",
+      "name": "trade_offer_rpc_only_v2"
+    },
+    {
+      "version": "20260909091557",
+      "name": "trade_checkout_v1"
+    },
+    {
+      "version": "20260909103421",
+      "name": "trade_checkout_v1_safety"
+    },
+    {
+      "version": "20260909103938",
+      "name": "trade_checkout_v1_validation"
+    },
+    {
+      "version": "20260909125353",
+      "name": "trade_notifications_actions_v1"
+    },
+    {
+      "version": "20260909130543",
+      "name": "trade_notifications_actions_v1_hardening"
+    },
+    {
+      "version": "20260909135430",
+      "name": "trade_shipping_profiles_v1"
+    },
+    {
+      "version": "20260909135523",
+      "name": "trade_shipping_profiles_v1_hardening"
+    },
+    {
+      "version": "20260909140646",
+      "name": "trade_shipping_profiles_v1_safety"
+    },
+    {
+      "version": "20260909143957",
+      "name": "trade_order_resolution_v1"
+    },
+    {
+      "version": "20260909144130",
+      "name": "trade_order_resolution_v1_hardening"
+    },
+    {
+      "version": "20260909161000",
+      "name": "trade_shipping_profiles_v1_null_fallback_fix"
+    },
+    {
+      "version": "20260909164035",
+      "name": "collect_scanner_v16_slots"
+    },
+    {
+      "version": "20260909164515",
+      "name": "collect_scanner_v16_slots_hardening"
+    },
+    {
+      "version": "20260910201950",
+      "name": "scanner_v16_weekly_quota"
+    },
+    {
+      "version": "20260911085857",
+      "name": "collect_binder_interaction_v1"
+    },
+    {
+      "version": "20260911122546",
+      "name": "collect_binder_pages_v1"
+    },
+    {
+      "version": "20260911154146",
+      "name": "scanner_v16_openai_owner_budget"
+    },
+    {
+      "version": "20260911181702",
+      "name": "harden_battle_and_profile_auth_boundaries"
+    }
+  ]
+}

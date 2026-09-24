@@ -1,0 +1,145 @@
+[
+  {
+    "evidence": {
+      "at": "2026-09-24T07:40:32.152725+00:00",
+      "config": {
+        "seller_terms_version": "seller-beta-2026-09",
+        "seller_onboarding_enforced": false,
+        "tax_identifier_required_for_activation": true
+      },
+      "fixtures": [
+        {
+          "id": "801ae92b-9569-4178-a1c2-2ece5165d6a3",
+          "deal_id": "ae2c4fd7-8c7b-4eb0-9c85-9fcf2b16c53e",
+          "hash_ok": true,
+          "offer_id": "e334e1a0-179c-4d68-aeee-7b9e2b5aea7e",
+          "order_id": "42d7cd8a-1705-4197-9017-ad029288c812",
+          "buyer_type": "consumer",
+          "listing_id": "19e7bdbe-aea4-481b-9bce-49160e7c3030",
+          "seller_type": "trader",
+          "content_sha256": "f736fd45f67cba0411580fe65976daa7ccc185abbf69b52cea29114f43bf3091",
+          "payment_provider": "manual_beta",
+          "snapshot_version": "checkout-contract-v2",
+          "withdrawal_eligible": true,
+          "contract_classification": "b2c"
+        },
+        {
+          "id": "a4642a8f-3167-42c1-953b-eb3e9234b611",
+          "deal_id": "ddd5122f-c6ee-4840-80fd-584529436886",
+          "hash_ok": true,
+          "offer_id": "a6582e51-8cb0-4eb3-8d62-6e701dafc446",
+          "order_id": "90f5a50f-5fb6-4882-9572-2b359257dd9f",
+          "buyer_type": "consumer",
+          "listing_id": "4f8fa6ad-8c11-4df2-9283-795b252d5236",
+          "seller_type": "trader",
+          "content_sha256": "dfbc9dd2fc3c3d5677e62a23d29637e038522491e3b5f419c81fdaf9196469d7",
+          "payment_provider": "stripe_connect",
+          "snapshot_version": "checkout-contract-v2",
+          "withdrawal_eligible": true,
+          "contract_classification": "b2c"
+        }
+      ],
+      "retention": [
+        {
+          "purpose": "Kontoführung",
+          "category": "account_profile",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "Art. 6 Abs. 1 lit. b DSGVO",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Bei Ausführung löschen oder anonymisieren.",
+          "automatic_until_supported": true
+        },
+        {
+          "purpose": "Collection, Profilbilder und nicht gebundene Marktdaten",
+          "category": "user_content",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "Art. 6 Abs. 1 lit. b DSGVO",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Bei Ausführung löschen; private Storage-Objekte zuerst serverseitig entfernen.",
+          "automatic_until_supported": true
+        },
+        {
+          "purpose": "Vertragsnachweis und Rechtsverteidigung",
+          "category": "contract_evidence",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "Art. 6 Abs. 1 lit. c/f DSGVO",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Gesperrt aufbewahren; Frist vor Löschung anhand Dokument und Anspruch manuell bestätigen.",
+          "automatic_until_supported": false
+        },
+        {
+          "purpose": "Steuerlicher Buchungsbeleg",
+          "category": "booking_document",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "§ 147 AO; § 14b UStG",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Acht Jahre ab Ende des maßgeblichen Kalenderjahres, soweit einschlägig.",
+          "automatic_until_supported": true
+        },
+        {
+          "purpose": "Buch oder Aufzeichnung mit Zehnjahresfrist",
+          "category": "accounting_book",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "§ 147 AO",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Zehn Jahre ab Ende des maßgeblichen Kalenderjahres, soweit einschlägig.",
+          "automatic_until_supported": true
+        },
+        {
+          "purpose": "Zahlungs-, Erstattungs- und Gebührennachweis",
+          "category": "payment_record",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "Art. 6 Abs. 1 lit. b/c/f DSGVO; § 147 AO soweit einschlägig",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Zugriffsbeschränkt und datenartspezifisch aufbewahren; steuerliche Einordnung vor Produktivstart bestätigen.",
+          "automatic_until_supported": false
+        },
+        {
+          "purpose": "PStTG-Aufzeichnung",
+          "category": "psttg_record",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "§ 24 PStTG",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Zehn Jahre ab Ende des Kalenderjahres der Aufzeichnung.",
+          "automatic_until_supported": true
+        },
+        {
+          "purpose": "Meldungs-, Entscheidungs- und Einspruchsnachweis",
+          "category": "notice_procedure",
+          "updated_at": "2026-09-13T10:59:34.187901+00:00",
+          "legal_basis": "Art. 16, 17 und gegebenenfalls 20 DSA; Rechtsverteidigung",
+          "policy_version": "retention-v1-2026-09-13",
+          "retention_rule": "Nach Abschluss gesperrt; konkrete Löschfrist vor Produktivstart rechtlich bestätigen.",
+          "automatic_until_supported": false
+        },
+        {
+          "purpose": "Koordination persönlicher Übergaben",
+          "category": "pickup_messages",
+          "updated_at": "2026-09-17T10:16:16.708574+00:00",
+          "legal_basis": "external_review_required",
+          "policy_version": "b07-pickup-messages-data-rights-v1",
+          "retention_rule": "Bis zur extern bestätigten Rechtsgrundlage/Aufbewahrungsfrist nur manueller Retention-Hold; keine automatische Löschfrist.",
+          "automatic_until_supported": false
+        }
+      ],
+      "withdrawal": [
+        {
+          "id": "7b0f82d7-9d3c-40f0-8f7f-851737efab94",
+          "hash_ok": true,
+          "contract_snapshot_id": "801ae92b-9569-4178-a1c2-2ece5165d6a3"
+        }
+      ],
+      "mfa_function": null,
+      "stripe_accounts": [
+        {
+          "live_mode": false,
+          "charges_enabled": true,
+          "payouts_enabled": true,
+          "details_submitted": true,
+          "onboarding_status": "ready",
+          "stripe_account_id": "acct_1UFU7JDwFcjtFwoY"
+        }
+      ]
+    }
+  }
+]
