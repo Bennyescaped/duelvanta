@@ -17,11 +17,11 @@ Deno.serve(async(req)=>{
     const userClient=createClient(url,publishable,{global:{headers:{Authorization:auth}},auth:{persistSession:false}});
     const {data:{user},error:userError}=await userClient.auth.getUser();
     if(userError||!user) return reply({error:"not_authenticated"},401);
-    const {data:isOwner,error:ownerError}=await userClient.rpc("is_duelvanta_owner",{p_uid:user.id});
-    if(ownerError||isOwner!==true) return reply({error:"owner_required"},403);
+    const {data:access,error:ownerError}=await userClient.rpc("get_my_privileged_access_v1");
+    if(ownerError||access?.owner!==true||access?.privileged!==true) return reply({error:"owner_mfa_session_required"},403);
     const body=await req.json().catch(()=>({}));
     const email=String(body?.email||"").trim().toLowerCase();
-    if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return reply({error:"invalid_email"},400);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply({error:"invalid_email"},400);
     const redirectTo=String(body?.redirectTo||"").trim();
     const admin=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
     const options:Record<string,unknown>={data:{duelvanta_invited:true}};

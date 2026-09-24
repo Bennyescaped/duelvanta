@@ -66,6 +66,10 @@ on:
       - 'database/market-stripe-*.sql'
       - 'database/market-production-*.sql'
       - 'database/auth-*.sql'
+      - 'database/security-*.sql'
+      - 'tests/security-*.mjs'
+      - 'tests/generate-security-readiness.mjs'
+      - 'tests/helpers/security-schema-fixture.mjs'
       - 'api/compliance-message-dispatch.js'
       - 'api/account-data-erasure.js'
       - 'api/market-stripe-*.js'
@@ -158,6 +162,18 @@ jobs:
           node tests/generate-legal-readiness.mjs --check
           node tests/trade-legal-schema-readiness-database-test.mjs --native | tee test-results/trade-legal-schema-readiness.log
           node tests/trade-legal-withdrawal-database-test.mjs | tee test-results/trade-withdrawal-postgres.log
+      - name: Step 9A native PostgreSQL17 privilege and MFA contract
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --check
+          node tests/security-privilege-mfa-database-test.mjs | tee test-results/security-step9a-postgres.log
+      - name: Step 9A PostgreSQL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-step9a-postgres-evidence
+          path: test-results/security-step9a*
+          if-no-files-found: error
       - name: F3 PostgreSQL evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -317,6 +333,8 @@ jobs:
           .github/ci/node_modules/.bin/playwright install chromium
       - name: Battle and profile database access boundaries
         run: node tests/auth-boundary-database-test.mjs
+      - name: Step 9A MFA browser and Edge service boundary
+        run: node tests/security-mfa-browser-test.mjs
       - name: Trade contracts and mobile order flow
         run: |
           node --check trade-marketplace-ux.js
