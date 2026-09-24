@@ -4,7 +4,7 @@
    original SDK state remains in this page. Never label mocked tests as live MFA. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id),config=window.DV_SUPABASE;
-if(config?.environment!=='preview'||config.url!=='https://xhmjxrcskfhbovhitdej.supabase.co'||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.key||'')){
+if(config?.environment!=='preview'||!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url||'')||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.key||'')){
   $('state').textContent='GESPERRT: Nur DUELVANTA-STAGING Preview ist zugelassen.';return;
 }
 const db=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:false,detectSessionInUrl:false}});
@@ -12,7 +12,7 @@ $('links').hidden=false;$('run').disabled=false;$('logout').disabled=false;
 $('state').textContent='Staging bestätigt. AAL1 wird bewusst nicht im Browser vorab abgefangen; das Backend muss ablehnen.';
 const safeMessages=new Set(['mfa_step_up_required','privileged_session_required','human_session_required','not_authenticated','owner_access_required','battle_moderate permission required','Owner approval required during beta','Application unavailable','Match not found','owner_mfa_session_required','invalid_email','Invalid JWT']);
 const cleanError=e=>({code:/^[A-Z0-9_]{1,24}$/.test(e?.code||'')?e.code:null,reason:safeMessages.has(e?.message)?e.message:'backend_error_redacted'});
-const rows=[];const render=()=>{$('results').textContent=JSON.stringify({project:'xhmjxrcskfhbovhitdej',source:'real_browser_sdk',at:new Date().toISOString(),results:rows},null,2)};
+const rows=[];const render=()=>{$('results').textContent=JSON.stringify({environment:config.environment,supabase_url:config.url,source:'real_browser_sdk',at:new Date().toISOString(),results:rows},null,2)};
 async function rpc(name,args={},schema='public'){
   const result=await db.schema(schema).rpc(name,args);
   const row={test:schema+'.'+name,http:result.status,ok:!result.error};

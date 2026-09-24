@@ -1,6 +1,9 @@
 // Isolated UI contract; not a genuine MFA or live-session result.
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {createRequire} from 'node:module';
+const {resolveSupabaseRuntimeConfig}=createRequire(import.meta.url)('../supabase-environment.js');
+assert.throws(()=>resolveSupabaseRuntimeConfig({VERCEL_ENV:'preview',SUPABASE_URL:'https://enifiaqsnqtbzylnfrpi.supabase.co'}),/supabase_environment_mismatch/);
 import {readFile} from 'node:fs/promises';
 const src=await readFile(new URL('../security-live-acceptance.js',import.meta.url),'utf8');
 async function fixture(config,{aal2=false,revoked=false}={}){
@@ -22,7 +25,7 @@ async function fixture(config,{aal2=false,revoked=false}={}){
  return{nodes,calls,clients};
 }
 const staging={environment:'preview',url:'https://xhmjxrcskfhbovhitdej.supabase.co',key:'sb_publishable_isolatedfixture'};
-for(const config of [null,{...staging,environment:'production'},{...staging,environment:'development'},{...staging,url:'https://enifiaqsnqtbzylnfrpi.supabase.co'},{...staging,key:'not-a-publishable-key'}]){
+for(const config of [null,{...staging,environment:'production'},{...staging,environment:'development'},{...staging,url:'https://invalid.example'},{...staging,key:'not-a-publishable-key'}]){
  const f=await fixture(config);assert.equal(f.clients,0);assert.equal(f.nodes.run.disabled,true);assert.equal(f.nodes.links.hidden,true);
 }
 for(const options of [{},{aal2:true},{aal2:true,revoked:true}]){
