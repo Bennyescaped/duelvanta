@@ -336,7 +336,9 @@ jobs:
       - name: Battle and profile database access boundaries
         run: node tests/auth-boundary-database-test.mjs
       - name: Step 9A MFA browser and Edge service boundary
-        run: node tests/security-mfa-browser-test.mjs
+        run: |
+          node tests/security-mfa-browser-test.mjs
+          node tests/security-live-acceptance-test.mjs
       - name: Trade contracts and mobile order flow
         run: |
           node --check trade-marketplace-ux.js
