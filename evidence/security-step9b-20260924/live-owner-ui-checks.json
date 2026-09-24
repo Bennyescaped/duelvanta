@@ -1,0 +1,35 @@
+{
+  "project": "xhmjxrcskfhbovhitdej",
+  "operator": "d222ffad-234c-41fa-a688-ade146edfd71",
+  "aal2": {
+    "server_matching_verified_factor_session_count": 1,
+    "control_center_members_visible": 6
+  },
+  "signout": {
+    "method": "regular application signout",
+    "remaining_auth_sessions": 0,
+    "stale_token_replay_tested": false
+  },
+  "aal1": {
+    "method": "real password login without MFA",
+    "server_sessions": 1,
+    "server_aal": "aal1",
+    "control_center_navigation_result": "redirect to 2FA bestaetigen; no member table displayed",
+    "direct_rpc_denial_live_tested": false
+  },
+  "normal_ui": {
+    "collect": "empty genuine operator collection loaded",
+    "trade": "personal eligibility confirmation required; no fabricated DOB or declaration",
+    "battle": "personal age/Arena Code/Safety consent required; no fabricated consent"
+  },
+  "limitations": [
+    "UI step-up is not by itself direct RPC rejection evidence",
+    "Foreign/expired session and staff role negatives remain isolated PG17 evidence until live acceptance is completed"
+  ],
+  "aal2_restored": {
+    "server_matching_verified_factor_session_count": 1,
+    "control_center_members_visible": 6,
+    "scanner_rpc": "dv_v16_owner_openai_scan_settings succeeded through normal KI Scanner UI; Einstellungen aktuell",
+    "scanner_configuration_changed": false
+  }
+}
