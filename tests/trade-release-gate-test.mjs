@@ -10,6 +10,7 @@ const dispatcher=await readFile(new URL('../api/compliance-message-dispatch.js',
 assert.match(html,/trade-release-gate\.css\?v=1\.1/);
 assert.match(html,/trade-release-gate\.js\?v=1\.5/);
 assert.match(html,/trade-legal-live-diagnostics\.js\?v=1\.1/);
+assert.match(html,/trade-stripe-off-diagnostics\.js\?v=1\.0/);
 assert.ok(html.indexOf('trade-legal-live-diagnostics.js?v=1.1')<html.indexOf('trade-legal-readiness.js?v=1.2'));
 assert.ok(html.indexOf('trade-legal-readiness.js?v=1.2')<html.indexOf('trade-release-gate.js?v=1.5'));
 assert.match(html,/id="tradeBootScreen"/);
