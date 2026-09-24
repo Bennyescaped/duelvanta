@@ -2,6 +2,57 @@
 -- Apply in disposable tests first; no live authorization is implied.
 -- Human administrative actions never accept a service_role/MFA bypass.
 begin;
+-- Step 9B: project-local immutable operator binding. Data is provisioned by the
+-- database administrator from the verified operator account, never browser input.
+create table if not exists dv_v16_private.operator_identity_v1 (
+  singleton boolean primary key default true check (singleton),
+  user_id uuid not null unique references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now()
+);
+alter table dv_v16_private.operator_identity_v1 enable row level security;
+revoke all on dv_v16_private.operator_identity_v1 from public,anon,authenticated,service_role;
+-- No update on reapplication: email reassignment must never transfer ownership.
+insert into dv_v16_private.operator_identity_v1(singleton,user_id)
+select true,u.id from auth.users u join public.profiles p on p.id=u.id
+where lower(u.email)='info@duelvanta.de' and u.email_confirmed_at is not null
+  and p.role='owner' and p.account_status in ('active','beta')
+  and not coalesce(p.safety_restricted,false)
+on conflict (singleton) do nothing;
+
+create or replace function public.is_duelvanta_owner(p_uid uuid default auth.uid())
+returns boolean language sql stable security definer set search_path='' as $owner$
+  select exists(select 1 from dv_v16_private.operator_identity_v1 b
+    join auth.users u on u.id=b.user_id
+    where b.singleton and b.user_id=p_uid
+      and lower(u.email)='info@duelvanta.de' and u.email_confirmed_at is not null);
+$owner$;
+
+create or replace function public.protect_duelvanta_owner_profile()
+returns trigger language plpgsql security definer set search_path='' as $owner$
+declare bound_uid uuid;
+begin
+  select user_id into bound_uid from dv_v16_private.operator_identity_v1 where singleton;
+  if old.id=bound_uid then
+    if new.id is distinct from old.id or new.role is distinct from 'owner'
+       or lower(new.email) is distinct from 'info@duelvanta.de'
+       or new.account_status not in ('active','beta') then
+      raise exception 'DUELVANTA owner identity is protected';
+    end if;
+  end if;
+  if new.role='owner' and new.id is distinct from bound_uid then
+    raise exception 'Owner role is reserved';
+  end if;
+  return new;
+end $owner$;
+
+create or replace function public.prevent_duelvanta_owner_delete()
+returns trigger language plpgsql security definer set search_path='' as $owner$
+begin
+  if exists(select 1 from dv_v16_private.operator_identity_v1 where singleton and user_id=old.id)
+    then raise exception 'DUELVANTA owner cannot be deleted'; end if;
+  return old;
+end $owner$;
+
 create or replace function public.has_duelvanta_privileged_session()
 returns boolean language plpgsql stable security definer set search_path='' as $$
 declare j jsonb:=auth.jwt(); u uuid:=auth.uid(); sid uuid;

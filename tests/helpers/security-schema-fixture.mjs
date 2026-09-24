@@ -7,7 +7,8 @@ export const read=path=>readFile(new URL('../../'+path,import.meta.url),'utf8');
 const qi=s=>'"'+s.replaceAll('"','""')+'"';
 export async function securitySchemaFixture(db){
  await legalSchemaFixture(db);
- await db.exec(`create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
+ await db.exec(`alter table auth.users add column if not exists email_confirmed_at timestamptz;
+ create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
  create or replace function auth.uid() returns uuid language sql stable as $$select nullif(auth.jwt()->>'sub','')::uuid$$;
  create table auth.mfa_factors(id uuid primary key,user_id uuid not null,status text not null);
  create table auth.sessions(id uuid primary key,user_id uuid not null,factor_id uuid,aal text,not_after timestamptz);

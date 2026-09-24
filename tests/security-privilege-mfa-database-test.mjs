@@ -11,7 +11,7 @@ else{const {createDatabase}=await import('./helpers/f3-native-db.mjs');db=await 
 const report={native:!local,serverVersion:db.version||null,head:process.env.F3_HEAD_SHA||null,synthetic:true,liveApplied:false,cases:[],passed:false};
 const pass=name=>{report.cases.push(name);console.log('PASS:',name)};
 const uid=n=>`91000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
-const OWNER='516e648b-e513-41fa-ab0e-8fb8f9b39171',ADMIN=uid(2),MOD=uid(3),JUDGE=uid(4),BUYER=uid(5),SELLER=uid(6),OTHER=uid(7),MATCH=uid(20),FOLDER=uid(21),ITEM=uid(22),LIST=uid(23);
+const OWNER=uid(1),ADMIN=uid(2),MOD=uid(3),JUDGE=uid(4),BUYER=uid(5),SELLER=uid(6),OTHER=uid(7),MATCH=uid(20),FOLDER=uid(21),ITEM=uid(22),LIST=uid(23);
 const users=[OWNER,ADMIN,MOD,JUDGE,BUYER,SELLER,OTHER],roles=['owner','admin','moderator','judge','player','player','player'];
 const sessions=new Map(users.map((u,i)=>[u,uid(100+i)])),factors=new Map(users.map((u,i)=>[u,uid(200+i)]));
 const claim=async(u=OWNER,{aal='aal2',role='authenticated',sid=sessions.get(u),jwtRole=role,anonymous=false}={})=>{
@@ -29,6 +29,8 @@ try{
  assert.equal(baseline.length,inventory.length);
  for(const f of inventory)assert.equal(baseline.find(x=>key(x)===key(f))?.definition_md5,f.definition_md5,key(f));
  report.baseline={functions:baseline.length,missing:0,changed:0};pass('all 299 baseline application function definitions match V51 evidence');
+ await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'info@duelvanta.de',now())",[OWNER]);
+ await db.query("insert into public.profiles(id,email,role,account_status) values($1,'info@duelvanta.de','owner','beta')",[OWNER]);
  const files=['database/auth-privileged-step-up-v1.sql','database/security-privilege-mfa-hardening-v1.sql','database/security-readiness-v1.sql'];
  report.sources={};for(const f of files){const sql=await read(f);report.sources[f]=createHash('sha256').update(sql).digest('hex');await db.exec(sql)}
  const security=()=>scalar('select public.get_security_schema_readiness_v1() v');
@@ -39,11 +41,33 @@ try{
  for(const f of files)await db.exec(await read(f));assert.equal((await security()).compatible,true);pass('candidate reapplication is idempotent');
  for(let i=0;i<users.length;i++){
   const u=users[i],email=u===OWNER?'info@duelvanta.de':`synthetic-${i}@example.invalid`;
-  await db.query('insert into auth.users(id,email) values($1,$2)',[u,email]);
-  await db.query("insert into public.profiles(id,email,role,account_status,age_band) values($1,$2,$3,'active','18_plus')",[u,email,roles[i]]);
+  await db.query('insert into auth.users(id,email) values($1,$2) on conflict(id) do nothing',[u,email]);
+  await db.query("insert into public.profiles(id,email,role,account_status,age_band) values($1,$2,$3,'active','18_plus') on conflict(id) do update set age_band='18_plus',account_status='active'",[u,email,roles[i]]);
   await db.query("insert into auth.mfa_factors(id,user_id,status) values($1,$2,'verified')",[factors.get(u),u]);
   await db.query("insert into auth.sessions(id,user_id,factor_id,aal) values($1,$2,$3,'aal2')",[sessions.get(u),u,factors.get(u)]);
  }
+ await db.exec('reset role');
+ assert.equal(await scalar(`select public.is_duelvanta_owner('${OWNER}') v`),true);
+ assert.equal(await scalar("select public.is_duelvanta_owner('516e648b-e513-41fa-ab0e-8fb8f9b39171') v"),false);
+ await changed(`update auth.users set email='changed@example.invalid' where id='${OWNER}'`,async()=>{
+  assert.equal(await scalar(`select public.is_duelvanta_owner('${OWNER}') v`),false);
+  await db.query(`update auth.users set email='info@duelvanta.de',email_confirmed_at=now() where id='${BUYER}'`);
+  await db.exec((await read(files[0])).replace(/^(begin|commit);$/gm,''));
+  assert.equal(await scalar(`select public.is_duelvanta_owner('${BUYER}') v`),false);
+  assert.equal(await scalar('select user_id::text v from dv_v16_private.operator_identity_v1'),OWNER);
+  await deny(`delete from public.profiles where id='${OWNER}'`,/owner cannot be deleted/i);
+ });
+ await changed(`update auth.users set email_confirmed_at=null where id='${OWNER}'`,async()=>assert.equal(await scalar(`select public.is_duelvanta_owner('${OWNER}') v`),false));
+ await deny(`update public.profiles set role='player' where id='${OWNER}'`,/owner identity is protected/i);
+ await deny(`update public.profiles set role='owner' where id='${BUYER}'`,/Owner role is reserved/);
+ await deny(`delete from auth.users where id='${OWNER}'`,/foreign key|owner/i);
+ for(const role of ['anon','authenticated','service_role']){
+  await claim(OWNER,{role});await deny('select * from dv_v16_private.operator_identity_v1');
+  await deny(`update dv_v16_private.operator_identity_v1 set user_id='${BUYER}'`);
+ }
+ await db.exec('reset role');
+ await changed('delete from dv_v16_private.operator_identity_v1',async()=>assert.equal(await scalar(`select public.is_duelvanta_owner('${OWNER}') v`),false));
+ pass('project-local operator binding: no legacy UUID fallback, unverified email, reassignment or browser/service writes');
  await db.query("insert into public.staff_permissions(user_id,permission,granted_by) values($1,'battle_moderate',$3),($2,'battle_moderate',$3),($2,'reports_review',$3),($2,'users_restrict',$3)",[JUDGE,MOD,OWNER]);
  await db.query("insert into public.battle_matches(id,host_id,guest_id,tcg,status,visibility) values($1,$2,$3,'pokemon','live','private')",[MATCH,BUYER,SELLER]);
  await db.query("insert into public.battle_reports(reporter_id,reported_user_id,match_id,category) values($1,$2,$3,'other')",[BUYER,SELLER,MATCH]);
