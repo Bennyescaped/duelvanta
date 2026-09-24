@@ -336,7 +336,6 @@ jobs:
           node --check api/market-stripe-lib.js
           node --check api/market-stripe-onboarding.js
           node --check api/market-stripe-checkout.js
-          node --check api/market-stripe-off-proof.js
           node --check api/market-stripe-webhook.js
           node --check api/market-stripe-refund.js
           node --check profile.js

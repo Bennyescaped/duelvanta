@@ -199,6 +199,18 @@ async function existingOrderCheckout(req,res,mode,user){
 }
 
 module.exports=async function handler(req,res){
+  const offProbe=req.method==='GET'&&String(req.query?.off_probe||'')==='1';
+  if(offProbe){
+    if(process.env.VERCEL_ENV!=='preview')return json(res,404,{error:'not_found'});
+    try{
+      stripeMode('payments');
+      return json(res,409,{status:'fail',error:'stripe_mode_enabled',provider_call_possible:false});
+    }catch(error){
+      const code=String(error.message||error);
+      const pass=code==='stripe_sandbox_disabled';
+      return json(res,pass?200:409,{status:pass?'pass':'fail',error:code,provider_call_possible:false});
+    }
+  }
   if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'});
   let mode;try{mode=stripeMode('payments')}catch(error){const code=String(error.message||error);return json(res,code==='stripe_sandbox_disabled'?409:503,{error:code})}
   const user=await authenticatedUser(req);if(!user)return json(res,401,{error:'authentication_required'});
