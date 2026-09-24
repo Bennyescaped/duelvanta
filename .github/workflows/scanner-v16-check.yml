@@ -336,6 +336,7 @@ jobs:
           node --check api/market-stripe-lib.js
           node --check api/market-stripe-onboarding.js
           node --check api/market-stripe-checkout.js
+          node --check api/market-stripe-off-proof.js
           node --check api/market-stripe-webhook.js
           node --check api/market-stripe-refund.js
           node --check profile.js
@@ -371,6 +372,7 @@ jobs:
           node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/market-stripe-connect-contract-test.mjs
           node tests/market-stripe-connect-api-test.mjs
+          node tests/market-stripe-off-proof-api-test.mjs
           node tests/market-stripe-connect-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/market-stripe-live-mode-api-test.mjs
           node tests/market-stripe-live-mode-database-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
