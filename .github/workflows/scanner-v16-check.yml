@@ -68,6 +68,8 @@ on:
       - 'database/auth-*.sql'
       - 'database/security-*.sql'
       - 'tests/security-*.mjs'
+      - 'supabase/functions/owner-invite-beta-user/**'
+      - 'supabase/functions/invite-beta-user/**'
       - 'tests/generate-security-readiness.mjs'
       - 'tests/helpers/security-schema-fixture.mjs'
       - 'api/compliance-message-dispatch.js'

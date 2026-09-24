@@ -137,6 +137,21 @@ try{
  assert.equal((await db.query('select * from public.get_pending_battle_spectator_media_revocations(1)')).rows.length,0);
  await claim(BUYER,{aal:'aal1'});await deny(`select * from public.claim_marketplace_message_delivery(25,'${uid(800)}')`);await deny('select * from public.get_pending_battle_spectator_media_revocations(1)');
  pass('AAL1 listing price offer B2C snapshot withdrawal; authorized service outbox/media worker; no provider call');
+ // Fixed-price SQL contract with synthetic provider identifiers in disposable DB only.
+ await db.exec(`reset role;
+ insert into dv_market_private.market_payment_configuration(singleton,sandbox_enabled,live_mode,platform_fee_bps,platform_fee_fixed_cents) values(true,true,false,0,0);
+ insert into dv_market_private.market_stripe_accounts(seller_id,stripe_account_id,live_mode,onboarding_status,charges_enabled,details_submitted) values('${SELLER}','acct_step9afixture',false,'ready',true,true);`);
+ await claim(SELLER,{aal:'aal1'});await db.query(`insert into public.market_listings(id,seller_id,status,listing_type,pricing_mode,asking_price,shipping_method,shipping_cost,tcg,card_name) values('${uid(24)}','${SELLER}','active','sale','fixed',10,'pickup',0,'pokemon','Synthetic fixed price')`);
+ await claim(BUYER,{aal:'aal1'});const fixedReview=await scalar(`select public.review_market_checkout('${uid(24)}',1) v`);
+ const fixed=(await db.query('select public.prepare_fixed_price_market_offer_v1($1,1,$2,$3,$4,false) v',[uid(24),uid(25),fixedReview.listing_updated_at,fixedReview.checkout_hash])).rows[0].v;
+ await deny(`select public.accept_fixed_price_market_offer_v1('${fixed.offer_id}','${fixed.payment_attempt_id}','cs_test_step9a_fixture',now(),false)`);
+ await claim(null,{role:'service_role',sid:null});
+ const accepted=await scalar(`select public.accept_fixed_price_market_offer_v1('${fixed.offer_id}','${fixed.payment_attempt_id}','cs_test_step9a_fixture',now(),false) v`);
+ assert.ok(accepted.order_id);await db.query(`select public.accept_fixed_price_market_offer_v1('${fixed.offer_id}','${fixed.payment_attempt_id}','cs_test_step9a_fixture',now(),false)`);
+ await db.exec('reset role');assert.equal(Number(await scalar(`select count(*) v from dv_market_private.market_payment_attempts where id='${fixed.payment_attempt_id}'`)),1);
+ assert.equal(Number(await scalar(`select count(*) v from public.market_deals where offer_id='${fixed.offer_id}'`)),1);
+ assert.equal(Number(await scalar(`select count(*) v from dv_market_private.market_payment_allocations where attempt_id='${fixed.payment_attempt_id}'`)),1);
+ pass('hardened fixed-price user/service separation and idempotent attempt/order/allocation; synthetic SQL only');
  // Privileged cores/aliases cannot be used, even if a legacy core exists from the old B06 draft.
  await db.exec(`reset role;create function public.dv_core_set_staff_role(uuid,text,text) returns text language sql security definer as $$select 'unsafe legacy'$$;grant execute on function public.dv_core_set_staff_role(uuid,text,text) to public,anon,authenticated,service_role`);
  await db.exec(await read(files[0]));for(const r of ['anon','authenticated','service_role']){await claim(OWNER,{role:r});await deny(`select public.dv_core_set_staff_role('${BUYER}','owner',null)`)}await db.exec('reset role;drop function public.dv_core_set_staff_role(uuid,text,text)');
