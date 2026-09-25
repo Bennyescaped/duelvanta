@@ -1,0 +1,9 @@
+{
+  "ci-attestation.json": "8f57edaef28332b151ed7e210c440de0e0e5c6c95d05492c863d4d94e555dfd3",
+  "native-job.log": "0e2dbef4ea7ca515b06657ee2bfb810633391724c58fc80fdd21ad670427aa48",
+  "production-trade-lock-cases.json": "ffca10bdf461fe21954f61c1b9c7d9633c825466bd7b876b75df2be3380eee86",
+  "production-trade-lock-native.log": "6b196824bb748fa454453b74d7d55b7d08a2aed1bea54e5c46f7a0934810654c",
+  "production-trade-lock-synthetic-existing-native.json": "c19230e95a576d5d33efd4c9a3c6a817bfaac0a81bccd7f0bfb49583c5c68917",
+  "production-upgrade-empty-native.json": "690de0eb4f7e8ea924a931ac6bd51ccbfaa06e3b87184361e469b0718f31ffe6",
+  "production-upgrade-synthetic-existing-native.json": "c67a879b271394d8ab8a1fb2bc1d0ba8f8607d5c5ed98aa7a0f58b760b3a15f1"
+}
