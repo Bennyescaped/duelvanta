@@ -1,3 +1,23 @@
+# DUELVANTA – V56: Schritt 9C abgeschlossen
+
+25.09.2026, 04:25 UTC. **Schritt9C PASS im ausdrücklich dokumentierten V55-Prüfumfang; P0-03 in diesem Umfang geschlossen. Production bleibt NO-GO. Kein P0-01 begonnen.**
+
+Der Betreiber hat im aktuellen Chat ausdrücklich die endgültige Löschung von `DUELVANTA-RECOVERY-9C-20260924` freigegeben. Das temporäre Projekt `olgwhgcrtsgsyymiglbu` wurde anschließend über das Supabase-Dashboard endgültig gelöscht. Die frische Connector-Projektliste und die Dashboardübersicht zeigen nur noch Production `enifiaqsnqtbzylnfrpi` und Staging `xhmjxrcskfhbovhitdej`, beide ACTIVE_HEALTHY. Keine erneute Freigabesperre, keine Umgehung und keine Quellmutation. Das Testprojekt bleibt nicht als laufende kostenpflichtige Ressource bestehen; bereits entstandene anteilige Gebühren sind damit nicht rückwirkend aufgehoben.
+
+Evidenz: `evidence/recovery-step9c-20260924/cleanup-completed.json` und `cleanup-completed.jpg`. Die frühere automatische Ablehnung und der damalige BLOCKIERT-Status unten sind historische Zwischenstände und gelten nicht mehr.
+
+Die bisherigen Nachweise bleiben unverändert: isolierter Production-DB/Auth-Restore, Katalog-/Rollen-/ACL-/Hash-/FK-Vergleich, vollständige Sicherung aller91Storageoriginale und drei bytegleiche Storage-Service-Rückspielproben. **Keine Ausweitung des PASS:** kein Restore aller91Dateien in den Storage-Dienst, kein zusätzlicher Staging-DB-Restore, kein Endnutzerlogin im Clone, kein bitidentischer Storage-Metadatenrestore und keine vollständige Wiederherstellung externer Providersecrets. Diese Grenzen bleiben im Bericht ausdrücklich bestehen. P0-04/Providerkonfiguration und sonstige V51-Blocker werden hierdurch nicht geschlossen.
+
+Privates Storagebackup und ursprüngliche verwaltete Quellbackups bleiben erhalten. PITR wurde nicht aktiviert. Kein Merge/main-Eingriff, Production-Restore/-Migration/-Deployment, keine Zahlung/E-Mail/Domainänderung.
+
+Repositorybasis für diesen reinen Dokumentationsabschluss: `f655531d932a47e465d455b6baf3d77bfc6bec4e` auf `marketplace-ux-v1`. Scanner723/36091560052 und Battle199/36091560105 beide SUCCESS. main `50f88213571be13255bb52eb489cc28cca660001`, PR5 open/Draft/unmerged. Die Nachfolger-SHA mit diesem Abschluss wird im Chat genannt; vor Folgearbeit Remote erneut prüfen. Kein Code geändert.
+
+**Nächster einziger fachlicher Block nach gesondertem Auftrag: P0-01 – quellen-/abhängigkeitsgebundene Production-Migrationskette und isoliertes Rehearsal vorbereiten. Jetzt STOP.** Keine Production-Ausführung und kein automatischer Beginn von P0-01.
+
+---
+
+## Vorheriger Stand vor der ausdrücklichen Löschfreigabe
+
 # DUELVANTA – MASTERHANDOUT V56, aktualisierte Fortsetzung
 
 25.09.2026, 03:40 UTC. **Schritt9C: DB/Auth-Rehearsal und drei Storage-Rückspielproben PASS; geordneter Abschluss BLOCKIERT an Löschfreigabe des temporären Projekts. P0-03 bis Cleanup offen. Production NO-GO. Kein P0-01.**
