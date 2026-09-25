@@ -68,6 +68,9 @@ on:
       - 'database/auth-*.sql'
       - 'database/security-*.sql'
       - 'tests/security-*.mjs'
+      - 'tests/production-upgrade-*.mjs'
+      - 'database/production-upgrade/**'
+      - 'database/production-upgrade-manifest-v1.json'
       - 'supabase/functions/owner-invite-beta-user/**'
       - 'supabase/functions/invite-beta-user/**'
       - 'tests/generate-security-readiness.mjs'
@@ -122,6 +125,46 @@ on:
       - '.github/workflows/scanner-v16-check.yml'
   workflow_dispatch:
 jobs:
+  production_upgrade_p001:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+      - name: Reconstruct Production baseline and rehearse source-bound upgrade
+        run: |
+          mkdir -p test-results
+          set -o pipefail
+          node tests/production-upgrade-rehearsal.mjs --native | tee test-results/production-upgrade-native.log
+      - name: P0-01 synthetic rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-upgrade-p001-evidence
+          path: test-results/production-*
+          if-no-files-found: error
   collect_f3_database:
     runs-on: ubuntu-latest
     timeout-minutes: 6
