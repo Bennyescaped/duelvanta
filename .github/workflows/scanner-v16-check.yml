@@ -70,6 +70,8 @@ on:
       - 'tests/security-*.mjs'
       - 'tests/production-upgrade-*.mjs'
       - 'tests/helpers/production-upgrade-checks.mjs'
+      - 'tests/helpers/production-trade-lock-checks.mjs'
+      - 'tests/market-production-trade-lock-*.sql'
       - 'database/production-upgrade/**'
       - 'database/production-upgrade-manifest-v1.json'
       - 'supabase/functions/owner-invite-beta-user/**'
@@ -161,6 +163,7 @@ jobs:
           set -o pipefail
           node tests/production-upgrade-rehearsal.mjs --native --empty | tee test-results/production-upgrade-empty-native.log
           node tests/production-upgrade-rehearsal.mjs --native | tee test-results/production-upgrade-native.log
+          node tests/production-upgrade-rehearsal.mjs --native --trade-lock | tee test-results/production-trade-lock-native.log
       - name: P0-01 synthetic rehearsal evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -284,9 +287,6 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f database/b07-l07-01-c2c-swap-v1-problems.sql
           psql -v ON_ERROR_STOP=1 -f tests/b07-c2c-postgres-regression.sql
           psql -v ON_ERROR_STOP=1 -f tests/trade-sale-only-database.sql
-          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-bootstrap.sql
-          psql -v ON_ERROR_STOP=1 -f database/market-production-trade-lock-v1.sql
-          psql -v ON_ERROR_STOP=1 -f tests/market-production-trade-lock-database.sql
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12

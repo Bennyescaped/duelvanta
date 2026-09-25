@@ -23,6 +23,7 @@ async function generate(){
  try{
   await securitySchemaFixture(db);
   for(const f of ['database/auth-privileged-step-up-v1.sql','database/security-privilege-mfa-hardening-v1.sql'])await db.exec(await read(f));
+  if(process.argv.includes('--trade-lock'))await db.exec(await read('database/market-production-trade-lock-v1.sql'));
   await db.exec('set search_path=pg_catalog,public');
   const tables=(await db.query(`select n.nspname||'.'||c.relname name from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and (n.nspname='dv_market_private' or (n.nspname='public' and (c.relname like 'market_%' or c.relname='profiles'))) order by 1`)).rows.map(x=>x.name);
   const funcs=(await db.query(`select distinct n.nspname||'.'||p.proname name from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' or (n.nspname='public' and p.proname<>'get_market_legal_schema_readiness_v1' and (p.proname like '%market%' or p.proname like '%account_deletion%' or p.proname like '%duelvanta_data%' or p.proname like '%trade_eligibility%')) order by 1`)).rows.map(x=>x.name);
@@ -34,9 +35,10 @@ async function generate(){
  revoke all on function public.${name}() from public,anon,authenticated,service_role;
  grant execute on function public.${name}() to authenticated;\n`;}
   const output='-- Generated OFFLINE from reviewed fixture + explicit Step 9A candidate. No live drift inputs.\n-- Apply after both candidate SQL files. Legal semantics stay v1.2; security contract is separately versioned.\nbegin;\n'+sql('get_security_schema_readiness_v1',securityQuery,se,'privilege-mfa-v1')+sql('get_market_legal_schema_readiness_v1',legal,le,'trade-legal-contract-model-v1.2'," and coalesce((public.get_security_schema_readiness_v1()->>'compatible')::boolean,false)")+'commit;\n';
-  const path=new URL('../database/security-readiness-v1.sql',import.meta.url);
-  if(process.argv.includes('--check')){if(output!==await readFile(path,'utf8'))throw Error('Security contract stale; review semantic changes before offline regeneration');}
-  else await writeFile(path,output);
+  const rendered=process.argv.includes('--trade-lock')?output.replace('reviewed fixture + explicit Step 9A candidate','reviewed fixture + Step 9A + explicit P0-05 lock candidate').replace('Apply after both candidate SQL files.','Apply after market-production-trade-lock-v1.sql in the same release transaction.'):output;
+  const path=new URL(process.argv.includes('--trade-lock')?'../database/market-production-trade-lock-readiness-v1.sql':'../database/security-readiness-v1.sql',import.meta.url);
+  if(process.argv.includes('--check')){if(rendered!==await readFile(path,'utf8'))throw Error('Security contract stale; review semantic changes before offline regeneration');}
+  else await writeFile(path,rendered);
   console.log('PASS: authored security readiness contract',se.length,'security checks,',le.length,'legal checks');
  }finally{await db.close()}
 }

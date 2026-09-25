@@ -68,7 +68,8 @@ try {
  await writeFile('test-results/production-upgrade-readiness-diff.json',JSON.stringify(diff,null,2));
  console.log('READINESS DIFF',diff.length,diff.map(x=>x.key));
  assert.equal(readiness.security.compatible,true,'Security readiness must pass unchanged');assert.equal(readiness.legal.compatible,true,'Legal readiness must pass unchanged');
- report.status='PASS';console.log('P0-01 REHEARSAL COMPLETE');
+ if(process.argv.includes('--trade-lock')){stage='P0-05 lock';const {testProductionTradeLock}=await import('./helpers/production-trade-lock-checks.mjs');report.trade_lock=await testProductionTradeLock(db);}
+ report.status='PASS';console.log(process.argv.includes('--trade-lock')?'P0-05 REHEARSAL COMPLETE':'P0-01 REHEARSAL COMPLETE');
  }
 } catch(e){report.status='FAIL';report.failed_stage=stage;report.error=e.message;console.error('FAILED',stage,e.message,e.detail||'',e.where||'',e.hint||'',e.position||'');process.exitCode=1;}
-finally{await db.close();report.cleanup='isolated database closed/deleted';report.finished_at=new Date().toISOString();await mkdir('test-results',{recursive:true});await writeFile('test-results/production-upgrade-'+report.scenario+'-'+(native?'native':'wasm')+'.json',JSON.stringify(report,null,2));}
+finally{await db.close();report.cleanup='isolated database closed/deleted';report.finished_at=new Date().toISOString();await mkdir('test-results',{recursive:true});await writeFile('test-results/'+(process.argv.includes('--trade-lock')?'production-trade-lock-':'production-upgrade-')+report.scenario+'-'+(native?'native':'wasm')+'.json',JSON.stringify(report,null,2));}

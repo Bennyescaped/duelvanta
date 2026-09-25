@@ -1,48 +1,25 @@
 \set ON_ERROR_STOP on
-
+-- Catalog assertions accompany real RPC/lifecycle tests in production-trade-lock-checks.mjs.
 do $$
-declare
-  v_table text;
+declare t text; f record;
 begin
-  foreach v_table in array array[
-    'public.market_listings',
-    'public.market_offers',
-    'public.market_deals',
-    'public.market_orders',
-    'public.market_listing_images',
-    'public.market_seller_stats'
-  ] loop
-    if has_table_privilege('authenticated',v_table,'INSERT')
-       or has_table_privilege('authenticated',v_table,'UPDATE')
-       or has_table_privilege('authenticated',v_table,'DELETE') then
-      raise exception 'production_trade_lock_failed_table:%',v_table;
-    end if;
-    if not has_table_privilege('authenticated',v_table,'SELECT') then
-      raise exception 'production_trade_lock_removed_read:%',v_table;
+  foreach t in array array['market_listings','market_offers','market_deals','market_orders','market_order_items','market_listing_images','market_seller_stats'] loop
+    if has_table_privilege('authenticated','public.'||t,'INSERT') or has_table_privilege('authenticated','public.'||t,'UPDATE') or has_table_privilege('authenticated','public.'||t,'DELETE') then
+      raise exception 'production_trade_lock_failed_table:%',t;
     end if;
   end loop;
-
-  if has_function_privilege('authenticated','public.buy_market_listing_v99(uuid)','EXECUTE') then
-    raise exception 'production_trade_lock_failed_buy';
+  for f in select p.oid,p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname ~ '^(buy_market_listing(_v[0-9]+)?|create_market_offer(_v[0-9]+)?|create_sealed_market_listing_draft(_v[0-9]+)?|publish_my_sealed_market_listing|renew_my_market_listing)$'
+  loop
+    if has_function_privilege('anon',f.oid,'EXECUTE') or has_function_privilege('authenticated',f.oid,'EXECUTE') or has_function_privilege('service_role',f.oid,'EXECUTE') then
+      raise exception 'production_trade_lock_failed_rpc:%',f.proname;
+    end if;
+  end loop;
+  if not has_function_privilege('authenticated','public.confirm_market_order_received(uuid)','EXECUTE')
+     or not has_function_privilege('authenticated','public.get_my_market_orders()','EXECUTE')
+     or not has_function_privilege('authenticated','public.withdraw_my_market_offer(uuid)','EXECUTE')
+     or not has_function_privilege('authenticated','public.finish_my_market_listing(uuid,text)','EXECUTE')
+     or not has_function_privilege('service_role','public.prepare_market_stripe_full_refund(uuid,uuid,text)','EXECUTE') then
+    raise exception 'production_trade_lock_stranded_existing_work';
   end if;
-  if has_function_privilege('authenticated','public.create_market_offer_v99(uuid)','EXECUTE') then
-    raise exception 'production_trade_lock_failed_offer';
-  end if;
-  if has_function_privilege('authenticated','public.edit_my_market_listing_v99(uuid)','EXECUTE') then
-    raise exception 'production_trade_lock_failed_listing_edit';
-  end if;
-  if has_function_privilege('authenticated','public.respond_to_market_offer(uuid,text)','EXECUTE') then
-    raise exception 'production_trade_lock_failed_offer_response';
-  end if;
-
-  -- Existing-transaction completion and read paths intentionally remain usable.
-  if not has_function_privilege('authenticated','public.confirm_market_order_received(uuid)','EXECUTE') then
-    raise exception 'production_trade_lock_stranded_existing_order';
-  end if;
-  if not has_function_privilege('authenticated','public.get_my_market_orders()','EXECUTE') then
-    raise exception 'production_trade_lock_removed_order_read';
-  end if;
-end
-$$;
-
-select 'PASS: production TRADE hard lock blocks new commerce entry points without stranding existing order/read lifecycles' as result;
+end$$;
