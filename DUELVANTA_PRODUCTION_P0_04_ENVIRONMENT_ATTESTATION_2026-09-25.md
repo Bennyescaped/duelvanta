@@ -1,5 +1,7 @@
 # DUELVANTA – P0-04: Environment-/Key-/Origin-Bindung
 
+> **Abschlussstand V59:** Die vier später ausdrücklich freigegebenen Production-Variablen wurden eingerichtet und im dokumentierten Umfang attestiert. P0-04 PASS für gespeicherte Konfiguration, mit Write-only-Nachweisgrenze des Service-Keys; kein Deployment-/Runtime-PASS. Verbindlicher Abschluss: [V59](DUELVANTA_MASTERHANDOUT_V59_2026-09-25.md), [finale Evidenz](evidence/production-environment-p0-04-20260925/attestation-final.json). Der folgende V58-Bericht bleibt unverändert als historische Aufnahme vor Einrichtung; seine fehlenden Production-Einträge und damalige Freigabesperre sind durch V59 überholt.
+
 25.09.2026. **HARD STOP vor Production-Konfigurationsänderung. P0-04 nicht vollständig PASS.** Read-only-Inventar, Auth-Allowlist und sichere Konfigurationskandidaten vorbereitet. Keine Production-Mutation, Migration, kein Deploy, kein Merge; P0-05 nicht begonnen.
 
 ## Verbindliche Basis und Nachweise
