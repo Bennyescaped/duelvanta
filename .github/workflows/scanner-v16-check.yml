@@ -69,6 +69,7 @@ on:
       - 'database/security-*.sql'
       - 'tests/security-*.mjs'
       - 'tests/production-upgrade-*.mjs'
+      - 'tests/helpers/production-upgrade-checks.mjs'
       - 'database/production-upgrade/**'
       - 'database/production-upgrade-manifest-v1.json'
       - 'supabase/functions/owner-invite-beta-user/**'
@@ -157,6 +158,7 @@ jobs:
         run: |
           mkdir -p test-results
           set -o pipefail
+          node tests/production-upgrade-rehearsal.mjs --native --empty | tee test-results/production-upgrade-empty-native.log
           node tests/production-upgrade-rehearsal.mjs --native | tee test-results/production-upgrade-native.log
       - name: P0-01 synthetic rehearsal evidence
         if: always()

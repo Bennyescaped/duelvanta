@@ -5,523 +5,681 @@
   "baseline": {
     "history_count": 72,
     "last_version": "20260911181702",
-    "source": "tests/fixtures/production-upgrade/production-history-source.json.gz"
+    "source": "tests/fixtures/production-upgrade/production-history-source.json.gz",
+    "sha256": "1c9435cfb3d0f12d8041f80a57f71abe017b3d01b063144b838d838c0e195977"
   },
   "steps": [
     {
-      "id": "U001",
       "path": "database/market-seller-compliance-v1.sql",
       "sha256": "c946ec8fa0a16dcc5187b509052d626d8077f264180d1dbb786e25f56a2d1358",
-      "git_blob": "df86b0ebce89b4b132f5a527e8c57e3036911dee",
+      "id": "U001",
       "depends_on": [
         "production-history-72"
       ]
     },
     {
+      "path": "database/production-upgrade/notice-action-source-61404cf.sql",
+      "sha256": "e0d23a82cd6eafb5ae0b093f5cd5c6e6803990cc80043e5244ad5ca4216f9db5",
+      "origin": {
+        "commit": "61404cfad024940ada16857aab32d45a385a658f",
+        "path": "database/market-notice-action-v1.sql",
+        "reason": "Exact pre-digest-body-rewrite source; subsequent five-function pgcrypto hardening is explicit history step"
+      },
       "id": "U002",
-      "path": "database/market-notice-action-v1.sql",
-      "sha256": "0f652c5db49618a2cee63b33ee5b9c5543a63e91cfbb0f14a90fd06e8e94d315",
-      "git_blob": "6fc26a92363794691bd19c0ef9a4711a2b4f26cf",
       "depends_on": [
         "U001"
       ]
     },
     {
-      "id": "U003",
       "path": "database/market-checkout-compliance-v1.sql",
       "sha256": "9e99eb0764a7dea7c6827907022fbf63613abbc62ace1b6efcef7e0b7d673d13",
-      "git_blob": "e00ea76ca309617ac7ae260e7bad199d116eb78e",
+      "id": "U003",
       "depends_on": [
         "U002"
       ]
     },
     {
-      "id": "U004",
       "path": "database/market-tax-transparency-v1.sql",
       "sha256": "78704f83dab2c5f9341398fde0fe47c728b9f5ad39c64a6a41280b6c74fd7c38",
-      "git_blob": "4996155e5bf4dff9d3729b010e1c94884f0d94f3",
+      "id": "U004",
       "depends_on": [
         "U003"
       ]
     },
     {
-      "id": "U005",
       "path": "database/account-data-rights-v1.sql",
       "sha256": "10fb459dd82bdb0290a9c4cb47c5fbb3389395538acd6ef51688b8521e2e1b0f",
-      "git_blob": "2981a60a6d963c3c94e09fbebef2e8480fffb675",
+      "id": "U005",
       "depends_on": [
         "U004"
       ]
     },
     {
-      "id": "U006",
       "path": "database/account-data-erasure-username-guard-v1.sql",
       "sha256": "af97444fa3c578a9d61aeff42a249739ed56b301a2e86c72524cadef08faadfa",
-      "git_blob": "b148b1281d7ead4aa7386770bd6c5850130f1538",
+      "id": "U006",
       "depends_on": [
         "U005"
       ]
     },
     {
-      "id": "U007",
       "path": "database/market-stripe-connect-sandbox-v1.sql",
       "sha256": "0b0b229cbb4fdec7effa3b9cc39ef47706483aba5f7dd53db9e9841786498f5a",
-      "git_blob": "56f4d2c9fdebb3d37801b7ef88660e7f8d738c73",
+      "id": "U007",
       "depends_on": [
         "U006"
       ]
     },
     {
+      "path": "database/trade-order-resolution-v1.sql",
+      "sha256": "f4e2469cf546398891268e1038d265b96a692e697948a0b2b392b95fa0d33d96",
       "id": "U008",
-      "path": "database/pgcrypto-digest-schema-hardening-v1.sql",
-      "sha256": "108dfb3e22c6eb0643dd6d7995d4446205d0f19515dd7cc1968f9f78fac74072",
-      "git_blob": "5549419d59727e9fb7e69fcbe391c43ca992415d",
       "depends_on": [
         "U007"
       ]
     },
     {
+      "path": "database/trade-order-resolution-v1-hardening.sql",
+      "sha256": "7c6865e035ee14a53575e4120077de8662def1f481774930aadad5e240a4e7ac",
       "id": "U009",
-      "path": "database/market-stripe-payment-result-columns-v1.sql",
-      "sha256": "0024092d975a30356555f82574605100332d0c8e175e03a46704af56f55780c0",
-      "git_blob": "6d07e5d9eea426716f2bf4d4d2246b3201357b9c",
       "depends_on": [
         "U008"
       ]
     },
     {
+      "path": "database/trade-order-lifecycle-payment-hardening-v1.sql",
+      "sha256": "33ab0fb98f72a2b55ca11e87eb1f1b4ab33569279b789a71fb054412c8e5b02b",
       "id": "U010",
-      "path": "database/trade-actions-column-aliases-v1.sql",
-      "sha256": "708bf2218546aaf455232992e053b09338f088e92615d3e16000e2da8109f1f9",
-      "git_blob": "3493523146cda519cbcba0d384f98dd928f84931",
       "depends_on": [
         "U009"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260914092948",
+      "history_name": "pgcrypto_digest_schema_hardening_v1",
+      "sha256": "43a9532c52d6e676cc575025e4c859569f6dbe52de34ae93fe03bacbdb268f90",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U011",
-      "path": "database/market-stripe-event-ordering-hardening-v1.sql",
-      "sha256": "8e7a77f7a50ab57bdca48dafddb93ba1bcc0a1b41f3d6aa6e265d8783e639a07",
-      "git_blob": "157aad96a7c34a96eb56f24d7d259a9aa16461db",
       "depends_on": [
         "U010"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260914093254",
+      "history_name": "market_stripe_payment_result_columns_v1",
+      "sha256": "337c6e23a0f0cbb3b85f3bcfef2c02f0a4406cdf76b30397b17df85619d2be6b",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U012",
-      "path": "database/market-stripe-refund-evidence-hardening-v1.sql",
-      "sha256": "97963f5cf3cc681c22144aefd827bcaf8c240f21aeacf76aee1fc26a5744e908",
-      "git_blob": "fc567dc47ccbd16aae086f7fec0b38f93726935d",
       "depends_on": [
         "U011"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260914102659",
+      "history_name": "trade_actions_column_aliases_v1",
+      "sha256": "708bf2218546aaf455232992e053b09338f088e92615d3e16000e2da8109f1f9",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U013",
-      "path": "database/trade-order-resolution-v1.sql",
-      "sha256": "f4e2469cf546398891268e1038d265b96a692e697948a0b2b392b95fa0d33d96",
-      "git_blob": "4ae5ae5d3bcba5739a02ba10e14f5d3c4388f173",
       "depends_on": [
         "U012"
       ]
     },
     {
+      "path": "database/production-upgrade/trade-actions-reviewed-source.sql",
+      "sha256": "4419a07772ba4aad2e4adc4cdf2c71a691954ef987d4e0346a673e2831f749e8",
+      "origin": {
+        "equivalent_body_source": "database/trade-order-lifecycle-payment-hardening-v1.sql",
+        "formatting_source": "evidence/legal-step6-preflight-20260922/staging-application-schema.json.gz",
+        "function": "get_my_trade_actions"
+      },
       "id": "U014",
-      "path": "database/trade-order-resolution-v1-hardening.sql",
-      "sha256": "7c6865e035ee14a53575e4120077de8662def1f481774930aadad5e240a4e7ac",
-      "git_blob": "b128f9d5a18f9adbf338baeb5e7dd63591cd8f14",
       "depends_on": [
         "U013"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260915064648",
+      "history_name": "market_stripe_event_ordering_hardening_v1",
+      "sha256": "8e7a77f7a50ab57bdca48dafddb93ba1bcc0a1b41f3d6aa6e265d8783e639a07",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U015",
-      "path": "database/trade-order-lifecycle-payment-hardening-v1.sql",
-      "sha256": "33ab0fb98f72a2b55ca11e87eb1f1b4ab33569279b789a71fb054412c8e5b02b",
-      "git_blob": "d8eae73b955634a98499c9e5d1a1590daf8e5342",
       "depends_on": [
         "U014"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260915080258",
+      "history_name": "market_stripe_refund_evidence_hardening_v1",
+      "sha256": "1dd6ae238fe28dc036f532161e82655088ee7393f05c8fdff01f750a8dfa2b2e",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U016",
-      "path": "database/b07-l07-01-eligibility-guard-v1.sql",
-      "sha256": "e09e1793445af55a04f7aafc1271c8d665dbc0a396ebec2a7956f57d18870381",
-      "git_blob": "813fbcbb42d5129cab3af606e9e4d250a8f5c0e6",
       "depends_on": [
         "U015"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260915082005",
+      "history_name": "market_stripe_refund_evidence_immutability_fix_v1",
+      "sha256": "0100d1b58e5167e4fdd9abcd89efc6e5189595453087f5e53d8f33bf41361a62",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U017",
-      "path": "database/b07-l07-01-order-lifecycle-v1.sql",
-      "sha256": "6ae2acdc19aa449c17eaa5f42a3c18dd930d32913f110bba3c90eb64c031ff17",
-      "git_blob": "dafa2f197378e20ed82988a90b2a13dbc8fcf184",
       "depends_on": [
         "U016"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916073251",
+      "history_name": "b07_tracking_delivery_window_v1",
+      "sha256": "c54282d6a9d974ff440418f86ca153ad27e6a9aeb0b5efa1f7c5468de88c5be5",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "execute_prefix_bytes": 6221,
+      "deferred_sql_sha256": "10b0fc77b384c661aec8a07a510f514d858ca5e04d9c98651d24d82d47b67d8e",
+      "deferred_reason": "Cron installation and scheduling omitted explicitly; no automatic business actions in rehearsal",
       "id": "U018",
-      "path": "database/b07-l07-01-order-lifecycle-v1-hardening.sql",
-      "sha256": "d03801d910c6ce9eb745e8ad28d65d61705dca4d2334b2238e087f6c725928aa",
-      "git_blob": "a79451723e2331336acad25200d1fe9638aefb44",
       "depends_on": [
         "U017"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916081359",
+      "history_name": "b07_l07_01_release1_shipping_close_v1",
+      "sha256": "c91bc45fe7a56344b3b5d35914d375fa823a53b812ef5f7ebf46843e2da81fae",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U019",
-      "path": "database/b07-l07-01-seller-cancellation-v1.sql",
-      "sha256": "9ba281ca3cf2c8cbaf10d4bf73a80c42d8b0a344b06a75c61106260e5dcf7189",
-      "git_blob": "e611d404b450a05fe4209c42ecadf934bb08a900",
       "depends_on": [
         "U018"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916081618",
+      "history_name": "b07_l07_01_release1_shipping_close_v1_hardening",
+      "sha256": "b90409d1d7953e34c4f482bb84596e5f63914a8cd70aa597643e0cb10992728a",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U020",
-      "path": "database/b07-l07-01-public-listing-share-v1.sql",
-      "sha256": "40b03e5ef97f6b4c2e961c697841492948cdaee605b99fc8dec5bba2e0c86adc",
-      "git_blob": "01c023a7d993791fc36838da35f4eee38b17646c",
       "depends_on": [
         "U019"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916082424",
+      "history_name": "b07_l07_01_shipping_deadline_hardening_v1",
+      "sha256": "c1d0e2d176481c05738826357d13cbfedb7987a798c714096029e5c69ac97db2",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U021",
-      "path": "database/b07-l07-01-tracking-delivery-window-v1.sql",
-      "sha256": "78a74e7143a4e0c4ef5661e4600ba9f24a846eb2b7f5f46c6959723d146d8556",
-      "git_blob": "c93c23a2c496812b1654fc0cb234de9f42039e9d",
       "depends_on": [
         "U020"
-      ],
-      "line_ranges": [
-        [
-          1,
-          201
-        ]
-      ],
-      "deferred_lines": {
-        "from": 202,
-        "reason": "Cron activation explicitly excluded from isolated schema rehearsal; scheduler remains OFF"
-      }
+      ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916110622",
+      "history_name": "b07_c2c_eligibility_dependency_v1",
+      "sha256": "788cd6fd3bb53855773159a349645f65323d207da82efc7a8b3f1e32c735f030",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U022",
-      "path": "database/b07-l07-01-release1-shipping-close-v1.sql",
-      "sha256": "550755498f031b5b6cea5726379e886dad9deac71c014d0316606642727a678c",
-      "git_blob": "1b0860181751b63422cf0d0941de6e29f7525e7b",
       "depends_on": [
         "U021"
-      ],
-      "transactional_prefix": {
-        "path": "database/production-upgrade/20260925044357_production_upgrade_rpc_transition.sql",
-        "sha256": "b9f76575286607521d5126aceecda06058ce6aa358815b52a63f91018d9605fb"
-      }
+      ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916110653",
+      "history_name": "b07_l07_01_c2c_swap_v1_schema",
+      "sha256": "22787865e1e5ec7998d447497f59be6760c5e94a60b37c5cd1840b304b3479ec",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U023",
-      "path": "database/b07-l07-01-release1-shipping-close-v1-hardening.sql",
-      "sha256": "e1865a80316eecfb0da624d66201833b0969eeb976835f409fcf70a92fa04d05",
-      "git_blob": "55c995f028b65bafd8f9150039527504ca73f20f",
       "depends_on": [
         "U022"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916110745",
+      "history_name": "b07_l07_01_c2c_swap_v1_binding",
+      "sha256": "15063515db35dc37073d2b6f5c0f85c5b83a3fcdddd0448f77c897f5f81e4237",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U024",
-      "path": "database/b07-l07-01-shipping-deadline-hardening-v1.sql",
-      "sha256": "f45a69121c2692897f5190ea5eac7e2fbf5837e2765b3fae823d6e28af74d3f4",
-      "git_blob": "a275995a6297909f263cfe888b20567edf00caab",
       "depends_on": [
         "U023"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916110933",
+      "history_name": "b07_l07_01_c2c_swap_v1_fulfillment_shipping",
+      "sha256": "2c80b024ee5978ce0ab111eea8de6e2493bdde61577cb3ca42dd6c2ccbaa4876",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U025",
-      "path": "database/b07-l07-01-c2c-swap-v1-schema.sql",
-      "sha256": "ce862788584eec915232beac3434cb76ed05914f502b4ad6d795253ef0784092",
-      "git_blob": "3623acf94b0e815f8acd93959f0d6d6332d7c509",
       "depends_on": [
         "U024"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916110944",
+      "history_name": "b07_l07_01_c2c_swap_v1_fulfillment_receive",
+      "sha256": "6b86b5880c4105fc2efd32a11abb7a7543a7bacc295abdae65e5a73cad903037",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U026",
-      "path": "database/b07-l07-01-c2c-swap-v1-binding.sql",
-      "sha256": "679be052a6ef77df99772e0006eb69f7c2358f811342187baef284de9995486c",
-      "git_blob": "ac402b274a29c034d3fcf798da8b03234bee0856",
       "depends_on": [
         "U025"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111050",
+      "history_name": "b07_l07_01_c2c_swap_v1_problems",
+      "sha256": "669e0205036311fbd2109642fe8112ca3819889f5dece13a2f8b7560f349d89d",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U027",
-      "path": "database/b07-l07-01-c2c-swap-v1-fulfillment.sql",
-      "sha256": "bb2819ec491dfbac735920141b559197032a993d4a944fdb1fe4ccb143605a6d",
-      "git_blob": "36df17f24adff53bff8989eecf3bc1e798e403e3",
       "depends_on": [
         "U026"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111119",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_schema",
+      "sha256": "17b55c481e94d8a8bd78ba9109c746314dc5d9adbc06453c2f540e7e9908104f",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U028",
-      "path": "database/b07-l07-01-c2c-swap-v1-problems.sql",
-      "sha256": "f357bc9186bbcdcaeb83e98d9cc9fad43bc625c2fe913f82d123c8766369cca1",
-      "git_blob": "23e0909c75260a7ddd91a2dde665552bc0f44c8c",
       "depends_on": [
         "U027"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111135",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_revision",
+      "sha256": "db1a1818020717286fa16f16610751caad9413cd471a18f2bfbe79fc8a776668",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U029",
-      "path": "database/b07-l07-01-c2c-swap-v1-pickup.sql",
-      "sha256": "ef4ea61083e41c3e2a707c16ecb8131dea315d21e104465b30affb28ec185a82",
-      "git_blob": "263dfe45bdf4060d12961fc422b0b5358d3a738c",
       "depends_on": [
         "U028"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111144",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_proposals",
+      "sha256": "bddef5eca84e0f9380b8d7393bbafada4d39117ba455083db5cac909be147e2c",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U030",
-      "path": "database/b07-l07-01-c2c-swap-v1-completion-compat.sql",
-      "sha256": "b032863e6b8b84b190ef9370f4d490e43bc4591bd9e59ff201fafa8a340abd4b",
-      "git_blob": "b665ca4b51bdc4c3ce85a1fde3d1f7ef902a21ff",
       "depends_on": [
         "U029"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111204",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_binding",
+      "sha256": "0cf11a4739c5d63b7072c9c76980f3ac5831c3079714007fd9ac768aced64cfb",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U031",
-      "path": "database/b07-l07-01-c2c-swap-v1-pickup-completion-compat.sql",
-      "sha256": "bac89f4c529840caac164c686f2f334ca75d8517498fb7dc8dcf1f854f0cf5d3",
-      "git_blob": "479fb87d302bb362133bd080f6d70759f0547546",
       "depends_on": [
         "U030"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916111218",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_code",
+      "sha256": "8918363643faa5be5e8b30fbe1260ce729ec34ded9d024cea4cb4b16023eb029",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U032",
-      "path": "database/b07-l07-01-blind-reviews-v1.sql",
-      "sha256": "04403afd42a8cf500aff1886230e3204d3184104a45ab95220df1f4e74dfcaf2",
-      "git_blob": "3bb00a803d1d9e1431b1e91badf3fa901a05a358",
       "depends_on": [
         "U031"
       ]
     },
     {
+      "path": "database/b07-l07-01-c2c-swap-v1-pickup.sql",
+      "sha256": "ef4ea61083e41c3e2a707c16ecb8131dea315d21e104465b30affb28ec185a82",
+      "line_ranges": [
+        [
+          321,
+          355
+        ]
+      ],
+      "reason": "Archive read RPC present in approved target but absent from split Staging history; exact repository source",
       "id": "U033",
-      "path": "database/b07-l07-01-pickup-messages-v1.sql",
-      "sha256": "a200b8882389eddf2d9916804cd6b7d23f713c0663e19a31c0b0ea88274d293e",
-      "git_blob": "8321008f53197a584ad4119ca4a5bebecad359cd",
       "depends_on": [
         "U032"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916112219",
+      "history_name": "b07_l07_01_c2c_swap_v1_completion_compat",
+      "sha256": "1276baa6de814d27ad53b628ee12de2f148302ecbfd8106b149d52e46de65959",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U034",
-      "path": "database/b07-l07-01-pickup-messages-v1-list.sql",
-      "sha256": "69291940ee1a51fd3a5a8ad5a368617422660e17f4c8cb50f404aba3228c28f9",
-      "git_blob": "d1454593014cf22f4707c91f6a0c4bcfecdfb957",
       "depends_on": [
         "U033"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916112232",
+      "history_name": "b07_l07_01_c2c_swap_v1_pickup_completion_compat",
+      "sha256": "f96eff229c03ae84eaee5ab06ca1cfcb96aad05299ef9e88d3c33b7e013cf7ca",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U035",
-      "path": "database/account-data-rights-pickup-messages-hardening-v1.sql",
-      "sha256": "16a58836320badf5d32c101102db3d9ae4ec35e56c1b97e26d0106ae35943305",
-      "git_blob": "7e391c89520d5c37b7192b10632d26b9f7501d44",
       "depends_on": [
         "U034"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916180544",
+      "history_name": "b07_l07_01_pickup_messages_v1",
+      "sha256": "4978f16895b3ae3e977a2e185edc67c9deb734ec4ca457ef9f98a5b3c332e5c9",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U036",
-      "path": "database/b07-trade-only-no-money-v1.sql",
-      "sha256": "e2c47946ee24c502e52994a16332bd5e8e5d7ce2487a3aec2f170a01975587fc",
-      "git_blob": "fc3b5d5ae27ab25eeb0159082592fe90eb056502",
       "depends_on": [
         "U035"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260916181124",
+      "history_name": "b07_l07_01_pickup_messages_v1_list",
+      "sha256": "aff60a0c1fec3e01ca6a8b0c0bb7f3cf9327d0d9239b6419d2c02d0062a754f5",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U037",
-      "path": "database/b07-sealed-sale-only-v1.sql",
-      "sha256": "351e725696692a0c7d0ef4e98ffc4b19ed5a213471699db059dfffe42d839a76",
-      "git_blob": "727bea6095f8dbe62d8879c0a4210e615597eb27",
       "depends_on": [
         "U036"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917094814",
+      "history_name": "b07_l07_01_order_pickup_handover_staging_repair_v1",
+      "sha256": "e7abd3246bc82bb1d0491866cfbe41f59369bd1fc6c1fee0e73d2c6acddf1410",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U038",
-      "path": "database/trade-notifications-v2.sql",
-      "sha256": "cd98401c8c08792b46af82d19cdb308f1046d7bb328e6dc207b83e69fe5c3629",
-      "git_blob": "be013d0115cfcf41b1b359fa2e141b7038e653f0",
       "depends_on": [
         "U037"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917101616",
+      "history_name": "account_data_rights_pickup_messages_hardening_v1",
+      "sha256": "acbef3aa921520b8de6b4c11681baf3eb5dbb62563da0e8300516e3fab0d1867",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U039",
-      "path": "database/trade-notifications-v2-kind-expansion.sql",
-      "sha256": "3b3c394668aa977304e39b8b4f5ee0868c85f13aabe59299eed94f5c0426d29f",
-      "git_blob": "dda0adc14709d0c51d14145866d8de00e89dd219",
       "depends_on": [
         "U038"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917111158",
+      "history_name": "b07_trade_only_no_money_v1",
+      "sha256": "95e7f298465bb59033f51d5d0143b0620d50a8b3460d46462973eb2e98503dd6",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U040",
-      "path": "database/trade-notifications-v2-cutover.sql",
-      "sha256": "217e69ec0a2bafd97e6b15a736788f5b29821a67d0960b82aca9e6bcff58812d",
-      "git_blob": "c23d61ddcc1724cdb72267c97badf8524d953a88",
       "depends_on": [
         "U039"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917111935",
+      "history_name": "b07_sealed_sale_only_v1",
+      "sha256": "9ba986d7c8b2106b887ec149ffb1d2b80de7b65143305c4e7fe92058e7c809a5",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U041",
-      "path": "database/b07-sale-only-release-v1.sql",
-      "sha256": "32c8375f37beba98942534b0576eef8679a47ef5038d6be79fc3a77426115b7e",
-      "git_blob": "0b2ecd3fd710b6f65857831adf9489f727681b96",
       "depends_on": [
         "U040"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917132229",
+      "history_name": "trade_notifications_v2",
+      "sha256": "c443f6bdbae05cbb6ea0322fa5fba78a0191cf9dc7e48715e98fac83e35c86d6",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U042",
-      "path": "database/b07-sale-only-notifications-v1.sql",
-      "sha256": "d334e3d13cb53de1f1d48fe420655905d584f59be99ac0af25f9bb875a82ee6b",
-      "git_blob": "cc934672cc69efcba354887e775672698d9a67e2",
       "depends_on": [
         "U041"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917132525",
+      "history_name": "trade_notifications_v2_kind_expansion",
+      "sha256": "57b5a974d5ccf9c300c79565a402852a6fffc70a20009e2fd554ffc8827af12d",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U043",
-      "path": "database/b07-sale-only-public-listings-v1.sql",
-      "sha256": "57a68b32632c2f5c1d1b136c7b1a0b689db7b7f69a4391042a11464863fd8ae4",
-      "git_blob": "631effc972ee8c7657dc43b8b68fbd60df53b8c3",
       "depends_on": [
         "U042"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917132613",
+      "history_name": "trade_notifications_v2_cutover",
+      "sha256": "16b2cae5807ff0d5baaa4ce0161f28bdcc9b3129db8cc631eccba69b54026a6b",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U044",
-      "path": "database/b07-l07-01-offer-reservation-v1.sql",
-      "sha256": "550e1b2db8f0c5a31c731bc25526f30308ec0b3d71a566488dfe4740dbbc29cf",
-      "git_blob": "87ff8d842f6722dbf67f2763c29e30e65861762f",
       "depends_on": [
         "U043"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917180908",
+      "history_name": "b07_sale_only_release_v1",
+      "sha256": "32c8375f37beba98942534b0576eef8679a47ef5038d6be79fc3a77426115b7e",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U045",
-      "path": "supabase/migrations/20260918123500_battle_beta_account_status_v1.sql",
-      "sha256": "72b16b76d91569a89ff644348f525b892706798fa3944e4fa98c772ae92c9ad7",
-      "git_blob": "371f00e77929c80d8de4c6b04273eb93c0790491",
       "depends_on": [
         "U044"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917180910",
+      "history_name": "b07_sale_only_notifications_v1",
+      "sha256": "d334e3d13cb53de1f1d48fe420655905d584f59be99ac0af25f9bb875a82ee6b",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U046",
-      "path": "supabase/migrations/20260918152000_battle_dispute_resolution_v1.sql",
-      "sha256": "a3d462bd8fcf6e5b8be384286327cbd73ebe57ad13e98f5cd29db51785a0f5cc",
-      "git_blob": "6b9263083cf2772a5fbaf6dd7c2d962a71b8e557",
       "depends_on": [
         "U045"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917180911",
+      "history_name": "b07_sale_only_public_listings_v1",
+      "sha256": "57a68b32632c2f5c1d1b136c7b1a0b689db7b7f69a4391042a11464863fd8ae4",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U047",
-      "path": "supabase/migrations/20260918155500_battle_judge_desk_v1.sql",
-      "sha256": "c14133301b0f0b7359763bfd4682c2b46713e7e17d5f2fd688e8fc50f779d4b4",
-      "git_blob": "d1b8ad175804b57a4c09b8ce1dd528f8b38bea09",
       "depends_on": [
         "U046"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917185128",
+      "history_name": "b07_offer_reservation_v1_staging",
+      "sha256": "8a20e5710f32387b791f6596fb9f4c259f32f8ebe893a14a1984661452460de6",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U048",
-      "path": "database/battle-spectator-foundation-v1.sql",
-      "sha256": "34ec56ee0cc8ec1b5d1793e56bd47a7e9214d99f437d0997baf66de69bbadb3c",
-      "git_blob": "f0dc0e626b2cc073d0e186c9faa6d16643083591",
       "depends_on": [
         "U047"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917185406",
+      "history_name": "b07_offer_reservation_sale_only_reads",
+      "sha256": "7112fd9f1162520208108019a5e890e2f5dea42e358d2748941c3e09ad494154",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U049",
-      "path": "database/battle-spectator-media-v1.sql",
-      "sha256": "c3d3936647d63d4759f34873a5cb85cd7b0dc2b8525629862d61708f72149dec",
-      "git_blob": "f3dbe985efa832729de1e4555398684ddf42837a",
       "depends_on": [
         "U048"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260917201448",
+      "history_name": "b07_shipping_receipt_completion_realign_v1",
+      "sha256": "becbfd56e2c3b0843f0f9ba92206a32e04cb61ed82ff6630390c27f1d29ebe19",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U050",
-      "path": "database/battle-spectator-media-reconciler-v1.sql",
-      "sha256": "490a3e53648289d6881ba3d0aaeab69eab6ece2bcfa26ae5d22a0cf5b8f231d1",
-      "git_blob": "3014a788240fadbce7f0bbe9bdaefbabdf208336",
       "depends_on": [
         "U049"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918103806",
+      "history_name": "battle_beta_account_status_v1",
+      "sha256": "72b16b76d91569a89ff644348f525b892706798fa3944e4fa98c772ae92c9ad7",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U051",
-      "path": "supabase/migrations/20260921144947_collect_empty_binder_delete.sql",
-      "sha256": "7ddbbf05f8d6a7e194948ed7fe7a165fced9be24d1bd5d5a87826805ef02252e",
-      "git_blob": "b8a832f38fb021a3098d67881d09f7d03b810a58",
       "depends_on": [
         "U050"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918131743",
+      "history_name": "battle_dispute_resolution_v1",
+      "sha256": "a3d462bd8fcf6e5b8be384286327cbd73ebe57ad13e98f5cd29db51785a0f5cc",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U052",
-      "path": "supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql",
-      "sha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
-      "git_blob": "c7b5df68a6d4dd37804e0efd59f9a076957b3dc8",
       "depends_on": [
         "U051"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918135427",
+      "history_name": "battle_judge_desk_v1",
+      "sha256": "c14133301b0f0b7359763bfd4682c2b46713e7e17d5f2fd688e8fc50f779d4b4",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U053",
-      "path": "database/auth-privileged-step-up-v1.sql",
-      "sha256": "fdc4339b99545a24f3f6f1c68afcb89abae32b8e16a6d0ddb3f3816ad22f44c8",
-      "git_blob": "c97ce94bc7fd208219f2fc8fc5d78399322d7feb",
       "depends_on": [
         "U052"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918150007",
+      "history_name": "battle_spectator_foundation_v1",
+      "sha256": "34ec56ee0cc8ec1b5d1793e56bd47a7e9214d99f437d0997baf66de69bbadb3c",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U054",
-      "path": "database/security-privilege-mfa-hardening-v1.sql",
-      "sha256": "d1ce7f093c521ad90022e42ab946570572556d3543470a9cfd55893e39b8b927",
-      "git_blob": "1d431be8c83bfcc6d89cad04668470a659273d52",
       "depends_on": [
         "U053"
       ]
     },
     {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918210927",
+      "history_name": "battle_spectator_media_v1",
+      "sha256": "cdc93d38027de8273b7299321edb4ebec6563e5d01c5ff40e0e3d71cfa299634",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
       "id": "U055",
-      "path": "database/security-readiness-v1.sql",
-      "sha256": "a75ef2472c83218de2581223ae11ee11a89951a3194a96843e8727c4d968c1d7",
-      "git_blob": "de3805536a1b8345a8de5de0d3e16fedd079d6c7",
       "depends_on": [
         "U054"
       ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260918213553",
+      "history_name": "battle_spectator_media_publisher_admission_v1",
+      "sha256": "41cbc8d039f3f1f6ffd82de3a7f4f994a4f73df0704ab57e3f451739cc31350e",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U056",
+      "depends_on": [
+        "U055"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260919132152",
+      "history_name": "battle_spectator_media_reconciler_v1",
+      "sha256": "3b45f461636d9115822e0413caa93d47fd533d878ddae6fbc2c401283244347a",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U057",
+      "depends_on": [
+        "U056"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260921151654",
+      "history_name": "collect_empty_binder_delete",
+      "sha256": "7ddbbf05f8d6a7e194948ed7fe7a165fced9be24d1bd5d5a87826805ef02252e",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U058",
+      "depends_on": [
+        "U057"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260923081953",
+      "history_name": "trade_legal_contract_model_v1",
+      "sha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U059",
+      "depends_on": [
+        "U058"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260924113112",
+      "history_name": "auth_privileged_step_up_v1",
+      "sha256": "fdc4339b99545a24f3f6f1c68afcb89abae32b8e16a6d0ddb3f3816ad22f44c8",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U060",
+      "depends_on": [
+        "U059"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260924113132",
+      "history_name": "security_privilege_mfa_hardening_v1",
+      "sha256": "d1ce7f093c521ad90022e42ab946570572556d3543470a9cfd55893e39b8b927",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U061",
+      "depends_on": [
+        "U060"
+      ]
+    },
+    {
+      "path": "database/production-upgrade/staging-history-source.json.gz",
+      "history_version": "20260924113153",
+      "history_name": "security_readiness_v1",
+      "sha256": "a75ef2472c83218de2581223ae11ee11a89951a3194a96843e8727c4d968c1d7",
+      "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
+      "id": "U062",
+      "depends_on": [
+        "U061"
+      ]
     }
   ],
-  "excluded": {
-    "database/market-stripe-live-mode-v1.sql": "P2: Stripe Live is outside this rehearsal",
-    "database/market-production-trade-lock-v1.sql": "P0-05 explicitly not started; required future release boundary",
-    "supabase/migrations/20260919153000_battle_spectator_media_reconciler_v1.sql": "Byte-identical duplicate of database/battle-spectator-media-reconciler-v1.sql"
+  "excluded_history": {
+    "create_private_market_listing_images_bucket": "Production already contains the required private bucket; preserve its inventory and policies",
+    "battle_spectator_media_pg_net_v1": "No external network activation; P0-04 remains separate",
+    "battle_spectator_media_vault_scheduler_v1": "Vault is already present in Production; no provider or scheduler activation"
   },
   "provider_boundary": "No scheduler, Edge deployment, provider secret, external dispatch or media activation; separate P0-04/P0-05 gates remain"
 }

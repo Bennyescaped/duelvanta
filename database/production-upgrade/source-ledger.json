@@ -1,0 +1,819 @@
+{
+  "source_head": "108b371a5fd144ee4c964dd8c66a52d8c30124db",
+  "production_history": [
+    {
+      "version": "20260904184344",
+      "name": "create_beta_waitlist",
+      "sha256": "81a7a88aee83312694d6a5b86aed4ab3ece546a188083153ebff873e9eeef5f6"
+    },
+    {
+      "version": "20260907112224",
+      "name": "add_founder_generation_one",
+      "sha256": "93f76b3d46c7c1938182a73ee285a29a9148e3851748cfc479cda2b26244f437"
+    },
+    {
+      "version": "20260907112706",
+      "name": "secure_beta_control_center_owner_access",
+      "sha256": "6c5691baea81d09e222a21880e789f15783aa774b22faac1764514fe448ff54d"
+    },
+    {
+      "version": "20260907115916",
+      "name": "phase1_account_model",
+      "sha256": "63511a6b4ef0ba15dd7f523b193da8042879bbc02b30c0b8a7a5172ff63d696c"
+    },
+    {
+      "version": "20260907122514",
+      "name": "phase1b_activation_flow",
+      "sha256": "0ea8900310fcc25194c117f0a0864b9c5d37ab9066f6897f6c3417610dff0e71"
+    },
+    {
+      "version": "20260907124255",
+      "name": "fix_founder_auto_assignment",
+      "sha256": "683f1ef41337498a7b217fbeff312b1f663ee4a55da3be8df96bc1b425979092"
+    },
+    {
+      "version": "20260907134751",
+      "name": "phase1c_account_security",
+      "sha256": "49999b4262ba8b258b5246129e23f1365a9e2458fe9605fafad9848740509c6e"
+    },
+    {
+      "version": "20260907134801",
+      "name": "phase1c_remove_password_rpc",
+      "sha256": "4ce2b610a65cdb4662c9a45264628c8d84b614b0ac9b719c35c275a33d0ed23a"
+    },
+    {
+      "version": "20260907140554",
+      "name": "phase2_collect_collection_items",
+      "sha256": "46ebb34cca2e51237f52d60e8cd4055715d79a20bede01f8166195d56bf2f921"
+    },
+    {
+      "version": "20260907150936",
+      "name": "phase2_collect_albums_and_card_images",
+      "sha256": "4973fdbee3b27ad2a7b1e70345b602177b5bda8194eb7764e3f88b991a2be225"
+    },
+    {
+      "version": "20260907184209",
+      "name": "phase3_trade_marketplace_v1",
+      "sha256": "7827d4eacbdbe249de405c4bcc2566917fc74b62463eb4976d9c4650df0f5444"
+    },
+    {
+      "version": "20260907184249",
+      "name": "phase3_trade_seller_identity_snapshot",
+      "sha256": "356aa5ed0dfe30d720b907a8cb290dc7f26d51f8b92196c2a81532c91f7d7c39"
+    },
+    {
+      "version": "20260907184351",
+      "name": "phase3_trade_offer_policy_hardening",
+      "sha256": "69ab27126b84da084d59bfc6a08a3a1786437420db25ae7f29e8530ceda876d9"
+    },
+    {
+      "version": "20260907194426",
+      "name": "phase3_trade_listing_lifecycle",
+      "sha256": "27d4d15c725281d6fecd0cbef3e98fa788ba452862100afb58d138b794339f8a"
+    },
+    {
+      "version": "20260907200152",
+      "name": "phase3_trade_offer_transactions",
+      "sha256": "5232c7d74e2876fe771e8a7c0664711c609660243201dc8bb8b98b38e2d9537a"
+    },
+    {
+      "version": "20260907201555",
+      "name": "phase3_seller_trust_v1",
+      "sha256": "7bb8549c80cf2616f17132de9f11edffc44687da063b41b777130d8d5e0f3fba"
+    },
+    {
+      "version": "20260907202901",
+      "name": "phase4_i18n_profile_locale",
+      "sha256": "360823822499d9049c8c6068b267e64410932ea03d45239b67b42e94c28e6e00"
+    },
+    {
+      "version": "20260908043935",
+      "name": "phase5_battle_v1_core",
+      "sha256": "5233e0a24bffa7de749cda8cdb3517e557a41a4482d4d3f30e847fac174fafd9"
+    },
+    {
+      "version": "20260908045129",
+      "name": "phase5_safety_age_conduct_foundation",
+      "sha256": "4259e9fa0f5a64aef7c110f4f0c2661f45dc8dbe2a3d5fc061658c1c5aa84a57"
+    },
+    {
+      "version": "20260908045515",
+      "name": "phase5_battle_safety_gate_rpc",
+      "sha256": "ae552d6dbb79a692e3a5a66befdeeeb9c1e6e00a2a454c7f5afbd490379525ff"
+    },
+    {
+      "version": "20260908050116",
+      "name": "phase5_battle_webrtc_signaling",
+      "sha256": "2a1c623eb70bff864b136dbf6a97b560f21ed9fdb925ec0676b39bcea5f1c677"
+    },
+    {
+      "version": "20260908051700",
+      "name": "phase5_battle_moderation_roles",
+      "sha256": "672afc03044bf58c59e960568ae0f4d8dbe44dfd313d6ea005018120566752b8"
+    },
+    {
+      "version": "20260908054528",
+      "name": "phase5_staff_applications_permissions_audit",
+      "sha256": "f29ad16c7ccef81ed810c50eba8461b6c7acfb98e87961f832e1553ad390663b"
+    },
+    {
+      "version": "20260908060358",
+      "name": "phase5_reports_review_workflow",
+      "sha256": "bc68d0412b4df6b522f66b596e97418221206014373a12524c31d2659ddc82b7"
+    },
+    {
+      "version": "20260908060759",
+      "name": "lock_owner_identity_and_role",
+      "sha256": "8aa74870925c0d6f677cfff13fa3e48f0984365e26947348336c4f0314fb6dba"
+    },
+    {
+      "version": "20260908061055",
+      "name": "phase5_staff_capability_enforcement",
+      "sha256": "1cbf7fb72aebd23d380e7401c9b5a4663d56d6cdab868e18a01c5da28182d3b9"
+    },
+    {
+      "version": "20260908061343",
+      "name": "phase5_fix_safety_self_declaration",
+      "sha256": "e8b5b4ec4f5ab47d4ff35d30d09fd4e6de09b74409d83e6a51429e6c22ef7601"
+    },
+    {
+      "version": "20260908062035",
+      "name": "phase5_enforce_battle_moderation_pause",
+      "sha256": "8e17ff7bc291c7347b277248243fa902bb2a9d4e9a05831308f77116110821c7"
+    },
+    {
+      "version": "20260908073323",
+      "name": "profile_v1_privacy_foundation",
+      "sha256": "a1fb2ef46c5bcc506f62e4134f1a4305952a90144372ae71cc506a3eff6a9fcf"
+    },
+    {
+      "version": "20260908074648",
+      "name": "username_stability_90_day_reservation",
+      "sha256": "42a406b90d017393866ed73947e717e251174997dc11969a05e5b7e3ae4201c4"
+    },
+    {
+      "version": "20260908080553",
+      "name": "fix_profile_avatar_storage_rls",
+      "sha256": "074b85b65f85b8c42127f5ada9da2f68ab44e437e9ac32672b9b306f40d2bc51"
+    },
+    {
+      "version": "20260908080847",
+      "name": "add_profile_avatar_select_policy_for_upsert",
+      "sha256": "0cd4c5e768c1e0e8b1ce56dfbf7a793fca570ed3f4340e8c862070d787376352"
+    },
+    {
+      "version": "20260908083534",
+      "name": "public_profile_safe_api_username_guard",
+      "sha256": "d45e3a0227e1a2304a8f33a0076f652764211f6be1fdffe442da97a223a155b0"
+    },
+    {
+      "version": "20260908084704",
+      "name": "fix_profiles_rls_recursion_safe_update_v2",
+      "sha256": "b498b5d4761f429aac3cc03fc6e3b8adab642f3df844e9806f51f01cc0e435b3"
+    },
+    {
+      "version": "20260908095435",
+      "name": "public_profile_username_lookup",
+      "sha256": "906b866139e0aa981013adfa7fe49a8456cbe0f92bca5645f7a3b06444e69212"
+    },
+    {
+      "version": "20260908123327",
+      "name": "battle_v2_preserve_completed_history",
+      "sha256": "8fdf66491554e76401f2a55d1276665f84e8fb0dea182eea87423682ab8be74f"
+    },
+    {
+      "version": "20260908125310",
+      "name": "battle_history_participant_identity",
+      "sha256": "2bc3f59e339db3c45efb04265013ab6f213a88064ef15e56c794b06a0eb538a9"
+    },
+    {
+      "version": "20260908132939",
+      "name": "public_battle_recent_matches",
+      "sha256": "9ef5a5f367dfc6d373637b3f2213d0d6d685482c8d0e193787f20121017ead08"
+    },
+    {
+      "version": "20260908134038",
+      "name": "battle_ranked_rating_v1",
+      "sha256": "ef557df49136f50e6ea6a7cdb2f782ce2d80e3300730fafb56a3fbe5ec68dd15"
+    },
+    {
+      "version": "20260908135110",
+      "name": "battle_ranked_rating_permissions_hardening",
+      "sha256": "e7366a0c410d2657ed83232f6f7d40ef4df936e82e1645e6a9cb6113241d5150"
+    },
+    {
+      "version": "20260908151456",
+      "name": "battle_leaderboard_public_ranked_profile",
+      "sha256": "881ae8dfbae0119a56b6cf987d53cf1fec6b8ec2209f89e0d4ae36280801aeb3"
+    },
+    {
+      "version": "20260908165118",
+      "name": "trade_v2_deals_reviews_trust_v2",
+      "sha256": "d9f113556f4fbd9d3644b74497a673542fce5a09cd766599be7e5750998bda20"
+    },
+    {
+      "version": "20260908172836",
+      "name": "trade_v2_payment_fulfillment_ready",
+      "sha256": "14fd0fec370446ebe7eede79b4350008d9d358965f8be59da7fc027adb6b4efc"
+    },
+    {
+      "version": "20260908175128",
+      "name": "trade_v2_private_shipping_address",
+      "sha256": "a514b0cd2199ec0be7e3fdd6d176b1038a2d0f1dc36325a51df1954a0fd17253"
+    },
+    {
+      "version": "20260908194521",
+      "name": "trade_v2_shipping_method_cost_snapshot",
+      "sha256": "9e3e2038bf46f9d9389d286a8f20b9439c7017a28e3c7b8ce158b189a50fed76"
+    },
+    {
+      "version": "20260908194808",
+      "name": "trade_v2_shipping_method_guards",
+      "sha256": "9a0bea7fc7618da4ccdd75801ed12ffaa80d3ec6e2d79c0caf27d70652e1a3d2"
+    },
+    {
+      "version": "20260909050902",
+      "name": "trade_v2_sealed_products_v1",
+      "sha256": "1c8efae8ded74ffd3aec2b6c1a4e068ac705c44fa562ee4e94ae704a8e1f109e"
+    },
+    {
+      "version": "20260909055632",
+      "name": "trade_sealed_images_rpc",
+      "sha256": "3b1f33398e72f6654a8cdfe2c76e323536347150fc656a2129d28cec986f415e"
+    },
+    {
+      "version": "20260909065106",
+      "name": "trade_v2_orders_combined_shipping",
+      "sha256": "0e26a26a424c94c6bfa22149185939c50806788a85cd545dbe9ac32b088487e4"
+    },
+    {
+      "version": "20260909065255",
+      "name": "trade_v2_order_enforcement_and_deal_bridge",
+      "sha256": "f2df472d1c7f27f2f30777d7cdfb4a6bd66fc1f4c36953b45a0571b1cba51eda"
+    },
+    {
+      "version": "20260909071657",
+      "name": "trade_sealed_inventory_columns_v2",
+      "sha256": "7b8e1866f956c5324f06b41cff57466f5bede755d98d4a19761b3376932278ff"
+    },
+    {
+      "version": "20260909071804",
+      "name": "trade_sealed_inventory_functions_v2",
+      "sha256": "56d0a91d114822accc42b61e86ca48841d2b6288b16a02ef969326a49afe4e26"
+    },
+    {
+      "version": "20260909071856",
+      "name": "trade_sealed_offer_quantities_v2",
+      "sha256": "700dfc732264eb10b7c4ef6c1a12958e76b6423afe84405058e44bf177ee1c8d"
+    },
+    {
+      "version": "20260909072037",
+      "name": "trade_offer_rpc_only_v2",
+      "sha256": "897e5d8f3f3bfdfcb6ec2269701a7355f872ac83c17714bc38578e14beb4edef"
+    },
+    {
+      "version": "20260909091557",
+      "name": "trade_checkout_v1",
+      "sha256": "9cae7f0e8c4d6200ab21581d15cd62f76faf294a778b18bf1fe1a6ef0e084bc6"
+    },
+    {
+      "version": "20260909103421",
+      "name": "trade_checkout_v1_safety",
+      "sha256": "0b5f18c07e9d08d7f1dc9a89fad6449fbbb5bf70bfa1d97951cff668616c24b6"
+    },
+    {
+      "version": "20260909103938",
+      "name": "trade_checkout_v1_validation",
+      "sha256": "91bfdaa1cc36b2f7cb37342110e43a43f093e27751da1f32a6a315884f155697"
+    },
+    {
+      "version": "20260909125353",
+      "name": "trade_notifications_actions_v1",
+      "sha256": "838d69b59423c1b62947269211a09dd6a484f44230b5555667657340a75ad691"
+    },
+    {
+      "version": "20260909130543",
+      "name": "trade_notifications_actions_v1_hardening",
+      "sha256": "e8d74f9989c713817e7093949a8d47be69c5b0577af7c77a9d4c2f174c68a90b"
+    },
+    {
+      "version": "20260909135430",
+      "name": "trade_shipping_profiles_v1",
+      "sha256": "c44f3260c1d26272523a2e03ba4f320d42fbe5206f34a45547e8c32429747444"
+    },
+    {
+      "version": "20260909135523",
+      "name": "trade_shipping_profiles_v1_hardening",
+      "sha256": "dfea5fdc80eb1355c38e0b13effa186ced90b9fedecd77e64f21fea4fd664dab"
+    },
+    {
+      "version": "20260909140646",
+      "name": "trade_shipping_profiles_v1_safety",
+      "sha256": "3fcdebb65c37ceccdb6436f43bc05b9a8e8f46a05c5a6f0df3a916cd0d25ad67"
+    },
+    {
+      "version": "20260909143957",
+      "name": "trade_order_resolution_v1",
+      "sha256": "35feacf9b548a6b56e0a11e9b5c3e806c6791ae58ce61895a89a190e2dc2f197"
+    },
+    {
+      "version": "20260909144130",
+      "name": "trade_order_resolution_v1_hardening",
+      "sha256": "32252f74c6cab0f53dec81834c8f6f80782c425aa485d86ca6e13fdb7f106aa4"
+    },
+    {
+      "version": "20260909161000",
+      "name": "trade_shipping_profiles_v1_null_fallback_fix",
+      "sha256": "b94aed540ab528de0bfaaaef4b4d7b546e95f93cc1b2216aa96add4f7860b667"
+    },
+    {
+      "version": "20260909164035",
+      "name": "collect_scanner_v16_slots",
+      "sha256": "d9ec53d74fa40b93edbd1dafdccd65a698a6cd131175440c75b96916069d375e"
+    },
+    {
+      "version": "20260909164515",
+      "name": "collect_scanner_v16_slots_hardening",
+      "sha256": "646147a23a66a002c9926a51394fd01b0ec9d907150236011e2ecfff75f75ca0"
+    },
+    {
+      "version": "20260910201950",
+      "name": "scanner_v16_weekly_quota",
+      "sha256": "1c49af6cac4a44a4d8c7b1cf5108b1794b95d4957ae0019864473f93c7e52396"
+    },
+    {
+      "version": "20260911085857",
+      "name": "collect_binder_interaction_v1",
+      "sha256": "36932f6df9798ba17104894cd020b8fdfdf973a7dd3d475aabbc6defb8d16100"
+    },
+    {
+      "version": "20260911122546",
+      "name": "collect_binder_pages_v1",
+      "sha256": "eaa226f951d644ce838a18f7b921a7445cacb7ef24a10c91b6edc1cc65626cd6"
+    },
+    {
+      "version": "20260911154146",
+      "name": "scanner_v16_openai_owner_budget",
+      "sha256": "8f3821885c9184f05cd02601221a5a022464fd7b4fbc7bd555390cbe22b89fc8"
+    },
+    {
+      "version": "20260911181702",
+      "name": "harden_battle_and_profile_auth_boundaries",
+      "sha256": "d81f7fa741db487fa3f92d3b6d4470359492f462b3d60bde1f64137b1b0c6ecd"
+    }
+  ],
+  "sql_sources": [
+    {
+      "path": "database/account-data-erasure-username-guard-v1.sql",
+      "sha256": "af97444fa3c578a9d61aeff42a249739ed56b301a2e86c72524cadef08faadfa",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/account-data-rights-pickup-messages-hardening-v1.sql",
+      "sha256": "16a58836320badf5d32c101102db3d9ae4ec35e56c1b97e26d0106ae35943305",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/account-data-rights-v1.sql",
+      "sha256": "10fb459dd82bdb0290a9c4cb47c5fbb3389395538acd6ef51688b8521e2e1b0f",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/auth-privileged-step-up-v1.sql",
+      "sha256": "fdc4339b99545a24f3f6f1c68afcb89abae32b8e16a6d0ddb3f3816ad22f44c8",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-blind-reviews-v1.sql",
+      "sha256": "04403afd42a8cf500aff1886230e3204d3184104a45ab95220df1f4e74dfcaf2",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-binding.sql",
+      "sha256": "679be052a6ef77df99772e0006eb69f7c2358f811342187baef284de9995486c",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-completion-compat.sql",
+      "sha256": "b032863e6b8b84b190ef9370f4d490e43bc4591bd9e59ff201fafa8a340abd4b",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-fulfillment.sql",
+      "sha256": "bb2819ec491dfbac735920141b559197032a993d4a944fdb1fe4ccb143605a6d",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-pickup-completion-compat.sql",
+      "sha256": "bac89f4c529840caac164c686f2f334ca75d8517498fb7dc8dcf1f854f0cf5d3",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-pickup.sql",
+      "sha256": "ef4ea61083e41c3e2a707c16ecb8131dea315d21e104465b30affb28ec185a82",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-problems.sql",
+      "sha256": "f357bc9186bbcdcaeb83e98d9cc9fad43bc625c2fe913f82d123c8766369cca1",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-c2c-swap-v1-schema.sql",
+      "sha256": "ce862788584eec915232beac3434cb76ed05914f502b4ad6d795253ef0784092",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-eligibility-guard-v1.sql",
+      "sha256": "e09e1793445af55a04f7aafc1271c8d665dbc0a396ebec2a7956f57d18870381",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-offer-reservation-v1.sql",
+      "sha256": "550e1b2db8f0c5a31c731bc25526f30308ec0b3d71a566488dfe4740dbbc29cf",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-order-lifecycle-v1-hardening.sql",
+      "sha256": "d03801d910c6ce9eb745e8ad28d65d61705dca4d2334b2238e087f6c725928aa",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-order-lifecycle-v1.sql",
+      "sha256": "6ae2acdc19aa449c17eaa5f42a3c18dd930d32913f110bba3c90eb64c031ff17",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-pickup-messages-v1-list.sql",
+      "sha256": "69291940ee1a51fd3a5a8ad5a368617422660e17f4c8cb50f404aba3228c28f9",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-pickup-messages-v1.sql",
+      "sha256": "a200b8882389eddf2d9916804cd6b7d23f713c0663e19a31c0b0ea88274d293e",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-public-listing-share-v1.sql",
+      "sha256": "40b03e5ef97f6b4c2e961c697841492948cdaee605b99fc8dec5bba2e0c86adc",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-release1-shipping-close-v1-hardening.sql",
+      "sha256": "e1865a80316eecfb0da624d66201833b0969eeb976835f409fcf70a92fa04d05",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-release1-shipping-close-v1.sql",
+      "sha256": "550755498f031b5b6cea5726379e886dad9deac71c014d0316606642727a678c",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-seller-cancellation-v1.sql",
+      "sha256": "9ba281ca3cf2c8cbaf10d4bf73a80c42d8b0a344b06a75c61106260e5dcf7189",
+      "status": "excluded",
+      "reason": "Unapplied broader review draft; excluded from V55 target. Approved subset bound to historical source steps."
+    },
+    {
+      "path": "database/b07-l07-01-shipping-deadline-hardening-v1.sql",
+      "sha256": "f45a69121c2692897f5190ea5eac7e2fbf5837e2765b3fae823d6e28af74d3f4",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-l07-01-tracking-delivery-window-v1.sql",
+      "sha256": "78a74e7143a4e0c4ef5661e4600ba9f24a846eb2b7f5f46c6959723d146d8556",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-sale-only-notifications-v1.sql",
+      "sha256": "d334e3d13cb53de1f1d48fe420655905d584f59be99ac0af25f9bb875a82ee6b",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-sale-only-public-listings-v1.sql",
+      "sha256": "57a68b32632c2f5c1d1b136c7b1a0b689db7b7f69a4391042a11464863fd8ae4",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-sale-only-release-v1.sql",
+      "sha256": "32c8375f37beba98942534b0576eef8679a47ef5038d6be79fc3a77426115b7e",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-sealed-sale-only-v1.sql",
+      "sha256": "351e725696692a0c7d0ef4e98ffc4b19ed5a213471699db059dfffe42d839a76",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/b07-trade-only-no-money-v1.sql",
+      "sha256": "e2c47946ee24c502e52994a16332bd5e8e5d7ce2487a3aec2f170a01975587fc",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/battle-spectator-foundation-v1.sql",
+      "sha256": "34ec56ee0cc8ec1b5d1793e56bd47a7e9214d99f437d0997baf66de69bbadb3c",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/battle-spectator-media-reconciler-v1.sql",
+      "sha256": "490a3e53648289d6881ba3d0aaeab69eab6ece2bcfa26ae5d22a0cf5b8f231d1",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/battle-spectator-media-v1.sql",
+      "sha256": "c3d3936647d63d4759f34873a5cb85cd7b0dc2b8525629862d61708f72149dec",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/collect-binder-interaction-v1.sql",
+      "sha256": "36932f6df9798ba17104894cd020b8fdfdf973a7dd3d475aabbc6defb8d16100",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/collect-binder-pages-v1.sql",
+      "sha256": "17b2cce018c62a4bae6f979f6081783550d2578b556a05c807aedcb31774353d",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/collect-scanner-v16-owner-control.sql",
+      "sha256": "8f3821885c9184f05cd02601221a5a022464fd7b4fbc7bd555390cbe22b89fc8",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/collect-scanner-v16-quota-PROPOSAL.sql",
+      "sha256": "2f1f08c7dea7817862e25c1ac02358b409bf3a35818a9c51919c6097a45761bd",
+      "status": "excluded",
+      "reason": "Superseded proposal; installed quota comes from Production history"
+    },
+    {
+      "path": "database/collect-scanner-v16-slots-hardening.sql",
+      "sha256": "834308fc22cea8d5e261cd7109a266afe5718cdfd742c4f7e930274ad0060c1a",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/collect-scanner-v16-slots.sql",
+      "sha256": "aaa5781e96ce021256bbd14e3b171dfcbf66e11952e109473ebb75379e98f223",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/collect-scanner-v16-weekly-quota.sql",
+      "sha256": "103075a868f72a074743a2f2b66fb0e2411c68c6a592e2a5330f851e7e08573d",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/market-checkout-compliance-v1.sql",
+      "sha256": "9e99eb0764a7dea7c6827907022fbf63613abbc62ace1b6efcef7e0b7d673d13",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/market-notice-action-v1.sql",
+      "sha256": "0f652c5db49618a2cee63b33ee5b9c5543a63e91cfbb0f14a90fd06e8e94d315",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/market-production-trade-lock-v1.sql",
+      "sha256": "46f701e531222dd3d7ffac125e564f2372a16d0a40cacd17ac0dff12b5d8a039",
+      "status": "excluded",
+      "reason": "P0-05 expressly excluded; not release-ready until separately accepted"
+    },
+    {
+      "path": "database/market-seller-compliance-v1.sql",
+      "sha256": "c946ec8fa0a16dcc5187b509052d626d8077f264180d1dbb786e25f56a2d1358",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/market-stripe-connect-sandbox-v1.sql",
+      "sha256": "0b0b229cbb4fdec7effa3b9cc39ef47706483aba5f7dd53db9e9841786498f5a",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/market-stripe-event-ordering-hardening-v1.sql",
+      "sha256": "8e7a77f7a50ab57bdca48dafddb93ba1bcc0a1b41f3d6aa6e265d8783e639a07",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/market-stripe-live-mode-v1.sql",
+      "sha256": "93893ed591327cf2a8cd0e9f17ee4c1f292876b766aa3f0ea6277359a4f41eda",
+      "status": "excluded",
+      "reason": "P2/Stripe Live explicitly excluded"
+    },
+    {
+      "path": "database/market-stripe-payment-result-columns-v1.sql",
+      "sha256": "0024092d975a30356555f82574605100332d0c8e175e03a46704af56f55780c0",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/market-stripe-refund-evidence-hardening-v1.sql",
+      "sha256": "97963f5cf3cc681c22144aefd827bcaf8c240f21aeacf76aee1fc26a5744e908",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/market-tax-transparency-v1.sql",
+      "sha256": "78704f83dab2c5f9341398fde0fe47c728b9f5ad39c64a6a41280b6c74fd7c38",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/pgcrypto-digest-schema-hardening-v1.sql",
+      "sha256": "108dfb3e22c6eb0643dd6d7995d4446205d0f19515dd7cc1968f9f78fac74072",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/security-privilege-mfa-hardening-v1.sql",
+      "sha256": "d1ce7f093c521ad90022e42ab946570572556d3543470a9cfd55893e39b8b927",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/security-readiness-v1.sql",
+      "sha256": "a75ef2472c83218de2581223ae11ee11a89951a3194a96843e8727c4d968c1d7",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/trade-actions-column-aliases-v1.sql",
+      "sha256": "708bf2218546aaf455232992e053b09338f088e92615d3e16000e2da8109f1f9",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/trade-automation-v1-hardening.sql",
+      "sha256": "72b43aebe29b6c8efd3fcf3ed90025dec28ddd23dc0e74d5f6a39f42230c4536",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-automation-v1.sql",
+      "sha256": "838d69b59423c1b62947269211a09dd6a484f44230b5555667657340a75ad691",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-checkout-v1-hardening.sql",
+      "sha256": "0b5f18c07e9d08d7f1dc9a89fad6449fbbb5bf70bfa1d97951cff668616c24b6",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-checkout-v1-validation.sql",
+      "sha256": "91bfdaa1cc36b2f7cb37342110e43a43f093e27751da1f32a6a315884f155697",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-checkout-v1.sql",
+      "sha256": "9cae7f0e8c4d6200ab21581d15cd62f76faf294a778b18bf1fe1a6ef0e084bc6",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-notifications-v2-cutover.sql",
+      "sha256": "217e69ec0a2bafd97e6b15a736788f5b29821a67d0960b82aca9e6bcff58812d",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/trade-notifications-v2-kind-expansion.sql",
+      "sha256": "3b3c394668aa977304e39b8b4f5ee0868c85f13aabe59299eed94f5c0426d29f",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/trade-notifications-v2.sql",
+      "sha256": "cd98401c8c08792b46af82d19cdb308f1046d7bb328e6dc207b83e69fe5c3629",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "database/trade-order-lifecycle-payment-hardening-v1.sql",
+      "sha256": "33ab0fb98f72a2b55ca11e87eb1f1b4ab33569279b789a71fb054412c8e5b02b",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/trade-order-resolution-v1-hardening.sql",
+      "sha256": "7c6865e035ee14a53575e4120077de8662def1f481774930aadad5e240a4e7ac",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/trade-order-resolution-v1.sql",
+      "sha256": "f4e2469cf546398891268e1038d265b96a692e697948a0b2b392b95fa0d33d96",
+      "status": "direct_source",
+      "reason": "Exact bytes or explicitly listed source range in manifest"
+    },
+    {
+      "path": "database/trade-shipping-profiles-v1-hardening.sql",
+      "sha256": "2c51a79fa7fb043f73340ed5c13d475186ce3d4816ca5a46bfdf30f3302a9a9f",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-shipping-profiles-v1-null-fallback-fix.sql",
+      "sha256": "36d768d691cd50e14bd5aa629dfd56e456af11c531c070750f0f5fe1b7ba3ffe",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-shipping-profiles-v1-safety.sql",
+      "sha256": "4fa590457f8492b965e2fa8abb572a182da8b60828995bf58e507a3114f80c21",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "database/trade-shipping-profiles-v1.sql",
+      "sha256": "da090c02e0de847b39e194dd69c7b1237b0c5339391c22fdb13b8fa61d51c77f",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "supabase/migrations/20260911180746_harden_battle_and_profile_auth_boundaries.sql",
+      "sha256": "d81f7fa741db487fa3f92d3b6d4470359492f462b3d60bde1f64137b1b0c6ecd",
+      "status": "production_baseline",
+      "reason": "Installed 72-entry historical replay; 144 function and full application catalog comparison required"
+    },
+    {
+      "path": "supabase/migrations/20260918123500_battle_beta_account_status_v1.sql",
+      "sha256": "72b16b76d91569a89ff644348f525b892706798fa3944e4fa98c772ae92c9ad7",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "supabase/migrations/20260918152000_battle_dispute_resolution_v1.sql",
+      "sha256": "a3d462bd8fcf6e5b8be384286327cbd73ebe57ad13e98f5cd29db51785a0f5cc",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "supabase/migrations/20260918155500_battle_judge_desk_v1.sql",
+      "sha256": "c14133301b0f0b7359763bfd4682c2b46713e7e17d5f2fd688e8fc50f779d4b4",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "supabase/migrations/20260919153000_battle_spectator_media_reconciler_v1.sql",
+      "sha256": "490a3e53648289d6881ba3d0aaeab69eab6ece2bcfa26ae5d22a0cf5b8f231d1",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "supabase/migrations/20260921144947_collect_empty_binder_delete.sql",
+      "sha256": "7ddbbf05f8d6a7e194948ed7fe7a165fced9be24d1bd5d5a87826805ef02252e",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    },
+    {
+      "path": "supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql",
+      "sha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
+      "status": "historical_source_variant_or_duplicate",
+      "reason": "Use exact applied statement bytes from source archive; current review-file formatting/combined batches are not replayed blindly"
+    }
+  ],
+  "foundation_origin": "Repository source files + audited 61404cf notice source, before historical applied delta. Never a generated migration from live drift.",
+  "excluded_staging_fixtures": "All users, MFA factors, sessions, contracts, listings, 7A/7B rows and provider account IDs. Only historical SQL code is used."
+}
