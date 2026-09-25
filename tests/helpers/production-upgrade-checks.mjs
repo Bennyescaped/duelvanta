@@ -40,8 +40,8 @@ export async function unchangedOriginal(db,before){
 }
 export async function foreignKeys(db){
  const fks=(await db.query(`select ns.nspname schema,c.relname tab,nt.nspname target_schema,t.relname target_table,k.conname,
- (select array_agg(a.attname order by u.ord) from unnest(k.conkey) with ordinality u(attnum,ord) join pg_attribute a on a.attrelid=c.oid and a.attnum=u.attnum) cols,
- (select array_agg(a.attname order by u.ord) from unnest(k.confkey) with ordinality u(attnum,ord) join pg_attribute a on a.attrelid=t.oid and a.attnum=u.attnum) target_cols
+ (select array_agg(a.attname::text order by u.ord) from unnest(k.conkey) with ordinality u(attnum,ord) join pg_attribute a on a.attrelid=c.oid and a.attnum=u.attnum) cols,
+ (select array_agg(a.attname::text order by u.ord) from unnest(k.confkey) with ordinality u(attnum,ord) join pg_attribute a on a.attrelid=t.oid and a.attnum=u.attnum) target_cols
  from pg_constraint k join pg_class c on c.oid=k.conrelid join pg_namespace ns on ns.oid=c.relnamespace join pg_class t on t.oid=k.confrelid join pg_namespace nt on nt.oid=t.relnamespace where k.contype='f' and ns.nspname in (${schemas})`)).rows;
  for(const f of fks){
   const match=f.cols.map((c,i)=>`s.${qi(c)}=t.${qi(f.target_cols[i])}`).join(' and ');
