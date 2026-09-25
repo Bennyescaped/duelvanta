@@ -9,8 +9,10 @@ const native=process.argv.includes('--native');
 let db;
 if(native){const {createDatabase}=await import('./helpers/f3-native-db.mjs');db=await createDatabase();}
 else{const {PGlite}=await import('@electric-sql/pglite');const {pgcrypto}=await import('@electric-sql/pglite/contrib/pgcrypto');db=new PGlite({extensions:{pgcrypto}});}
-const report={started_at:new Date().toISOString(),engine:native?'native-postgresql17':'pglite-pg18',scenario:process.argv.includes('--empty')?'empty':'synthetic-existing',status:'RUNNING',steps:[]};
-const history=JSON.parse(gunzipSync(await readFile(new URL('fixtures/production-upgrade/production-history-source.json.gz',import.meta.url))));
+const report={source_head:process.env.P001_HEAD_SHA||'local candidate',runner_sha:process.env.GITHUB_SHA||null,started_at:new Date().toISOString(),engine:native?'native-postgresql17':'pglite-pg18',scenario:process.argv.includes('--empty')?'empty':'synthetic-existing',status:'RUNNING',steps:[]};
+const manifest=JSON.parse(await read('database/production-upgrade-manifest-v1.json'));
+const historyBytes=await readFile(new URL('../'+manifest.baseline.source,import.meta.url));assert.equal(createHash('sha256').update(historyBytes).digest('hex'),manifest.baseline.sha256);
+const history=JSON.parse(gunzipSync(historyBytes));assert.equal(history.length,72);assert.equal(history.at(-1).version,manifest.baseline.last_version);
 let stage='bootstrap';
 try {
  await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;

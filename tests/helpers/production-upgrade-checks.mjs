@@ -52,11 +52,12 @@ export async function foreignKeys(db){
  return {checked:fks.length,orphans:0};
 }
 export async function beforeUpgradeAbort(db,before){
- await db.exec('begin;alter table public.market_orders add column p001_abort_probe boolean;');
+ assert.equal((await db.query("select to_regclass('public.market_seller_accounts') value")).rows[0].value,null);
+ await db.exec('begin');await db.exec(await read('database/market-seller-compliance-v1.sql'));
  await assert.rejects(()=>db.query('select 1/0'),/division by zero/);
  await db.exec('rollback');
- assert.equal((await db.query("select count(*)::int n from information_schema.columns where table_schema='public' and table_name='market_orders' and column_name='p001_abort_probe'")).rows[0].n,0);
- await unchangedOriginal(db,before);return 'PASS: failed transaction rolls back schema and original rows';
+ assert.equal((await db.query("select to_regclass('public.market_seller_accounts') value")).rows[0].value,null,'Failed real foundation step must roll back its DDL and backfill');
+ await unchangedOriginal(db,before);return 'PASS: injected failure after actual seller migration rolls back its DDL/backfill; full chain subsequently retries from baseline';
 }
 export async function finalChecks(db,before,empty){
  const originals=await unchangedOriginal(db,before),fks=await foreignKeys(db);
@@ -76,7 +77,8 @@ export async function finalChecks(db,before,empty){
  if(!empty){
   for(const [id,want] of [['10000000-0000-4000-8000-000000000003',7],['10000000-0000-4000-8000-000000000004',0]]){
    await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated');
-   try{const n=(await db.query('select count(*)::int n from public.market_orders')).rows[0].n;assert.equal(n,want);reads.push({role:'authenticated',own_orders:n});
+   try{await assert.rejects(()=>db.query('select * from public.market_orders'),/permission denied/);
+    const n=(await db.query('select count(*)::int n from public.get_my_market_orders()')).rows[0].n;assert.equal(n,want);reads.push({role:'authenticated',own_orders:n});
     await db.query('select * from public.get_my_trade_actions()');await db.query('select * from public.get_my_market_order_b07_status()');
    }finally{await db.exec('reset role');}
   }
