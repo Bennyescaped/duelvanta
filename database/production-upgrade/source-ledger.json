@@ -738,14 +738,14 @@
     {
       "path": "database/trade-order-resolution-v1-hardening.sql",
       "sha256": "7c6865e035ee14a53575e4120077de8662def1f481774930aadad5e240a4e7ac",
-      "status": "direct_source",
-      "reason": "Exact bytes or explicitly listed source range in manifest"
+      "status": "already_in_production_baseline",
+      "reason": "Do not replay: intermediate CHECK would reject existing problem_response notifications. Only later alias-list delta differs from main; explicit trade_actions_column_aliases and reviewed payment-gate source supply that delta."
     },
     {
       "path": "database/trade-order-resolution-v1.sql",
       "sha256": "f4e2469cf546398891268e1038d265b96a692e697948a0b2b392b95fa0d33d96",
-      "status": "direct_source",
-      "reason": "Exact bytes or explicitly listed source range in manifest"
+      "status": "already_in_production_baseline",
+      "reason": "Do not replay: intermediate CHECK would reject existing problem_response notifications. Only later alias-list delta differs from main; explicit trade_actions_column_aliases and reviewed payment-gate source supply that delta."
     },
     {
       "path": "database/trade-shipping-profiles-v1-hardening.sql",

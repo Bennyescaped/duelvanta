@@ -38,4 +38,18 @@ select ('50000000-0000-4000-8000-'||lpad(i::text,12,'0'))::uuid,
  case when i<=7 then now()-interval '1 day' end from generate_series(1,9)i;
 insert into public.market_order_items(order_id,deal_id,listing_id,item_title,shipping_method,item_amount)
 select order_id,id,listing_id,'SYNTHETIC P0-01 item','parcel',10 from public.market_deals;
+insert into public.market_order_cases(order_id,case_type,reason,opened_by,status)
+select '40000000-0000-4000-8000-000000000001',case when i<=2 then 'problem' else 'cancellation' end,
+ 'SYNTHETIC P0-01 historical case','10000000-0000-4000-8000-000000000003',case when i<=2 then 'withdrawn' else 'declined' end
+from generate_series(1,4)i;
+insert into public.market_notifications(recipient_id,kind,title,body,dedupe_key,order_id)
+select '10000000-0000-4000-8000-000000000003',x.kind,'SYNTHETIC P0-01 notice','Synthetic migration preservation fixture',
+ 'p001-notice-'||x.kind||'-'||i,'40000000-0000-4000-8000-000000000001'
+from (values ('purchase',5),('order_received',2),('problem_response',2),('cancellation_requested',2),('order_shipped',2),('problem_opened',2),('cancellation_declined',2),('problem_withdrawn',2))x(kind,n)
+cross join lateral generate_series(1,x.n)i;
+insert into public.collection_folders(user_id,name) select '10000000-0000-4000-8000-000000000002','SYNTHETIC P0-01 folder '||i from generate_series(1,5)i;
+insert into public.battle_matches(host_id,guest_id,tcg,mode,status,completed_at)
+select '10000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','pokemon',
+ case when i=1 then 'ranked' else 'casual' end,case when i=1 then 'cancelled' else 'completed' end,now()-interval '2 days'
+from generate_series(1,4)i;
 commit;

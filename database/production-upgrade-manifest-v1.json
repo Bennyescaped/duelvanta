@@ -71,27 +71,11 @@
       ]
     },
     {
-      "path": "database/trade-order-resolution-v1.sql",
-      "sha256": "f4e2469cf546398891268e1038d265b96a692e697948a0b2b392b95fa0d33d96",
+      "path": "database/trade-order-lifecycle-payment-hardening-v1.sql",
+      "sha256": "33ab0fb98f72a2b55ca11e87eb1f1b4ab33569279b789a71fb054412c8e5b02b",
       "id": "U008",
       "depends_on": [
         "U007"
-      ]
-    },
-    {
-      "path": "database/trade-order-resolution-v1-hardening.sql",
-      "sha256": "7c6865e035ee14a53575e4120077de8662def1f481774930aadad5e240a4e7ac",
-      "id": "U009",
-      "depends_on": [
-        "U008"
-      ]
-    },
-    {
-      "path": "database/trade-order-lifecycle-payment-hardening-v1.sql",
-      "sha256": "33ab0fb98f72a2b55ca11e87eb1f1b4ab33569279b789a71fb054412c8e5b02b",
-      "id": "U010",
-      "depends_on": [
-        "U009"
       ]
     },
     {
@@ -100,9 +84,9 @@
       "history_name": "pgcrypto_digest_schema_hardening_v1",
       "sha256": "43a9532c52d6e676cc575025e4c859569f6dbe52de34ae93fe03bacbdb268f90",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U011",
+      "id": "U009",
       "depends_on": [
-        "U010"
+        "U008"
       ]
     },
     {
@@ -111,9 +95,9 @@
       "history_name": "market_stripe_payment_result_columns_v1",
       "sha256": "337c6e23a0f0cbb3b85f3bcfef2c02f0a4406cdf76b30397b17df85619d2be6b",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U012",
+      "id": "U010",
       "depends_on": [
-        "U011"
+        "U009"
       ]
     },
     {
@@ -122,9 +106,9 @@
       "history_name": "trade_actions_column_aliases_v1",
       "sha256": "708bf2218546aaf455232992e053b09338f088e92615d3e16000e2da8109f1f9",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U013",
+      "id": "U011",
       "depends_on": [
-        "U012"
+        "U010"
       ]
     },
     {
@@ -135,9 +119,9 @@
         "formatting_source": "evidence/legal-step6-preflight-20260922/staging-application-schema.json.gz",
         "function": "get_my_trade_actions"
       },
-      "id": "U014",
+      "id": "U012",
       "depends_on": [
-        "U013"
+        "U011"
       ]
     },
     {
@@ -146,9 +130,9 @@
       "history_name": "market_stripe_event_ordering_hardening_v1",
       "sha256": "8e7a77f7a50ab57bdca48dafddb93ba1bcc0a1b41f3d6aa6e265d8783e639a07",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U015",
+      "id": "U013",
       "depends_on": [
-        "U014"
+        "U012"
       ]
     },
     {
@@ -157,9 +141,9 @@
       "history_name": "market_stripe_refund_evidence_hardening_v1",
       "sha256": "1dd6ae238fe28dc036f532161e82655088ee7393f05c8fdff01f750a8dfa2b2e",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U016",
+      "id": "U014",
       "depends_on": [
-        "U015"
+        "U013"
       ]
     },
     {
@@ -168,9 +152,9 @@
       "history_name": "market_stripe_refund_evidence_immutability_fix_v1",
       "sha256": "0100d1b58e5167e4fdd9abcd89efc6e5189595453087f5e53d8f33bf41361a62",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U017",
+      "id": "U015",
       "depends_on": [
-        "U016"
+        "U014"
       ]
     },
     {
@@ -182,9 +166,9 @@
       "execute_prefix_bytes": 6221,
       "deferred_sql_sha256": "10b0fc77b384c661aec8a07a510f514d858ca5e04d9c98651d24d82d47b67d8e",
       "deferred_reason": "Cron installation and scheduling omitted explicitly; no automatic business actions in rehearsal",
-      "id": "U018",
+      "id": "U016",
       "depends_on": [
-        "U017"
+        "U015"
       ]
     },
     {
@@ -193,9 +177,9 @@
       "history_name": "b07_l07_01_release1_shipping_close_v1",
       "sha256": "c91bc45fe7a56344b3b5d35914d375fa823a53b812ef5f7ebf46843e2da81fae",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U019",
+      "id": "U017",
       "depends_on": [
-        "U018"
+        "U016"
       ]
     },
     {
@@ -204,9 +188,9 @@
       "history_name": "b07_l07_01_release1_shipping_close_v1_hardening",
       "sha256": "b90409d1d7953e34c4f482bb84596e5f63914a8cd70aa597643e0cb10992728a",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U020",
+      "id": "U018",
       "depends_on": [
-        "U019"
+        "U017"
       ]
     },
     {
@@ -215,9 +199,9 @@
       "history_name": "b07_l07_01_shipping_deadline_hardening_v1",
       "sha256": "c1d0e2d176481c05738826357d13cbfedb7987a798c714096029e5c69ac97db2",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U021",
+      "id": "U019",
       "depends_on": [
-        "U020"
+        "U018"
       ]
     },
     {
@@ -226,9 +210,9 @@
       "history_name": "b07_c2c_eligibility_dependency_v1",
       "sha256": "788cd6fd3bb53855773159a349645f65323d207da82efc7a8b3f1e32c735f030",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U022",
+      "id": "U020",
       "depends_on": [
-        "U021"
+        "U019"
       ]
     },
     {
@@ -237,9 +221,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_schema",
       "sha256": "22787865e1e5ec7998d447497f59be6760c5e94a60b37c5cd1840b304b3479ec",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U023",
+      "id": "U021",
       "depends_on": [
-        "U022"
+        "U020"
       ]
     },
     {
@@ -248,9 +232,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_binding",
       "sha256": "15063515db35dc37073d2b6f5c0f85c5b83a3fcdddd0448f77c897f5f81e4237",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U024",
+      "id": "U022",
       "depends_on": [
-        "U023"
+        "U021"
       ]
     },
     {
@@ -259,9 +243,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_fulfillment_shipping",
       "sha256": "2c80b024ee5978ce0ab111eea8de6e2493bdde61577cb3ca42dd6c2ccbaa4876",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U025",
+      "id": "U023",
       "depends_on": [
-        "U024"
+        "U022"
       ]
     },
     {
@@ -270,9 +254,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_fulfillment_receive",
       "sha256": "6b86b5880c4105fc2efd32a11abb7a7543a7bacc295abdae65e5a73cad903037",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U026",
+      "id": "U024",
       "depends_on": [
-        "U025"
+        "U023"
       ]
     },
     {
@@ -281,9 +265,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_problems",
       "sha256": "669e0205036311fbd2109642fe8112ca3819889f5dece13a2f8b7560f349d89d",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U027",
+      "id": "U025",
       "depends_on": [
-        "U026"
+        "U024"
       ]
     },
     {
@@ -292,9 +276,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_schema",
       "sha256": "17b55c481e94d8a8bd78ba9109c746314dc5d9adbc06453c2f540e7e9908104f",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U028",
+      "id": "U026",
       "depends_on": [
-        "U027"
+        "U025"
       ]
     },
     {
@@ -303,9 +287,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_revision",
       "sha256": "db1a1818020717286fa16f16610751caad9413cd471a18f2bfbe79fc8a776668",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U029",
+      "id": "U027",
       "depends_on": [
-        "U028"
+        "U026"
       ]
     },
     {
@@ -314,9 +298,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_proposals",
       "sha256": "bddef5eca84e0f9380b8d7393bbafada4d39117ba455083db5cac909be147e2c",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U030",
+      "id": "U028",
       "depends_on": [
-        "U029"
+        "U027"
       ]
     },
     {
@@ -325,9 +309,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_binding",
       "sha256": "0cf11a4739c5d63b7072c9c76980f3ac5831c3079714007fd9ac768aced64cfb",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U031",
+      "id": "U029",
       "depends_on": [
-        "U030"
+        "U028"
       ]
     },
     {
@@ -336,9 +320,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_code",
       "sha256": "8918363643faa5be5e8b30fbe1260ce729ec34ded9d024cea4cb4b16023eb029",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U032",
+      "id": "U030",
       "depends_on": [
-        "U031"
+        "U029"
       ]
     },
     {
@@ -351,9 +335,9 @@
         ]
       ],
       "reason": "Archive read RPC present in approved target but absent from split Staging history; exact repository source",
-      "id": "U033",
+      "id": "U031",
       "depends_on": [
-        "U032"
+        "U030"
       ]
     },
     {
@@ -362,9 +346,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_completion_compat",
       "sha256": "1276baa6de814d27ad53b628ee12de2f148302ecbfd8106b149d52e46de65959",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U034",
+      "id": "U032",
       "depends_on": [
-        "U033"
+        "U031"
       ]
     },
     {
@@ -373,9 +357,9 @@
       "history_name": "b07_l07_01_c2c_swap_v1_pickup_completion_compat",
       "sha256": "f96eff229c03ae84eaee5ab06ca1cfcb96aad05299ef9e88d3c33b7e013cf7ca",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U035",
+      "id": "U033",
       "depends_on": [
-        "U034"
+        "U032"
       ]
     },
     {
@@ -384,9 +368,9 @@
       "history_name": "b07_l07_01_pickup_messages_v1",
       "sha256": "4978f16895b3ae3e977a2e185edc67c9deb734ec4ca457ef9f98a5b3c332e5c9",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U036",
+      "id": "U034",
       "depends_on": [
-        "U035"
+        "U033"
       ]
     },
     {
@@ -395,9 +379,9 @@
       "history_name": "b07_l07_01_pickup_messages_v1_list",
       "sha256": "aff60a0c1fec3e01ca6a8b0c0bb7f3cf9327d0d9239b6419d2c02d0062a754f5",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U037",
+      "id": "U035",
       "depends_on": [
-        "U036"
+        "U034"
       ]
     },
     {
@@ -406,9 +390,9 @@
       "history_name": "b07_l07_01_order_pickup_handover_staging_repair_v1",
       "sha256": "e7abd3246bc82bb1d0491866cfbe41f59369bd1fc6c1fee0e73d2c6acddf1410",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U038",
+      "id": "U036",
       "depends_on": [
-        "U037"
+        "U035"
       ]
     },
     {
@@ -417,9 +401,9 @@
       "history_name": "account_data_rights_pickup_messages_hardening_v1",
       "sha256": "acbef3aa921520b8de6b4c11681baf3eb5dbb62563da0e8300516e3fab0d1867",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U039",
+      "id": "U037",
       "depends_on": [
-        "U038"
+        "U036"
       ]
     },
     {
@@ -428,9 +412,9 @@
       "history_name": "b07_trade_only_no_money_v1",
       "sha256": "95e7f298465bb59033f51d5d0143b0620d50a8b3460d46462973eb2e98503dd6",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U040",
+      "id": "U038",
       "depends_on": [
-        "U039"
+        "U037"
       ]
     },
     {
@@ -439,9 +423,9 @@
       "history_name": "b07_sealed_sale_only_v1",
       "sha256": "9ba986d7c8b2106b887ec149ffb1d2b80de7b65143305c4e7fe92058e7c809a5",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U041",
+      "id": "U039",
       "depends_on": [
-        "U040"
+        "U038"
       ]
     },
     {
@@ -450,9 +434,9 @@
       "history_name": "trade_notifications_v2",
       "sha256": "c443f6bdbae05cbb6ea0322fa5fba78a0191cf9dc7e48715e98fac83e35c86d6",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U042",
+      "id": "U040",
       "depends_on": [
-        "U041"
+        "U039"
       ]
     },
     {
@@ -461,9 +445,9 @@
       "history_name": "trade_notifications_v2_kind_expansion",
       "sha256": "57b5a974d5ccf9c300c79565a402852a6fffc70a20009e2fd554ffc8827af12d",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U043",
+      "id": "U041",
       "depends_on": [
-        "U042"
+        "U040"
       ]
     },
     {
@@ -472,9 +456,9 @@
       "history_name": "trade_notifications_v2_cutover",
       "sha256": "16b2cae5807ff0d5baaa4ce0161f28bdcc9b3129db8cc631eccba69b54026a6b",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U044",
+      "id": "U042",
       "depends_on": [
-        "U043"
+        "U041"
       ]
     },
     {
@@ -483,9 +467,9 @@
       "history_name": "b07_sale_only_release_v1",
       "sha256": "32c8375f37beba98942534b0576eef8679a47ef5038d6be79fc3a77426115b7e",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U045",
+      "id": "U043",
       "depends_on": [
-        "U044"
+        "U042"
       ]
     },
     {
@@ -494,9 +478,9 @@
       "history_name": "b07_sale_only_notifications_v1",
       "sha256": "d334e3d13cb53de1f1d48fe420655905d584f59be99ac0af25f9bb875a82ee6b",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U046",
+      "id": "U044",
       "depends_on": [
-        "U045"
+        "U043"
       ]
     },
     {
@@ -505,9 +489,9 @@
       "history_name": "b07_sale_only_public_listings_v1",
       "sha256": "57a68b32632c2f5c1d1b136c7b1a0b689db7b7f69a4391042a11464863fd8ae4",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U047",
+      "id": "U045",
       "depends_on": [
-        "U046"
+        "U044"
       ]
     },
     {
@@ -516,9 +500,9 @@
       "history_name": "b07_offer_reservation_v1_staging",
       "sha256": "8a20e5710f32387b791f6596fb9f4c259f32f8ebe893a14a1984661452460de6",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U048",
+      "id": "U046",
       "depends_on": [
-        "U047"
+        "U045"
       ]
     },
     {
@@ -527,9 +511,9 @@
       "history_name": "b07_offer_reservation_sale_only_reads",
       "sha256": "7112fd9f1162520208108019a5e890e2f5dea42e358d2748941c3e09ad494154",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U049",
+      "id": "U047",
       "depends_on": [
-        "U048"
+        "U046"
       ]
     },
     {
@@ -538,9 +522,9 @@
       "history_name": "b07_shipping_receipt_completion_realign_v1",
       "sha256": "becbfd56e2c3b0843f0f9ba92206a32e04cb61ed82ff6630390c27f1d29ebe19",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U050",
+      "id": "U048",
       "depends_on": [
-        "U049"
+        "U047"
       ]
     },
     {
@@ -549,9 +533,9 @@
       "history_name": "battle_beta_account_status_v1",
       "sha256": "72b16b76d91569a89ff644348f525b892706798fa3944e4fa98c772ae92c9ad7",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U051",
+      "id": "U049",
       "depends_on": [
-        "U050"
+        "U048"
       ]
     },
     {
@@ -560,9 +544,9 @@
       "history_name": "battle_dispute_resolution_v1",
       "sha256": "a3d462bd8fcf6e5b8be384286327cbd73ebe57ad13e98f5cd29db51785a0f5cc",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U052",
+      "id": "U050",
       "depends_on": [
-        "U051"
+        "U049"
       ]
     },
     {
@@ -571,9 +555,9 @@
       "history_name": "battle_judge_desk_v1",
       "sha256": "c14133301b0f0b7359763bfd4682c2b46713e7e17d5f2fd688e8fc50f779d4b4",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U053",
+      "id": "U051",
       "depends_on": [
-        "U052"
+        "U050"
       ]
     },
     {
@@ -582,9 +566,9 @@
       "history_name": "battle_spectator_foundation_v1",
       "sha256": "34ec56ee0cc8ec1b5d1793e56bd47a7e9214d99f437d0997baf66de69bbadb3c",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U054",
+      "id": "U052",
       "depends_on": [
-        "U053"
+        "U051"
       ]
     },
     {
@@ -593,9 +577,9 @@
       "history_name": "battle_spectator_media_v1",
       "sha256": "cdc93d38027de8273b7299321edb4ebec6563e5d01c5ff40e0e3d71cfa299634",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U055",
+      "id": "U053",
       "depends_on": [
-        "U054"
+        "U052"
       ]
     },
     {
@@ -604,9 +588,9 @@
       "history_name": "battle_spectator_media_publisher_admission_v1",
       "sha256": "41cbc8d039f3f1f6ffd82de3a7f4f994a4f73df0704ab57e3f451739cc31350e",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U056",
+      "id": "U054",
       "depends_on": [
-        "U055"
+        "U053"
       ]
     },
     {
@@ -615,9 +599,9 @@
       "history_name": "battle_spectator_media_reconciler_v1",
       "sha256": "3b45f461636d9115822e0413caa93d47fd533d878ddae6fbc2c401283244347a",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U057",
+      "id": "U055",
       "depends_on": [
-        "U056"
+        "U054"
       ]
     },
     {
@@ -626,9 +610,9 @@
       "history_name": "collect_empty_binder_delete",
       "sha256": "7ddbbf05f8d6a7e194948ed7fe7a165fced9be24d1bd5d5a87826805ef02252e",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U058",
+      "id": "U056",
       "depends_on": [
-        "U057"
+        "U055"
       ]
     },
     {
@@ -637,9 +621,9 @@
       "history_name": "trade_legal_contract_model_v1",
       "sha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U059",
+      "id": "U057",
       "depends_on": [
-        "U058"
+        "U056"
       ]
     },
     {
@@ -648,9 +632,9 @@
       "history_name": "auth_privileged_step_up_v1",
       "sha256": "fdc4339b99545a24f3f6f1c68afcb89abae32b8e16a6d0ddb3f3816ad22f44c8",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U060",
+      "id": "U058",
       "depends_on": [
-        "U059"
+        "U057"
       ]
     },
     {
@@ -659,9 +643,9 @@
       "history_name": "security_privilege_mfa_hardening_v1",
       "sha256": "d1ce7f093c521ad90022e42ab946570572556d3543470a9cfd55893e39b8b927",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U061",
+      "id": "U059",
       "depends_on": [
-        "U060"
+        "U058"
       ]
     },
     {
@@ -670,9 +654,9 @@
       "history_name": "security_readiness_v1",
       "sha256": "a75ef2472c83218de2581223ae11ee11a89951a3194a96843e8727c4d968c1d7",
       "archive_sha256": "dca8406cf4ca0c01480b26887ddb636ec6034078c46b27a8865aa31c93b7be78",
-      "id": "U062",
+      "id": "U060",
       "depends_on": [
-        "U061"
+        "U059"
       ]
     }
   ],
