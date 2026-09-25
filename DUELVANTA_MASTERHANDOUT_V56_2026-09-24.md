@@ -1,3 +1,41 @@
+# DUELVANTA – MASTERHANDOUT V56, aktualisierte Fortsetzung
+
+25.09.2026, 03:40 UTC. **Schritt9C: DB/Auth-Rehearsal und drei Storage-Rückspielproben PASS; geordneter Abschluss BLOCKIERT an Löschfreigabe des temporären Projekts. P0-03 bis Cleanup offen. Production NO-GO. Kein P0-01.**
+
+Dieser aktuelle Abschnitt ersetzt alle widersprechenden Aussagen des historischen V56 unten. Insbesondere sind Pro-Backups vorhanden und ein tatsächlicher Restore wurde durchgeführt. V55 bleibt hinsichtlich des Auftragsumfangs maßgeblich.
+
+## Verbindlich lesen und Repository
+
+Dieses aktualisierte V56 und `DUELVANTA_RECOVERY_SCHRITT9C_BACKUP_RESTORE_REHEARSAL_2026-09-24.md` vollständig, insbesondere deren aktuellen Abschnitt vor dem Archiv. V55 und 9B Evidence Acceptance bleiben Basis; V51 für andere Blocker.
+
+Fortsetzungshead `2c0621c0e8cea943b7de78f988c24f9708bff72d`; veröffentlichter Nachfolger enthält dieses Update und neue Evidenz. Exakte SHA/CI im Chatabschluss, vor nächstem Eingriff remote prüfen. Nur `Bennyescaped/duelvanta`, `marketplace-ux-v1`; main `50f88213571be13255bb52eb489cc28cca660001`, PR5 open/Draft/unmerged. Keine Code-/SQL-/Envänderung, kein manueller Deploy, vorhandene Checkouts unangetastet.
+
+## Aktuell bewiesen
+
+- Pro in beiden Quellen; PITR in beiden aus. Latest completed: Production24.09.06:28:30UTC, Staging25.09.00:20:47UTC. Stagingbackup liegt nach9B, wurde aber nicht separat restauriert.
+- Productionbackup in `DUELVANTA-RECOVERY-9C-20260924`, Ref `olgwhgcrtsgsyymiglbu`, eu-central-1 restauriert; Dashboard COMPLETED. Erste SQL-Verfügbarkeit nach etwa5Minuten; keine vollständige Plattform-RTO behauptet.
+- Auth/Identities/Profile17/17/17, History72; 40App-/Historytabellen per SHA256 identisch; 103FKs ohne Orphans; Kataloge/Funktionen/RLS/ACL/Defaults sowie30Rollen/Mitgliedschaften identisch; sieben Appsequenzen identisch. Auth-refresh-token-Sequenz241 statt spätereQuelle242 als zeitliche Abweichung dokumentiert.
+- 91Storageoriginale vollständig gesichert/gehasht: Production74Collection+6Market+6Avatare, Staging5Market; insgesamt53.011.650Bytes. Alle Größen/ETags korrekt; Quellinventare vorher/nachher unverändert.
+- Drei Storage-Service-Stichproben auf ursprünglichem Bucket-/Dateipfad zurückgespielt und bytegleich heruntergeladen. Nicht alle91Objekte im Service restauriert, kein Endnutzerlogin im Clone. Import regeneriert Storage-IDs/Zeitstempel/Owner-Metadaten; ursprüngliche Pfadbindung erhalten, kein bitidentischer Metadatenrestore.
+- Stagingquelle final9Benutzer/8Identities/4verifizierteMFA/53Migrationen; Security/Legal compatible=true. Keine Staff-/Fixture-/Quelländerung. 7A/7B unverändert gelassen, nicht erneut abgespielt.
+- Aktuelle Auth-URL- und Edgeinventare im Bericht. P0-04/Providersecret-Verfügbarkeit nicht pauschal abgenommen. Clone ohne EdgeFunctions, ohne pg_cron/pg_net, ohne eingerichtete externe Providerintegration. Kein Stagingclone: dessen Scheduler erfordert eigene Isolation.
+
+Privates Bildbackup `DUELVANTA_STORAGE_BACKUP_2026-09-25_PRIVATE.zip`, SHA256 `a4d8a8235783382a0f7ace91ad479ef3369ab0daf01b79a95cc852a82f3bb55c`. Kein DB-/Auth-/Secretsdump darin und keine Originalbilder in Git/CI. Evidenz unter `evidence/recovery-step9c-20260924/`, besonders restore-validation.json, role-validation.json, storage-validation.json und final-state-20260925.json.
+
+## Einziger offener Ausführungspunkt
+
+**Temporäres Recoveryprojekt noch ACTIVE_HEALTHY; nicht gelöscht.** Automatischer Freigabeprüfer hat den finalen Löschklick abgelehnt, weil er die im übernommenen Chat erteilte Zustimmung nicht als aktuelle vertrauenswürdige Autorisierung der irreversiblen Löschung anerkennt. Keine Umgehung. Löschdialog vorbereitet, Nachweise gesichert. Das Projekt kann bis zur Entfernung weiter anteilige Kosten verursachen;9,68USD war die angezeigte zusätzliche Monatsprojektion.
+
+Nächster EINZIGER Schritt: aktuelle ausdrückliche Nutzerbestätigung zur endgültigen Löschung von `DUELVANTA-RECOVERY-9C-20260924` / `olgwhgcrtsgsyymiglbu` abwarten. Danach nur dieses Testprojekt löschen, frische Projektliste mit unveränderten Quellen prüfen, Cleanupstatus/Bericht/V56 abschließen. Kein weiterer kostenpflichtiger Clone und kein erneuter kompletter Testlauf nötig, solange der Stand unverändert ist.
+
+Die Freigabe muss Projektname/Ref und endgültige Löschung umfassen. Production `enifiaqsnqtbzylnfrpi` und Staging `xhmjxrcskfhbovhitdej` gehören ausdrücklich nicht zur Zielbereinigung. Keine Zugangsdaten im Chat anfordern.
+
+P0-02 bleibt im V55-Stagingumfang geschlossen; P0-03 bleibt bis Cleanupabschluss offen. P0-01 und alle übrigen V51-Punkte nicht beginnen. Nach9C-Abschluss STOP; kein Merge/main/Production-Restore/-Migration/-Deployment, StripeLive, echte Zahlung/Refund/Payout/Mail, Domainumschaltung oder TinyFish. PITR bleibt aus.
+
+---
+
+## Historisches V56 vom 24.09. – durch obigen Abschnitt ersetzt
+
 # DUELVANTA – MASTERHANDOUT V56
 
 24.09.2026. **Schritt 9C BLOCKIERT vor Backup-/Restore-Ausführung. P0-03 offen. Production NO-GO. P0-02 bleibt gemäß V55 auf Branch/Staging geschlossen. Kein P0-01 begonnen.**

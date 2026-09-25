@@ -1,4 +1,99 @@
+# DUELVANTA – Schritt 9C: aktueller Abschlussstand der Fortsetzung
+
+Stand 25.09.2026, 03:40 UTC. **Datenbank-Rehearsal und drei Storage-Rückspielproben PASS. Abschluss BLOCKIERT ausschließlich an der noch nicht freigegebenen endgültigen Zielbereinigung. P0-03 bleibt bis zum geordneten Abschluss offen. Kein P0-01 begonnen.**
+
+Dieser Abschnitt ersetzt sämtliche historischen Aussagen weiter unten, nach denen Pro-Backups fehlten, kein Restoreziel vorhanden sei oder kein Restore stattgefunden habe. Die historischen Abschnitte bleiben als Ablaufnachweis erhalten, sind aber keine aktuellen Anweisungen.
+
+## Auftrag, Autorisierung und Repository
+
+V55 und Evidence Acceptance sowie V54/9B-Abnahme/V51/Preflight gelesen. Maßgeblich ist der Mindestumfang von V55: aktuelles Backup-/Recoverykonzept für beide Quellen, mindestens ein isolierter Restore und Storage-Integritätsstichproben. Kein zusätzlicher Staging-Clone behauptet oder angelegt. Der Betreiber hat Pro bestätigt, PITR ausdrücklich untersagt und dem vorgeschlagenen temporären Restoreprojekt mit angezeigten zusätzlichen 9,68 USD/Monat zugestimmt. Er setzte dessen neues DB-Passwort persönlich und startete den Restore. Keine Passwort-/MFA-/JWT-Werte ausgelesen.
+
+Fortsetzungshead `2c0621c0e8cea943b7de78f988c24f9708bff72d`, ausschließlich `Bennyescaped/duelvanta`, `marketplace-ux-v1`. `main` unverändert `50f88213571be13255bb52eb489cc28cca660001`; PR #5 open/Draft/unmerged. Nur Berichte/Evidenz veröffentlichen, keine Anwendungscodeänderung, Migration oder manuelle Bereitstellung. Vorhandene Arbeitskopien unangetastet.
+
+## Tatsächlicher Backupbestand
+
+| Quelle | Letztes sichtbar abgeschlossenes physisches Backup | PITR | Umfang und Grenze |
+|---|---|---|---|
+| Production `enifiaqsnqtbzylnfrpi` | 24.09.2026 06:28:30 UTC | aus | DB/Auth; dieses Backup wurde separat restauriert. |
+| Staging `xhmjxrcskfhbovhitdej` | 25.09.2026 00:20:47 UTC | aus | DB/Auth; zeitlich nach 9B. Einzelner Inhalt dieses Backups nicht durch eigenen Restore geprüft. |
+
+Beide Projekte Pro. Staging zeigt am 25.09. acht datierte Einträge, Production sieben; maßgeblich bleibt die dokumentierte Pro-Aufbewahrung von sieben Tagen, keine zusätzliche garantierte Retention aus der UI ableiten. Tagesbackups enthalten keine Storage-Originalbytes. Der alte Mac-Dump vor der MFA-Härtung wird nicht als aktuelle Sicherung ausgegeben.
+
+Der Recoverypfad verwendet nun die vorhandenen verwalteten physischen DB/Auth-Backups. Kein neuer logischer DBdump heruntergeladen. Passwort-Hashes/MFA-Material verbleiben in der geschützten Supabase-Sicherung; kein sensitiver Dump in Git, CI oder Chat. Providerbackup und späterer Storageexport sind keine atomare gemeinsame Sicherung. Bei einem echten Incident muss der passende konsistente Wiederanlaufpunkt anhand Zeitfenster und Inventar gewählt werden. Änderungen nach dem Tagesbackup können verloren gehen; keine sekundengenaue RPO zugesagt.
+
+## Ausgeführter isolierter Datenbank-Restore
+
+Ziel `DUELVANTA-RECOVERY-9C-20260924`, Ref `olgwhgcrtsgsyymiglbu`, gleiche Organisation, eu-central-1. Quelle Production; keine Wiederherstellung über Production oder Staging. Supabase meldet COMPLETED. Projektanlage 24.09.21:28:48 UTC, erster erfolgreicher SQL-Nachweis 21:33:48 UTC: beobachtete DB-Verfügbarkeit nach etwa fünf Minuten. COMPLETED spätestens im Screenshot 21:41:28 UTC belegt; exakte interne Endzeit nicht bekannt. Das ist keine gemessene vollständige Plattform-RTO. Browserunterbrechung und manuelle Anmeldung gehören nicht zur reinen DB-Restorezeit.
+
+| Prüfung | Ergebnis |
+|---|---|
+| PostgreSQL/Extensions | 17.6, fünf Extensions identisch; keine pg_cron/pg_net im Clone. |
+| Auth/Identities/Profile | 17/17/17, passend zum gelesenen Quellbestand. |
+| Migration History | 72 Einträge, als Teil des Tabellenhashvergleichs identisch. |
+| Anwendungs-/Historydaten | 40 Tabellen, Zeilenzähler und SHA-256 identisch, 0 Abweichungen. |
+| Kataloge | 11 Schemas, 97 Relationen, 1002 Spalten, 246 Indizes, 457 Constraints, 28 Trigger, 244 Funktionen, 43 Policies, 24 Default-Privilege-Einträge identisch. |
+| Rollen/ACLs | 30 Rollenattribute und Mitgliedschaften identisch; kein Rollenpasswortvergleich/-export. Relations-/Funktions-/Schema-ACLs im Katalogvergleich. |
+| Fremdschlüssel | 103 Beziehungen, 0 verwaiste Referenzen. |
+| Sequenzen | Sieben Anwendungssequenzen identisch. Auth-refresh_tokens: Backup 241, spätere Quelle 242, explizite zeitliche Differenz. |
+| Storage-Metadaten | Drei Buckets und zunächst 86 Objektverweise restauriert. Originalbytes separat behandelt. |
+| Vault/Provider | Ziel-Vault leer; keine Entschlüsselung echter Vaultsecrets getestet. Ziel hat keine Edge Functions und keine App-/Vercel-/Stripe-/Mail-/LiveKit-Integration eingerichtet. |
+| Readiness | Production-Baseline enthält die neuen Security-/Legal-Readinessfunktionen nicht. Nicht nachinstalliert; daher im Clone nicht anwendbar. Stagingquelle frisch beide compatible=true. |
+
+Das unverändert restaurierte Production-Rechteschema ist ein Wiederherstellungsnachweis, keine Freigabe der bereits bekannten Production-Sicherheitslücken. Keine Testmigration aus P0-01 oder P0-02 ins Ziel eingespielt.
+
+## Storage-Backup und Rückspielproben
+
+Alle 91 Quellobjekte als Originalbytes gesichert: Production collection-cards 74, market-listing-images 6, profile-avatars 6; Staging market-listing-images 5. Gesamt 53.011.650 Bytes. Alle Dateigrößen und MD5-basierten ETags stimmen mit dem jeweiligen aktuellen Quellinventar überein. SHA-256 je Datei im privaten Manifest. Quellinventare vor/nach dieser Fortsetzung identisch, 86/5; für die zuvor heruntergeladenen 80 Dateien zusätzlich Abgleich mit aktuellen ETags. Kein globaler DB/Storage-Transaktionssnapshot behauptet.
+
+Privates Paket: `DUELVANTA_STORAGE_BACKUP_2026-09-25_PRIVATE.zip`, 52.539.677 Bytes, SHA-256 `a4d8a8235783382a0f7ace91ad479ef3369ab0daf01b79a95cc852a82f3bb55c`. Enthält Originalpfade, Projektzuordnung, Größen, ETags und SHA-256. Keine Authdaten oder Providersecrets. Nur privat bereitstellen; niemals in Git/CI veröffentlichen. Öffentliche Evidenz enthält nur Summen, Hashes und gehashte Objektpfade.
+
+Je ein echtes gesichertes Objekt aus allen drei Production-Buckets über den Supabase-Storage-Dienst im isolierten Ziel auf dem ursprünglichen Bucket-/Dateipfad wiederhergestellt und erneut heruntergeladen. Alle drei SHA-256-Vergleiche PASS. Kein bloßes Kopieren in ein lokales Verzeichnis als Storage-Restore gewertet.
+
+Die DBkopie hatte bereits Objektmetadaten ohne Bytes. Der Dashboardupload legte beim ersten Objekt zunächst einen Suffixnamen an. Ausschließlich im Wegwerfziel wurde der leere alte Verweis über den Storage-Dienst entfernt und die zurückgespielte Datei auf den Originalnamen verschoben. Bei den nächsten zwei Proben wurde der leere Zielverweis vor dem Upload entfernt. Originalquellen unverändert. Dashboardimporte erzeugen neue Objekt-IDs/Zeitstempel und owner/owner_id=NULL; dies ist **kein** bitidentischer Metadatenrestore. Bestehende Policies binden die Benutzerrechte an den ersten Pfadteil, der erhalten blieb. Kein normaler Endnutzerlogin/Storage-RLS-Verhaltenstest, keine Wiederherstellung aller 91 Bytesobjekte und kein Staging-Storage-Service-Restore behauptet. Die V55-Stichprobenanforderung ist bestanden; weitergehende Vollwiederanlaufnachweise sind nicht Gegenstand dieses PASS.
+
+## Recovery-Konfiguration und Betriebsablauf
+
+Auth-URL-Inventar frisch read-only: Production Site URL `https://duelvanta.de`, Redirects `/admin.html`, `/app.html`, `/welcome.html`, `/reset-password.html` jeweils auf dieser Origin. Staging Site URL `http://localhost:3000`, keine Redirect-Allowlist. Keine Einstellung geändert und P0-04 dadurch nicht pauschal geschlossen.
+
+Production Edge: invite-beta-user v2, public-card-image v2. Staging Edge laut aktuellem Connector: owner-invite-beta-user v5, invite-beta-user v1, media-broker v5, reconciler v6, inspect v3; tatsächliche Bundlehashes in final-state-20260925.json. Versionsanzeigen gegenüber historischen Handouts nicht als in9C erfolgte Änderung ausgeben. Clone: keine Edge Functions.
+
+Für echten Wiederanlauf separat erforderlich: Vercel-/Code-SHA und Scopeinventar aus V51; Auth Site URL/Allowlist sowie SMTP/OAuth-Konfiguration; Edgequellen/-Deployments; Supabase-API/JWT-/DB-Zugänge; OpenAI-/LiveKit-/Stripe-/Mail-/Worker-/Reconciler-Schlüssel; Scheduler, DNS und Providerkonten. Diese externen Werte/Transaktionen werden durch DBrestore nicht rekonstruiert. Sichere Betreiberablage der Secrets wurde nicht neu attestiert; kein Secretmaterial zur Dokumentation ausgelesen. Keine komplette Provider-Disaster-Recovery-Freigabe, P0-04 und externe Betriebsnachweise bleiben offen.
+
+Sicherer Ablauf bei einem später separat autorisierten Incident: Quelle/Zeitfenster und Neugeschäft prüfen → passende DB/Auth-Sicherung isoliert restaurieren → Rollen/Katalog/History/FKs/Anwendungshashes prüfen → Storage mit ursprünglichen Bucket-/Dateipfaden und passenden Inventaren zurückspielen → Providerkonfiguration aus geschütztem Betreiberbestand getrennt wiederherstellen → Auth-/Storage-/App-Lesepfade testen → erst nach eigener Freigabe Domains/Worker aktivieren und ausstehende Providerereignisse idempotent abgleichen. Kein Payment-/Mail-Replay allein wegen Restore.
+
+**Staging nicht blind physisch klonen:** pg_cron/pg_net und der Vault-Reconciler können externe Aufrufe sofort wieder aufnehmen. Für einen zusätzlichen Staging-Rehearsal kontrollierten logischen Restore oder eine gesondert abgesicherte Schedulerisolation planen; dieser Auftrag hat keinen zweiten Clone angelegt und keine laufenden Scheduler geändert. Der Production-Clone hatte diese Extensions nicht.
+
+## Bereinigung und verbleibender Abschlussblocker
+
+Am 25.09. nach Tests wurde ausschließlich die Löschung des eindeutig bezeichneten Wegwerfprojekts vorbereitet. Der automatische Freigabeprüfer lehnte den finalen Klick ab: Die Zustimmung im übernommenen Gespräch werde nicht als hinreichende vertrauenswürdige Autorisierung für die irreversible Projektlöschung gewertet. Kein Umgehungsversuch über API/SQL/anderen Browser. Danach Projektliste: alle drei Projekte ACTIVE_HEALTHY; Recoveryziel also **noch nicht entfernt**. Weitere anteilige Projektkosten möglich; die 9,68 USD waren eine Monatsprojektion, keine tatsächlich gemessene Rechnung.
+
+Offen ist eine aktuelle ausdrückliche Nutzerfreigabe: endgültiges Löschen von `DUELVANTA-RECOVERY-9C-20260924` / `olgwhgcrtsgsyymiglbu` einschließlich seiner Testdatenbank und drei zurückgespielten Dateien. Production und Staging sind nicht Teil der Löschung. Nach Freigabe finalen Klick erneut versuchen, Projektliste kontrollieren, Cleanupnachweis ergänzen und V56 abschließen. Nicht neue Backups/Cloneprojekte als Umweg anlegen.
+
+## Status und Übergabe
+
+PASS: Pro-/PITR-Status, aktuelles Backupkonzept beider Quellen, vollständiger Storagebyteexport mit Checksums, isolierter Production-DB/Auth-Restore mit Katalog-/Daten-/FK-/Rollenvergleich und drei echte Storage-Service-Rückspielproben, Recoveryinventar und dokumentierte Grenzen. Staging frisch 9 Benutzer/8 Identities/4 verifizierte Faktoren/53 Migrationen, Security/Legal compatible=true. Keine Quellmutation.
+
+**9C-Abschluss BLOCKIERT nur an Cleanupfreigabe. P0-03 bis dahin offen. Nächster einziger Schritt bleibt 9C: temporäres Ziel kontrolliert entfernen und Abschlussnachweis aktualisieren. Kein P0-01.** Production NO-GO, PITR aus, kein Merge/main/Productiondeploy/-migration, keine Zahlung/E-Mail/Domainänderung. Quellen und ursprüngliche Backups bleiben erhalten.
+
+Methodikquelle: https://supabase.com/docs/guides/platform/clone-project (am25.09. erneut gelesen: physischer Clone benötigt bezahlten Plan, nicht PITR; kopiert DB/Auth, aber keine Storagebytes/Edge-/Authkonfiguration; externe DBextensions laufen unmittelbar). Changelog-Markdown war im Webleser wegen Content-Type nicht abrufbar, keine vollständige Changelogprüfung behauptet.
+
+---
+
+## Historischer Arbeitsstand vom 24.09. – durch obigen Abschnitt ersetzt
+
 # DUELVANTA – Schritt 9C: Backup, Restore und Recovery
+
+## Laufende Fortsetzung nach Pro-Aktivierung – noch kein Abschluss
+
+Der Betreiber bestätigt Pro aktiviert und verbietet ausdrücklich jede PITR-Aktivierung. Die frühere Free-Plan-Inventarisierung unten ist historisch und für den aktuellen Backupstatus überholt. Frisch im authentifizierten Dashboard: Pro in beiden Projekten, PITR jeweils deaktiviert (Enable add-on angezeigt), acht als COMPLETED ausgewiesene physische Tagesbackups vom17.–24.09. Latest Production24.09.06:28:30UTC; Staging24.09.00:23:23UTC. Kein Restore auf ein laufendes Projekt und keine Providerkonfiguration geändert.
+
+Recovery-Konzept ergänzt: verwaltete Tagesbackups sind nun ein vorhandener DB/Auth-Recoverypfad. Die aktuelle Pro-Dokumentation nennt7Tage Aufbewahrung; die acht sichtbaren Datumseinträge sind eine Momentaufnahme und keine8-Tage-Garantie. Änderungen seit dem jeweiligen Backup bleiben ein möglicher Datenverlust; kein PITR und keine sekundengenaue Wiederherstellung zugesagt. Stagingbackup ist älter als die9B-Härtung und kann deshalb allein nicht den aktuellen V55-Sicherheitszustand wiederherstellen. Aktueller Staging-Export bleibt erforderlich. Storage-Originalbytes und externe Provider-/Secrets-Konfiguration bleiben separat zu sichern.
+
+Konkreter nächster Restorekandidat: Production-Backup24.09.06:28:30UTC über **Restore to new project**, gleiche Organisation Duelvanta, eu-central-1, separates neu anzulegendes Projekt. Dieser Pfad benötigt laut aktueller Supabase-Dokumentation physische Backups und einen bezahlten Plan, kein PITR. Quelle bleibt unverändert. Source-Extensions im vorliegenden Inventar ohne pg_cron/pg_net; vor Ausführung erneut prüfen, damit der Clone keine externen Jobs übernimmt. Nur dieser Backupstand wäre nach Restore bewiesen, nicht der vollständige aktuelle Livezustand.
+
+Kostenübersicht geöffnet, noch nicht bestätigt: Additional Monthly Compute9,68USD, Disk0USD, Total9,68USD. Kein Projekt erstellt; Continue NICHT geklickt. V55§10 verlangt vor einer neuen kostenpflichtigen Cloudressource ausdrückliche Bestätigung. Vorgeschlagen ist ein temporäres Projekt nur für9C mit kontrollierter Entfernung nach Nachweissicherung. Restore-Dauer, reale nutzungsabhängige Gesamtkosten und Restoreerfolg sind noch nicht belegt. Kein neues Zwischen-Masterhandout. Erst nach dieser konkreten Kostenentscheidung fortsetzen; Production/main/PITR/P0-01 unverändert.
+
+Neue Evidenz im lokalen Arbeitsstand: pro-backups-readonly.json und pro-restore-cost-confirmation.jpg. Dieser Nachtrag ist bis zur Abschlussveröffentlichung ein lokaler Arbeitsstand; die bisherigen SHA256SUMS beziehen sich auf den vorher veröffentlichten Stand.
 
 24.09.2026. **BLOCKIERT vor dem Restore. P0-03 bleibt offen. Kein Restore ausgeführt; kein aktuelles vollständiges Backup erstellt. Production ausschließlich gelesen. Kein P0-01 begonnen.**
 
