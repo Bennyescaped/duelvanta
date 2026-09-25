@@ -1,0 +1,46 @@
+{
+  "captured_at": "2026-09-25T05:13:26.462Z",
+  "scope": "P0-01 source-bound application schema rehearsal only",
+  "status": "PASS",
+  "technical_head": "3aa580c0bc50c67464e451c503c1e0c6fa17b328",
+  "source_head": "108b371a5fd144ee4c964dd8c66a52d8c30124db",
+  "main": "50f88213571be13255bb52eb489cc28cca660001",
+  "pr5": {
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "ci": [
+    {
+      "id": 36097395749,
+      "name": "Battle WebRTC Check",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 205
+    },
+    {
+      "id": 36097395824,
+      "name": "Scanner V16 Check",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 729
+    }
+  ],
+  "production_readonly": {
+    "captured_at": "2026-09-25T05:10:02.511205Z",
+    "history_count": 72,
+    "last_version": "20260911181702",
+    "history_md5": "148fa579ebd248c169d39102480b53a0",
+    "archive_history_md5_equal": true
+  },
+  "native_artifact": {
+    "id": 10847009152,
+    "sha256": "e895c41b7b046b1111353451fba0697f550c6891140006aa37f86fa4c4571908",
+    "verified": true
+  },
+  "production_mutations": 0,
+  "merge": false,
+  "p004_started": false,
+  "p005_started": false,
+  "production_go": false
+}
