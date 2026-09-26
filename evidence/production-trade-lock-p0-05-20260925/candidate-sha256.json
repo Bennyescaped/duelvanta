@@ -1,0 +1,10 @@
+{
+  "database/market-production-trade-lock-v1.sql": "c2e26d680b45f8e1368de32f7fd74ed0696d8e192208a15b97fdb674b4838cec",
+  "database/market-production-trade-lock-readiness-v1.sql": "ef27dbeddec5bac34c0989339ad73eee7705ac3474c2c431fdde60a4a5173519",
+  "tests/helpers/production-trade-lock-checks.mjs": "7fedd2ba69193deb0cae1b9188ec7858ca75b8d347035c876fefb1badd367d3a",
+  "tests/market-production-trade-lock-bootstrap.sql": "63913f77cbb8d6e93b8ece64640e115049d8bcf79591cadd584fa40239c36c8b",
+  "tests/market-production-trade-lock-database.sql": "dd5a75a6908525ae9924c3b265335c5dae6369b97b46afd51ca8237ea42cb987",
+  "tests/production-upgrade-rehearsal.mjs": "00c57ae1189e4f6595cf88c1ab4c7ec2f14b425dff8dfca0ec447a1c7bc090f5",
+  "tests/generate-security-readiness.mjs": "a6fdbd9de0271101a9c234cbf8e590fc17e3b19edd417c43531ae57942d5878d",
+  ".github/workflows/scanner-v16-check.yml": "59e8a0dbb648164afd5bd74caea9f2ea6679d992a601026ab28ff479c398eb2e"
+}

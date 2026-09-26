@@ -1,0 +1,43 @@
+{
+  "result": {
+    "deployment": {
+      "id": "dpl_ENc313pWZJMSn6y21VbURMEWLMkt",
+      "name": "duelvanta_v5_vision",
+      "url": "duelvantav5vision-dlnnutwx3-bennyescaped-3783.vercel.app",
+      "type": "LAMBDAS",
+      "state": "READY",
+      "createdAt": 1789150823618,
+      "creator": {
+        "uid": "P1NoYHFtKgUtcMngsFTONyeT",
+        "username": "bennyescaped-3783"
+      },
+      "project": {
+        "id": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+        "name": "duelvanta_v5_vision",
+        "framework": null
+      },
+      "meta": {
+        "githubCommitRef": "main",
+        "githubCommitSha": "50f88213571be13255bb52eb489cc28cca660001",
+        "githubCommitMessage": "Fix audit findings in TRADE, BATTLE and profile permissions\n\nHarden battle/profile permissions and fix order tab race",
+        "githubRepo": "duelvanta",
+        "githubOrg": "Bennyescaped"
+      },
+      "alias": [
+        "duelvanta.de",
+        "duelvantav5vision.vercel.app",
+        "duelvantav5vision-bennyescaped-3783.vercel.app",
+        "duelvantav5vision-git-main-bennyescaped-3783.vercel.app"
+      ],
+      "target": "production",
+      "regions": [
+        "iad1"
+      ],
+      "buildingAt": 1789150825266,
+      "ready": 1789150832396,
+      "readyState": "READY",
+      "source": "git",
+      "aliasError": null
+    }
+  }
+}

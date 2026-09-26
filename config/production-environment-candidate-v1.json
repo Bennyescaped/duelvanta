@@ -1,0 +1,57 @@
+{
+  "revision": "production-environment-v1",
+  "status": "CANDIDATE_NOT_AUTHORIZED_FOR_PRODUCTION",
+  "source_commit": "08284a01ea81c8874cf675375956451140af7888",
+  "vercel_project_id": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+  "vercel_team_id": "team_VHCwSwfBWANJvmS3qdkpJ0dK",
+  "supabase_project_ref": "enifiaqsnqtbzylnfrpi",
+  "target": [
+    "production"
+  ],
+  "gitBranch": null,
+  "changes": [
+    {
+      "key": "SUPABASE_URL",
+      "value": "https://enifiaqsnqtbzylnfrpi.supabase.co",
+      "type": "encrypted"
+    },
+    {
+      "key": "SUPABASE_ANON_KEY",
+      "source": "Existing enabled legacy anon key of enifiaqsnqtbzylnfrpi",
+      "required_role": "anon",
+      "required_ref": "enifiaqsnqtbzylnfrpi",
+      "type": "encrypted"
+    },
+    {
+      "key": "SUPABASE_SERVICE_ROLE_KEY",
+      "source": "Existing enabled legacy service_role key of enifiaqsnqtbzylnfrpi",
+      "required_role": "service_role",
+      "required_ref": "enifiaqsnqtbzylnfrpi",
+      "type": "sensitive"
+    },
+    {
+      "key": "DUELVANTA_PUBLIC_ORIGIN",
+      "value": "https://duelvanta.de",
+      "type": "encrypted"
+    }
+  ],
+  "auth_change_required": false,
+  "site_url": "https://duelvanta.de",
+  "redirect_urls": [
+    "https://duelvanta.de/admin.html",
+    "https://duelvanta.de/app.html",
+    "https://duelvanta.de/welcome.html",
+    "https://duelvanta.de/reset-password.html"
+  ],
+  "no_deployment": true,
+  "no_key_rotation": true,
+  "no_preview_copy": true,
+  "no_activation": [
+    "Stripe",
+    "compliance email",
+    "data erasure",
+    "spectator media",
+    "scheduler"
+  ],
+  "rollback": "Remove only the four newly created Production-scoped entries by captured IDs; never delete Preview/default entries or rotate source keys. No deployment performed; never redeploy as rollback without separate authorization."
+}

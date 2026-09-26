@@ -1,0 +1,204 @@
+{
+  "migrations": [
+    {
+      "version": "20260913141026",
+      "name": "create_private_market_listing_images_bucket"
+    },
+    {
+      "version": "20260914092948",
+      "name": "pgcrypto_digest_schema_hardening_v1"
+    },
+    {
+      "version": "20260914093254",
+      "name": "market_stripe_payment_result_columns_v1"
+    },
+    {
+      "version": "20260914102659",
+      "name": "trade_actions_column_aliases_v1"
+    },
+    {
+      "version": "20260915064648",
+      "name": "market_stripe_event_ordering_hardening_v1"
+    },
+    {
+      "version": "20260915080258",
+      "name": "market_stripe_refund_evidence_hardening_v1"
+    },
+    {
+      "version": "20260915082005",
+      "name": "market_stripe_refund_evidence_immutability_fix_v1"
+    },
+    {
+      "version": "20260916073251",
+      "name": "b07_tracking_delivery_window_v1"
+    },
+    {
+      "version": "20260916081359",
+      "name": "b07_l07_01_release1_shipping_close_v1"
+    },
+    {
+      "version": "20260916081618",
+      "name": "b07_l07_01_release1_shipping_close_v1_hardening"
+    },
+    {
+      "version": "20260916082424",
+      "name": "b07_l07_01_shipping_deadline_hardening_v1"
+    },
+    {
+      "version": "20260916110622",
+      "name": "b07_c2c_eligibility_dependency_v1"
+    },
+    {
+      "version": "20260916110653",
+      "name": "b07_l07_01_c2c_swap_v1_schema"
+    },
+    {
+      "version": "20260916110745",
+      "name": "b07_l07_01_c2c_swap_v1_binding"
+    },
+    {
+      "version": "20260916110933",
+      "name": "b07_l07_01_c2c_swap_v1_fulfillment_shipping"
+    },
+    {
+      "version": "20260916110944",
+      "name": "b07_l07_01_c2c_swap_v1_fulfillment_receive"
+    },
+    {
+      "version": "20260916111050",
+      "name": "b07_l07_01_c2c_swap_v1_problems"
+    },
+    {
+      "version": "20260916111119",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_schema"
+    },
+    {
+      "version": "20260916111135",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_revision"
+    },
+    {
+      "version": "20260916111144",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_proposals"
+    },
+    {
+      "version": "20260916111204",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_binding"
+    },
+    {
+      "version": "20260916111218",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_code"
+    },
+    {
+      "version": "20260916112219",
+      "name": "b07_l07_01_c2c_swap_v1_completion_compat"
+    },
+    {
+      "version": "20260916112232",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_completion_compat"
+    },
+    {
+      "version": "20260916180544",
+      "name": "b07_l07_01_pickup_messages_v1"
+    },
+    {
+      "version": "20260916181124",
+      "name": "b07_l07_01_pickup_messages_v1_list"
+    },
+    {
+      "version": "20260917094814",
+      "name": "b07_l07_01_order_pickup_handover_staging_repair_v1"
+    },
+    {
+      "version": "20260917101616",
+      "name": "account_data_rights_pickup_messages_hardening_v1"
+    },
+    {
+      "version": "20260917111158",
+      "name": "b07_trade_only_no_money_v1"
+    },
+    {
+      "version": "20260917111935",
+      "name": "b07_sealed_sale_only_v1"
+    },
+    {
+      "version": "20260917132229",
+      "name": "trade_notifications_v2"
+    },
+    {
+      "version": "20260917132525",
+      "name": "trade_notifications_v2_kind_expansion"
+    },
+    {
+      "version": "20260917132613",
+      "name": "trade_notifications_v2_cutover"
+    },
+    {
+      "version": "20260917180908",
+      "name": "b07_sale_only_release_v1"
+    },
+    {
+      "version": "20260917180910",
+      "name": "b07_sale_only_notifications_v1"
+    },
+    {
+      "version": "20260917180911",
+      "name": "b07_sale_only_public_listings_v1"
+    },
+    {
+      "version": "20260917185128",
+      "name": "b07_offer_reservation_v1_staging"
+    },
+    {
+      "version": "20260917185406",
+      "name": "b07_offer_reservation_sale_only_reads"
+    },
+    {
+      "version": "20260917201448",
+      "name": "b07_shipping_receipt_completion_realign_v1"
+    },
+    {
+      "version": "20260918103806",
+      "name": "battle_beta_account_status_v1"
+    },
+    {
+      "version": "20260918131743",
+      "name": "battle_dispute_resolution_v1"
+    },
+    {
+      "version": "20260918135427",
+      "name": "battle_judge_desk_v1"
+    },
+    {
+      "version": "20260918150007",
+      "name": "battle_spectator_foundation_v1"
+    },
+    {
+      "version": "20260918210927",
+      "name": "battle_spectator_media_v1"
+    },
+    {
+      "version": "20260918213553",
+      "name": "battle_spectator_media_publisher_admission_v1"
+    },
+    {
+      "version": "20260919103559",
+      "name": "battle_spectator_media_pg_net_v1"
+    },
+    {
+      "version": "20260919104947",
+      "name": "battle_spectator_media_vault_scheduler_v1"
+    },
+    {
+      "version": "20260919132152",
+      "name": "battle_spectator_media_reconciler_v1"
+    },
+    {
+      "version": "20260921151654",
+      "name": "collect_empty_binder_delete"
+    },
+    {
+      "version": "20260923081953",
+      "name": "trade_legal_contract_model_v1"
+    }
+  ]
+}

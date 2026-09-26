@@ -1,0 +1,4 @@
+BASELINE REPLAY PASS: empty application tables, constraints, functions, triggers; auth scaffold only. No live data.
+FULL MIGRATION EMPTY SCHEMA REHEARSAL PASS
+{"deletedRows":1,"listing":{"quantity_available":0,"stock_quantity":1,"status":"reserved"},"cleanup":{"expired":0},"scope":"Local PGlite reconstructed staging application DDL plus exact candidate. Actual DELETE policy and DELETE trigger; synthetic reservation only. No Staging writes."}
+CONFIRMED BLOCKER: authenticated buyer can delete a pending fixed-price reservation; stock remains reserved and expiration cannot recover it.

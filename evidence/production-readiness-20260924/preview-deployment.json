@@ -1,0 +1,40 @@
+{
+  "result": {
+    "deployment": {
+      "id": "dpl_EkajBVrPjKTNWjtCPsNjgqjqDTs7",
+      "name": "duelvanta_v5_vision",
+      "url": "duelvantav5vision-3xxs1ujhu-bennyescaped-3783.vercel.app",
+      "type": "LAMBDAS",
+      "state": "READY",
+      "createdAt": 1790234173219,
+      "creator": {
+        "uid": "P1NoYHFtKgUtcMngsFTONyeT",
+        "username": "bennyescaped-3783"
+      },
+      "project": {
+        "id": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+        "name": "duelvanta_v5_vision",
+        "framework": null
+      },
+      "meta": {
+        "githubCommitRef": "marketplace-ux-v1",
+        "githubCommitSha": "c43bcf37659bb53f8bd2d52f1b9d3e2388f2017f",
+        "githubCommitMessage": "docs: close Step 7B and publish masterhandout V50",
+        "githubRepo": "duelvanta",
+        "githubOrg": "Bennyescaped"
+      },
+      "alias": [
+        "duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app"
+      ],
+      "target": null,
+      "regions": [
+        "iad1"
+      ],
+      "buildingAt": 1790234174887,
+      "ready": 1790234187185,
+      "readyState": "READY",
+      "source": "git",
+      "aliasError": null
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "environment": "staging",
+  "project_ref": "xhmjxrcskfhbovhitdej",
+  "head": "a40e4b7d03cd9877b80b7b751ae12a4f31d3c3df",
+  "user_id": "2b46a3c4-6bc7-428c-a65f-f87b395b3677",
+  "identity": "explicitly authorized synthetic Judge",
+  "collect": {"method":"normal browser insert and page reload", "binder_id":"89b8eea0-dafe-44ea-aae6-8d9e66d40ea7", "name":"SYNTHETIC STEP9B 20260924", "pages":2, "persisted":true},
+  "trade": {"method":"normal eligibility form and Orders tab", "synthetic_dob":"1990-01-01", "residence":"DE", "private_buyer_confirmed":false, "own_orders_visible":0, "foreign_orders_visible":0, "new_order_or_payment":false, "scope":"eligibility write and own-order read smoke; no new contract E2E"},
+  "battle": {"method":"normal synthetic safety form, private casual match creation and leave", "match_id":"257accd3-7e7e-4253-9876-887731a910ff", "final_status":"cancelled", "guest_id":null, "camera_activated":false, "scope":"create/cancel live; full WebRTC covered separately by CI"},
+  "logout": {"method":"regular browser signOut", "admin_sessions":0, "moderator_sessions":0, "judge_sessions":0, "verified_factors_each":1},
+  "retained": "Synthetic binder, cancelled match, eligibility and security evidence retained; no 7A/7B changes."
+}

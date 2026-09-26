@@ -1,0 +1,11 @@
+{
+  "role_check": {
+    "role": "authenticated",
+    "read_only": "on",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    },
+    "private_usage": false
+  }
+}

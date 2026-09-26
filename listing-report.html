@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>DUELVANTA · Angebot melden</title>
+  <link rel="stylesheet" href="listing-report.css?v=1.0">
+</head>
+<body>
+  <main class="reportShell">
+    <header class="reportHead">
+      <a class="brand" href="trade.html"><img src="v-logo.svg" alt="DUELVANTA V"><span>DUELVANTA</span></a>
+      <a class="back" href="trade.html">Zurück zum Marktplatz</a>
+    </header>
+    <section class="reportCard">
+      <div class="eyebrow">MARKTPLATZ · MELDEVERFAHREN</div>
+      <h1>Angebot melden</h1>
+      <p class="lead">Hier kannst du ein konkretes Angebot melden, das du für rechtswidrig hältst. Die Meldung wird vertraulich geprüft; deine Kontaktdaten werden nicht dem Verkäufer angezeigt.</p>
+      <nav class="reportTabs" aria-label="Meldebereich"><button id="newTab" class="active" type="button">Neue Meldung</button><button id="statusTab" type="button">Status und Einspruch</button></nav>
+      <form id="noticeForm" novalidate>
+        <div id="listingSummary" class="listingSummary">Angebot wird über die Angebotsnummer zugeordnet.</div>
+        <div class="grid">
+          <label><span>Angebotsnummer</span><input id="listingId" autocomplete="off" required></label>
+          <label><span>Grund der Meldung</span><select id="category" required><option value="">Bitte auswählen</option><option value="counterfeit">Fälschung / nicht authentischer Artikel</option><option value="stolen_goods">Verdacht auf gestohlene Ware</option><option value="consumer_deception">Irreführung oder Betrug</option><option value="intellectual_property">Urheber-, Marken- oder sonstige Schutzrechte</option><option value="prohibited_goods">Verbotene Ware</option><option value="privacy">Persönlichkeits- oder Datenschutzrechte</option><option value="harassment">Belästigung oder Bedrohung</option><option value="other_illegal">Anderer möglicher Rechtsverstoß</option></select></label>
+          <label><span>Name</span><input id="reporterName" autocomplete="name" maxlength="160" required></label>
+          <label><span>E-Mail-Adresse</span><input id="reporterEmail" type="email" autocomplete="email" maxlength="320" required></label>
+          <label class="full"><span>Warum hältst du das Angebot für rechtswidrig?</span><textarea id="explanation" minlength="30" maxlength="5000" rows="7" required placeholder="Beschreibe den konkreten Verstoß und die betroffenen Angaben möglichst genau."></textarea><small>Mindestens 30 Zeichen. Keine unnötigen sensiblen Daten eintragen.</small></label>
+          <label class="full"><span>Rechtsgrundlage oder weitere Belege – falls bekannt</span><textarea id="legalBasis" maxlength="1000" rows="3" placeholder="Zum Beispiel Gesetz, Schutzrecht, Aktenzeichen oder Link zu einem Beleg."></textarea></label>
+        </div>
+        <label class="confirm"><input id="goodFaith" type="checkbox" required><span>Ich bestätige nach bestem Wissen, dass die Angaben richtig und vollständig sind.</span></label>
+        <p class="privacy">Die Angaben werden zur Prüfung und Dokumentation verarbeitet. Weitere Informationen stehen in der <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+        <button id="submitNotice" class="primary" type="submit">MELDUNG ABSENDEN</button><p id="noticeMessage" class="message" aria-live="polite"></p>
+      </form>
+      <section id="receipt" class="receipt hidden" aria-live="polite"></section>
+      <form id="statusForm" class="hidden" novalidate>
+        <p class="lead smallLead">Mit Vorgangsnummer und Zugangscode kannst du die Entscheidung abrufen und nach einer Entscheidung innerhalb von sechs Monaten Einspruch einlegen.</p>
+        <div class="grid"><label><span>Vorgangsnummer</span><input id="caseReference" autocomplete="off" placeholder="DVN-…" required></label><label><span>Zugangscode</span><input id="accessCode" autocomplete="off" required></label></div>
+        <button class="primary" type="submit">STATUS ABRUFEN</button><p id="statusMessage" class="message" aria-live="polite"></p>
+      </form>
+      <section id="statusResult" class="statusResult hidden"></section>
+    </section>
+    <aside class="emergency">Bei einer unmittelbaren Gefahr für Leib oder Leben wende dich bitte direkt an Polizei oder Rettungsdienst. Dieses Formular ist kein Notfallkanal.</aside>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/api/compliance-message-dispatch?runtime_config=1"></script><script src="listing-report.js?v=1.0"></script>
+</body>
+</html>

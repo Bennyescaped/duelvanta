@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+const db=new PGlite();const migration=await readFile(new URL('../supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql',import.meta.url),'utf8');
+const fn=name=>{const a=migration.indexOf('create or replace function '+name+'('),b=migration.indexOf('\n$$;',a);assert.ok(a>=0&&b>a);return migration.slice(a,b+4)};
+const B='71000000-0000-4000-8000-000000000001',S='71000000-0000-4000-8000-000000000002',L='72000000-0000-4000-8000-000000000001';
+const claim=u=>db.exec(`reset role;select set_config('request.jwt.claim.sub','${u}',false);set role authenticated;`);
+try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema dv_market_private;create schema extensions;
+ create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema public,auth,dv_market_private,extensions to authenticated;
+ create function extensions.digest(bytea,text) returns bytea language sql immutable as $$select decode(md5($1),'hex')$$;
+ create table public.profiles(id uuid primary key,display_name text,username text);
+ create table public.market_listings(id uuid primary key,seller_id uuid,status text,listing_type text,pricing_mode text,product_kind text,sealed_category text,minimum_purchase_quantity int,quantity_available int,stock_quantity int,active_until timestamptz,asking_price numeric,quantity_pricing jsonb,shipping_method text,shipping_cost numeric,shipping_note text,card_name text,set_name text,card_number text,language text,variant text,condition text,grading_company text,grade text,sealed_condition text,package_contents text,units_per_container int,weight_grams int,length_mm int,width_mm int,height_mm int,accepted_offer_id uuid,deal_price numeric,deal_buyer_id uuid,updated_at timestamptz default now());
+ create table public.market_offers(id uuid primary key default gen_random_uuid(),listing_id uuid,buyer_id uuid,seller_id uuid,offer_type text,amount numeric,currency text default 'EUR',message text,requested_quantity int,unit_price_snapshot numeric,listed_unit_price_snapshot numeric,listed_total_snapshot numeric,buyer_type_snapshot text,listing_snapshot jsonb,contract_review_snapshot jsonb,offer_review_hash text,status text default 'pending',responded_at timestamptz,reserved_quantity int,reservation_expires_at timestamptz,created_at timestamptz default now(),updated_at timestamptz default now());
+ create table public.market_deals(id uuid primary key default gen_random_uuid(),listing_id uuid,offer_id uuid unique,seller_id uuid,buyer_id uuid,amount numeric,currency text,status text,accepted_at timestamptz,shipping_method text,shipping_cost numeric,shipping_note text,product_kind text,sealed_category text,item_quantity int,package_contents text,weight_grams int,length_mm int,width_mm int,height_mm int);
+ create table public.test_orders(deal_id uuid unique);
+ create function public.expire_market_offer_reservations_v1() returns integer language sql as $$select 0$$;
+ create function dv_market_private.require_market_buyer_type(uuid) returns text language sql stable as $$select 'consumer'$$;
+ create function dv_market_private.market_contract_classification(text,text) returns text language sql immutable as $$select case when $1='trader' and $2='consumer' then 'b2c' else null end$$;
+ create function dv_market_private.market_checkout_seller_party(uuid) returns jsonb language sql stable as $$select '{"seller_type":"trader","role_label":"Gewerblicher Verkäufer","legal_name":"Seller","business_name":"Shop","street_line1":"Weg 1","postal_code":"75100","city":"Test","country_code":"DE"}'::jsonb$$;
+ create function dv_market_private.market_checkout_product_snapshot(public.market_listings) returns jsonb language sql stable as $$select jsonb_build_object('title',$1.card_name,'set_name',$1.set_name,'language',$1.language)$$;
+ create function public.test_order() returns trigger language plpgsql as $$begin insert into public.test_orders values(new.id) on conflict do nothing;return new;end$$;create trigger z after insert on public.market_deals for each row execute function public.test_order();
+ insert into public.profiles values('${B}','Buyer','buyer'),('${S}','Seller','seller');insert into public.market_listings(id,seller_id,status,listing_type,pricing_mode,product_kind,sealed_category,minimum_purchase_quantity,quantity_available,stock_quantity,asking_price,quantity_pricing,shipping_method,shipping_cost,shipping_note,card_name,set_name,language,package_contents,weight_grams) values('${L}','${S}','active','sale','negotiable','sealed','display',1,5,5,100,'[]','parcel',5,'Tracked','Display','Set','DE','24 Booster',600);`);
+ await db.exec(fn('public.review_market_price_offer_v1'));await db.exec(fn('public.create_market_offer_v3'));await db.exec(fn('public.respond_to_market_offer'));
+ await db.exec('grant execute on function public.review_market_price_offer_v1(uuid,integer,numeric),public.create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text),public.respond_to_market_offer(uuid,text) to authenticated');
+ await claim(B);let r=(await db.query(`select public.review_market_price_offer_v1('${L}',2,180) v`)).rows[0].v;if(typeof r==='string')r=JSON.parse(r);assert.equal(Number(r.total_price),185);
+ await db.exec(`reset role;update public.market_listings set shipping_cost=7,updated_at=updated_at+interval '1 second' where id='${L}'`);await claim(B);
+ await assert.rejects(()=>db.query(`select public.create_market_offer_v3('${L}',2,180,null,'${r.listing_updated_at}','${r.offer_review_hash}')`),/offer_review_changed/);
+ let f=(await db.query(`select public.review_market_price_offer_v1('${L}',2,180) v`)).rows[0].v;if(typeof f==='string')f=JSON.parse(f);
+ const o=(await db.query(`select public.create_market_offer_v3('${L}',2,180,null,'${f.listing_updated_at}','${f.offer_review_hash}') id`)).rows[0].id;
+ await db.exec(`reset role;update public.market_listings set shipping_cost=99,asking_price=999,pricing_mode='fixed' where id='${L}'`);await claim(S);
+ await db.query(`select public.respond_to_market_offer('${o}','accepted')`);await db.query(`select public.respond_to_market_offer('${o}','accepted')`);await db.exec('reset role');
+ const d=(await db.query(`select * from public.market_deals where offer_id='${o}'`)).rows[0];assert.equal(Number(d.shipping_cost),7);assert.equal(Number(d.amount),180);
+ assert.equal((await db.query(`select count(*)::int c from public.market_deals where offer_id='${o}'`)).rows[0].c,1);assert.equal((await db.query('select count(*)::int c from public.test_orders')).rows[0].c,1);
+ console.log('PASS: price-offer review freezes total/shipping, stale review fails, repeated seller acceptance creates one deal/order');
+}finally{await db.close()}

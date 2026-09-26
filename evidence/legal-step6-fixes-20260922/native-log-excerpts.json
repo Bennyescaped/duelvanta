@@ -1,0 +1,12 @@
+{
+  "jobId": 106944286574,
+  "technicalHead": "b89cecc22e7eb2eb80716078a29584f383dd653e",
+  "lines": [
+    "2026-09-22T21:24:46.6331548Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit",
+    "2026-09-22T21:24:46.8295029Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure",
+    "2026-09-22T21:24:48.6790647Z PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence",
+    "2026-09-22T21:24:52.0694797Z PASS: offline catalog contract 64 tables 201 function names 266 checks",
+    "2026-09-22T21:24:55.5720433Z PASS: catalog readiness PostgreSQL17 47 checks; full migration rehearsal and corruption fail-closed",
+    "2026-09-22T21:24:55.7857759Z PASS: withdrawal is B2C-snapshot-bound, replay-safe, immutable, deduplicated and separated from order/payment mutation"
+  ]
+}

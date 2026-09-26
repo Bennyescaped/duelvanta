@@ -1,0 +1,30 @@
+PASS: all 299 baseline application function definitions match V51 evidence
+PASS: authored security + legal readiness, not live fingerprints
+PASS: candidate reapplication is idempotent
+PASS: project-local operator binding: no legacy UUID fallback, unverified email, reassignment or browser/service writes
+PASS: no browser/service TRUNCATE MAINTAIN REFERENCES TRIGGER; private tables closed
+PASS: explicit per-table browser DML allowlist
+PASS: three RLS gaps closed with default deny even after accidental SELECT grant
+PASS: all 20 privileged implementations reject AAL1 revoked foreign malformed anonymous and service sessions
+PASS: server factor session expiry revocation account status and role checks
+PASS: AAL1 staff cannot use table policies or direct role writes to bypass RPC
+PASS: real Owner Admin Moderator Judge workflows preserve role and permission boundaries
+PASS: COLLECT F3 profile scanner ordinary TRADE reads and least-privilege waitlist remain usable
+PASS: AAL1 listing price offer B2C snapshot withdrawal; authorized service outbox/media worker; no provider call
+PASS: hardened fixed-price user/service separation and idempotent attempt/order/allocation; synthetic SQL only
+PASS: old dv_core aliases inaccessible to browser and service
+PASS: future tables sequences and functions default closed for every application schema
+PASS: fail closed: browser truncate
+PASS: fail closed: browser maintain
+PASS: fail closed: service maintenance
+PASS: fail closed: column escalation
+PASS: fail closed: sequence reset
+PASS: fail closed: RLS gap
+PASS: fail closed: RLS policy bypass
+PASS: fail closed: defaults widened
+PASS: fail closed: PUBLIC function default
+PASS: fail closed: guard weakened
+PASS: fail closed: alternate public core
+PASS: fail closed: private schema leak
+PASS: fail closed: legacy trade exposed
+PASS: user-JWT Edge invitation gate denies AAL1 before service escalation

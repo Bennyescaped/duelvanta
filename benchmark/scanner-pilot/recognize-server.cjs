@@ -1,9 +1,7 @@
 'use strict';
 const {createHash}=require('node:crypto');
 const {provider}=require('./openai-server.cjs');
-const AUTH_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-// Existing publishable key; no privileged key and no second Auth client.
-const PUBLISHABLE_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const {resolveSupabaseRuntimeConfig}=require('../../supabase-environment.js');
 const error=(status,code)=>Object.assign(new Error(code),{status,code});
 const requireThat=(value,status,code)=>{if(!value)throw error(status,code)};
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -23,6 +21,8 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       if(config?.enabled!==true){if(req.method==='GET')return res.status(200).json({active:false,remaining:0});throw error(403,'scanner_closed')}
       requireThat(typeof env.OPENAI_API_KEY==='string'&&env.OPENAI_API_KEY.trim(),503,'provider_unavailable');
       requireThat(typeof env.DV_OPENAI_ACCOUNTING_KEY==='string'&&env.DV_OPENAI_ACCOUNTING_KEY.length>=32,503,'accounting_unavailable');
+      let runtime;try{runtime=resolveSupabaseRuntimeConfig(env)}catch{throw error(503,'accounting_unavailable')}
+      const AUTH_URL=runtime.url,PUBLISHABLE_KEY=runtime.key;
       const authorization=String(req.headers.authorization||'');requireThat(/^Bearer [A-Za-z0-9_.-]+$/.test(authorization)&&authorization.length<12000,401,'sign_in_required');
       const headers={apikey:PUBLISHABLE_KEY,Authorization:authorization,'Content-Type':'application/json'};
       // Verify the supplied access token with the existing Auth service. Never trust decoded claims alone.

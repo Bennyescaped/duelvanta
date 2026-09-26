@@ -1,0 +1,94 @@
+[
+  {
+    "supplemental": {
+      "views": [
+        {
+          "name": "market_seller_stats",
+          "schema": "public",
+          "definition": " SELECT seller_id,\n    (count(*) FILTER (WHERE (status = 'active'::text)))::integer AS active_listings,\n    (count(*) FILTER (WHERE (status = 'sold'::text)))::integer AS completed_sales,\n    (COALESCE(sum(deal_price) FILTER (WHERE (status = 'sold'::text)), (0)::numeric))::numeric(12,2) AS completed_volume\n   FROM market_listings\n  GROUP BY seller_id;"
+        }
+      ],
+      "sequences": [
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "beta_waitlist_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "battle_signals_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "admin_audit_log_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "battle_rating_events_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "market_shipping_address_access_log_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "market_order_shipping_access_log_id_seq"
+        },
+        {
+          "cycle": false,
+          "data_type": "bigint",
+          "max_value": 9223372036854776000,
+          "min_value": 1,
+          "schemaname": "public",
+          "start_value": 1,
+          "increment_by": 1,
+          "sequencename": "market_order_number_seq"
+        }
+      ],
+      "mfa_enrolled": 0,
+      "exposure_settings": null,
+      "private_browser_privileges": null,
+      "data_counts": {
+        "deals": 9,
+        "offers": 3,
+        "orders": 7,
+        "listings": 8
+      }
+    }
+  }
+]

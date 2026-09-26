@@ -1,0 +1,121 @@
+{
+  "source": "V35 data-free staging-application-schema.json.gz",
+  "mutators": [
+    {
+      "name": "public.create_market_offer_v2",
+      "identity": "create_market_offer_v2(uuid,integer,numeric,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "67b066ceb1ca563ae10a43f04f195e2015a3ada2ac72e87073d880df18ebcb2e"
+    },
+    {
+      "name": "public.edit_my_sealed_market_listing_v3",
+      "identity": "edit_my_sealed_market_listing_v3(uuid,text,text,text,text,text,text,integer,integer,jsonb,text,integer,integer,integer,integer,integer,text,text,numeric,text,text,numeric,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "d81ad0334e9b1fa9be238508be801ba3323381fca9f00664ea2270789e767322"
+    },
+    {
+      "name": "public.edit_my_market_listing_v3",
+      "identity": "edit_my_market_listing_v3(uuid,text,text,numeric,text,text,numeric,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "97e77eade1ae3f6b6a0e9999b0381910223a419603d7fd6518d74b2648d46be0"
+    },
+    {
+      "name": "public.respond_to_market_offer",
+      "identity": "respond_to_market_offer(uuid,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "417e1194b5dff89327b87e4ea64960c896d62f076966ac227e8f4e269f409b9b"
+    },
+    {
+      "name": "public.buy_market_listing_v1",
+      "identity": "buy_market_listing_v1(uuid,integer)",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "e50d339aa62419a07352a1e19302bcde1e8a101e83c7d38898646aa90924b62d"
+    },
+    {
+      "name": "public.finalize_market_order_cancellation",
+      "identity": "finalize_market_order_cancellation(uuid,uuid,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "22f87b79bb3c25514f3cfea15780665e70cb8dd74ef6727942578dd84ff45158"
+    },
+    {
+      "name": "public.confirm_market_deal_complete",
+      "identity": "confirm_market_deal_complete(uuid)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "b386bda5ce36450de67f36c128d03e7d30aa0b88d974c7b6fab79faaa4a6c404"
+    },
+    {
+      "name": "public.withdraw_my_market_offer",
+      "identity": "withdraw_my_market_offer(uuid)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "cbebf87f17aae5d7b18c5a64f23dcf1aa112ca7a914ad46dfe7ce5657325180d"
+    },
+    {
+      "name": "dv_market_private.b07_tracking_complete_order",
+      "identity": "dv_market_private.b07_tracking_complete_order(uuid,text,timestamp with time zone)",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "sourceSha256": "5bcbae51c66accb031d624bfc523424de803f9e427792cb54ccc77e948546669"
+    },
+    {
+      "name": "dv_market_private.b07_complete_order",
+      "identity": "dv_market_private.b07_complete_order(uuid,text,timestamp with time zone)",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "sourceSha256": "44e556bc9d846fdff4244f30b27eab13b0964cfb1ec6fcb29ff056c06134893d"
+    },
+    {
+      "name": "public.expire_market_offer_reservations_v1",
+      "identity": "expire_market_offer_reservations_v1()",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "d8ec6b92c89e352a044fa418c463010f21989bd38c780bc5928d802706dc2ade"
+    },
+    {
+      "name": "public.checkout_accepted_market_offer_v1",
+      "identity": "checkout_accepted_market_offer_v1(uuid,uuid,text)",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "sourceSha256": "c7edbee7c29426b96d39b60412432c36044012ae7bc682982ea93c18bb75d924"
+    }
+  ],
+  "lateFinding": "withdraw_my_market_offer changed pending fixed_price to withdrawn without stock return. Corrected to price-only; fixed reservation state constraint also rejects status-only legacy seller-edit/decline paths.",
+  "noStagingMutation": true
+}

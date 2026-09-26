@@ -1,0 +1,938 @@
+[
+  {
+    "inventory": {
+      "deals": [
+        {
+          "n": 2,
+          "status": "accepted",
+          "payment_status": "not_required",
+          "payment_provider": "manual_beta"
+        },
+        {
+          "n": 7,
+          "status": "completed",
+          "payment_status": "not_required",
+          "payment_provider": "manual_beta"
+        }
+      ],
+      "offers": [
+        {
+          "n": 3,
+          "status": "accepted",
+          "offer_type": "price"
+        }
+      ],
+      "orders": [
+        {
+          "n": 5,
+          "status": "completed",
+          "payment_status": "not_required",
+          "payment_provider": "manual_beta",
+          "fulfillment_group": "shipping"
+        },
+        {
+          "n": 2,
+          "status": "open",
+          "payment_status": "not_required",
+          "payment_provider": "manual_beta",
+          "fulfillment_group": "shipping"
+        }
+      ],
+      "listings": [
+        {
+          "n": 1,
+          "status": "sold",
+          "listing_type": "sale",
+          "product_kind": "sealed"
+        },
+        {
+          "n": 1,
+          "status": "reserved",
+          "listing_type": "sale",
+          "product_kind": "sealed"
+        },
+        {
+          "n": 2,
+          "status": "withdrawn",
+          "listing_type": "sale",
+          "product_kind": "single"
+        },
+        {
+          "n": 4,
+          "status": "withdrawn",
+          "listing_type": "sale",
+          "product_kind": "sealed"
+        }
+      ],
+      "profiles": 17,
+      "functions": [
+        {
+          "args": "p_username text",
+          "name": "get_public_battle_ratings",
+          "schema": "public",
+          "definition_md5": "ab0bcabba1eefa3ade7aa486b423ba55"
+        },
+        {
+          "args": "",
+          "name": "touch_profile_updated_at",
+          "schema": "public",
+          "definition_md5": "b647947f882b1d932f42d60f96d02a19"
+        },
+        {
+          "args": "",
+          "name": "handle_duelvanta_new_user",
+          "schema": "public",
+          "definition_md5": "1e5b74ef1817e81221333e8341c721d8"
+        },
+        {
+          "args": "",
+          "name": "assign_founder_generation_i",
+          "schema": "public",
+          "definition_md5": "aa2bb3a5f3b0bbb63c68e970f62e1c5f"
+        },
+        {
+          "args": "",
+          "name": "touch_collection_item_updated_at",
+          "schema": "public",
+          "definition_md5": "0354053e37f100156de2a619cb254e6a"
+        },
+        {
+          "args": "",
+          "name": "activate_my_beta_account",
+          "schema": "public",
+          "definition_md5": "a17c548c912f7de3c4758e6d9c4d2aaf"
+        },
+        {
+          "args": "p_listing_id uuid",
+          "name": "complete_market_deal",
+          "schema": "public",
+          "definition_md5": "396e37032cd971984de6bbbf460c30a1"
+        },
+        {
+          "args": "p_locale text",
+          "name": "set_my_locale",
+          "schema": "public",
+          "definition_md5": "e68ff769be2b4acde8a81449652dbdb6"
+        },
+        {
+          "args": "p_username text",
+          "name": "get_public_duelvanta_collection",
+          "schema": "public",
+          "definition_md5": "3eeae3e06c89af5c92c4140d3946a9f6"
+        },
+        {
+          "args": "p_username text",
+          "name": "get_public_battle_stats",
+          "schema": "public",
+          "definition_md5": "08dae35ebf1aac4c8a56d031cb1af665"
+        },
+        {
+          "args": "p_age_band text, p_conduct_version text",
+          "name": "accept_battle_safety_gate",
+          "schema": "public",
+          "definition_md5": "d7350a37ca6bd58d20064f29386464c9"
+        },
+        {
+          "args": "p_match_id uuid",
+          "name": "clear_my_battle_signals",
+          "schema": "public",
+          "definition_md5": "499f68c3dd9bbce131c8bca2dbb57995"
+        },
+        {
+          "args": "p_match_id uuid",
+          "name": "join_battle_as_moderator",
+          "schema": "public",
+          "definition_md5": "1cfa58af7e6be9cec87bd8f5c780eaf4"
+        },
+        {
+          "args": "p_uid uuid",
+          "name": "is_duelvanta_admin",
+          "schema": "public",
+          "definition_md5": "7dc779e00fe019568eab087d14366ec9"
+        },
+        {
+          "args": "p_uid uuid",
+          "name": "is_duelvanta_owner",
+          "schema": "public",
+          "definition_md5": "725fdf987b7d6745a5155fe42bc76ece"
+        },
+        {
+          "args": "",
+          "name": "protect_duelvanta_owner_profile",
+          "schema": "public",
+          "definition_md5": "6c9fef1ba3b6b0d3cb2ac200307bf305"
+        },
+        {
+          "args": "",
+          "name": "prevent_duelvanta_owner_delete",
+          "schema": "public",
+          "definition_md5": "fbcc043554efa196935048dff0de3d26"
+        },
+        {
+          "args": "p_permission text, p_uid uuid",
+          "name": "has_staff_permission",
+          "schema": "public",
+          "definition_md5": "ff42b2c362a097257e75a8f6eb5738a1"
+        },
+        {
+          "args": "p_report_id uuid, p_action text, p_note text",
+          "name": "review_battle_report",
+          "schema": "public",
+          "definition_md5": "7b5ceef0d822b3abbdea431c4384586f"
+        },
+        {
+          "args": "p_limit integer",
+          "name": "get_my_market_notifications",
+          "schema": "public",
+          "definition_md5": "75145625556b6e8b94f4af4221e8ec4b"
+        },
+        {
+          "args": "p_username text",
+          "name": "is_username_available",
+          "schema": "public",
+          "definition_md5": "27d350c2f7c6dccaa72e315cd44a468e"
+        },
+        {
+          "args": "p_limit integer",
+          "name": "get_my_battle_history",
+          "schema": "public",
+          "definition_md5": "16aedc29f0711746b2afda68e3c20c1d"
+        },
+        {
+          "args": "p_listing_id uuid, p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "edit_my_sealed_market_listing_v2",
+          "schema": "public",
+          "definition_md5": "15d61b8150795fe324245f08ca63b77a"
+        },
+        {
+          "args": "p_notification_id uuid",
+          "name": "mark_market_notification_read",
+          "schema": "public",
+          "definition_md5": "662a35d8058da75a66200e43a219ba1d"
+        },
+        {
+          "args": "",
+          "name": "mark_all_market_notifications_read",
+          "schema": "public",
+          "definition_md5": "8807ee4125891e86d17c646442bfa1ec"
+        },
+        {
+          "args": "p_folder_id uuid, p_is_public boolean",
+          "name": "set_my_collection_folder_visibility",
+          "schema": "public",
+          "definition_md5": "a88ffd08389397469b7bb2afe54dc7fd"
+        },
+        {
+          "args": "",
+          "name": "guard_profile_username_direct_update",
+          "schema": "public",
+          "definition_md5": "52f4f03dd9dfeb39860471f5af902140"
+        },
+        {
+          "args": "p_username text",
+          "name": "get_public_duelvanta_profile",
+          "schema": "public",
+          "definition_md5": "28c81a548888a4ca925db3c9d6a1b168"
+        },
+        {
+          "args": "p_user_id uuid",
+          "name": "get_public_duelvanta_identity",
+          "schema": "public",
+          "definition_md5": "9a029367ca1d0447efa0bd74a0735385"
+        },
+        {
+          "args": "p_row profiles",
+          "name": "can_update_own_profile_safe",
+          "schema": "public",
+          "definition_md5": "e971b96922f82a0c722963b93d5ebb25"
+        },
+        {
+          "args": "p_username text, p_limit integer",
+          "name": "get_public_battle_recent",
+          "schema": "public",
+          "definition_md5": "0cb8b638e92e96076b4b1cf20796712d"
+        },
+        {
+          "args": "p_tcg text, p_visibility text, p_title text, p_language text, p_mode text",
+          "name": "create_battle_match_v2",
+          "schema": "public",
+          "definition_md5": "92aae8187e77dfcde066b54cd1c9ce8f"
+        },
+        {
+          "args": "",
+          "name": "get_my_battle_ratings",
+          "schema": "public",
+          "definition_md5": "fc4fd48c7a337eb1c64888e04d9d7912"
+        },
+        {
+          "args": "",
+          "name": "process_ranked_battle_rating",
+          "schema": "public",
+          "definition_md5": "2a6cd2dfb1d445a7905af890733168e7"
+        },
+        {
+          "args": "p_tcg text, p_limit integer",
+          "name": "get_battle_leaderboard",
+          "schema": "public",
+          "definition_md5": "f0da827d4af28f853ad61695b801e3c2"
+        },
+        {
+          "args": "p_username text",
+          "name": "get_public_battle_ranked_profile",
+          "schema": "public",
+          "definition_md5": "a314fde9f9dca032cceae915f8d6994e"
+        },
+        {
+          "args": "p_deal_id uuid",
+          "name": "begin_market_deal",
+          "schema": "public",
+          "definition_md5": "f92344cea2ceec941029c93c22f27784"
+        },
+        {
+          "args": "p_seller_id uuid",
+          "name": "get_market_seller_profile",
+          "schema": "public",
+          "definition_md5": "92de9cf25e0101e81f0e306a4ed42c79"
+        },
+        {
+          "args": "p_seller_id uuid, p_limit integer",
+          "name": "get_public_market_reviews",
+          "schema": "public",
+          "definition_md5": "4c27a77e91153131f1e5299a1abd8f71"
+        },
+        {
+          "args": "p_listing_id uuid",
+          "name": "get_market_listing_images",
+          "schema": "public",
+          "definition_md5": "cdbd85d95775b33c5392e24bb4e2c3b7"
+        },
+        {
+          "args": "p_deal_id uuid, p_reason text",
+          "name": "cancel_market_deal",
+          "schema": "public",
+          "definition_md5": "32a7038ce7ee63be81132c0c0fe56f2c"
+        },
+        {
+          "args": "p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text",
+          "name": "create_market_offer_v2",
+          "schema": "public",
+          "definition_md5": "bad57711b0747139f33599c5c4fb7812"
+        },
+        {
+          "args": "p_order_id uuid",
+          "name": "confirm_market_order_received",
+          "schema": "public",
+          "definition_md5": "29e1c2f44510067600b72dfa1a504534"
+        },
+        {
+          "args": "p_listing_id uuid, p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "edit_my_sealed_market_listing_v3",
+          "schema": "public",
+          "definition_md5": "4a322960e8f31604e4d914e0aa1d55e5"
+        },
+        {
+          "args": "p_deal_id uuid",
+          "name": "get_market_deal_shipping_address",
+          "schema": "public",
+          "definition_md5": "15aeca991a7ee3b6d08c29157f375f41"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_shipping_status",
+          "schema": "public",
+          "definition_md5": "3beb8d362e128fac54c282df50d06e36"
+        },
+        {
+          "args": "p_deal_id uuid, p_recipient_name text, p_street_line1 text, p_postal_code text, p_city text, p_country_code text, p_street_line2 text",
+          "name": "upsert_my_market_shipping_address",
+          "schema": "public",
+          "definition_md5": "ba57c99d249213a74de4e15924955137"
+        },
+        {
+          "args": "p_listing_id uuid, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "edit_my_market_listing_v2",
+          "schema": "public",
+          "definition_md5": "273ce643e2b613a7ec0a27a39e501991"
+        },
+        {
+          "args": "",
+          "name": "normalize_market_listing_product_kind",
+          "schema": "public",
+          "definition_md5": "6ffd0d56f5041fd925505ccde4e84845"
+        },
+        {
+          "args": "p_deal_id uuid, p_carrier text, p_tracking_code text",
+          "name": "mark_market_deal_shipped",
+          "schema": "public",
+          "definition_md5": "d2dec374e53f3d2c2830d5873b0cfab9"
+        },
+        {
+          "args": "p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_bundle_quantity integer, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "create_sealed_market_listing_draft",
+          "schema": "public",
+          "definition_md5": "8918f2c4bbc26b854b0aea681a775e3f"
+        },
+        {
+          "args": "p_listing_id uuid, p_storage_path text, p_sort_order integer",
+          "name": "add_my_market_listing_image",
+          "schema": "public",
+          "definition_md5": "87c1ad43f97fef7d29e8ec5f25246ea7"
+        },
+        {
+          "args": "p_listing_id uuid",
+          "name": "publish_my_sealed_market_listing",
+          "schema": "public",
+          "definition_md5": "9d85abc8041363f67f257c557bd823d5"
+        },
+        {
+          "args": "p_listing_id uuid",
+          "name": "delete_my_sealed_market_listing_draft",
+          "schema": "public",
+          "definition_md5": "660e00ad22989961c523155cddda7746"
+        },
+        {
+          "args": "p_image_id uuid",
+          "name": "remove_my_market_listing_image",
+          "schema": "public",
+          "definition_md5": "6cb9e2d73ab2de5ae59a779b8c2e6115"
+        },
+        {
+          "args": "p_listing_id uuid, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_bundle_quantity integer, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "edit_my_sealed_market_listing",
+          "schema": "public",
+          "definition_md5": "a6bdc10012d0b071ad55ead3007ebcfc"
+        },
+        {
+          "args": "p_listing_ids uuid[]",
+          "name": "get_market_listing_image_manifest",
+          "schema": "public",
+          "definition_md5": "9d2856c0fcaa13443a64f5ee9835c791"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_orders",
+          "schema": "public",
+          "definition_md5": "50be29b5831b58b99a174d98b9e05014"
+        },
+        {
+          "args": "p_listing_id uuid, p_storage_path text, p_sort_order smallint",
+          "name": "register_my_market_listing_image",
+          "schema": "public",
+          "definition_md5": "ffe5b2b44006cc9f67f5fbb10c6fb806"
+        },
+        {
+          "args": "p_order_id uuid",
+          "name": "get_market_order_items",
+          "schema": "public",
+          "definition_md5": "e29b941e85d633a41718b9402c6b50c1"
+        },
+        {
+          "args": "p_order_id uuid",
+          "name": "recalculate_market_order",
+          "schema": "public",
+          "definition_md5": "86557e000af79321fc4e7aee3d5bcacb"
+        },
+        {
+          "args": "",
+          "name": "recalc_order_after_deal_change",
+          "schema": "public",
+          "definition_md5": "b02c08df66964af316769dad8b819dbc"
+        },
+        {
+          "args": "",
+          "name": "attach_market_deal_to_order",
+          "schema": "public",
+          "definition_md5": "8f4be9b9401d6cd1c78b7e515dca04f2"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_deals",
+          "schema": "public",
+          "definition_md5": "c3b747f8d7d1952c7994e42383497250"
+        },
+        {
+          "args": "p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "create_sealed_market_listing_draft_v2",
+          "schema": "public",
+          "definition_md5": "0a17a0060db576c7437cff152d8430e0"
+        },
+        {
+          "args": "p_order_id uuid",
+          "name": "get_market_order_shipping_address",
+          "schema": "public",
+          "definition_md5": "f48316e49d3b6028919dc97cfb35e843"
+        },
+        {
+          "args": "p_order_id uuid, p_carrier text, p_tracking_code text",
+          "name": "mark_market_order_shipped",
+          "schema": "public",
+          "definition_md5": "926f49b9441f87de22be1457e7c2cbe8"
+        },
+        {
+          "args": "p_order_id uuid, p_reason text",
+          "name": "open_market_order_dispute",
+          "schema": "public",
+          "definition_md5": "5257a465b2e2515282b791850a6a6d23"
+        },
+        {
+          "args": "p_tcg text, p_product_name text, p_set_code text, p_language text, p_sealed_category text, p_sealed_condition text, p_stock_quantity integer, p_minimum_purchase_quantity integer, p_quantity_pricing jsonb, p_package_contents text, p_units_per_container integer, p_weight_grams integer, p_length_mm integer, p_width_mm integer, p_height_mm integer, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "create_sealed_market_listing_draft_v3",
+          "schema": "public",
+          "definition_md5": "5835fb5aa1722b8f030a3d2b5c78f08f"
+        },
+        {
+          "args": "p_listing_id uuid, p_listing_type text, p_pricing_mode text, p_asking_price numeric, p_seller_note text, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "edit_my_market_listing_v3",
+          "schema": "public",
+          "definition_md5": "6fe8c1cf05bedf7e6d0a2f15bc6c6bf0"
+        },
+        {
+          "args": "p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone",
+          "name": "buy_market_listing_v2",
+          "schema": "public",
+          "definition_md5": "d44c6c009ef79dc9e1f9a0d5e0312b7b"
+        },
+        {
+          "args": "p_order_id uuid",
+          "name": "confirm_market_order_complete",
+          "schema": "public",
+          "definition_md5": "6d64dbc1507d552e2f176110676a3374"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_shipping_profiles",
+          "schema": "public",
+          "definition_md5": "4a5f3666ab391b51ba477820c1d06f4c"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_offers_v2",
+          "schema": "public",
+          "definition_md5": "279a3b7942bd7ef1f25b451a747d28a6"
+        },
+        {
+          "args": "p_offer_id uuid, p_action text",
+          "name": "respond_to_market_offer",
+          "schema": "public",
+          "definition_md5": "c6e2a9e003733bf5f4d387dee71484f8"
+        },
+        {
+          "args": "",
+          "name": "emit_market_order_status_notification",
+          "schema": "public",
+          "definition_md5": "db88a0db3070cd69a59a8f71dcbb7978"
+        },
+        {
+          "args": "p_listing_id uuid, p_quantity integer",
+          "name": "buy_market_listing_v1",
+          "schema": "public",
+          "definition_md5": "cdd821fcbd042784c6e53e395cae353a"
+        },
+        {
+          "args": "",
+          "name": "emit_market_offer_notification",
+          "schema": "public",
+          "definition_md5": "39b9e692962948142d43f1b87c61d5ed"
+        },
+        {
+          "args": "",
+          "name": "emit_market_purchase_notification",
+          "schema": "public",
+          "definition_md5": "aa93f3a1a29c3d221baea30af9eec64c"
+        },
+        {
+          "args": "",
+          "name": "get_my_default_shipping_address",
+          "schema": "public",
+          "definition_md5": "ed81f76a79b0fc68557a74993292e3c0"
+        },
+        {
+          "args": "",
+          "name": "link_offer_notification_to_order",
+          "schema": "public",
+          "definition_md5": "86e1af47408f500def703a2f825d3c7c"
+        },
+        {
+          "args": "p_recipient_name text, p_street_line1 text, p_postal_code text, p_city text, p_country_code text, p_street_line2 text",
+          "name": "upsert_my_default_shipping_address",
+          "schema": "public",
+          "definition_md5": "a48c651e50ca109432716d810dfee8e4"
+        },
+        {
+          "args": "",
+          "name": "delete_my_default_shipping_address",
+          "schema": "public",
+          "definition_md5": "c92f09077e65c6955e18803d696a5ef3"
+        },
+        {
+          "args": "",
+          "name": "seed_market_order_default_shipping_address",
+          "schema": "public",
+          "definition_md5": "45e3928e380645f787619d0aad72bb4b"
+        },
+        {
+          "args": "",
+          "name": "sync_market_order_address_to_default",
+          "schema": "public",
+          "definition_md5": "f26e03a67dbd73a3181ff64aa0bbf446"
+        },
+        {
+          "args": "p_profile_id uuid, p_name text, p_destination_country_code text, p_shipping_method text, p_carrier_label text, p_product_scope text, p_is_active boolean, p_rules jsonb",
+          "name": "upsert_my_market_shipping_profile",
+          "schema": "public",
+          "definition_md5": "b88ce7bf337a98bf1204c68b4bba203a"
+        },
+        {
+          "args": "p_profile_id uuid",
+          "name": "delete_my_market_shipping_profile",
+          "schema": "public",
+          "definition_md5": "58107e7307606d5da8058fc0d1789468"
+        },
+        {
+          "args": "p_order_id uuid, p_shipping_method text, p_shipping_cost numeric, p_shipping_note text",
+          "name": "confirm_market_order_shipping",
+          "schema": "public",
+          "definition_md5": "b914df875c9cbdfd8012bb57b896c62a"
+        },
+        {
+          "args": "p_order_id uuid, p_recipient_name text, p_street_line1 text, p_postal_code text, p_city text, p_country_code text, p_street_line2 text",
+          "name": "upsert_my_market_order_shipping_address",
+          "schema": "public",
+          "definition_md5": "634ea98b39a5bb0caa22f0e3ba9d6def"
+        },
+        {
+          "args": "",
+          "name": "recalc_market_order_after_address_change",
+          "schema": "public",
+          "definition_md5": "62b9a15b9f87137cc9cc32cd5fa92d7b"
+        },
+        {
+          "args": "",
+          "name": "validate_market_shipping_profile_rule",
+          "schema": "public",
+          "definition_md5": "a64c105c09b5be526384861923198b20"
+        },
+        {
+          "args": "p_order_id uuid, p_cancelled_by uuid, p_reason text",
+          "name": "finalize_market_order_cancellation",
+          "schema": "public",
+          "definition_md5": "66bc4149ec4c443a43219cdbbbc73757"
+        },
+        {
+          "args": "p_item_id uuid, p_folder_id uuid, p_page integer, p_slot smallint",
+          "name": "dv_collect_move_card",
+          "schema": "public",
+          "definition_md5": "625263dd8b9bb66152932c791deee2e2"
+        },
+        {
+          "args": "",
+          "name": "get_my_market_order_cases",
+          "schema": "public",
+          "definition_md5": "ff1f3e61c8cbb6bc3c19fc6ec45e949e"
+        },
+        {
+          "args": "p_order_id uuid, p_reason text",
+          "name": "request_market_order_cancellation",
+          "schema": "public",
+          "definition_md5": "6ae6649140891b3e60e8eecbc524d27f"
+        },
+        {
+          "args": "p_case_id uuid, p_accept boolean, p_note text",
+          "name": "respond_market_order_cancellation",
+          "schema": "public",
+          "definition_md5": "812a3156edf415bb06ef559bc31f4a43"
+        },
+        {
+          "args": "p_case_id uuid",
+          "name": "withdraw_market_order_cancellation",
+          "schema": "public",
+          "definition_md5": "61e4bcebcabd520e2866b19275c5959e"
+        },
+        {
+          "args": "p_order_id uuid, p_category text, p_reason text",
+          "name": "open_market_order_problem_v2",
+          "schema": "public",
+          "definition_md5": "50c65c465bc104be1bda100881aa01cb"
+        },
+        {
+          "args": "p_case_id uuid, p_note text",
+          "name": "withdraw_market_order_problem",
+          "schema": "public",
+          "definition_md5": "d22ff0abe421889528e21dca329e5762"
+        },
+        {
+          "args": "p_case_id uuid, p_note text",
+          "name": "respond_market_order_problem",
+          "schema": "public",
+          "definition_md5": "584ea838c0cb89df021591d094081de4"
+        },
+        {
+          "args": "",
+          "name": "get_my_trade_actions",
+          "schema": "public",
+          "definition_md5": "4a05ba8a341af83484e714a3668054ef"
+        },
+        {
+          "args": "",
+          "name": "clear_collection_binder_position_on_folder_change",
+          "schema": "public",
+          "definition_md5": "388fb6be343ff51de24ba4691ad69b3e"
+        },
+        {
+          "args": "p_at timestamp with time zone",
+          "name": "week_start_at",
+          "schema": "dv_v16_private",
+          "definition_md5": "543374b491192aa84dcd4ab28687b7a4"
+        },
+        {
+          "args": "",
+          "name": "dv_v16_scan_budget",
+          "schema": "public",
+          "definition_md5": "22372c0e2a087edbfa47cd95e5446d9a"
+        },
+        {
+          "args": "p_request_id uuid, p_image_sha256 text, p_tcg text, p_kind text",
+          "name": "dv_v16_reserve_scan",
+          "schema": "public",
+          "definition_md5": "e032d4d754cf15c6b233252a5b1be426"
+        },
+        {
+          "args": "",
+          "name": "scan_budget_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "95993711aaa86a80af81340bf476ae7e"
+        },
+        {
+          "args": "p_request_id uuid, p_image_sha256 text, p_tcg text, p_kind text",
+          "name": "reserve_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "b4c3d77ae9e8e22671363a020a80e5b8"
+        },
+        {
+          "args": "",
+          "name": "dv_v16_openai_scan_budget",
+          "schema": "public",
+          "definition_md5": "a25f466cb63d88960742b9b3735c8d2a"
+        },
+        {
+          "args": "p_request_id uuid, p_image_sha256 text, p_tcg text, p_kind text",
+          "name": "dv_v16_reserve_openai_scan",
+          "schema": "public",
+          "definition_md5": "45b47adf14bc422a31ea2a7176b01542"
+        },
+        {
+          "args": "",
+          "name": "openai_scan_budget_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "d767115c29888f503d48cb830ab3bc22"
+        },
+        {
+          "args": "p_request_id uuid, p_image_sha256 text, p_tcg text, p_kind text",
+          "name": "reserve_openai_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "382e2d25aaf0168ef12bd13951b9a5dc"
+        },
+        {
+          "args": "",
+          "name": "owner_openai_scan_settings_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "f756df2d7b91e35d82ff43f3c4f3dff6"
+        },
+        {
+          "args": "p_request_id uuid, p_input_tokens integer, p_output_tokens integer, p_estimated_cost_eur_micros bigint, p_estimated_cost_usd_micros bigint",
+          "name": "settle_openai_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "2bcee34fd5861add9731b19189a9c21d"
+        },
+        {
+          "args": "p_enabled boolean, p_raw_weekly_limit integer, p_slab_weekly_limit integer, p_monthly_budget_eur_cents integer",
+          "name": "update_openai_scan_policy_for_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "b738d58e07e225fc18150b73bbf2e54e"
+        },
+        {
+          "args": "p_request_id uuid, p_input_tokens integer, p_output_tokens integer, p_estimated_cost_eur_micros bigint, p_estimated_cost_usd_micros bigint",
+          "name": "dv_v16_settle_openai_scan",
+          "schema": "public",
+          "definition_md5": "d5a5b1ef6e64d69074947e9a8df3d026"
+        },
+        {
+          "args": "",
+          "name": "dv_v16_owner_openai_scan_settings",
+          "schema": "public",
+          "definition_md5": "f316df9eae1fe827bfecf115e2bdc2ad"
+        },
+        {
+          "args": "p_enabled boolean, p_raw_weekly_limit integer, p_slab_weekly_limit integer, p_monthly_budget_eur_cents integer",
+          "name": "dv_v16_owner_update_openai_scan_policy",
+          "schema": "public",
+          "definition_md5": "93e12a41c651ec75f8738253ffd8f7cc"
+        },
+        {
+          "args": "",
+          "name": "is_owner_caller",
+          "schema": "dv_v16_private",
+          "definition_md5": "9a98e19bdd2c150e51e36701fdbda13d"
+        },
+        {
+          "args": "p_listing_id uuid, p_listing_type text, p_asking_price numeric, p_seller_note text",
+          "name": "edit_my_market_listing",
+          "schema": "public",
+          "definition_md5": "955d2ff3e1831254e07082f10a73ccd7"
+        },
+        {
+          "args": "",
+          "name": "expire_market_listings",
+          "schema": "public",
+          "definition_md5": "0fea94b2cfb8fd866d879c16ea1988bb"
+        },
+        {
+          "args": "p_listing_id uuid, p_reason text",
+          "name": "finish_my_market_listing",
+          "schema": "public",
+          "definition_md5": "74dd6e9e93125572f8a3037576e98aae"
+        },
+        {
+          "args": "p_match_id uuid, p_invite_code text",
+          "name": "join_battle_match",
+          "schema": "public",
+          "definition_md5": "038e47fab667c6a36345442c8442715a"
+        },
+        {
+          "args": "",
+          "name": "require_openai_server",
+          "schema": "dv_v16_private",
+          "definition_md5": "1ffaea4a2a8bd10d518c6e704634abe4"
+        },
+        {
+          "args": "p_age_band text, p_conduct_version text",
+          "name": "accept_duelvanta_safety",
+          "schema": "public",
+          "definition_md5": "90dde15bfd98b1e21fa6e148f7853fac"
+        },
+        {
+          "args": "p_deal_id uuid",
+          "name": "confirm_market_deal_complete",
+          "schema": "public",
+          "definition_md5": "63c95a025e53fb8c4cdd60570b379642"
+        },
+        {
+          "args": "p_deal_id uuid",
+          "name": "confirm_market_deal_received",
+          "schema": "public",
+          "definition_md5": "684b9d8e7a2e003696ea7cf2efabb90f"
+        },
+        {
+          "args": "p_tcg text, p_visibility text, p_title text, p_language text",
+          "name": "create_battle_match",
+          "schema": "public",
+          "definition_md5": "fc165a9d43df6e6bbaaab5272637ea98"
+        },
+        {
+          "args": "p_match_id uuid",
+          "name": "leave_battle_match",
+          "schema": "public",
+          "definition_md5": "0efacb61e6c3fa64a564fd776a72aefb"
+        },
+        {
+          "args": "p_match_id uuid, p_note text",
+          "name": "leave_battle_moderation",
+          "schema": "public",
+          "definition_md5": "1ffc150ffa9e028b54a29f9d2e1191e9"
+        },
+        {
+          "args": "p_report_id uuid, p_action text, p_note text",
+          "name": "moderate_battle_report",
+          "schema": "public",
+          "definition_md5": "061f8d63b2624dc246cd7b72ab1e802a"
+        },
+        {
+          "args": "p_deal_id uuid, p_reason text",
+          "name": "open_market_deal_dispute",
+          "schema": "public",
+          "definition_md5": "f6971f2c7a2c785e7a3ae09a48722022"
+        },
+        {
+          "args": "p_listing_id uuid",
+          "name": "renew_my_market_listing",
+          "schema": "public",
+          "definition_md5": "826ea06792c76ef7eaf51d68d82b40a3"
+        },
+        {
+          "args": "p_match_id uuid, p_result text",
+          "name": "report_battle_result",
+          "schema": "public",
+          "definition_md5": "5f0336c2847f5a134d5771b7000c36bf"
+        },
+        {
+          "args": "p_match_id uuid, p_reported_user_id uuid, p_category text, p_details text",
+          "name": "report_battle_user",
+          "schema": "public",
+          "definition_md5": "1a72aec3599b10dbacc24bf9a468d4f2"
+        },
+        {
+          "args": "p_application_id uuid, p_decision text, p_note text",
+          "name": "review_staff_application",
+          "schema": "public",
+          "definition_md5": "0c66f5d5fbf0956901da227118fc4cd9"
+        },
+        {
+          "args": "p_match_id uuid, p_paused boolean, p_note text",
+          "name": "set_battle_moderation_pause",
+          "schema": "public",
+          "definition_md5": "0ac9370c48729645c08d23e1835083f7"
+        },
+        {
+          "args": "p_match_id uuid, p_ready boolean",
+          "name": "set_battle_ready",
+          "schema": "public",
+          "definition_md5": "160f8b5526eb46d98cb3611c626d21ee"
+        },
+        {
+          "args": "p_username text, p_collection_visibility text, p_avatar_path text",
+          "name": "set_my_public_profile",
+          "schema": "public",
+          "definition_md5": "f70355156ba9e0e8f8bd34fb87e9d277"
+        },
+        {
+          "args": "p_user_id uuid, p_permission text, p_enabled boolean",
+          "name": "set_staff_permission",
+          "schema": "public",
+          "definition_md5": "9eaf904104eb18e3f4af74699575e978"
+        },
+        {
+          "args": "p_user_id uuid, p_role text, p_reason text",
+          "name": "set_staff_role",
+          "schema": "public",
+          "definition_md5": "f9b6d31b637ca26140f021633784813c"
+        },
+        {
+          "args": "p_match_id uuid",
+          "name": "start_battle_match",
+          "schema": "public",
+          "definition_md5": "98457feb058dacf65c4dcb225e072277"
+        },
+        {
+          "args": "p_deal_id uuid, p_rating text, p_comment text",
+          "name": "submit_market_review",
+          "schema": "public",
+          "definition_md5": "4bd705bc4ff69a6817b1e9990af90ab1"
+        },
+        {
+          "args": "p_role text, p_tcg text[], p_experience text, p_rules_knowledge text, p_languages text[], p_availability text, p_motivation text",
+          "name": "submit_staff_application",
+          "schema": "public",
+          "definition_md5": "788af8ea81b1c0c11bbc33cb63140fa1"
+        },
+        {
+          "args": "p_offer_id uuid",
+          "name": "withdraw_my_market_offer",
+          "schema": "public",
+          "definition_md5": "30878fac2906c98388a6496b68715d30"
+        }
+      ],
+      "auth_users": 17,
+      "captured_at": "2026-09-25T04:40:41.728402+00:00"
+    }
+  }
+]

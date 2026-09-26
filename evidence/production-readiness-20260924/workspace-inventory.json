@@ -1,0 +1,127 @@
+[
+  {
+    "path": "/workspace/scratch/66d2895b21fd/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "07e5c1d9463bfbc73dae8d95d6d061e789d34716",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "ebe700e840aef602c8835d095ec0dbf8ca33f902",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-f3",
+    "branch": "marketplace-ux-v1",
+    "head": "cd92ec135eae3b3ec2df9aa93500a0349f454805",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-date",
+    "branch": "marketplace-ux-v1",
+    "head": "b328de5dbcec76790de50d71d6bd1fceabe0b5fe",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-mobile",
+    "branch": "marketplace-ux-v1",
+    "head": "cba449b18b7cf60cdb99d5c1321ecb1cb3a377f1",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/178f23939c12/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "625494fad01b90d33172c0f3e6d550d9eb5aa481",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/67acfd3561e5/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "7a9cee4019c0dc590f12dcc48c54743426636b9d",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/67acfd3561e5/duelvanta-s6-fix",
+    "branch": "marketplace-ux-v1",
+    "head": "7b80e80a0907413cb9a8ef48c6fffd23b1eb617a",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/2c6fd056f27a/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "2323e77b852bcc59ea419d1f09f4d17454db2755",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/2c6fd056f27a/duelvanta-s6-a03",
+    "branch": "marketplace-ux-v1",
+    "head": "cad19fea9117c4c090746e25ff952be218506bca",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/21c6a2b0a77c/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "e7a9809252f53b6e68de5a2bc042bcd74cb0009e",
+    "status": [
+      "?? STAGING_RELEASE_REVIEW_2026-09-14.md",
+      "?? node_modules/"
+    ]
+  },
+  {
+    "path": "/workspace/scratch/fbfb9510eaba/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "14711c5236a50443984e333610e40e3d4dd297e8",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/1ca13ec7abbf/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "589fb67fe2bdf4efae5cda526946dff38df59bb5",
+    "status": [
+      " M .github/workflows/battle-webrtc-check.yml",
+      " M DUELVANTA_MASTERHANDOUT_V30_2026-09-20.md",
+      " M DUELVANTA_PROJECT_HISTORY_2026-09-20.md",
+      " M battle-spectator-media-publisher.js",
+      " M battle-spectator.css",
+      " M tests/battle-spectator-browser-test.mjs",
+      "?? DUELVANTA_SPECTATOR_MEDIA_MULTIDEVICE_ACCEPTANCE_2026-09-21.md",
+      "?? supabase/functions/battle-spectator-media-broker/",
+      "?? tests/battle-spectator-media-broker-test.mjs",
+      "?? tests/battle-spectator-media-layout-test.mjs",
+      "?? tests/battle-spectator-media-publisher-test.mjs"
+    ]
+  },
+  {
+    "path": "/workspace/scratch/28bb4fe0ae9c/duelvanta",
+    "branch": "scanner-v16",
+    "head": "e9055ac5b659b59a0eee279e32dc8709f6f572da",
+    "status": [
+      " M collect.html",
+      " M scanner-v16-binder.js",
+      " M scanner-v16-geometry.js",
+      " M scanner-v16-loader.js",
+      " M scanner-v16-ui.js",
+      " M scanner-v16.html",
+      " M tests/scanner-v16-benchmark-session-test.mjs",
+      " M tests/scanner-v16-binder-layout-test.mjs",
+      " M tests/scanner-v16-contract-test.mjs",
+      " M tests/scanner-v16-mobile-route-test.mjs",
+      "?? database/collect-binder-page-count-v1.sql"
+    ]
+  },
+  {
+    "path": "/workspace/scratch/82b4a44985a0/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "a2e3097c6264f3e467d14fe449a40a2d3c18b95a",
+    "status": []
+  },
+  {
+    "path": "/workspace/scratch/162399692991/duelvanta",
+    "branch": "marketplace-ux-v1",
+    "head": "c43bcf37659bb53f8bd2d52f1b9d3e2388f2017f",
+    "status": [
+      "?? evidence/production-readiness-20260924/"
+    ]
+  }
+]

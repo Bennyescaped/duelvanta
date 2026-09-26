@@ -1,0 +1,3265 @@
+{
+  "technicalHead": "b89cecc22e7eb2eb80716078a29584f383dd653e",
+  "runs": [
+    {
+      "runId": 35784092398,
+      "jobs": [
+        {
+          "id": 106936514604,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        },
+        {
+          "id": 106936514779,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 106936514813,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ],
+      "headSha": "b26c497303c74177eff8807274200131f60cbfbf"
+    },
+    {
+      "runId": 35784092411,
+      "jobs": [
+        {
+          "id": 106936514984,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 106936515294,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ],
+      "headSha": "b26c497303c74177eff8807274200131f60cbfbf"
+    },
+    {
+      "runId": 35784885380,
+      "jobs": [
+        {
+          "id": 106939158494,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        },
+        {
+          "id": 106939158839,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        },
+        {
+          "id": 106939158900,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Legal catalog readiness PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ],
+      "headSha": "cece00bb2433f14516c0c164e52e80ee2b8ae6ba"
+    },
+    {
+      "runId": 35784885877,
+      "jobs": [
+        {
+          "id": 106939159765,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 106939160066,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ],
+      "headSha": "cece00bb2433f14516c0c164e52e80ee2b8ae6ba"
+    },
+    {
+      "runId": 35785208202,
+      "jobs": [
+        {
+          "id": 106940225884,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Legal catalog readiness PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 106940226201,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        },
+        {
+          "id": 106940226260,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        }
+      ],
+      "headSha": "b412cb25a777c1a055473789122664495a865594"
+    },
+    {
+      "runId": 35785208197,
+      "jobs": [
+        {
+          "id": 106940227346,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 106940227913,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        }
+      ],
+      "headSha": "b412cb25a777c1a055473789122664495a865594"
+    },
+    {
+      "runId": 35785421816,
+      "jobs": [
+        {
+          "id": 106940933320,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        },
+        {
+          "id": 106940933562,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        },
+        {
+          "id": 106940933591,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Legal catalog readiness PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ],
+      "headSha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+    },
+    {
+      "runId": 35785421777,
+      "jobs": [
+        {
+          "id": 106940932941,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 106940933267,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        }
+      ],
+      "headSha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+    },
+    {
+      "runId": 35786184855,
+      "jobs": [
+        {
+          "id": 106943448765,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Legal catalog readiness PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 106943449123,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        },
+        {
+          "id": 106943449220,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ],
+      "headSha": "c5da7f423da4742744383f79391558c076901ba1"
+    },
+    {
+      "runId": 35786184287,
+      "jobs": [
+        {
+          "id": 106943446166,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 106943446382,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ],
+      "headSha": "c5da7f423da4742744383f79391558c076901ba1"
+    },
+    {
+      "runId": 35786444298,
+      "jobs": [
+        {
+          "id": 106944286431,
+          "name": "quota_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Real SQL quota and B07 C2C regressions in disposable database",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        },
+        {
+          "id": 106944286574,
+          "name": "collect_f3_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned test dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "F3 PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Fixed-price PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Legal catalog readiness PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Withdrawal PostgreSQL evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 106944286665,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "JavaScript syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Scanner V16 contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Gemini private pilot (no provider calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Ximilar integration and durable quota boundary (no paid calls)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verified artwork reference cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Pokemon and One Piece recognition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Evidence quality gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Explainable confidence UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Resilience and capture guidance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Guided benchmark session",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Web camera readiness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Native iOS photo capture",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Mobile photo pipeline and state recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Direct mobile route and benchmark integration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install Chromium browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Battle and profile database access boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Trade contracts and mobile order flow",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Second mobile acceptance regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "COLLECT empty states and price completeness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Integrated COLLECT scanner and binder E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Mobile browser upload E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Real complex-card reference recognition and recovery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Read-only live catalog availability",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Browser evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        }
+      ],
+      "headSha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+    },
+    {
+      "runId": 35786443880,
+      "jobs": [
+        {
+          "id": 106944285297,
+          "name": "battle_webrtc",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Isolated camera restart and async state regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install pinned browser test runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Independent spectator browser lifecycle and read-only UI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real WebRTC browser regression with isolated signaling",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Browser evidence (no media recordings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 106944286051,
+          "name": "spectator_database",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Spectator database evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        }
+      ],
+      "headSha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 10720826073,
+      "name": "collect-f3-postgres-evidence",
+      "size_in_bytes": 3050,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720826073",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720826073/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:24:56Z",
+      "expires_at": "2026-12-21T21:24:23Z",
+      "updated_at": "2026-09-22T21:24:56Z",
+      "digest": "sha256:2c5baa463a572ca6652f81d596a43bcee5d13a7c8f8cc22fe23396df4eb1000e",
+      "workflow_run": {
+        "id": 35786444298,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+      }
+    },
+    {
+      "id": 10720676318,
+      "name": "trade-fixed-price-postgres-evidence",
+      "size_in_bytes": 1439,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720676318",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720676318/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:24:57Z",
+      "expires_at": "2026-12-21T21:24:23Z",
+      "updated_at": "2026-09-22T21:24:57Z",
+      "digest": "sha256:b2015e78621bbf965ec844238d492de80cff1c445ee069942c6c357cb910718a",
+      "workflow_run": {
+        "id": 35786444298,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+      }
+    },
+    {
+      "id": 10720581402,
+      "name": "trade-legal-schema-readiness-evidence",
+      "size_in_bytes": 1062,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720581402",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720581402/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:24:57Z",
+      "expires_at": "2026-12-21T21:24:23Z",
+      "updated_at": "2026-09-22T21:24:57Z",
+      "digest": "sha256:518dab308535f1add7861d52f2460899015c071a0006a95ff9495674041fd8c3",
+      "workflow_run": {
+        "id": 35786444298,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+      }
+    },
+    {
+      "id": 10720421876,
+      "name": "v16-mobile-recognition",
+      "size_in_bytes": 6274892,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720421876",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720421876/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:26:38Z",
+      "expires_at": "2026-12-21T21:24:23Z",
+      "updated_at": "2026-09-22T21:26:38Z",
+      "digest": "sha256:a10c83b11b954ea75156f5bae6b83a93b47b652f610f5d44964a8ac6170c93e4",
+      "workflow_run": {
+        "id": 35786444298,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+      }
+    },
+    {
+      "id": 10720261767,
+      "name": "trade-withdrawal-postgres-evidence",
+      "size_in_bytes": 846,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720261767",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720261767/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:24:58Z",
+      "expires_at": "2026-12-21T21:24:23Z",
+      "updated_at": "2026-09-22T21:24:58Z",
+      "digest": "sha256:aa8ef0a1f9803f569434a5dfb64d1b22ee1c83ab4f1271014982ea55b0bffa92",
+      "workflow_run": {
+        "id": 35786444298,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "b89cecc22e7eb2eb80716078a29584f383dd653e"
+      }
+    }
+  ],
+  "priorArtifacts": [
+    {
+      "id": 10720105669,
+      "name": "v16-mobile-recognition",
+      "size_in_bytes": 6230368,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720105669",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10720105669/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:16:24Z",
+      "expires_at": "2026-12-21T21:14:38Z",
+      "updated_at": "2026-09-22T21:16:24Z",
+      "digest": "sha256:ae169a0fc0baf22f3e065b3e7de8e4257f1fe610ec50530fd59980045b2f5548",
+      "workflow_run": {
+        "id": 35785421816,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+      }
+    },
+    {
+      "id": 10719749179,
+      "name": "trade-withdrawal-postgres-evidence",
+      "size_in_bytes": 844,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719749179",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719749179/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:15:13Z",
+      "expires_at": "2026-12-21T21:14:38Z",
+      "updated_at": "2026-09-22T21:15:13Z",
+      "digest": "sha256:e5fe855dcfe4d6d9e172c5dc9b2f3d2356925606144a35269a814612606b0ccd",
+      "workflow_run": {
+        "id": 35785421816,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+      }
+    },
+    {
+      "id": 10719614539,
+      "name": "collect-f3-postgres-evidence",
+      "size_in_bytes": 3046,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719614539",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719614539/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:15:11Z",
+      "expires_at": "2026-12-21T21:14:38Z",
+      "updated_at": "2026-09-22T21:15:11Z",
+      "digest": "sha256:f2e358dac7d3b3a91d35c5bb09570b494dd5ed6cbd8826bca348e875be34b1b0",
+      "workflow_run": {
+        "id": 35785421816,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+      }
+    },
+    {
+      "id": 10719514550,
+      "name": "trade-legal-schema-readiness-evidence",
+      "size_in_bytes": 1009,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719514550",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719514550/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:15:12Z",
+      "expires_at": "2026-12-21T21:14:38Z",
+      "updated_at": "2026-09-22T21:15:12Z",
+      "digest": "sha256:51ae86734a558a6333ec89da9d6a76975226aa4c0df12bf23a71bf8f4f32c2c5",
+      "workflow_run": {
+        "id": 35785421816,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+      }
+    },
+    {
+      "id": 10719434661,
+      "name": "trade-fixed-price-postgres-evidence",
+      "size_in_bytes": 1405,
+      "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719434661",
+      "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10719434661/zip",
+      "expired": false,
+      "created_at": "2026-09-22T21:15:11Z",
+      "expires_at": "2026-12-21T21:14:38Z",
+      "updated_at": "2026-09-22T21:15:11Z",
+      "digest": "sha256:d35a44386320b855dadd3499b62e48cd0ca3dfdc26c406c69a2eaf106590eabf",
+      "workflow_run": {
+        "id": 35785421816,
+        "repository_id": 1360393939,
+        "head_repository_id": 1360393939,
+        "head_branch": "marketplace-ux-v1",
+        "head_sha": "aa804424e991f365ebbfef4d6b3d6f9655b26005"
+      }
+    }
+  ],
+  "priorLogExcerpts": {
+    "native": [
+      "2026-09-22T21:15:01.7342123Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit",
+      "2026-09-22T21:15:01.9250112Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure",
+      "2026-09-22T21:15:03.7517357Z PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence",
+      "2026-09-22T21:15:07.1809219Z PASS: offline catalog contract 64 tables 201 function names 266 checks",
+      "2026-09-22T21:15:10.3976031Z PASS: catalog readiness PostgreSQL17 41 checks; full migration rehearsal and corruption fail-closed",
+      "2026-09-22T21:15:10.6037119Z PASS: withdrawal is B2C-snapshot-bound, replay-safe, immutable, deduplicated and separated from order/payment mutation"
+    ],
+    "validate": [
+      "2026-09-22T21:14:44.9041990Z PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition",
+      "2026-09-22T21:14:44.9303984Z PASS: fixed binder positions and legacy/unpositioned cards share compact pages without hiding cards.",
+      "2026-09-22T21:14:45.2556864Z PASS: dedicated 15-credit slab request, label/card distinction, bounded crop, certificate preservation, explicit confirmation, existing collection company constraints; no real paid calls",
+      "2026-09-22T21:14:45.2586818Z PASS: Sanji label fallback, provenance, no invented Pokemon denominator, no OCR conflict overwrite, explicit save gates",
+      "2026-09-22T21:14:45.3118722Z PASS: branch-only reference transport, fixed host/path, redirect denial, no credentials, type/size bounds, success-only caching",
+      "2026-09-22T21:14:45.4819333Z PASS: OpenAI evidence \u2192 original V16 catalog/language/quality/result/benchmark; exact-photo binding, no invented OCR, no replay imports, conflicts and no-match recovery.",
+      "2026-09-22T21:14:45.5135133Z PASS: verified existing Auth, scanner-v16 preview/main production gates, validation, committed quota before provider, concurrent/cold-start duplicate prevention, exhausted/missing ledger and provider failure; zero real API calls",
+      "2026-09-22T21:14:45.5634168Z PASS: verified reference bytes, exact source/TCG mapping, separate reprints, unchanged evidence, external fallback and catalog integration",
+      "2026-09-22T21:14:45.5635416Z PASS: failed direct catalog reads retry via bounded same-origin transport",
+      "2026-09-22T21:14:45.6081928Z PASS: Scanner V16.2 Pokemon/One Piece OCR normalization and variant ranking",
+      "2026-09-22T21:14:45.6447107Z PASS: Scanner V16.3 evidence gates for One Piece variants, Pokemon language ambiguity and foil reflection",
+      "2026-09-22T21:14:45.6876009Z PASS: Scanner V16.4 explainable confidence headlines, evidence chips and rival comparison",
+      "2026-09-22T21:14:45.7299222Z PASS: Scanner V16.5 retry guidance, identifier voting and continuous repeat guard policy",
+      "2026-09-22T21:14:45.7791875Z PASS: Scanner V16.9 benchmark session ground truth, metrics and direct-route wiring",
+      "2026-09-22T21:14:45.8315351Z PASS: Scanner V16.9 top-level live camera service and recovery policy",
+      "2026-09-22T21:14:45.8760899Z PASS: Scanner V16.9 separate native camera and gallery input policy",
+      "2026-09-22T21:14:45.9155760Z PASS: Scanner V16.9 photo pipeline, analysis start, state recovery and duplicate binding guard",
+      "2026-09-22T21:14:45.9510507Z PASS: Scanner V16.10 direct route, split photo inputs and benchmark completion integration",
+      "2026-09-22T21:14:56.6322732Z PASS: auth boundary allows beta/active BATTLE accounts, blocks suspended/restricted/null access, and privileged RPCs require AAL2 plus a live session",
+      "2026-09-22T21:14:57.1161293Z PASS: centralized Production/Preview Supabase routing, COLLECT/BATTLE/Spectator adoption, scanner quota isolation and runtime hardcoding scan",
+      "2026-09-22T21:14:57.4265154Z PASS: sale-only forms/runtime; no swap actions, notifications, archives or pickup entry; order chat retained",
+      "2026-09-22T21:14:57.8289115Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked",
+      "2026-09-22T21:14:57.8570323Z PASS: TRADE automation contract, historical notification coverage and sale-only UI, action routing and hardening",
+      "2026-09-22T21:14:59.1167754Z PASS: real SQL action queries, ordering, ownership, anonymous denial and payment-gated lifecycle actions",
+      "2026-09-22T21:14:59.1750614Z PASS: order resolution plus B07 Release-1 shipping, C2C problem deadlines, optional carrier automation and private C2C flow",
+      "2026-09-22T21:14:59.2013789Z PASS: private address + seller shipping profile contract, RLS, RPC isolation, sealed safety and auto/manual fallback",
+      "2026-09-22T21:14:59.2268258Z PASS: C2C pickup is revision-bound, startup-order safe and uses one private pickup chat for swaps and orders",
+      "2026-09-22T21:14:59.2522625Z PASS: Combined Shipping missing-profile fallback cannot write NULL shipping values",
+      "2026-09-22T21:14:59.6549984Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked",
+      "2026-09-22T21:14:59.6551470Z PASS: simplified Marketplace navigation, search/archive separation, release gate, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls",
+      "2026-09-22T21:14:59.6877658Z PASS: 42 assertions; strict versioned, GET-only probe, timeout, correct mock error and executed loader revisions",
+      "2026-09-22T21:14:59.6940293Z PASS: 52 actual-profile fixture checks; ordinary reads retained, no second buyer profile or automatic confirmation",
+      "2026-09-22T21:14:59.6973270Z PASS: 50 private-buyer checkout fixture checks; incompatible review stays blocked; no provider requests",
+      "2026-09-22T21:14:59.7029239Z PASS: 92 order-read boundary checks; missing schema is skipped, optional errors bounded, existing order errors preserved",
+      "2026-09-22T21:15:01.1230909Z PASS: 35 isolated private-buyer SQL/role scenarios; migration NOT applied to Staging",
+      "2026-09-22T21:15:02.0976798Z PASS: 4 real Chromium profile/guard scenarios; duplicate buyer UI removed, no external requests or profile mutations",
+      "2026-09-22T21:15:02.9491248Z PASS: price-offer review freezes total/shipping, stale review fails, repeated seller acceptance creates one deal/order",
+      "2026-09-22T21:15:02.9502244Z PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance",
+      "2026-09-22T21:15:04.2288622Z PASS: seller classification, legacy-safe backfill, private data isolation, public trader disclosure and server-side listing guard",
+      "2026-09-22T21:15:04.2986634Z PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract",
+      "2026-09-22T21:15:04.3240673Z PASS: private/trader listing labels, restricted trader details and bounded public disclosure batch",
+      "2026-09-22T21:15:04.3493028Z PASS: owner-reviewed seller activation, tax gate, automatic listing pause and onboarding redirect",
+      "2026-09-22T21:15:04.3737461Z PASS: notice, status, reasoned decision, reporter/seller appeal and owner review contracts",
+      "2026-09-22T21:15:05.6959959Z PASS: private notice intake, owner decision, seller statement, reporter/seller appeals and immutable audit",
+      "2026-09-22T21:15:05.7662039Z PASS: buyer-aware immutable checkout, legacy RPC revocation, durable confirmation and default-off delivery contracts",
+      "2026-09-22T21:15:07.1555508Z PASS: C2C/B2C snapshots remain immutable, documents are access-bound and delivery claims are audited",
+      "2026-09-22T21:15:07.2454261Z PASS: PROFILE/runtime isolation plus privileged MFA, AAL2 control-center gate and recovery session revocation; 18 invalid runtime configurations rejected",
+      "2026-09-22T21:15:07.2455142Z PASS: marketplace and PROFILE previews are locked to the isolated staging Supabase project",
+      "2026-09-22T21:15:07.2717079Z PASS: append-only PStTG/DAC7 ledger, strict thresholds and backend-only exports are contracted",
+      "2026-09-22T21:15:08.8133257Z PASS: tax ledger separates contracts from remuneration, preserves corrections and exports exact PStTG boundaries",
+      "2026-09-22T21:15:08.8978647Z PASS: public listing, preview-only AfterShip tracking and compliance dispatcher dry-runs pass",
+      "2026-09-22T21:15:10.2502533Z PASS: pickup messages are exported without counterpart IDs and erasure creates a manual retention hold without inventing an automatic deadline",
+      "2026-09-22T21:15:10.2532267Z PASS: data-rights UI, pickup-message export/hold runtime boundary, private RPC boundaries, disabled worker and CI wiring are present",
+      "2026-09-22T21:15:11.6761771Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit",
+      "2026-09-22T21:15:11.7506282Z PASS: erasure worker is disabled by default and performs mocked storage/auth cleanup with audit completion",
+      "2026-09-22T21:15:12.9097688Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure",
+      "2026-09-22T21:15:13.0187740Z PASS: profile deletion UI requires exact confirmation and explains server-side blockers",
+      "2026-09-22T21:15:13.0439832Z PASS: Stripe Connect keeps sandbox regression guards and adds an explicit default-off live boundary",
+      "2026-09-22T21:15:13.0898750Z PASS: mocked Stripe APIs stay disabled by default, signed and idempotency-bound without provider calls",
+      "2026-09-22T21:15:14.4693015Z PASS: sandbox payment, allocations, ledger, replay and full refund transitions are database-enforced",
+      "2026-09-22T21:15:14.5428356Z PASS: Stripe live mode is default-off, action-gated, mode-bound and webhook-independent from new payments",
+      "2026-09-22T21:15:15.8879840Z PASS: Stripe live database mode is explicit, isolated, default-off and preserves in-flight webhook processing",
+      "2026-09-22T21:15:18.4113929Z PASS: TRADE Mobile browser acceptance",
+      "2026-09-22T21:15:19.3769363Z PASS: TRADE Desktop browser acceptance",
+      "2026-09-22T21:15:19.3820509Z PASS: TRADE browser acceptance on mobile and desktop viewports",
+      "2026-09-22T21:15:27.8249616Z PASS: 17 real Chromium scenarios; no external app or provider requests",
+      "2026-09-22T21:15:34.3584993Z PASS: 9 Chromium order-reader scenarios; old evidence stays readable, no external calls",
+      "2026-09-22T21:15:34.8738876Z PASS: withdrawal UI shows the exact frozen contract before confirmation and renders immutable receipt hash without refund/cancel action",
+      "2026-09-22T21:15:35.4734355Z PASS: mobile public notice, receipt, reasoned status and reporter appeal",
+      "2026-09-22T21:15:35.5815717Z PASS: 074/084 numeric set resolution, explicit TCG core bridge, failure guidance, exact video geometry, contour/stability gate and manual candidate recovery",
+      "2026-09-22T21:15:35.6232635Z PASS: independent votes, 081/084 conflict, observed DE excludes JP, exposure/jitter/dropout tolerance and hard capture gates",
+      "2026-09-22T21:16:22.8732086Z PASS: real Tesseract pixel OCR \u2192 normalized identifier \u2192 production catalog adapter \u2192 correct Pokemon/One Piece candidate \u2192 evidence/result \u2192 benchmark; manual recovery and error-state recovery"
+    ]
+  },
+  "logExcerpts": {
+    "native": [
+      "2026-09-22T21:24:46.6331548Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit",
+      "2026-09-22T21:24:46.8295029Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure",
+      "2026-09-22T21:24:48.6790647Z PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence",
+      "2026-09-22T21:24:52.0694797Z PASS: offline catalog contract 64 tables 201 function names 266 checks",
+      "2026-09-22T21:24:55.5720433Z PASS: catalog readiness PostgreSQL17 47 checks; full migration rehearsal and corruption fail-closed",
+      "2026-09-22T21:24:55.7857759Z PASS: withdrawal is B2C-snapshot-bound, replay-safe, immutable, deduplicated and separated from order/payment mutation"
+    ],
+    "validate": [
+      "2026-09-22T21:24:30.6003289Z PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition",
+      "2026-09-22T21:24:30.6376329Z PASS: fixed binder positions and legacy/unpositioned cards share compact pages without hiding cards.",
+      "2026-09-22T21:24:31.0964442Z PASS: dedicated 15-credit slab request, label/card distinction, bounded crop, certificate preservation, explicit confirmation, existing collection company constraints; no real paid calls",
+      "2026-09-22T21:24:31.1007935Z PASS: Sanji label fallback, provenance, no invented Pokemon denominator, no OCR conflict overwrite, explicit save gates",
+      "2026-09-22T21:24:31.1731072Z PASS: branch-only reference transport, fixed host/path, redirect denial, no credentials, type/size bounds, success-only caching",
+      "2026-09-22T21:24:31.3959463Z PASS: OpenAI evidence \u2192 original V16 catalog/language/quality/result/benchmark; exact-photo binding, no invented OCR, no replay imports, conflicts and no-match recovery.",
+      "2026-09-22T21:24:31.4400243Z PASS: verified existing Auth, scanner-v16 preview/main production gates, validation, committed quota before provider, concurrent/cold-start duplicate prevention, exhausted/missing ledger and provider failure; zero real API calls",
+      "2026-09-22T21:24:31.5077699Z PASS: verified reference bytes, exact source/TCG mapping, separate reprints, unchanged evidence, external fallback and catalog integration",
+      "2026-09-22T21:24:31.5086246Z PASS: failed direct catalog reads retry via bounded same-origin transport",
+      "2026-09-22T21:24:31.5673639Z PASS: Scanner V16.2 Pokemon/One Piece OCR normalization and variant ranking",
+      "2026-09-22T21:24:31.6165124Z PASS: Scanner V16.3 evidence gates for One Piece variants, Pokemon language ambiguity and foil reflection",
+      "2026-09-22T21:24:31.6793972Z PASS: Scanner V16.4 explainable confidence headlines, evidence chips and rival comparison",
+      "2026-09-22T21:24:31.7405754Z PASS: Scanner V16.5 retry guidance, identifier voting and continuous repeat guard policy",
+      "2026-09-22T21:24:31.8063730Z PASS: Scanner V16.9 benchmark session ground truth, metrics and direct-route wiring",
+      "2026-09-22T21:24:31.8641796Z PASS: Scanner V16.9 top-level live camera service and recovery policy",
+      "2026-09-22T21:24:31.9231723Z PASS: Scanner V16.9 separate native camera and gallery input policy",
+      "2026-09-22T21:24:31.9757155Z PASS: Scanner V16.9 photo pipeline, analysis start, state recovery and duplicate binding guard",
+      "2026-09-22T21:24:32.0253404Z PASS: Scanner V16.10 direct route, split photo inputs and benchmark completion integration",
+      "2026-09-22T21:24:46.9861014Z PASS: auth boundary allows beta/active BATTLE accounts, blocks suspended/restricted/null access, and privileged RPCs require AAL2 plus a live session",
+      "2026-09-22T21:24:47.6029071Z PASS: centralized Production/Preview Supabase routing, COLLECT/BATTLE/Spectator adoption, scanner quota isolation and runtime hardcoding scan",
+      "2026-09-22T21:24:47.9629024Z PASS: sale-only forms/runtime; no swap actions, notifications, archives or pickup entry; order chat retained",
+      "2026-09-22T21:24:48.4103519Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked",
+      "2026-09-22T21:24:48.4469437Z PASS: TRADE automation contract, historical notification coverage and sale-only UI, action routing and hardening",
+      "2026-09-22T21:24:50.2771193Z PASS: real SQL action queries, ordering, ownership, anonymous denial and payment-gated lifecycle actions",
+      "2026-09-22T21:24:50.3496039Z PASS: order resolution plus B07 Release-1 shipping, C2C problem deadlines, optional carrier automation and private C2C flow",
+      "2026-09-22T21:24:50.3844154Z PASS: private address + seller shipping profile contract, RLS, RPC isolation, sealed safety and auto/manual fallback",
+      "2026-09-22T21:24:50.4184165Z PASS: C2C pickup is revision-bound, startup-order safe and uses one private pickup chat for swaps and orders",
+      "2026-09-22T21:24:50.4503534Z PASS: Combined Shipping missing-profile fallback cannot write NULL shipping values",
+      "2026-09-22T21:24:50.8932241Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked",
+      "2026-09-22T21:24:50.8935153Z PASS: simplified Marketplace navigation, search/archive separation, release gate, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls",
+      "2026-09-22T21:24:50.9390541Z PASS: 42 assertions; strict versioned, GET-only probe, timeout, correct mock error and executed loader revisions",
+      "2026-09-22T21:24:50.9486068Z PASS: 52 actual-profile fixture checks; ordinary reads retained, no second buyer profile or automatic confirmation",
+      "2026-09-22T21:24:50.9540722Z PASS: 50 private-buyer checkout fixture checks; incompatible review stays blocked; no provider requests",
+      "2026-09-22T21:24:50.9635832Z PASS: 92 order-read boundary checks; missing schema is skipped, optional errors bounded, existing order errors preserved",
+      "2026-09-22T21:24:53.0643646Z PASS: 35 isolated private-buyer SQL/role scenarios; migration NOT applied to Staging",
+      "2026-09-22T21:24:54.3148830Z PASS: 4 real Chromium profile/guard scenarios; duplicate buyer UI removed, no external requests or profile mutations",
+      "2026-09-22T21:24:55.5395439Z PASS: price-offer review freezes total/shipping, stale review fails, repeated seller acceptance creates one deal/order",
+      "2026-09-22T21:24:55.5412109Z PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance",
+      "2026-09-22T21:24:57.4582552Z PASS: seller classification, legacy-safe backfill, private data isolation, public trader disclosure and server-side listing guard",
+      "2026-09-22T21:24:57.5496301Z PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract",
+      "2026-09-22T21:24:57.5844199Z PASS: private/trader listing labels, restricted trader details and bounded public disclosure batch",
+      "2026-09-22T21:24:57.6225584Z PASS: owner-reviewed seller activation, tax gate, automatic listing pause and onboarding redirect",
+      "2026-09-22T21:24:57.6557685Z PASS: notice, status, reasoned decision, reporter/seller appeal and owner review contracts",
+      "2026-09-22T21:24:59.7754713Z PASS: private notice intake, owner decision, seller statement, reporter/seller appeals and immutable audit",
+      "2026-09-22T21:24:59.8667753Z PASS: buyer-aware immutable checkout, legacy RPC revocation, durable confirmation and default-off delivery contracts",
+      "2026-09-22T21:25:01.9805875Z PASS: C2C/B2C snapshots remain immutable, documents are access-bound and delivery claims are audited",
+      "2026-09-22T21:25:02.0933025Z PASS: PROFILE/runtime isolation plus privileged MFA, AAL2 control-center gate and recovery session revocation; 18 invalid runtime configurations rejected",
+      "2026-09-22T21:25:02.0934807Z PASS: marketplace and PROFILE previews are locked to the isolated staging Supabase project",
+      "2026-09-22T21:25:02.1273349Z PASS: append-only PStTG/DAC7 ledger, strict thresholds and backend-only exports are contracted",
+      "2026-09-22T21:25:04.4137764Z PASS: tax ledger separates contracts from remuneration, preserves corrections and exports exact PStTG boundaries",
+      "2026-09-22T21:25:04.5351156Z PASS: public listing, preview-only AfterShip tracking and compliance dispatcher dry-runs pass",
+      "2026-09-22T21:25:06.5578743Z PASS: pickup messages are exported without counterpart IDs and erasure creates a manual retention hold without inventing an automatic deadline",
+      "2026-09-22T21:25:06.5628877Z PASS: data-rights UI, pickup-message export/hold runtime boundary, private RPC boundaries, disabled worker and CI wiring are present",
+      "2026-09-22T21:25:08.8265202Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit",
+      "2026-09-22T21:25:08.9342172Z PASS: erasure worker is disabled by default and performs mocked storage/auth cleanup with audit completion",
+      "2026-09-22T21:25:10.7919346Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure",
+      "2026-09-22T21:25:10.9508114Z PASS: profile deletion UI requires exact confirmation and explains server-side blockers",
+      "2026-09-22T21:25:10.9894273Z PASS: Stripe Connect keeps sandbox regression guards and adds an explicit default-off live boundary",
+      "2026-09-22T21:25:11.0648290Z PASS: mocked Stripe APIs stay disabled by default, signed and idempotency-bound without provider calls",
+      "2026-09-22T21:25:13.1460401Z PASS: sandbox payment, allocations, ledger, replay and full refund transitions are database-enforced",
+      "2026-09-22T21:25:13.2402964Z PASS: Stripe live mode is default-off, action-gated, mode-bound and webhook-independent from new payments",
+      "2026-09-22T21:25:15.3313902Z PASS: Stripe live database mode is explicit, isolated, default-off and preserves in-flight webhook processing",
+      "2026-09-22T21:25:17.9463105Z PASS: TRADE Mobile browser acceptance",
+      "2026-09-22T21:25:18.9759953Z PASS: TRADE Desktop browser acceptance",
+      "2026-09-22T21:25:18.9810813Z PASS: TRADE browser acceptance on mobile and desktop viewports",
+      "2026-09-22T21:25:28.0720466Z PASS: 17 real Chromium scenarios; no external app or provider requests",
+      "2026-09-22T21:25:34.9549039Z PASS: 9 Chromium order-reader scenarios; old evidence stays readable, no external calls",
+      "2026-09-22T21:25:35.6828820Z PASS: withdrawal UI shows the exact frozen contract before confirmation and renders immutable receipt hash without refund/cancel action",
+      "2026-09-22T21:25:36.5462959Z PASS: mobile public notice, receipt, reasoned status and reporter appeal",
+      "2026-09-22T21:25:36.7136551Z PASS: 074/084 numeric set resolution, explicit TCG core bridge, failure guidance, exact video geometry, contour/stability gate and manual candidate recovery",
+      "2026-09-22T21:25:36.7898581Z PASS: independent votes, 081/084 conflict, observed DE excludes JP, exposure/jitter/dropout tolerance and hard capture gates",
+      "2026-09-22T21:26:37.0706453Z PASS: real Tesseract pixel OCR \u2192 normalized identifier \u2192 production catalog adapter \u2192 correct Pokemon/One Piece candidate \u2192 evidence/result \u2192 benchmark; manual recovery and error-state recovery"
+    ]
+  }
+}

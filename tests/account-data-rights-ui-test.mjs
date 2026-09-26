@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';import{pathToFileURL}from'node:url';
+const linkedomUrl=process.argv[2]?pathToFileURL(process.argv[2]).href:import.meta.resolve('linkedom');const{parseHTML}=await import(linkedomUrl);
+const [html,script]=await Promise.all(['profile.html','profile-data-rights.js'].map(name=>readFile(new URL('../'+name,import.meta.url),'utf8')));
+const{window}=parseHTML(html);global.window=window;global.document=window.document;global.location={replace(){}};
+const calls=[];window.__dvAppDb={rpc:async(name,args)=>{calls.push({name,args});return{data:{accepted:false,blockers:['open_market_orders']},error:null}},auth:{signOut:async()=>{}}};
+new Function(script)();const button=document.getElementById('requestAccountDeletion'),input=document.getElementById('deleteAccountConfirmation');
+input.value='falsch';button.dispatchEvent(new window.Event('click'));assert.equal(calls.length,0);assert.match(document.getElementById('accountDeletionMsg').textContent,/nicht exakt/);
+input.value='KONTO LÖSCHEN';button.dispatchEvent(new window.Event('click'));await new Promise(resolve=>setTimeout(resolve,0));
+assert.equal(calls[0].name,'request_my_account_deletion');assert.match(calls[0].args.p_request_key,/^[0-9a-f-]{36}$/);assert.match(document.getElementById('accountDeletionMsg').textContent,/Bestellungen/);
+console.log('PASS: profile deletion UI requires exact confirmation and explains server-side blockers');

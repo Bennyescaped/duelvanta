@@ -50,6 +50,7 @@ await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',route=>r
 `}));
 await page.route('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',route=>route.fulfill({contentType:'text/javascript',body:'window.Tesseract={recognize:async()=>{throw new Error("Unexpected OCR during OpenAI integration test")}}'}));
 await page.route('https://fonts.googleapis.com/**',route=>route.fulfill({contentType:'text/css',body:''}));
+await page.route(base+'/api/compliance-message-dispatch?runtime_config=1',route=>route.fulfill({contentType:'text/javascript',body:'window.DV_SUPABASE=Object.freeze({url:"https://xhmjxrcskfhbovhitdej.supabase.co",key:"sb_publishable_test_only",environment:"preview"});'}));
 await page.route('https://optcgapi.com/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(route.request().url().includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Integration fixture',rarity:'SEC',card_image:base+'/tests/fixtures/onepiece-op05-119.svg'}]:[])}));
 await page.route('https://api.tcgdex.net/**',route=>route.fulfill({contentType:'application/json',body:'[]'}));
 await page.route('https://api.frankfurter.dev/**',route=>route.fulfill({contentType:'application/json',body:'{"rate":0.85}'}));

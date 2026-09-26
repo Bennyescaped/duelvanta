@@ -1,0 +1,4931 @@
+{
+  "scope": "Step 9C source inventories only; NO BACKUP OR RESTORE",
+  "base_head": "228ccaeefda8f221a287a0c7649b2e97adcfa98a",
+  "main": "50f88213571be13255bb52eb489cc28cca660001",
+  "projects": {
+    "production": {
+      "project_id": "enifiaqsnqtbzylnfrpi",
+      "counts": {
+        "version": "17.6",
+        "auth_users": 17,
+        "identities": 17,
+        "profiles": 17,
+        "migrations": 72,
+        "latest_migration": "20260911181702",
+        "storage_objects": 86
+      },
+      "core_counts": {
+        "at": "2026-09-24 14:25:45.604339+00",
+        "collection_items": 53,
+        "collection_folders": 5,
+        "battle_matches": 4,
+        "listings": 8,
+        "offers": 3,
+        "deals": 9,
+        "orders": 7
+      },
+      "inventory": {
+        "at": "2026-09-24T14:23:59.140378+00:00",
+        "roles": [
+          {
+            "name": "anon",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "authenticated",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "authenticator",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "dashboard_user",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "postgres",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "service_role",
+            "login": false,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_admin",
+            "login": true,
+            "bypassrls": true,
+            "superuser": true
+          },
+          {
+            "name": "supabase_auth_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_etl_admin",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_privileged_role",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_read_only_user",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_realtime_admin",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_replication_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_storage_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          }
+        ],
+        "buckets": [
+          {
+            "id": "collection-cards",
+            "public": false,
+            "objects": 74
+          },
+          {
+            "id": "profile-avatars",
+            "public": true,
+            "objects": 6
+          },
+          {
+            "id": "market-listing-images",
+            "public": false,
+            "objects": 6
+          }
+        ],
+        "extensions": [
+          {
+            "name": "pg_stat_statements",
+            "version": "1.11"
+          },
+          {
+            "name": "pgcrypto",
+            "version": "1.3"
+          },
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "supabase_vault",
+            "version": "0.3.1"
+          },
+          {
+            "name": "uuid-ossp",
+            "version": "1.1"
+          }
+        ],
+        "anonymous_users": 0,
+        "orphan_profiles": 0,
+        "orphan_identities": 0,
+        "invalid_constraints": 1,
+        "users_without_identity": 0
+      },
+      "history": [
+        {
+          "version": "20260904184344",
+          "name": "create_beta_waitlist"
+        },
+        {
+          "version": "20260907112224",
+          "name": "add_founder_generation_one"
+        },
+        {
+          "version": "20260907112706",
+          "name": "secure_beta_control_center_owner_access"
+        },
+        {
+          "version": "20260907115916",
+          "name": "phase1_account_model"
+        },
+        {
+          "version": "20260907122514",
+          "name": "phase1b_activation_flow"
+        },
+        {
+          "version": "20260907124255",
+          "name": "fix_founder_auto_assignment"
+        },
+        {
+          "version": "20260907134751",
+          "name": "phase1c_account_security"
+        },
+        {
+          "version": "20260907134801",
+          "name": "phase1c_remove_password_rpc"
+        },
+        {
+          "version": "20260907140554",
+          "name": "phase2_collect_collection_items"
+        },
+        {
+          "version": "20260907150936",
+          "name": "phase2_collect_albums_and_card_images"
+        },
+        {
+          "version": "20260907184209",
+          "name": "phase3_trade_marketplace_v1"
+        },
+        {
+          "version": "20260907184249",
+          "name": "phase3_trade_seller_identity_snapshot"
+        },
+        {
+          "version": "20260907184351",
+          "name": "phase3_trade_offer_policy_hardening"
+        },
+        {
+          "version": "20260907194426",
+          "name": "phase3_trade_listing_lifecycle"
+        },
+        {
+          "version": "20260907200152",
+          "name": "phase3_trade_offer_transactions"
+        },
+        {
+          "version": "20260907201555",
+          "name": "phase3_seller_trust_v1"
+        },
+        {
+          "version": "20260907202901",
+          "name": "phase4_i18n_profile_locale"
+        },
+        {
+          "version": "20260908043935",
+          "name": "phase5_battle_v1_core"
+        },
+        {
+          "version": "20260908045129",
+          "name": "phase5_safety_age_conduct_foundation"
+        },
+        {
+          "version": "20260908045515",
+          "name": "phase5_battle_safety_gate_rpc"
+        },
+        {
+          "version": "20260908050116",
+          "name": "phase5_battle_webrtc_signaling"
+        },
+        {
+          "version": "20260908051700",
+          "name": "phase5_battle_moderation_roles"
+        },
+        {
+          "version": "20260908054528",
+          "name": "phase5_staff_applications_permissions_audit"
+        },
+        {
+          "version": "20260908060358",
+          "name": "phase5_reports_review_workflow"
+        },
+        {
+          "version": "20260908060759",
+          "name": "lock_owner_identity_and_role"
+        },
+        {
+          "version": "20260908061055",
+          "name": "phase5_staff_capability_enforcement"
+        },
+        {
+          "version": "20260908061343",
+          "name": "phase5_fix_safety_self_declaration"
+        },
+        {
+          "version": "20260908062035",
+          "name": "phase5_enforce_battle_moderation_pause"
+        },
+        {
+          "version": "20260908073323",
+          "name": "profile_v1_privacy_foundation"
+        },
+        {
+          "version": "20260908074648",
+          "name": "username_stability_90_day_reservation"
+        },
+        {
+          "version": "20260908080553",
+          "name": "fix_profile_avatar_storage_rls"
+        },
+        {
+          "version": "20260908080847",
+          "name": "add_profile_avatar_select_policy_for_upsert"
+        },
+        {
+          "version": "20260908083534",
+          "name": "public_profile_safe_api_username_guard"
+        },
+        {
+          "version": "20260908084704",
+          "name": "fix_profiles_rls_recursion_safe_update_v2"
+        },
+        {
+          "version": "20260908095435",
+          "name": "public_profile_username_lookup"
+        },
+        {
+          "version": "20260908123327",
+          "name": "battle_v2_preserve_completed_history"
+        },
+        {
+          "version": "20260908125310",
+          "name": "battle_history_participant_identity"
+        },
+        {
+          "version": "20260908132939",
+          "name": "public_battle_recent_matches"
+        },
+        {
+          "version": "20260908134038",
+          "name": "battle_ranked_rating_v1"
+        },
+        {
+          "version": "20260908135110",
+          "name": "battle_ranked_rating_permissions_hardening"
+        },
+        {
+          "version": "20260908151456",
+          "name": "battle_leaderboard_public_ranked_profile"
+        },
+        {
+          "version": "20260908165118",
+          "name": "trade_v2_deals_reviews_trust_v2"
+        },
+        {
+          "version": "20260908172836",
+          "name": "trade_v2_payment_fulfillment_ready"
+        },
+        {
+          "version": "20260908175128",
+          "name": "trade_v2_private_shipping_address"
+        },
+        {
+          "version": "20260908194521",
+          "name": "trade_v2_shipping_method_cost_snapshot"
+        },
+        {
+          "version": "20260908194808",
+          "name": "trade_v2_shipping_method_guards"
+        },
+        {
+          "version": "20260909050902",
+          "name": "trade_v2_sealed_products_v1"
+        },
+        {
+          "version": "20260909055632",
+          "name": "trade_sealed_images_rpc"
+        },
+        {
+          "version": "20260909065106",
+          "name": "trade_v2_orders_combined_shipping"
+        },
+        {
+          "version": "20260909065255",
+          "name": "trade_v2_order_enforcement_and_deal_bridge"
+        },
+        {
+          "version": "20260909071657",
+          "name": "trade_sealed_inventory_columns_v2"
+        },
+        {
+          "version": "20260909071804",
+          "name": "trade_sealed_inventory_functions_v2"
+        },
+        {
+          "version": "20260909071856",
+          "name": "trade_sealed_offer_quantities_v2"
+        },
+        {
+          "version": "20260909072037",
+          "name": "trade_offer_rpc_only_v2"
+        },
+        {
+          "version": "20260909091557",
+          "name": "trade_checkout_v1"
+        },
+        {
+          "version": "20260909103421",
+          "name": "trade_checkout_v1_safety"
+        },
+        {
+          "version": "20260909103938",
+          "name": "trade_checkout_v1_validation"
+        },
+        {
+          "version": "20260909125353",
+          "name": "trade_notifications_actions_v1"
+        },
+        {
+          "version": "20260909130543",
+          "name": "trade_notifications_actions_v1_hardening"
+        },
+        {
+          "version": "20260909135430",
+          "name": "trade_shipping_profiles_v1"
+        },
+        {
+          "version": "20260909135523",
+          "name": "trade_shipping_profiles_v1_hardening"
+        },
+        {
+          "version": "20260909140646",
+          "name": "trade_shipping_profiles_v1_safety"
+        },
+        {
+          "version": "20260909143957",
+          "name": "trade_order_resolution_v1"
+        },
+        {
+          "version": "20260909144130",
+          "name": "trade_order_resolution_v1_hardening"
+        },
+        {
+          "version": "20260909161000",
+          "name": "trade_shipping_profiles_v1_null_fallback_fix"
+        },
+        {
+          "version": "20260909164035",
+          "name": "collect_scanner_v16_slots"
+        },
+        {
+          "version": "20260909164515",
+          "name": "collect_scanner_v16_slots_hardening"
+        },
+        {
+          "version": "20260910201950",
+          "name": "scanner_v16_weekly_quota"
+        },
+        {
+          "version": "20260911085857",
+          "name": "collect_binder_interaction_v1"
+        },
+        {
+          "version": "20260911122546",
+          "name": "collect_binder_pages_v1"
+        },
+        {
+          "version": "20260911154146",
+          "name": "scanner_v16_openai_owner_budget"
+        },
+        {
+          "version": "20260911181702",
+          "name": "harden_battle_and_profile_auth_boundaries"
+        }
+      ],
+      "catalog": {
+        "captured_at": "2026-09-24T14:24:58.993225+00:00",
+        "counts": {
+          "schemas": 11,
+          "relations": 97,
+          "columns": 1002,
+          "constraints": 457,
+          "indexes": 246,
+          "triggers": 28,
+          "policies": 43,
+          "functions": 244,
+          "default_privileges": 24
+        },
+        "schemas": [
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_auth_admin=UC/supabase_admin",
+              "dashboard_user=UC/supabase_admin",
+              "postgres=U/supabase_admin"
+            ],
+            "name": "auth",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres",
+              "authenticated=U/postgres"
+            ],
+            "name": "dv_v16_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres",
+              "anon=U/postgres",
+              "authenticated=U/postgres",
+              "service_role=U/postgres",
+              "dashboard_user=UC/postgres"
+            ],
+            "name": "extensions",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "graphql",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "graphql_public",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": null,
+            "name": "pgbouncer",
+            "owner": "pgbouncer"
+          },
+          {
+            "acl": [
+              "pg_database_owner=UC/pg_database_owner",
+              "=U/pg_database_owner",
+              "postgres=U/pg_database_owner",
+              "anon=U/pg_database_owner",
+              "authenticated=U/pg_database_owner",
+              "service_role=U/pg_database_owner"
+            ],
+            "name": "public",
+            "owner": "pg_database_owner"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_realtime_admin=U*C*/supabase_admin",
+              "authenticated=U/supabase_admin"
+            ],
+            "name": "realtime",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_storage_admin=U*C*/supabase_admin",
+              "dashboard_user=UC/supabase_admin"
+            ],
+            "name": "storage",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": null,
+            "name": "supabase_migrations",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "vault",
+            "owner": "supabase_admin"
+          }
+        ],
+        "relations": [
+          {
+            "schema": "auth",
+            "name": "audit_log_entries",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "custom_oauth_providers",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "flow_state",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "identities",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "instances",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_amr_claims",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_challenges",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_factors",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_recovery_code_sets",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_recovery_codes",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_authorizations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_client_states",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_clients",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_consents",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "one_time_tokens",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "refresh_tokens",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "refresh_tokens_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=rwU/supabase_auth_admin",
+              "dashboard_user=rwU/supabase_auth_admin",
+              "postgres=rwU/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "saml_providers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "saml_relay_states",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "postgres=r*/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "scim_tokens",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "scim_users",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sessions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sso_domains",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sso_providers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "users",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "webauthn_challenges",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "webauthn_credentials",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "credit_period",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_cost_import",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_monthly_cost",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_scan_policy",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_scan_reservation",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_weekly_usage",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "scan_policy",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "scan_reservation",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "weekly_usage",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "extensions",
+            "name": "pg_stat_statements",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/postgres",
+              "=r/postgres",
+              "dashboard_user=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "extensions",
+            "name": "pg_stat_statements_info",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/postgres",
+              "=r/postgres",
+              "dashboard_user=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "admin_audit_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "admin_audit_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_matches",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=rDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_rating_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_rating_events_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_ratings",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_reports",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_signals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_signals_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "beta_waitlist",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "beta_waitlist_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "collection_folders",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "collection_items",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_deal_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_deals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_default_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_listing_images",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_listings",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=arwd/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_notifications",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_offers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=ard/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_cases",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_items",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_number_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_payments",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_access_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_access_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_orders",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_reviews",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_seller_stats",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_address_access_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_address_access_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_profile_rules",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_profiles",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "profiles",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "staff_applications",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "staff_permissions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "username_reservations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages",
+            "kind": "p",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=a*r*wdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin",
+              "anon=arw/supabase_realtime_admin",
+              "authenticated=arw/supabase_realtime_admin",
+              "service_role=arw/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_07",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_08",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_09",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_10",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_11",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=arwdDxtm/supabase_admin",
+              "dashboard_user=arwdDxtm/supabase_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "subscription",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin",
+              "anon=r/supabase_realtime_admin",
+              "authenticated=r/supabase_realtime_admin",
+              "service_role=r/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "subscription_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=rwU/supabase_realtime_admin",
+              "postgres=rwU/supabase_realtime_admin",
+              "dashboard_user=rwU/supabase_realtime_admin",
+              "anon=U/supabase_realtime_admin",
+              "authenticated=U/supabase_realtime_admin",
+              "service_role=U/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin",
+              "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets_analytics",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets_vectors",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=r/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "migrations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": null
+          },
+          {
+            "schema": "storage",
+            "name": "objects",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin",
+              "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "s3_multipart_uploads",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "s3_multipart_uploads_parts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "vector_indexes",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=r/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "supabase_migrations",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": null
+          },
+          {
+            "schema": "vault",
+            "name": "decrypted_secrets",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=r*d*D*x*/supabase_admin",
+              "service_role=rd/supabase_admin"
+            ]
+          },
+          {
+            "schema": "vault",
+            "name": "secrets",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=r*d*D*x*/supabase_admin",
+              "service_role=rd/supabase_admin"
+            ]
+          }
+        ],
+        "default_privileges": [
+          {
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "role": "postgres",
+            "type": "r",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=X/postgres",
+              "anon=X/postgres",
+              "authenticated=X/postgres",
+              "service_role=X/postgres"
+            ],
+            "role": "postgres",
+            "type": "f",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ],
+            "role": "postgres",
+            "type": "S",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "role": "postgres",
+            "type": "r",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=X/postgres",
+              "anon=X/postgres",
+              "authenticated=X/postgres",
+              "service_role=X/postgres"
+            ],
+            "role": "postgres",
+            "type": "f",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ],
+            "role": "postgres",
+            "type": "S",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "r",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_auth_admin",
+              "dashboard_user=rwU/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "S",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_auth_admin",
+              "dashboard_user=X/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "f",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=X*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=r*w*U*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "dashboard_user=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "realtime"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "dashboard_user=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "realtime"
+          },
+          {
+            "acl": [
+              "postgres=a*r*wdDxtm/supabase_admin",
+              "dashboard_user=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "realtime"
+          }
+        ],
+        "unvalidated_constraints": [
+          {
+            "name": "messages_payload_exclusive",
+            "type": "c",
+            "table": "messages",
+            "schema": "realtime",
+            "validated": false,
+            "definition": "CHECK (((payload IS NULL) OR (binary_payload IS NULL))) NOT VALID"
+          }
+        ]
+      },
+      "managed_backups": "Free Plan does not include project backups (authenticated dashboard read 2026-09-24)"
+    },
+    "staging": {
+      "project_id": "xhmjxrcskfhbovhitdej",
+      "counts": {
+        "version": "17.6",
+        "auth_users": 9,
+        "identities": 8,
+        "profiles": 9,
+        "migrations": 53,
+        "latest_migration": "20260924113153",
+        "storage_objects": 5
+      },
+      "core_counts": {
+        "at": "2026-09-24 14:25:47.038722+00",
+        "collection_items": 6,
+        "collection_folders": 2,
+        "battle_matches": 13,
+        "listings": 16,
+        "offers": 4,
+        "deals": 10,
+        "orders": 8
+      },
+      "inventory": {
+        "at": "2026-09-24T14:24:01.619493+00:00",
+        "roles": [
+          {
+            "name": "anon",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "authenticated",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "authenticator",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "dashboard_user",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "postgres",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "service_role",
+            "login": false,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_admin",
+            "login": true,
+            "bypassrls": true,
+            "superuser": true
+          },
+          {
+            "name": "supabase_auth_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_etl_admin",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_functions_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_privileged_role",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_read_only_user",
+            "login": true,
+            "bypassrls": true,
+            "superuser": false
+          },
+          {
+            "name": "supabase_realtime_admin",
+            "login": false,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_replication_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          },
+          {
+            "name": "supabase_storage_admin",
+            "login": true,
+            "bypassrls": false,
+            "superuser": false
+          }
+        ],
+        "buckets": [
+          {
+            "id": "market-listing-images",
+            "public": false,
+            "objects": 5
+          }
+        ],
+        "extensions": [
+          {
+            "name": "pg_cron",
+            "version": "1.6.4"
+          },
+          {
+            "name": "pg_net",
+            "version": "0.20.4"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.11"
+          },
+          {
+            "name": "pgcrypto",
+            "version": "1.3"
+          },
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "supabase_vault",
+            "version": "0.3.1"
+          },
+          {
+            "name": "uuid-ossp",
+            "version": "1.1"
+          }
+        ],
+        "anonymous_users": 0,
+        "orphan_profiles": 0,
+        "orphan_identities": 0,
+        "invalid_constraints": 1,
+        "users_without_identity": 1
+      },
+      "history": [
+        {
+          "version": "20260913141026",
+          "name": "create_private_market_listing_images_bucket"
+        },
+        {
+          "version": "20260914092948",
+          "name": "pgcrypto_digest_schema_hardening_v1"
+        },
+        {
+          "version": "20260914093254",
+          "name": "market_stripe_payment_result_columns_v1"
+        },
+        {
+          "version": "20260914102659",
+          "name": "trade_actions_column_aliases_v1"
+        },
+        {
+          "version": "20260915064648",
+          "name": "market_stripe_event_ordering_hardening_v1"
+        },
+        {
+          "version": "20260915080258",
+          "name": "market_stripe_refund_evidence_hardening_v1"
+        },
+        {
+          "version": "20260915082005",
+          "name": "market_stripe_refund_evidence_immutability_fix_v1"
+        },
+        {
+          "version": "20260916073251",
+          "name": "b07_tracking_delivery_window_v1"
+        },
+        {
+          "version": "20260916081359",
+          "name": "b07_l07_01_release1_shipping_close_v1"
+        },
+        {
+          "version": "20260916081618",
+          "name": "b07_l07_01_release1_shipping_close_v1_hardening"
+        },
+        {
+          "version": "20260916082424",
+          "name": "b07_l07_01_shipping_deadline_hardening_v1"
+        },
+        {
+          "version": "20260916110622",
+          "name": "b07_c2c_eligibility_dependency_v1"
+        },
+        {
+          "version": "20260916110653",
+          "name": "b07_l07_01_c2c_swap_v1_schema"
+        },
+        {
+          "version": "20260916110745",
+          "name": "b07_l07_01_c2c_swap_v1_binding"
+        },
+        {
+          "version": "20260916110933",
+          "name": "b07_l07_01_c2c_swap_v1_fulfillment_shipping"
+        },
+        {
+          "version": "20260916110944",
+          "name": "b07_l07_01_c2c_swap_v1_fulfillment_receive"
+        },
+        {
+          "version": "20260916111050",
+          "name": "b07_l07_01_c2c_swap_v1_problems"
+        },
+        {
+          "version": "20260916111119",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_schema"
+        },
+        {
+          "version": "20260916111135",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_revision"
+        },
+        {
+          "version": "20260916111144",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_proposals"
+        },
+        {
+          "version": "20260916111204",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_binding"
+        },
+        {
+          "version": "20260916111218",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_code"
+        },
+        {
+          "version": "20260916112219",
+          "name": "b07_l07_01_c2c_swap_v1_completion_compat"
+        },
+        {
+          "version": "20260916112232",
+          "name": "b07_l07_01_c2c_swap_v1_pickup_completion_compat"
+        },
+        {
+          "version": "20260916180544",
+          "name": "b07_l07_01_pickup_messages_v1"
+        },
+        {
+          "version": "20260916181124",
+          "name": "b07_l07_01_pickup_messages_v1_list"
+        },
+        {
+          "version": "20260917094814",
+          "name": "b07_l07_01_order_pickup_handover_staging_repair_v1"
+        },
+        {
+          "version": "20260917101616",
+          "name": "account_data_rights_pickup_messages_hardening_v1"
+        },
+        {
+          "version": "20260917111158",
+          "name": "b07_trade_only_no_money_v1"
+        },
+        {
+          "version": "20260917111935",
+          "name": "b07_sealed_sale_only_v1"
+        },
+        {
+          "version": "20260917132229",
+          "name": "trade_notifications_v2"
+        },
+        {
+          "version": "20260917132525",
+          "name": "trade_notifications_v2_kind_expansion"
+        },
+        {
+          "version": "20260917132613",
+          "name": "trade_notifications_v2_cutover"
+        },
+        {
+          "version": "20260917180908",
+          "name": "b07_sale_only_release_v1"
+        },
+        {
+          "version": "20260917180910",
+          "name": "b07_sale_only_notifications_v1"
+        },
+        {
+          "version": "20260917180911",
+          "name": "b07_sale_only_public_listings_v1"
+        },
+        {
+          "version": "20260917185128",
+          "name": "b07_offer_reservation_v1_staging"
+        },
+        {
+          "version": "20260917185406",
+          "name": "b07_offer_reservation_sale_only_reads"
+        },
+        {
+          "version": "20260917201448",
+          "name": "b07_shipping_receipt_completion_realign_v1"
+        },
+        {
+          "version": "20260918103806",
+          "name": "battle_beta_account_status_v1"
+        },
+        {
+          "version": "20260918131743",
+          "name": "battle_dispute_resolution_v1"
+        },
+        {
+          "version": "20260918135427",
+          "name": "battle_judge_desk_v1"
+        },
+        {
+          "version": "20260918150007",
+          "name": "battle_spectator_foundation_v1"
+        },
+        {
+          "version": "20260918210927",
+          "name": "battle_spectator_media_v1"
+        },
+        {
+          "version": "20260918213553",
+          "name": "battle_spectator_media_publisher_admission_v1"
+        },
+        {
+          "version": "20260919103559",
+          "name": "battle_spectator_media_pg_net_v1"
+        },
+        {
+          "version": "20260919104947",
+          "name": "battle_spectator_media_vault_scheduler_v1"
+        },
+        {
+          "version": "20260919132152",
+          "name": "battle_spectator_media_reconciler_v1"
+        },
+        {
+          "version": "20260921151654",
+          "name": "collect_empty_binder_delete"
+        },
+        {
+          "version": "20260923081953",
+          "name": "trade_legal_contract_model_v1"
+        },
+        {
+          "version": "20260924113112",
+          "name": "auth_privileged_step_up_v1"
+        },
+        {
+          "version": "20260924113132",
+          "name": "security_privilege_mfa_hardening_v1"
+        },
+        {
+          "version": "20260924113153",
+          "name": "security_readiness_v1"
+        }
+      ],
+      "catalog": {
+        "captured_at": "2026-09-24T14:25:00.871483+00:00",
+        "counts": {
+          "schemas": 17,
+          "relations": 168,
+          "columns": 1635,
+          "constraints": 775,
+          "indexes": 376,
+          "triggers": 71,
+          "policies": 46,
+          "functions": 422,
+          "default_privileges": 28
+        },
+        "schemas": [
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_auth_admin=UC/supabase_admin",
+              "dashboard_user=UC/supabase_admin",
+              "postgres=U/supabase_admin"
+            ],
+            "name": "auth",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres"
+            ],
+            "name": "battle_spectator_media_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres"
+            ],
+            "name": "battle_spectator_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "postgres=U/postgres"
+            ],
+            "name": "cron",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres",
+              "authenticated=U/postgres"
+            ],
+            "name": "dv_collect_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres"
+            ],
+            "name": "dv_market_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres",
+              "authenticated=U/postgres"
+            ],
+            "name": "dv_v16_private",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "postgres=UC/postgres",
+              "anon=U/postgres",
+              "authenticated=U/postgres",
+              "service_role=U/postgres",
+              "dashboard_user=UC/postgres"
+            ],
+            "name": "extensions",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "graphql",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "graphql_public",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "=U/supabase_admin",
+              "supabase_functions_admin=U/supabase_admin",
+              "postgres=U/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "net",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": null,
+            "name": "pgbouncer",
+            "owner": "pgbouncer"
+          },
+          {
+            "acl": [
+              "pg_database_owner=UC/pg_database_owner",
+              "postgres=U/pg_database_owner",
+              "=U/pg_database_owner",
+              "anon=U/pg_database_owner",
+              "authenticated=U/pg_database_owner",
+              "service_role=U/pg_database_owner"
+            ],
+            "name": "public",
+            "owner": "pg_database_owner"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_realtime_admin=U*C*/supabase_admin",
+              "authenticated=U/supabase_admin"
+            ],
+            "name": "realtime",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "anon=U/supabase_admin",
+              "authenticated=U/supabase_admin",
+              "service_role=U/supabase_admin",
+              "supabase_storage_admin=U*C*/supabase_admin",
+              "dashboard_user=UC/supabase_admin"
+            ],
+            "name": "storage",
+            "owner": "supabase_admin"
+          },
+          {
+            "acl": null,
+            "name": "supabase_migrations",
+            "owner": "postgres"
+          },
+          {
+            "acl": [
+              "supabase_admin=UC/supabase_admin",
+              "postgres=U*/supabase_admin",
+              "service_role=U/supabase_admin"
+            ],
+            "name": "vault",
+            "owner": "supabase_admin"
+          }
+        ],
+        "relations": [
+          {
+            "schema": "auth",
+            "name": "audit_log_entries",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "custom_oauth_providers",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "flow_state",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "identities",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "instances",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_amr_claims",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_challenges",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_factors",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_recovery_code_sets",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "mfa_recovery_codes",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_authorizations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_client_states",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_clients",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "oauth_consents",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "one_time_tokens",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "refresh_tokens",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "refresh_tokens_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=rwU/supabase_auth_admin",
+              "dashboard_user=rwU/supabase_auth_admin",
+              "postgres=rwU/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "saml_providers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "saml_relay_states",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "postgres=r*/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "scim_tokens",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "scim_users",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sessions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sso_domains",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "sso_providers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=ar*wdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "users",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin",
+              "postgres=ar*wdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "webauthn_challenges",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "auth",
+            "name": "webauthn_credentials",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_auth_admin",
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "supabase_auth_admin=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ]
+          },
+          {
+            "schema": "battle_spectator_media_private",
+            "name": "config",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_media_private",
+            "name": "consents",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_media_private",
+            "name": "epochs",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_media_private",
+            "name": "revocations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_media_private",
+            "name": "revocations_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_private",
+            "name": "grants",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_private",
+            "name": "links",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "battle_spectator_private",
+            "name": "presence",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "cron",
+            "name": "job",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "=r/supabase_admin",
+              "postgres=r*/supabase_admin",
+              "postgres=r/postgres"
+            ]
+          },
+          {
+            "schema": "cron",
+            "name": "job_run_details",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "=rd/supabase_admin",
+              "postgres=a*r*w*d*D*x*m*/supabase_admin",
+              "postgres=arwdDxm/postgres"
+            ]
+          },
+          {
+            "schema": "cron",
+            "name": "jobid_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=rwU/supabase_admin",
+              "=r/supabase_admin"
+            ]
+          },
+          {
+            "schema": "cron",
+            "name": "runid_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=rwU/supabase_admin",
+              "=r/supabase_admin"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "account_data_rights_audit",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "account_data_rights_audit_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "account_deletion_holds",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "account_deletion_requests",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "data_retention_rules",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "listing_notice_appeals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "listing_notice_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "listing_notice_events_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "listing_notices",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_contract_snapshots",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_financial_documents",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_invoice_authorizations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_payment_allocations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_payment_attempts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_payment_configuration",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_pickup_handovers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_pickup_messages",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_refund_requests",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_stripe_accounts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_stripe_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_stripe_onboarding_requests",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_cases",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_confirmations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_fulfillments",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_pickup_handovers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_reservations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_revision_items",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_revisions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_threads",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_swap_value_snapshots",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_tax_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_tax_export_rows",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_tax_export_rows_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_tax_exports",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_withdrawal_drafts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "market_withdrawals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "marketplace_compliance_policy",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "marketplace_message_delivery_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "marketplace_message_delivery_events_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "marketplace_message_outbox",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_account_audit",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_account_audit_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_declarations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_declarations_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_legal_profiles",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_review_actions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_review_actions_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "seller_tax_identifiers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "trade_user_eligibility",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_market_private",
+            "name": "user_data_export_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "credit_period",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_cost_import",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_monthly_cost",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_scan_policy",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_scan_reservation",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "openai_weekly_usage",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "operator_identity_v1",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "scan_policy",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "scan_reservation",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "dv_v16_private",
+            "name": "weekly_usage",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "extensions",
+            "name": "pg_stat_statements",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/postgres",
+              "=r/postgres",
+              "dashboard_user=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "extensions",
+            "name": "pg_stat_statements_info",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/postgres",
+              "=r/postgres",
+              "dashboard_user=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "net",
+            "name": "_http_response",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "=arwdDxtm/supabase_admin"
+            ]
+          },
+          {
+            "schema": "net",
+            "name": "http_request_queue",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "=arwdDxtm/supabase_admin"
+            ]
+          },
+          {
+            "schema": "net",
+            "name": "http_request_queue_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=rwU/supabase_admin",
+              "=rwU/supabase_admin"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "admin_audit_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "admin_audit_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "service_role=U/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_matches",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_rating_events",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_rating_events_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_ratings",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_reports",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=ar/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_signals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=ar/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "battle_signals_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "authenticated=U/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "beta_waitlist",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "beta_waitlist_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=U/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "collection_folders",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=arw/postgres",
+              "service_role=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "collection_items",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=arwd/postgres",
+              "service_role=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_deal_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_deals",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_default_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_listing_images",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_listings",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=arwd/postgres",
+              "service_role=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_notification_sync_state",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_notifications",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_offers",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=rd/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_cases",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_items",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_number_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_payments",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_access_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_access_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_order_shipping_addresses",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_orders",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_reviews",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_seller_accounts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_seller_stats",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "anon=r/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_address_access_log",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_address_access_log_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=rwU/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_profile_rules",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "market_shipping_profiles",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "profiles",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=rw/postgres",
+              "service_role=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "staff_applications",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "staff_permissions",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres",
+              "authenticated=r/postgres"
+            ]
+          },
+          {
+            "schema": "public",
+            "name": "username_reservations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m/postgres"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages",
+            "kind": "p",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin",
+              "anon=arw/supabase_realtime_admin",
+              "authenticated=arw/supabase_realtime_admin",
+              "service_role=arw/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_18",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_19",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_20",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_21",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_22",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_23",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "messages_2026_09_24",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=arwdDxtm/supabase_admin",
+              "dashboard_user=arwdDxtm/supabase_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "subscription",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=arwdDxtm/supabase_realtime_admin",
+              "postgres=arwdDxtm/supabase_realtime_admin",
+              "dashboard_user=arwdDxtm/supabase_realtime_admin",
+              "anon=r/supabase_realtime_admin",
+              "authenticated=r/supabase_realtime_admin",
+              "service_role=r/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "realtime",
+            "name": "subscription_id_seq",
+            "kind": "S",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_realtime_admin",
+            "acl": [
+              "supabase_realtime_admin=rwU/supabase_realtime_admin",
+              "postgres=rwU/supabase_realtime_admin",
+              "dashboard_user=rwU/supabase_realtime_admin",
+              "anon=U/supabase_realtime_admin",
+              "authenticated=U/supabase_realtime_admin",
+              "service_role=U/supabase_realtime_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin",
+              "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets_analytics",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "buckets_vectors",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=r/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "migrations",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": null
+          },
+          {
+            "schema": "storage",
+            "name": "objects",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=arwdDxtm/supabase_storage_admin",
+              "anon=arwdDxtm/supabase_storage_admin",
+              "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "s3_multipart_uploads",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "s3_multipart_uploads_parts",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=arwdDxtm/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "storage",
+            "name": "vector_indexes",
+            "kind": "r",
+            "rls": true,
+            "force_rls": false,
+            "owner": "supabase_storage_admin",
+            "acl": [
+              "supabase_storage_admin=arwdDxtm/supabase_storage_admin",
+              "service_role=r/supabase_storage_admin",
+              "authenticated=r/supabase_storage_admin",
+              "anon=r/supabase_storage_admin"
+            ]
+          },
+          {
+            "schema": "supabase_migrations",
+            "name": "schema_migrations",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "postgres",
+            "acl": null
+          },
+          {
+            "schema": "vault",
+            "name": "decrypted_secrets",
+            "kind": "v",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=r*d*D*x*/supabase_admin",
+              "service_role=rd/supabase_admin"
+            ]
+          },
+          {
+            "schema": "vault",
+            "name": "secrets",
+            "kind": "r",
+            "rls": false,
+            "force_rls": false,
+            "owner": "supabase_admin",
+            "acl": [
+              "supabase_admin=arwdDxtm/supabase_admin",
+              "postgres=r*d*D*x*/supabase_admin",
+              "service_role=rd/supabase_admin"
+            ]
+          }
+        ],
+        "default_privileges": [
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/postgres",
+              "anon=arwdDxtm/postgres",
+              "authenticated=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "role": "postgres",
+            "type": "r",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=X/postgres",
+              "anon=X/postgres",
+              "authenticated=X/postgres",
+              "service_role=X/postgres"
+            ],
+            "role": "postgres",
+            "type": "f",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=rwU/postgres",
+              "anon=rwU/postgres",
+              "authenticated=rwU/postgres",
+              "service_role=rwU/postgres"
+            ],
+            "role": "postgres",
+            "type": "S",
+            "schema": "storage"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_auth_admin",
+              "dashboard_user=arwdDxtm/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "r",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_auth_admin",
+              "dashboard_user=rwU/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "S",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_auth_admin",
+              "dashboard_user=X/supabase_auth_admin"
+            ],
+            "role": "supabase_auth_admin",
+            "type": "f",
+            "schema": "auth"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "graphql_public"
+          },
+          {
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=X*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=r*w*U*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "extensions"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "graphql"
+          },
+          {
+            "acl": [
+              "postgres=rwU/supabase_admin",
+              "dashboard_user=rwU/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "realtime"
+          },
+          {
+            "acl": [
+              "postgres=X/supabase_admin",
+              "dashboard_user=X/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "realtime"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "dashboard_user=arwdDxtm/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "realtime"
+          },
+          {
+            "acl": [
+              "postgres=r*w*U*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "S",
+            "schema": "cron"
+          },
+          {
+            "acl": [
+              "postgres=a*r*w*d*D*x*t*m*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "r",
+            "schema": "cron"
+          },
+          {
+            "acl": [
+              "postgres=X*/supabase_admin"
+            ],
+            "role": "supabase_admin",
+            "type": "f",
+            "schema": "cron"
+          },
+          {
+            "acl": [
+              "postgres=arwdDxtm/postgres"
+            ],
+            "role": "postgres",
+            "type": "r",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=rwU/postgres"
+            ],
+            "role": "postgres",
+            "type": "S",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=X/postgres"
+            ],
+            "role": "postgres",
+            "type": "f",
+            "schema": "public"
+          },
+          {
+            "acl": [
+              "postgres=X/postgres"
+            ],
+            "role": "postgres",
+            "type": "f",
+            "schema": null
+          }
+        ],
+        "unvalidated_constraints": [
+          {
+            "name": "messages_payload_exclusive",
+            "type": "c",
+            "table": "messages",
+            "schema": "realtime",
+            "validated": false,
+            "definition": "CHECK (((payload IS NULL) OR (binary_payload IS NULL))) NOT VALID"
+          }
+        ]
+      },
+      "managed_backups": "Free Plan does not include project backups (authenticated dashboard read 2026-09-24)"
+    }
+  },
+  "staging_readiness": {
+    "legal": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    },
+    "security": {
+      "revision": "privilege-mfa-v1",
+      "compatible": true
+    }
+  },
+  "staging_off": {
+    "stripe": {
+      "live": false,
+      "sandbox": false
+    },
+    "outbox": {
+      "sent": 0,
+      "count": 12,
+      "errors": 0,
+      "pending": 12,
+      "max_attempts": 0
+    }
+  }
+}
+

@@ -1,0 +1,67 @@
+[
+  {
+    "preconditions": {
+      "deals": 9,
+      "orders": 7,
+      "listings": 8,
+      "profiles": 17,
+      "auth_users": 17,
+      "captured_at": "2026-09-25T05:02:00.692645+00:00",
+      "order_cases": [
+        {
+          "n": 2,
+          "status": "withdrawn",
+          "case_type": "problem"
+        },
+        {
+          "n": 2,
+          "status": "declined",
+          "case_type": "cancellation"
+        }
+      ],
+      "last_version": "20260911181702",
+      "trade_offers": 0,
+      "history_count": 72,
+      "notifications": [
+        {
+          "n": 2,
+          "kind": "order_received"
+        },
+        {
+          "n": 2,
+          "kind": "problem_response"
+        },
+        {
+          "n": 5,
+          "kind": "purchase"
+        },
+        {
+          "n": 2,
+          "kind": "cancellation_requested"
+        },
+        {
+          "n": 2,
+          "kind": "order_shipped"
+        },
+        {
+          "n": 2,
+          "kind": "problem_opened"
+        },
+        {
+          "n": 2,
+          "kind": "cancellation_declined"
+        },
+        {
+          "n": 2,
+          "kind": "problem_withdrawn"
+        }
+      ],
+      "collection_items": 53,
+      "non_manual_orders": 0,
+      "non_sale_listings": 0,
+      "verified_mfa_factors": 0,
+      "owner_binding_candidates": 1,
+      "shipped_or_received_orders": 0
+    }
+  }
+]
