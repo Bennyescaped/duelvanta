@@ -69,6 +69,21 @@ try {
  console.log('READINESS DIFF',diff.length,diff.map(x=>x.key));
  assert.equal(readiness.security.compatible,true,'Security readiness must pass unchanged');assert.equal(readiness.legal.compatible,true,'Legal readiness must pass unchanged');
  if(process.argv.includes('--trade-lock')){stage='P0-05 lock';const {testProductionTradeLock}=await import('./helpers/production-trade-lock-checks.mjs');report.trade_lock=await testProductionTradeLock(db);}
+ if(process.argv.includes('--data-export')){
+  stage='T2 export after reconstructed upgrade';
+  await db.exec('reset role');
+  await db.exec(await read('database/account-data-export-collect-battle-v1.sql'));
+  await db.exec(await read('database/account-data-export'+(process.argv.includes('--trade-lock')?'-trade-lock':'')+'-readiness-v1.sql'));
+  const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
+  assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);
+  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:'10000000-0000-4000-8000-000000000003',role:'authenticated',aal:'aal1'})]);
+  await db.exec('set role authenticated');
+  const exported=(await db.query('select public.export_my_duelvanta_data() payload')).rows[0].payload;
+  assert.equal(exported.export_version,'duelvanta-data-export-v3');
+  assert.ok(Array.isArray(exported.marketplace.pickup_messages));assert.ok(exported.scanner&&exported.battle);
+  report.data_export={status:'PASS',version:exported.export_version,readiness:r};
+  console.log('T2 EXPORT AFTER FULL P0-01/P0-02/P0-05 CHAIN PASS');
+ }
  report.status='PASS';console.log(process.argv.includes('--trade-lock')?'P0-05 REHEARSAL COMPLETE':'P0-01 REHEARSAL COMPLETE');
  }
 } catch(e){report.status='FAIL';report.failed_stage=stage;report.error=e.message;console.error('FAILED',stage,e.message,e.detail||'',e.where||'',e.hint||'',e.position||'');process.exitCode=1;}

@@ -6,6 +6,8 @@ on:
       - 'battle*.html'
       - 'battle-spectator.css'
       - 'database/battle-spectator-*.sql'
+      - 'database/account-data-export-*'
+      - 'tests/account-data-export-*.mjs'
       - 'supabase/functions/battle-spectator-media-reconciler/**'
       - 'site-nav.js'
       - 'supabase-environment.js'
