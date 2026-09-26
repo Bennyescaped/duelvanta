@@ -121,6 +121,14 @@ try{
   pass('G1 installed before complete T2 export/audit regression');
  }
 
+ if(process.argv.includes('--closure-privacy')){
+  assert.ok(process.argv.includes('--processing-markers'),'G2 requires G1');
+  await db.exec(await read('database/account-closure-privacy-v1.sql'));
+  await db.exec(await read('database/account-closure-privacy-readiness-v1.sql'));
+  assert.equal((await scalar('select public.get_market_legal_schema_readiness_v1() v')).compatible,true);
+  pass('G2 installed before complete T2 export/audit regression');
+ }
+
  tables=(await db.query("select quote_ident(n.nspname)||'.'||quote_ident(c.relname) name from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname=any($1) and c.relkind='r' order by 1",[schemas])).rows;
  sequences=(await db.query("select quote_ident(n.nspname)||'.'||quote_ident(c.relname) name from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname=any($1) and c.relkind='S' order by 1",[schemas])).rows;
  report.guardedTables=tables.length;report.checkedSequences=sequences.length;
@@ -199,4 +207,4 @@ try{
  await db.exec('alter table dv_v16_private.openai_scan_reservation drop column future_secret;alter table public.battle_matches drop column future_private_data');
  report.passed=true;
 }catch(e){report.error=e.message;console.error(e);process.exitCode=1}
-finally{await db.close();await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-data-export-${native?'native':'pglite'}${lock?'-lock':''}${process.argv.includes('--processing-markers')?'-g1':''}.json`,JSON.stringify(report,null,2));}
+finally{await db.close();await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-data-export-${native?'native':'pglite'}${lock?'-lock':''}${process.argv.includes('--processing-markers')?'-g1':''}${process.argv.includes('--closure-privacy')?'-g2':''}.json`,JSON.stringify(report,null,2));}

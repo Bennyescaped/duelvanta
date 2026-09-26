@@ -64,6 +64,8 @@ on:
       - 'database/account-data-rights-*.sql'
       - 'database/account-data-export-*'
       - 'database/account-processing-markers-*'
+      - 'database/account-closure-privacy-*'
+      - 'tests/account-closure-privacy-*.mjs'
       - 'tests/account-processing-markers-*.mjs'
       - 'tests/account-data-export-*.mjs'
       - 'database/account-data-erasure-*.sql'
@@ -176,6 +178,14 @@ jobs:
           node tests/account-processing-markers-test.mjs --native | tee test-results/account-processing-markers-native.log
           node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers | tee test-results/account-processing-markers-upgrade-native.log
           node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers | tee test-results/account-processing-markers-export-native.log
+      - name: G2 closure privacy with G1 and T2 regression on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --check
+          node tests/account-closure-privacy-test.mjs --native | tee test-results/account-closure-privacy-native.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy | tee test-results/account-closure-privacy-g1-native.log
+          node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers --closure-privacy | tee test-results/account-closure-privacy-upgrade-native.log
+          node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers --closure-privacy | tee test-results/account-closure-privacy-export-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -184,6 +194,7 @@ jobs:
           path: |
             test-results/account-data-export-*
             test-results/account-processing-markers-*
+            test-results/account-closure-privacy-*
             test-results/production-trade-lock-synthetic-existing-native.json
           if-no-files-found: error
   production_upgrade_p001:

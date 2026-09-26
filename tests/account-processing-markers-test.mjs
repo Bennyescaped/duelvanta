@@ -56,6 +56,12 @@ try{
  report.profileWriters=(await db.query("select n.nspname,p.proname,p.prosecdef,pg_get_userbyid(p.proowner) owner,p.proacl::text,pg_get_functiondef(p.oid) definition from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','dv_market_private') and p.prosrc ~* '(update[[:space:]]+(public[.])?profiles|insert[[:space:]]+into[[:space:]]+(public[.])?profiles)' order by 1,2")).rows;
  report.triggers=(await db.query("select tgname,tgenabled,pg_get_triggerdef(oid) definition from pg_trigger where tgrelid='public.profiles'::regclass and not tgisinternal order by tgname")).rows;
  pass('idempotent G1: exactly two function changes, one trigger; existing ACL/RLS unchanged; matching readiness');
+ if(process.argv.includes('--closure-privacy')){
+  await db.exec(await read('database/account-closure-privacy-v1.sql'));
+  await db.exec(await read('database/account-closure-privacy-readiness-v1.sql'));
+  assert.equal((await ready()).compatible,true);
+  pass('G2 installed before complete G1 marker regression');
+ }
  for(const u of [A,B])for(const state of ['clear','processing','closure','package']){
   const other=u===A?B:A;
   await db.exec('reset role;begin');
@@ -150,4 +156,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 } catch(e){report.error={message:e.message,detail:e.detail,where:e.where};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-processing-markers-${native?'native':'wasm'}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-processing-markers-${native?'native':'wasm'}${process.argv.includes('--closure-privacy')?'-g2':''}.json`,JSON.stringify(report,null,2))}

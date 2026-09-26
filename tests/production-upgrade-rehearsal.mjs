@@ -79,6 +79,11 @@ try {
    await db.exec(await read('database/account-processing-markers-v1.sql'));
    await db.exec(await read('database/account-processing-markers-readiness-v1.sql'));
   }
+  if(process.argv.includes('--closure-privacy')){
+   assert.ok(process.argv.includes('--processing-markers'));
+   await db.exec(await read('database/account-closure-privacy-v1.sql'));
+   await db.exec(await read('database/account-closure-privacy-readiness-v1.sql'));
+  }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
   assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);
   await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:'10000000-0000-4000-8000-000000000003',role:'authenticated',aal:'aal1'})]);
