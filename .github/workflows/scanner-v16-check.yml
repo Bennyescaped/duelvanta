@@ -63,6 +63,8 @@ on:
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
       - 'database/account-data-export-*'
+      - 'database/account-processing-markers-*'
+      - 'tests/account-processing-markers-*.mjs'
       - 'tests/account-data-export-*.mjs'
       - 'database/account-data-erasure-*.sql'
       - 'database/market-stripe-*.sql'
@@ -167,6 +169,13 @@ jobs:
           node tests/account-data-export-collect-battle-test.mjs --native | tee test-results/account-data-export-native.log
           node tests/account-data-export-collect-battle-test.mjs --native --trade-lock | tee test-results/account-data-export-native-lock.log
           node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export | tee test-results/account-data-export-upgrade-native.log
+      - name: G1 marker integrity and T2 regression on native PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --check
+          node tests/account-processing-markers-test.mjs --native | tee test-results/account-processing-markers-native.log
+          node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers | tee test-results/account-processing-markers-upgrade-native.log
+          node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers | tee test-results/account-processing-markers-export-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -174,6 +183,7 @@ jobs:
           name: account-data-export-t2-evidence
           path: |
             test-results/account-data-export-*
+            test-results/account-processing-markers-*
             test-results/production-trade-lock-synthetic-existing-native.json
           if-no-files-found: error
   production_upgrade_p001:

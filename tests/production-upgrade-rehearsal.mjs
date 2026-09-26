@@ -74,6 +74,11 @@ try {
   await db.exec('reset role');
   await db.exec(await read('database/account-data-export-collect-battle-v1.sql'));
   await db.exec(await read('database/account-data-export'+(process.argv.includes('--trade-lock')?'-trade-lock':'')+'-readiness-v1.sql'));
+  if(process.argv.includes('--processing-markers')){
+   assert.ok(process.argv.includes('--trade-lock'));
+   await db.exec(await read('database/account-processing-markers-v1.sql'));
+   await db.exec(await read('database/account-processing-markers-readiness-v1.sql'));
+  }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
   assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);
   await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:'10000000-0000-4000-8000-000000000003',role:'authenticated',aal:'aal1'})]);
