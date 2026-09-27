@@ -33,6 +33,10 @@ async function generate(){
    if(!process.argv.includes('--processing-markers'))throw Error('G2 requires G1');
    await db.exec(await read('database/account-closure-privacy-v1.sql'));
   }
+  if(process.argv.includes('--scanner-hold')){
+   if(!process.argv.includes('--closure-privacy'))throw Error('G3 requires G2');
+   await db.exec(await read('database/scanner-processing-hold-v1.sql'));
+  }
   await db.exec('set search_path=pg_catalog,public');
   const tables=(await db.query(`select n.nspname||'.'||c.relname name from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and (n.nspname='dv_market_private' or (n.nspname='public' and (c.relname like 'market_%' or c.relname='profiles'))) order by 1`)).rows.map(x=>x.name);
   const funcs=(await db.query(`select distinct n.nspname||'.'||p.proname name from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' or (n.nspname='public' and p.proname<>'get_market_legal_schema_readiness_v1' and (p.proname like '%market%' or p.proname like '%account_deletion%' or p.proname like '%duelvanta_data%' or p.proname like '%trade_eligibility%')) order by 1`)).rows.map(x=>x.name);
@@ -48,8 +52,9 @@ async function generate(){
   const exportTarget=process.argv.includes('--data-export');
   const baseTarget=exportTarget?rendered.replace('-- Generated OFFLINE', '-- T2 export candidate; generated OFFLINE').replace('-- Apply after', '-- Apply account-data-export-collect-battle-v1.sql before this contract.\n-- Base:'):rendered;
   const g1Target=process.argv.includes('--processing-markers')?baseTarget.replace('-- T2 export candidate;', '-- G1 marker integrity candidate;').replace('-- Base:', '-- Apply account-processing-markers-v1.sql after T2 and before this contract.\n-- Base:'):baseTarget;
-  const target=process.argv.includes('--closure-privacy')?g1Target.replace('-- G1 marker integrity candidate;', '-- G2 closure privacy candidate;').replace('-- Base:', '-- Apply account-closure-privacy-v1.sql after G1 and before this contract.\n-- Base:'):g1Target;
-  const filename=process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
+  const g2Target=process.argv.includes('--closure-privacy')?g1Target.replace('-- G1 marker integrity candidate;', '-- G2 closure privacy candidate;').replace('-- Base:', '-- Apply account-closure-privacy-v1.sql after G1 and before this contract.\n-- Base:'):g1Target;
+  const target=process.argv.includes('--scanner-hold')?g2Target.replace('-- G2 closure privacy candidate;', '-- G3 scanner processing hold candidate;').replace('-- Base:', '-- Apply scanner-processing-hold-v1.sql after G2 and before this contract.\n-- Base:'):g2Target;
+  const filename=process.argv.includes('--scanner-hold')?'scanner-processing-hold-readiness-v1.sql':process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
   const path=new URL('../database/'+filename,import.meta.url);
   if(process.argv.includes('--check')){if(target!==await readFile(path,'utf8'))throw Error('Security contract stale; review semantic changes before offline regeneration');}
   else await writeFile(path,target);

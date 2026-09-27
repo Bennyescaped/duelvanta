@@ -45,9 +45,15 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       // Missing RPC, timeout, duplicate, exhausted allowance or a lost reservation response all fail closed.
       const accountingHeaders={...headers,'x-dv-accounting-key':env.DV_OPENAI_ACCOUNTING_KEY};
       const reservation=await json(AUTH_URL+'/rest/v1/rpc/dv_v16_reserve_openai_scan',{method:'POST',headers:accountingHeaders,body:JSON.stringify({p_request_id:body.requestId,p_image_sha256:sha256,p_tcg:body.tcg,p_kind:kind})});
-      const rejection={duplicate:[409,'scan_already_reserved'],closed:[403,'scanner_closed'],monthly_budget:[429,'openai_monthly_budget_reached']};
+      const rejection={account_data_processing_restricted:[403,'account_data_processing_restricted'],duplicate:[409,'scan_already_reserved'],closed:[403,'scanner_closed'],monthly_budget:[429,'openai_monthly_budget_reached']};
       const [status,code]=rejection[reservation?.reason]||[429,'scan_limit_reached'];requireThat(reservation?.allowed===true,status,code);
       requireThat(Number.isSafeInteger(reservation.eurPerUsdMicros)&&reservation.eurPerUsdMicros>0,503,'accounting_unavailable');
+      // Recheck the existing Hold after reservation, immediately before provider start.
+      // A missing/stale DB contract fails closed; existing reservations are not refunded
+      // or cancelled here, and the settlement path below remains unchanged.
+      const admission=await json(AUTH_URL+'/rest/v1/rpc/dv_v16_openai_scan_budget',{method:'POST',headers,body:'{}'});
+      requireThat(typeof admission?.processingRestricted==='boolean',503,'accounting_unavailable');
+      requireThat(admission.processingRestricted===false,403,'account_data_processing_restricted');
       let result,providerError;
       try{result=await (kind==='slab'?callSlabProvider:callProvider)({image,tcg:body.tcg,env,fetchImpl,now})}
       catch(e){providerError=e;result=e.accounting||{}}

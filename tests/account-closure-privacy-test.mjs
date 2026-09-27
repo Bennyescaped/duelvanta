@@ -45,6 +45,12 @@ try{
  assert.equal(before.filter(x=>!after.some(y=>y[0]===x[0]&&y[1]===x[1])).length,0);
  assert.equal((await ready()).compatible,false);await db.exec(await read('database/account-closure-privacy-readiness-v1.sql'));assert.equal((await ready()).compatible,true);
  pass('idempotent candidate: one new private trigger function; existing functions, G1, ACL/RLS and read RPCs unchanged; matching readiness');
+
+ if(process.argv.includes('--scanner-hold')){
+  await db.exec(await read('database/scanner-processing-hold-v1.sql'));
+  await db.exec(await read('database/scanner-processing-hold-readiness-v1.sql'));
+  pass('G3 installed before complete regression');
+ }
  for(const u of users)for(const state of ['normal','processing_only','closure_private','closure_package','closure_public']){
   const other=u===A?B:A;await db.exec('begin');
   if(state==='processing_only')await db.query('update public.profiles set data_processing_restricted_at=now() where id=$1',[u]);
@@ -118,4 +124,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-closure-privacy-${native?'native':'wasm'}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-closure-privacy-${native?'native':'wasm'}${process.argv.includes('--scanner-hold')?'-g3':''}.json`,JSON.stringify(report,null,2))}
