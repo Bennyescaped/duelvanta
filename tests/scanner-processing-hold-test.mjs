@@ -82,6 +82,10 @@ try{
   await db.exec(await read('database/battle-player-processing-hold-readiness-v1.sql'));
   pass('G4 installed before complete regression');
  }
+ if(process.argv.includes('--battle-signal-hold')){
+  await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
+  await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
+ }
  for(const u of users)for(const state of ['normal','hold','closure']){
   const other=u===A?B:A;await db.exec('begin');if(state!=='normal')await hold(u,state==='closure');
   const before=await ledger();await claim(u);const b=await budget();assert.equal(b.processingRestricted,state!=='normal');assert.equal(b.enabled,state==='normal');
@@ -165,4 +169,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.providerStubCalls=providerCalls;report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where,stack:e.stack};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/scanner-processing-hold-${native?'native':'wasm'}${process.argv.includes('--battle-player-hold')?'-g4':''}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/scanner-processing-hold-${native?'native':'wasm'}${process.argv.includes('--battle-player-hold')?'-g4':''}${process.argv.includes('--battle-signal-hold')?'-g5':''}.json`,JSON.stringify(report,null,2))}

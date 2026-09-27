@@ -58,6 +58,10 @@ try{
  for(const p of report.functions){const r=(await db.query('select proacl::text,prosecdef,proconfig,pg_get_userbyid(proowner) owner from pg_proc where oid=$1',[p.oid])).rows[0];assert.deepEqual(r,{proacl:p.proacl,prosecdef:p.prosecdef,proconfig:p.proconfig,owner:p.owner})}
  assert.equal((await ready()).compatible,false);await db.exec(await read('database/battle-player-processing-hold-readiness-v1.sql'));assert.equal((await ready()).compatible,true);
  pass('exactly four admission bodies changed; legacy wrapper, completion, ratings, reports, ACL/RLS and Definer metadata unchanged; matching readiness');
+ if(process.argv.includes('--battle-signal-hold')){
+  await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
+  await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
+ }
  for(const u of users)for(const s of ['normal','processing','closure','safety']){
   for(const action of actions)await tx(async()=>{
    const q=await setup(u,action);await state(u,s);const before=await snapshot();await claim(u);
@@ -135,4 +139,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where,stack:e.stack};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-player-processing-hold-${native?'native':'wasm'}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-player-processing-hold-${native?'native':'wasm'}${process.argv.includes('--battle-signal-hold')?'-g5':''}.json`,JSON.stringify(report,null,2))}

@@ -138,6 +138,10 @@ try{
   await db.exec(await read('database/battle-player-processing-hold-readiness-v1.sql'));
   pass('G4 installed before complete regression');
  }
+ if(process.argv.includes('--battle-signal-hold')){
+  await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
+  await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
+ }
 
 
 
@@ -219,4 +223,4 @@ try{
  await db.exec('alter table dv_v16_private.openai_scan_reservation drop column future_secret;alter table public.battle_matches drop column future_private_data');
  report.passed=true;
 }catch(e){report.error=e.message;console.error(e);process.exitCode=1}
-finally{await db.close();await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-data-export-${native?'native':'pglite'}${lock?'-lock':''}${process.argv.includes('--processing-markers')?'-g1':''}${process.argv.includes('--closure-privacy')?'-g2':''}${process.argv.includes('--scanner-hold')?'-g3':''}${process.argv.includes('--battle-player-hold')?'-g4':''}.json`,JSON.stringify(report,null,2));}
+finally{await db.close();await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-data-export-${native?'native':'pglite'}${lock?'-lock':''}${process.argv.includes('--processing-markers')?'-g1':''}${process.argv.includes('--closure-privacy')?'-g2':''}${process.argv.includes('--scanner-hold')?'-g3':''}${process.argv.includes('--battle-player-hold')?'-g4':''}${process.argv.includes('--battle-signal-hold')?'-g5':''}.json`,JSON.stringify(report,null,2));}

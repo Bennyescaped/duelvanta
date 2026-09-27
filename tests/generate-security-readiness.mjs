@@ -18,6 +18,14 @@ export const securityQuery=`with checks as (
  union all select 'defaults',coalesce(n.nspname,'GLOBAL')||'.'||pg_get_userbyid(d.defaclrole)||'.'||d.defaclobjtype::text,jsonb_agg(jsonb_build_array(coalesce(r.rolname,'PUBLIC'),a.privilege_type,a.is_grantable) order by coalesce(r.rolname,'PUBLIC'),a.privilege_type)
  from pg_default_acl d left join pg_namespace n on n.oid=d.defaclnamespace cross join lateral aclexplode(d.defaclacl) a left join pg_roles r on r.oid=a.grantee where d.defaclrole='postgres'::regrole and (n.nspname in (${schemas}) or n.oid is null) group by n.nspname,d.defaclrole,d.defaclobjtype
  ) select jsonb_agg(jsonb_build_array(k,name,md5(v::text)) order by k collate "C",name collate "C") from checks`;
+// G5 additionally attests the new signal trigger, including enabled state.
+// Prior contracts and their query remain byte-for-byte unchanged.
+export const signalSecurityQuery=securityQuery.replace(' ) select jsonb_agg', `
+ union all select 'trigger',n.nspname||'.'||c.relname||'.'||t.tgname,
+ jsonb_build_object('definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled)
+ from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace
+ where n.nspname='public' and c.relname='battle_signals' and not t.tgisinternal
+ ) select jsonb_agg`);
 async function generate(){
  const db=new PGlite({extensions:{pgcrypto}});
  try{
@@ -41,25 +49,31 @@ async function generate(){
    if(!process.argv.includes('--scanner-hold'))throw Error('G4 requires G3');
    await db.exec(await read('database/battle-player-processing-hold-v1.sql'));
   }
+  if(process.argv.includes('--battle-signal-hold')){
+   if(!process.argv.includes('--battle-player-hold'))throw Error('G5 requires G4');
+   await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
+  }
+  const securityContractQuery=process.argv.includes('--battle-signal-hold')?signalSecurityQuery:securityQuery;
   await db.exec('set search_path=pg_catalog,public');
   const tables=(await db.query(`select n.nspname||'.'||c.relname name from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and (n.nspname='dv_market_private' or (n.nspname='public' and (c.relname like 'market_%' or c.relname='profiles'))) order by 1`)).rows.map(x=>x.name);
   const funcs=(await db.query(`select distinct n.nspname||'.'||p.proname name from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' or (n.nspname='public' and p.proname<>'get_market_legal_schema_readiness_v1' and (p.proname like '%market%' or p.proname like '%account_deletion%' or p.proname like '%duelvanta_data%' or p.proname like '%trade_eligibility%')) order by 1`)).rows.map(x=>x.name);
-  const legal=catalogQuery(tables,funcs),le=(await db.query(legal)).rows[0].jsonb_agg,se=(await db.query(securityQuery)).rows[0].jsonb_agg;
+  const legal=catalogQuery(tables,funcs),le=(await db.query(legal)).rows[0].jsonb_agg,se=(await db.query(securityContractQuery)).rows[0].jsonb_agg;
   function sql(name,query,expected,revision,extra=''){return `create or replace function public.${name}() returns jsonb language plpgsql stable security definer set search_path=pg_catalog,public as $$
  declare actual jsonb;begin ${query} into actual;
  return jsonb_build_object('revision','${revision}','compatible',coalesce(actual=$catalog$${JSON.stringify(expected)}$catalog$::jsonb,false)${extra});
  exception when others then return jsonb_build_object('revision','${revision}','compatible',false);end$$;
  revoke all on function public.${name}() from public,anon,authenticated,service_role;
  grant execute on function public.${name}() to authenticated;\n`;}
-  const output='-- Generated OFFLINE from reviewed fixture + explicit Step 9A candidate. No live drift inputs.\n-- Apply after both candidate SQL files. Legal semantics stay v1.2; security contract is separately versioned.\nbegin;\n'+sql('get_security_schema_readiness_v1',securityQuery,se,'privilege-mfa-v1')+sql('get_market_legal_schema_readiness_v1',legal,le,'trade-legal-contract-model-v1.2'," and coalesce((public.get_security_schema_readiness_v1()->>'compatible')::boolean,false)")+'commit;\n';
+  const output='-- Generated OFFLINE from reviewed fixture + explicit Step 9A candidate. No live drift inputs.\n-- Apply after both candidate SQL files. Legal semantics stay v1.2; security contract is separately versioned.\nbegin;\n'+sql('get_security_schema_readiness_v1',securityContractQuery,se,'privilege-mfa-v1')+sql('get_market_legal_schema_readiness_v1',legal,le,'trade-legal-contract-model-v1.2'," and coalesce((public.get_security_schema_readiness_v1()->>'compatible')::boolean,false)")+'commit;\n';
   const rendered=process.argv.includes('--trade-lock')?output.replace('reviewed fixture + explicit Step 9A candidate','reviewed fixture + Step 9A + explicit P0-05 lock candidate').replace('Apply after both candidate SQL files.','Apply after market-production-trade-lock-v1.sql in the same release transaction.'):output;
   const exportTarget=process.argv.includes('--data-export');
   const baseTarget=exportTarget?rendered.replace('-- Generated OFFLINE', '-- T2 export candidate; generated OFFLINE').replace('-- Apply after', '-- Apply account-data-export-collect-battle-v1.sql before this contract.\n-- Base:'):rendered;
   const g1Target=process.argv.includes('--processing-markers')?baseTarget.replace('-- T2 export candidate;', '-- G1 marker integrity candidate;').replace('-- Base:', '-- Apply account-processing-markers-v1.sql after T2 and before this contract.\n-- Base:'):baseTarget;
   const g2Target=process.argv.includes('--closure-privacy')?g1Target.replace('-- G1 marker integrity candidate;', '-- G2 closure privacy candidate;').replace('-- Base:', '-- Apply account-closure-privacy-v1.sql after G1 and before this contract.\n-- Base:'):g1Target;
   const g3Target=process.argv.includes('--scanner-hold')?g2Target.replace('-- G2 closure privacy candidate;', '-- G3 scanner processing hold candidate;').replace('-- Base:', '-- Apply scanner-processing-hold-v1.sql after G2 and before this contract.\n-- Base:'):g2Target;
-  const target=process.argv.includes('--battle-player-hold')?g3Target.replace('-- G3 scanner processing hold candidate;', '-- G4 battle player processing hold candidate;').replace('-- Base:', '-- Apply battle-player-processing-hold-v1.sql after G3 and before this contract.\n-- Base:'):g3Target;
-  const filename=process.argv.includes('--battle-player-hold')?'battle-player-processing-hold-readiness-v1.sql':process.argv.includes('--scanner-hold')?'scanner-processing-hold-readiness-v1.sql':process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
+  const g4Target=process.argv.includes('--battle-player-hold')?g3Target.replace('-- G3 scanner processing hold candidate;', '-- G4 battle player processing hold candidate;').replace('-- Base:', '-- Apply battle-player-processing-hold-v1.sql after G3 and before this contract.\n-- Base:'):g3Target;
+  const target=process.argv.includes('--battle-signal-hold')?g4Target.replace('-- G4 battle player processing hold candidate;', '-- G5 battle signal processing hold candidate;').replace('-- Base:', '-- Apply battle-signal-processing-hold-v1.sql after G4 and before this contract.\n-- Base:'):g4Target;
+  const filename=process.argv.includes('--battle-signal-hold')?'battle-signal-processing-hold-readiness-v1.sql':process.argv.includes('--battle-player-hold')?'battle-player-processing-hold-readiness-v1.sql':process.argv.includes('--scanner-hold')?'scanner-processing-hold-readiness-v1.sql':process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
   const path=new URL('../database/'+filename,import.meta.url);
   if(process.argv.includes('--check')){if(target!==await readFile(path,'utf8'))throw Error('Security contract stale; review semantic changes before offline regeneration');}
   else await writeFile(path,target);
