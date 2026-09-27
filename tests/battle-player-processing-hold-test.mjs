@@ -62,6 +62,10 @@ try{
   await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
   await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--spectator-withdrawal')){
+  await db.exec(await read('database/battle-spectator-withdrawal-v1.sql'));
+  await db.exec(await read('database/battle-spectator-withdrawal-readiness-v1.sql'));
+ }
  for(const u of users)for(const s of ['normal','processing','closure','safety']){
   for(const action of actions)await tx(async()=>{
    const q=await setup(u,action);await state(u,s);const before=await snapshot();await claim(u);
@@ -139,4 +143,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where,stack:e.stack};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-player-processing-hold-${native?'native':'wasm'}${process.argv.includes('--battle-signal-hold')?'-g5':''}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-player-processing-hold-${native?'native':'wasm'}${process.argv.includes('--battle-signal-hold')?'-g5':''}${process.argv.includes('--spectator-withdrawal')?'-d1':''}.json`,JSON.stringify(report,null,2))}

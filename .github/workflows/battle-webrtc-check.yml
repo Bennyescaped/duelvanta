@@ -92,6 +92,7 @@ jobs:
           .github/ci/node_modules/.bin/playwright install chromium
       - name: Independent spectator browser lifecycle and read-only UI
         run: |
+          node tests/battle-spectator-withdrawal-test.mjs --browser
           node tests/battle-spectator-browser-test.mjs
           node tests/battle-spectator-media-layout-test.mjs
       - name: Real WebRTC browser regression with isolated signaling
@@ -104,6 +105,7 @@ jobs:
           path: |
             test-results/battle-webrtc-browser.json
             test-results/battle-async-state.json
+            test-results/battle-spectator-withdrawal-*.json
             test-results/battle-spectator-browser.json
             test-results/battle-spectator-*.png
           if-no-files-found: ignore

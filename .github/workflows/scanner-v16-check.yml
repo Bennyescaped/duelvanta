@@ -68,6 +68,8 @@ on:
       - 'database/scanner-processing-hold-*'
       - 'database/battle-player-processing-hold-*'
       - 'tests/battle-player-processing-hold-*.mjs'
+      - 'database/battle-spectator-withdrawal-*'
+      - 'tests/battle-spectator-withdrawal-*.mjs'
       - 'database/battle-signal-processing-hold-*'
       - 'tests/battle-signal-processing-hold-*.mjs'
       - 'tests/scanner-processing-hold-*.mjs'
@@ -222,6 +224,18 @@ jobs:
           node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold | tee test-results/battle-signal-processing-hold-g3-native.log
           node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold | tee test-results/battle-signal-processing-hold-upgrade-native.log
           node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold | tee test-results/battle-signal-processing-hold-export-native.log
+      - name: D1 own withdrawal and complete G1-G5 T2 regression on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --check | tee test-results/battle-spectator-withdrawal-generate-security-readiness.log
+          node tests/battle-spectator-withdrawal-test.mjs --native | tee test-results/battle-spectator-withdrawal-battle-spectator-withdrawal-test.log
+          node tests/battle-signal-processing-hold-test.mjs --native --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-battle-signal-processing-hold-test.log
+          node tests/battle-player-processing-hold-test.mjs --native --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-battle-player-processing-hold-test.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-account-processing-markers-test.log
+          node tests/account-closure-privacy-test.mjs --native --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-account-closure-privacy-test.log
+          node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-scanner-processing-hold-test.log
+          node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-account-data-export-collect-battle-test.log
+          node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-production-upgrade-rehearsal.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -233,6 +247,7 @@ jobs:
             test-results/account-closure-privacy-*
             test-results/scanner-processing-hold-*
             test-results/battle-player-processing-hold-*
+            test-results/battle-spectator-withdrawal-*
             test-results/battle-signal-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native.json
           if-no-files-found: error

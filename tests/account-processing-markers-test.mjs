@@ -77,6 +77,10 @@ try{
   await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
   await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--spectator-withdrawal')){
+  await db.exec(await read('database/battle-spectator-withdrawal-v1.sql'));
+  await db.exec(await read('database/battle-spectator-withdrawal-readiness-v1.sql'));
+ }
 
  for(const u of [A,B])for(const state of ['clear','processing','closure','package']){
   const other=u===A?B:A;
@@ -172,4 +176,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 } catch(e){report.error={message:e.message,detail:e.detail,where:e.where};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-processing-markers-${native?'native':'wasm'}${process.argv.includes('--closure-privacy')?'-g2':''}${process.argv.includes('--scanner-hold')?'-g3':''}${process.argv.includes('--battle-player-hold')?'-g4':''}${process.argv.includes('--battle-signal-hold')?'-g5':''}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-processing-markers-${native?'native':'wasm'}${process.argv.includes('--closure-privacy')?'-g2':''}${process.argv.includes('--scanner-hold')?'-g3':''}${process.argv.includes('--battle-player-hold')?'-g4':''}${process.argv.includes('--battle-signal-hold')?'-g5':''}${process.argv.includes('--spectator-withdrawal')?'-d1':''}.json`,JSON.stringify(report,null,2))}

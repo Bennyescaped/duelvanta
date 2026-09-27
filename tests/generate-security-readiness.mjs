@@ -53,6 +53,10 @@ async function generate(){
    if(!process.argv.includes('--battle-player-hold'))throw Error('G5 requires G4');
    await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
   }
+  if(process.argv.includes('--spectator-withdrawal')){
+   if(!process.argv.includes('--battle-signal-hold'))throw Error('D1 requires G5');
+   await db.exec(await read('database/battle-spectator-withdrawal-v1.sql'));
+  }
   const securityContractQuery=process.argv.includes('--battle-signal-hold')?signalSecurityQuery:securityQuery;
   await db.exec('set search_path=pg_catalog,public');
   const tables=(await db.query(`select n.nspname||'.'||c.relname name from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and (n.nspname='dv_market_private' or (n.nspname='public' and (c.relname like 'market_%' or c.relname='profiles'))) order by 1`)).rows.map(x=>x.name);
@@ -72,8 +76,9 @@ async function generate(){
   const g2Target=process.argv.includes('--closure-privacy')?g1Target.replace('-- G1 marker integrity candidate;', '-- G2 closure privacy candidate;').replace('-- Base:', '-- Apply account-closure-privacy-v1.sql after G1 and before this contract.\n-- Base:'):g1Target;
   const g3Target=process.argv.includes('--scanner-hold')?g2Target.replace('-- G2 closure privacy candidate;', '-- G3 scanner processing hold candidate;').replace('-- Base:', '-- Apply scanner-processing-hold-v1.sql after G2 and before this contract.\n-- Base:'):g2Target;
   const g4Target=process.argv.includes('--battle-player-hold')?g3Target.replace('-- G3 scanner processing hold candidate;', '-- G4 battle player processing hold candidate;').replace('-- Base:', '-- Apply battle-player-processing-hold-v1.sql after G3 and before this contract.\n-- Base:'):g3Target;
-  const target=process.argv.includes('--battle-signal-hold')?g4Target.replace('-- G4 battle player processing hold candidate;', '-- G5 battle signal processing hold candidate;').replace('-- Base:', '-- Apply battle-signal-processing-hold-v1.sql after G4 and before this contract.\n-- Base:'):g4Target;
-  const filename=process.argv.includes('--battle-signal-hold')?'battle-signal-processing-hold-readiness-v1.sql':process.argv.includes('--battle-player-hold')?'battle-player-processing-hold-readiness-v1.sql':process.argv.includes('--scanner-hold')?'scanner-processing-hold-readiness-v1.sql':process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
+  const g5Target=process.argv.includes('--battle-signal-hold')?g4Target.replace('-- G4 battle player processing hold candidate;', '-- G5 battle signal processing hold candidate;').replace('-- Base:', '-- Apply battle-signal-processing-hold-v1.sql after G4 and before this contract.\n-- Base:'):g4Target;
+  const target=process.argv.includes('--spectator-withdrawal')?g5Target.replace('-- G5 battle signal processing hold candidate;', '-- D1 own spectator withdrawal candidate;').replace('-- Base:', '-- Apply battle-spectator-withdrawal-v1.sql after G5 and before this contract.\n-- Base:'):g5Target;
+  const filename=process.argv.includes('--spectator-withdrawal')?'battle-spectator-withdrawal-readiness-v1.sql':process.argv.includes('--battle-signal-hold')?'battle-signal-processing-hold-readiness-v1.sql':process.argv.includes('--battle-player-hold')?'battle-player-processing-hold-readiness-v1.sql':process.argv.includes('--scanner-hold')?'scanner-processing-hold-readiness-v1.sql':process.argv.includes('--closure-privacy')?'account-closure-privacy-readiness-v1.sql':process.argv.includes('--processing-markers')?'account-processing-markers-readiness-v1.sql':exportTarget?(process.argv.includes('--trade-lock')?'account-data-export-trade-lock-readiness-v1.sql':'account-data-export-readiness-v1.sql'):(process.argv.includes('--trade-lock')?'market-production-trade-lock-readiness-v1.sql':'security-readiness-v1.sql');
   const path=new URL('../database/'+filename,import.meta.url);
   if(process.argv.includes('--check')){if(target!==await readFile(path,'utf8'))throw Error('Security contract stale; review semantic changes before offline regeneration');}
   else await writeFile(path,target);

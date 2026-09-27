@@ -99,6 +99,10 @@ try {
    await db.exec(await read('database/battle-signal-processing-hold-v1.sql'));
    await db.exec(await read('database/battle-signal-processing-hold-readiness-v1.sql'));
   }
+ if(process.argv.includes('--spectator-withdrawal')){
+  await db.exec(await read('database/battle-spectator-withdrawal-v1.sql'));
+  await db.exec(await read('database/battle-spectator-withdrawal-readiness-v1.sql'));
+ }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
   assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);
   await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:'10000000-0000-4000-8000-000000000003',role:'authenticated',aal:'aal1'})]);
@@ -112,4 +116,4 @@ try {
  report.status='PASS';console.log(process.argv.includes('--trade-lock')?'P0-05 REHEARSAL COMPLETE':'P0-01 REHEARSAL COMPLETE');
  }
 } catch(e){report.status='FAIL';report.failed_stage=stage;report.error=e.message;console.error('FAILED',stage,e.message,e.detail||'',e.where||'',e.hint||'',e.position||'');process.exitCode=1;}
-finally{await db.close();report.cleanup='isolated database closed/deleted';report.finished_at=new Date().toISOString();await mkdir('test-results',{recursive:true});await writeFile('test-results/'+(process.argv.includes('--trade-lock')?'production-trade-lock-':'production-upgrade-')+report.scenario+'-'+(native?'native':'wasm')+'.json',JSON.stringify(report,null,2));}
+finally{await db.close();report.cleanup='isolated database closed/deleted';report.finished_at=new Date().toISOString();await mkdir('test-results',{recursive:true});await writeFile('test-results/'+(process.argv.includes('--trade-lock')?'production-trade-lock-':'production-upgrade-')+report.scenario+'-'+(native?'native':'wasm')+(process.argv.includes('--spectator-withdrawal')?'-d1':'')+'.json',JSON.stringify(report,null,2));}
