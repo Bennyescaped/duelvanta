@@ -51,6 +51,12 @@ try{
   await db.exec(await read('database/scanner-processing-hold-readiness-v1.sql'));
   pass('G3 installed before complete regression');
  }
+ if(process.argv.includes('--battle-player-hold')){
+  await db.exec(await read('database/battle-player-processing-hold-v1.sql'));
+  await db.exec(await read('database/battle-player-processing-hold-readiness-v1.sql'));
+  pass('G4 installed before complete regression');
+ }
+
  for(const u of users)for(const state of ['normal','processing_only','closure_private','closure_package','closure_public']){
   const other=u===A?B:A;await db.exec('begin');
   if(state==='processing_only')await db.query('update public.profiles set data_processing_restricted_at=now() where id=$1',[u]);
@@ -124,4 +130,4 @@ try{
  }
  assert.equal((await ready()).compatible,true);report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-closure-privacy-${native?'native':'wasm'}${process.argv.includes('--scanner-hold')?'-g3':''}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback;reset role')}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/account-closure-privacy-${native?'native':'wasm'}${process.argv.includes('--scanner-hold')?'-g3':''}${process.argv.includes('--battle-player-hold')?'-g4':''}.json`,JSON.stringify(report,null,2))}

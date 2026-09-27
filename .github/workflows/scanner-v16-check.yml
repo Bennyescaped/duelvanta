@@ -66,6 +66,8 @@ on:
       - 'database/account-processing-markers-*'
       - 'database/account-closure-privacy-*'
       - 'database/scanner-processing-hold-*'
+      - 'database/battle-player-processing-hold-*'
+      - 'tests/battle-player-processing-hold-*.mjs'
       - 'tests/scanner-processing-hold-*.mjs'
       - 'tests/account-closure-privacy-*.mjs'
       - 'tests/account-processing-markers-*.mjs'
@@ -197,6 +199,16 @@ jobs:
           node tests/account-closure-privacy-test.mjs --native --scanner-hold | tee test-results/scanner-processing-hold-g2-native.log
           node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers --closure-privacy --scanner-hold | tee test-results/scanner-processing-hold-upgrade-native.log
           node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers --closure-privacy --scanner-hold | tee test-results/scanner-processing-hold-export-native.log
+      - name: G4 Battle player admission with G1 G2 G3 T2 on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --check
+          node tests/battle-player-processing-hold-test.mjs --native | tee test-results/battle-player-processing-hold-native.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy --scanner-hold --battle-player-hold | tee test-results/battle-player-processing-hold-g1-native.log
+          node tests/account-closure-privacy-test.mjs --native --scanner-hold --battle-player-hold | tee test-results/battle-player-processing-hold-g2-native.log
+          node tests/scanner-processing-hold-test.mjs --native --battle-player-hold | tee test-results/battle-player-processing-hold-g3-native.log
+          node tests/production-upgrade-rehearsal.mjs --native --trade-lock --data-export --processing-markers --closure-privacy --scanner-hold --battle-player-hold | tee test-results/battle-player-processing-hold-upgrade-native.log
+          node tests/account-data-export-collect-battle-test.mjs --native --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold | tee test-results/battle-player-processing-hold-export-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -207,6 +219,7 @@ jobs:
             test-results/account-processing-markers-*
             test-results/account-closure-privacy-*
             test-results/scanner-processing-hold-*
+            test-results/battle-player-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native.json
           if-no-files-found: error
   production_upgrade_p001:
