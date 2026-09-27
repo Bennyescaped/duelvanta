@@ -22,7 +22,7 @@ const tables=['auth.sessions','public.profiles','public.battle_matches','battle_
 async function snap(){await owner();const out={};for(const t of tables)out[t]=await scalar(`select coalesce(jsonb_agg(to_jsonb(x) order by to_jsonb(x)::text),'[]') v from ${t} x`);return out}
 async function hold(u,s){await owner();if(s==='processing')await db.query('update public.profiles set data_processing_restricted_at=now() where id=$1',[u]);if(s==='closure'){await claim(u);assert.equal((await scalar("select public.request_my_account_deletion('KONTO LÖSCHEN',$1) v",[uid(seq++)])).accepted,true)}await owner()}
 async function match(u=A,visibility='private',status='live'){await owner();const m=uid(seq++);await db.query("insert into public.battle_matches(id,host_id,guest_id,tcg,status,visibility) values($1,$2,$3,'pokemon',$4,$5)",[m,u,u===A?B:A,status,visibility]);return m}
-async function setup(u=A){const m=await match(u),other=u===A?B:A,tab=uid(seq++);await claim(u);const l=await scalar(link,[m,true]);await scalar(consent,[m,true]);await claim(other);const e=await scalar(consent,[m,true]);assert.equal(e.media_open,true);await claim(C);await db.query('select public.join_battle_spectator($1,$2,$3)',[m,tab,l.code]);await owner();await db.query('delete from battle_spectator_media_private.revocations where match_id=$1',[m]);return{m,other,tab,epoch:e.epoch}}
+async function setup(u=A,withViewer=true){const m=await match(u),other=u===A?B:A,tab=uid(seq++);await claim(u);const l=await scalar(link,[m,true]);await scalar(consent,[m,true]);await claim(other);const e=await scalar(consent,[m,true]);assert.equal(e.media_open,true);if(withViewer){await claim(C);await db.query('select public.join_battle_spectator($1,$2,$3)',[m,tab,l.code]);}await owner();await db.query('delete from battle_spectator_media_private.revocations where match_id=$1',[m]);return{m,other,tab,epoch:e.epoch}}
 const queue=async m=>{await owner();return(await db.query('select * from battle_spectator_media_private.revocations where match_id=$1 order by id',[m])).rows};
 async function checkWithdrawal(f,sql,u){await claim(u);const result=await scalar(sql,[f.m,false]);assert.equal(result.withdrawn,true);const q=await queue(f.m);assert.equal(q.length,1);assert.equal(q[0].epoch,f.epoch);assert.equal(q[0].reason,sql===link?'generation_changed':'player_withdrawal');assert.equal(await scalar('select media_open v from battle_spectator_media_private.epochs where match_id=$1',[f.m]),false);const before=await snap();await claim(u);assert.equal((await scalar(sql,[f.m,false])).withdrawn,false);assert.deepEqual(await snap(),before,'replay is state-identical');return before}
 async function browserScenario(browser,u,s,guest=false){
@@ -116,28 +116,29 @@ try{
  pass('eight actual HTML/Safety/withdrawal-module DOM + SQL scenarios: reachable own false, guest host-link absent, no status calls, no Arena release');
  if(process.argv.includes('--browser')){const {chromium}=await import('playwright');const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox']});try{for(const u of [A,B])for(const s of ['normal','processing','closure'])await tx(()=>browserScenario(browser,u,s));for(const u of [A,B])await tx(()=>browserScenario(browser,u,'closure',true))}finally{await browser.close()}pass('eight real Chromium / SQL-backed scenarios: normal hidden, A/B Hold/Closure host+guest withdrawal reachable outside Safety-hidden Arena, explicit false only, replay message')}
  if(native){
+  // Setter races need no viewer tabs; keep the existing spectator tab limit intact.
   const observer=await db.connect();
 
   async function race(c,sql,args,release,label,expected){const pid=(await c.query('select pg_backend_pid() pid')).rows[0].pid;const p=c.query(sql,args).then(r=>({ok:true,value:r.rows[0]?.v}),e=>({ok:false,error:e.message}));let waiting=false;for(let i=0;i<100;i++){if((await observer.query('select cardinality(pg_blocking_pids($1)) n',[pid])).rows[0].n){waiting=true;break}await new Promise(r=>setTimeout(r,20))}assert.equal(waiting,true,label+' must actually block');await release();const result=await p;expected(result);report.races.push({label,blocked:true,result});}
   for(const u of [A,B])for(const sql of [link,consent]){
-   const f=await setup(u),c=await db.connect();await db.exec('begin');await hold(u,'processing');await claim(u,'authenticated',{},c);
+   const f=await setup(u,false),c=await db.connect();await db.exec('begin');await hold(u,'processing');await claim(u,'authenticated',{},c);
    await race(c,sql,[f.m,true],()=>db.exec('commit'),'Hold vs true '+u+' '+(sql===link?'link':'consent'),r=>{assert.equal(r.ok,false);assert.match(r.error,/spectator_battle_access_required/)});
    await claim(u);await db.exec('begin');assert.equal((await scalar(sql,[f.m,false])).withdrawn,true);
    await race(c,sql,[f.m,false],()=>db.exec('commit'),'duplicate false '+u+' '+(sql===link?'link':'consent'),r=>{assert.equal(r.ok,true);assert.equal(r.value.withdrawn,false)});
    assert.equal((await queue(f.m)).length,1);await owner();await db.query('update public.profiles set data_processing_restricted_at=null where id=$1',[u]);
   }
   for(const u of [A,B]){
-   const f=await setup(u),c=await db.connect();await hold(u,'processing');await hold(f.other,'processing');await claim(u);await db.exec('begin');await scalar(consent,[f.m,false]);await claim(f.other,'authenticated',{},c);
+   const f=await setup(u,false),c=await db.connect();await hold(u,'processing');await hold(f.other,'processing');await claim(u);await db.exec('begin');await scalar(consent,[f.m,false]);await claim(f.other,'authenticated',{},c);
    await race(c,consent,[f.m,false],()=>db.exec('commit'),'host/guest simultaneous consent false '+u,r=>{assert.equal(r.ok,true);assert.equal(r.value.withdrawn,true)});assert.equal((await queue(f.m)).length,1);
    await owner();await db.query('update public.profiles set data_processing_restricted_at=null where id=any($1::uuid[])',[[u,f.other]]);
-   const status=await setup(u);await db.exec('begin');await owner();await db.query("update public.battle_matches set status='completed' where id=$1",[status.m]);await claim(u,'authenticated',{},c);
+   const status=await setup(u,false);await db.exec('begin');await owner();await db.query("update public.battle_matches set status='completed' where id=$1",[status.m]);await claim(u,'authenticated',{},c);
    await race(c,consent,[status.m,false],()=>db.exec('commit'),'status change vs false '+u,r=>{assert.equal(r.ok,false);assert.match(r.error,/spectator_media_player_only/)});
   }
   for(const u of [A,B]){
-   const f=await setup(u),c=await db.connect();await db.exec('begin');await hold(u,'processing');await claim(u,'authenticated',{},c);
+   const f=await setup(u,false),c=await db.connect();await db.exec('begin');await hold(u,'processing');await claim(u,'authenticated',{},c);
    await race(c,consent,[f.m,false],()=>db.exec('commit'),'Hold vs false '+u,r=>{assert.equal(r.ok,true);assert.equal(r.value.withdrawn,true)});
    await owner();await db.query('update public.profiles set data_processing_restricted_at=null where id=$1',[u]);
-   const f2=await setup(u);await owner();await db.exec('begin');await db.query('select id from public.battle_matches where id=$1 for update',[f2.m]);
+   const f2=await setup(u,false);await owner();await db.exec('begin');await db.query('select id from public.battle_matches where id=$1 for update',[f2.m]);
    await race(c,link,[f2.m,false],async()=>{await observer.query('delete from auth.sessions where id=$1',[sid(u)]);await db.exec('commit')},'session revoked while setter waits '+u,r=>{assert.equal(r.ok,false);assert.match(r.error,/spectator_session_unavailable/)});
    await db.query('insert into auth.sessions(id,user_id) values($1,$2)',[sid(u),u]);
   }
