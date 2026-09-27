@@ -93,6 +93,7 @@ jobs:
       - name: Independent spectator browser lifecycle and read-only UI
         run: |
           node tests/battle-spectator-withdrawal-test.mjs --browser
+          node tests/battle-spectator-withdrawal-test.mjs --browser --spectator-epoch-hold
           node tests/battle-spectator-browser-test.mjs
           node tests/battle-spectator-media-layout-test.mjs
       - name: Real WebRTC browser regression with isolated signaling

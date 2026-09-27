@@ -5,7 +5,7 @@ import {parseHTML} from 'linkedom';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {securitySchemaFixture,read} from './helpers/security-schema-fixture.mjs';
 import {signalSecurityQuery} from './generate-security-readiness.mjs';
-const native=process.argv.includes('--native');let db;
+const epochHold=process.argv.includes('--spectator-epoch-hold');const native=process.argv.includes('--native');let db;
 if(native){const {createDatabase}=await import('./helpers/f3-native-db.mjs');db=await createDatabase()}
 else{const {PGlite}=await import('@electric-sql/pglite'),{pgcrypto}=await import('@electric-sql/pglite/contrib/pgcrypto');db=new PGlite({extensions:{pgcrypto}})}
 const report={engine:native?'native-postgresql17':'pglite',version:db.version||null,synthetic:true,liveApplied:false,cases:[],races:[],browser:[],passed:false};
@@ -24,7 +24,7 @@ async function hold(u,s){await owner();if(s==='processing')await db.query('updat
 async function match(u=A,visibility='private',status='live'){await owner();const m=uid(seq++);await db.query("insert into public.battle_matches(id,host_id,guest_id,tcg,status,visibility) values($1,$2,$3,'pokemon',$4,$5)",[m,u,u===A?B:A,status,visibility]);return m}
 async function setup(u=A,withViewer=true){const m=await match(u),other=u===A?B:A,tab=uid(seq++);await claim(u);const l=await scalar(link,[m,true]);await scalar(consent,[m,true]);await claim(other);const e=await scalar(consent,[m,true]);assert.equal(e.media_open,true);if(withViewer){await claim(C);await db.query('select public.join_battle_spectator($1,$2,$3)',[m,tab,l.code]);}await owner();await db.query('delete from battle_spectator_media_private.revocations where match_id=$1',[m]);return{m,other,tab,epoch:e.epoch}}
 const queue=async m=>{await owner();return(await db.query('select * from battle_spectator_media_private.revocations where match_id=$1 order by id',[m])).rows};
-async function checkWithdrawal(f,sql,u){await claim(u);const result=await scalar(sql,[f.m,false]);assert.equal(result.withdrawn,true);const q=await queue(f.m);assert.equal(q.length,1);assert.equal(q[0].epoch,f.epoch);assert.equal(q[0].reason,sql===link?'generation_changed':'player_withdrawal');assert.equal(await scalar('select media_open v from battle_spectator_media_private.epochs where match_id=$1',[f.m]),false);const before=await snap();await claim(u);assert.equal((await scalar(sql,[f.m,false])).withdrawn,false);assert.deepEqual(await snap(),before,'replay is state-identical');return before}
+async function checkWithdrawal(f,sql,u){await claim(u);const held=await scalar('select data_processing_restricted_at is not null v from public.profiles where id=$1',[u]);const result=await scalar(sql,[f.m,false]);assert.equal(result.withdrawn,true);const q=await queue(f.m);assert.equal(q.length,1);assert.equal(q[0].epoch,f.epoch);assert.equal(q[0].reason,epochHold&&held?'processing_hold':sql===link?'generation_changed':'player_withdrawal');assert.equal(await scalar('select media_open v from battle_spectator_media_private.epochs where match_id=$1',[f.m]),false);const before=await snap();await claim(u);assert.equal((await scalar(sql,[f.m,false])).withdrawn,false);assert.deepEqual(await snap(),before,'replay is state-identical');return before}
 async function browserScenario(browser,u,s,guest=false){
  const f=await setup(guest?(u===A?B:A):u);await hold(u,s);const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage(),calls=[],errors=[];
  await page.route('**/*',r=>r.abort());page.on('pageerror',e=>errors.push(e.message));
@@ -79,6 +79,7 @@ try{
  assert.equal(after.length,before.length);assert.deepEqual(after.filter(x=>!before.some(y=>JSON.stringify(x)===JSON.stringify(y))).map(x=>x[1].split('(')[0]),['public.set_battle_spectator_link','public.set_battle_spectator_media_consent']);assert.deepEqual((await db.query(metadataSQL)).rows,metadata);
  assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,false);await db.exec(await read('database/battle-spectator-withdrawal-readiness-v1.sql'));assert.equal((await scalar('select public.get_market_legal_schema_readiness_v1() v')).compatible,true);
  pass('exactly two existing setter bodies; same signatures/ACL/Definer/owners; all other functions, RLS, tables, triggers and general status/eligibility unchanged; idempotent readiness');
+ if(epochHold){await db.exec(await read('database/battle-spectator-epoch-processing-hold-v1.sql'));await db.exec(await read('database/battle-spectator-epoch-processing-hold-readiness-v1.sql'));}
  await db.exec('update battle_spectator_media_private.config set media_enabled=true');
  for(const u of [A,B])for(const s of ['normal','processing','closure']){
   for(const sql of [link,consent])await tx(async()=>{const f=await setup(u);await hold(u,s);await claim(u);if(s!=='normal'){await deny(sql,[f.m,true]);for(const rpc of ['get_battle_spectator_status','get_battle_spectator_media_status','get_battle_spectator_media_publisher_admission'])await deny(`select public.${rpc}($1)`,[f.m]);}else{assert.ok(await scalar(sql,[f.m,true]));await claim(f.other);f.epoch=(await scalar('select public.get_battle_spectator_media_status($1) v',[f.m])).epoch;await owner();await db.query('delete from battle_spectator_media_private.revocations where match_id=$1',[f.m])}
@@ -146,4 +147,4 @@ try{
  }
  await owner();assert.equal((await scalar('select public.get_market_legal_schema_readiness_v1() v')).compatible,true);report.passed=true;
 }catch(e){report.error={message:e.message,detail:e.detail,where:e.where,stack:e.stack};console.error(report.error);process.exitCode=1}
-finally{try{await db.exec('rollback');await owner()}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-spectator-withdrawal-${native?'native':'wasm'}.json`,JSON.stringify(report,null,2))}
+finally{try{await db.exec('rollback');await owner()}catch{}await db.close();report.cleanup='disposable database closed/deleted';await mkdir('test-results',{recursive:true});await writeFile(`test-results/battle-spectator-withdrawal-${native?'native':'wasm'}${epochHold?'-d2':''}.json`,JSON.stringify(report,null,2))}

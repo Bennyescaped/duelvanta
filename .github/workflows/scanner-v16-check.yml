@@ -70,6 +70,8 @@ on:
       - 'tests/battle-player-processing-hold-*.mjs'
       - 'database/battle-spectator-withdrawal-*'
       - 'tests/battle-spectator-withdrawal-*.mjs'
+      - 'database/battle-spectator-epoch-processing-hold-*'
+      - 'tests/battle-spectator-epoch-processing-hold-*.mjs'
       - 'database/battle-signal-processing-hold-*'
       - 'tests/battle-signal-processing-hold-*.mjs'
       - 'tests/scanner-processing-hold-*.mjs'
@@ -236,6 +238,19 @@ jobs:
           node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-scanner-processing-hold-test.log
           node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-account-data-export-collect-battle-test.log
           node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal | tee test-results/battle-spectator-withdrawal-production-upgrade-rehearsal.log
+      - name: D2 epoch closure and complete G1-G5 D1 T2 regression on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --check --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-generate-security-readiness.log
+          node tests/battle-spectator-epoch-processing-hold-test.mjs --native | tee test-results/battle-spectator-epoch-processing-hold-native.log
+          node tests/battle-spectator-withdrawal-test.mjs --native --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-battle-spectator-withdrawal-test.log
+          node tests/battle-signal-processing-hold-test.mjs --native --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-battle-signal-processing-hold-test.log
+          node tests/battle-player-processing-hold-test.mjs --native --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-battle-player-processing-hold-test.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-account-processing-markers-test.log
+          node tests/account-closure-privacy-test.mjs --native --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-account-closure-privacy-test.log
+          node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-scanner-processing-hold-test.log
+          node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-account-data-export-collect-battle-test.log
+          node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-production-upgrade-rehearsal.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -248,8 +263,9 @@ jobs:
             test-results/scanner-processing-hold-*
             test-results/battle-player-processing-hold-*
             test-results/battle-spectator-withdrawal-*
+            test-results/battle-spectator-epoch-processing-hold-*
             test-results/battle-signal-processing-hold-*
-            test-results/production-trade-lock-synthetic-existing-native.json
+            test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
   production_upgrade_p001:
     runs-on: ubuntu-latest
