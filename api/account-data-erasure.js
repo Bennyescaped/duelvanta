@@ -38,6 +38,8 @@ module.exports=async function handler(req,res){
   let completed=0,failed=0;
   for(const row of rows||[]){
     try{
+      // A separate successful RPC commits the monotone phase before any erasure.
+      await rpc(base,key,'enter_account_deletion_prepare',{p_request_id:row.request_id,p_lock_token:row.delivery_lock_token});
       const plan=await rpc(base,key,'prepare_account_deletion_data',{p_request_id:row.request_id,p_lock_token:row.delivery_lock_token});
       for(const item of row.storage_manifest||[])await removeStorageObject(base,key,item);
       await applyAuthAction(base,key,row.user_id,plan.auth_action);

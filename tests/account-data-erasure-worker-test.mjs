@@ -12,3 +12,20 @@ try{
   assert.ok(requests.some(item=>item.url.includes('finish_account_deletion_request')));
   console.log('PASS: erasure worker is disabled by default and performs mocked storage/auth cleanup with audit completion');
 }finally{global.fetch=originalFetch;for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];Object.assign(process.env,originalEnv)}
+// C gate failures must stop every subsequent destructive request, even a
+// committed phase response lost in transport. No external calls are made.
+try{
+ Object.assign(process.env,{ACCOUNT_DATA_ERASURE_ENABLED:'true',ACCOUNT_DATA_ERASURE_SECRET:'worker-secret',SUPABASE_URL:'https://xhmjxrcskfhbovhitdej.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'service-test'});
+ for(const failure of ['enter_account_deletion_prepare','prepare_account_deletion_data','storage','auth']){
+ const seen=[];global.fetch=async(url,options)=>{url=String(url);seen.push({url,method:options.method});
+ if(url.includes('claim_account_deletion_requests'))return new Response(JSON.stringify([{request_id:'r',user_id:'u',storage_manifest:[{bucket:'collection-cards',path:'u/a'}],delivery_lock_token:'t'}]));
+ if(url.includes(failure==='storage'?'/storage/':failure==='auth'?'/auth/':failure))return new Response('synthetic failure',{status:409});
+ if(url.includes('prepare_account_deletion_data'))return new Response(JSON.stringify({auth_action:'delete'}));return new Response('null');};
+ const r=response();await handler({method:'POST',headers:{authorization:'Bearer worker-secret'}},r);assert.equal(r.body.failed,1);
+ if(failure==='enter_account_deletion_prepare')assert.equal(seen.some(x=>x.url.includes('prepare_account_deletion_data')),false);
+ if(['enter_account_deletion_prepare','prepare_account_deletion_data'].includes(failure))assert.equal(seen.some(x=>x.url.includes('/storage/')||x.url.includes('/auth/')),false);
+ if(failure==='storage')assert.equal(seen.some(x=>x.url.includes('/auth/')),false);
+ assert.ok(seen.some(x=>x.url.includes('finish_account_deletion_request')));
+ }
+ console.log('PASS: C committed-entry/prepare/storage failures stop later external steps; failure retained');
+}finally{global.fetch=originalFetch;for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];Object.assign(process.env,originalEnv);}

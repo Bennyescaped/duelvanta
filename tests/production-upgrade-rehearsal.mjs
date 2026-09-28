@@ -19,7 +19,7 @@ try {
  create schema auth;create schema storage;create schema extensions;create publication supabase_realtime;
  create extension pgcrypto with schema extensions;
  create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}',raw_app_meta_data jsonb default '{}',created_at timestamptz default now(),updated_at timestamptz default now(),email_confirmed_at timestamptz,encrypted_password text);
- create table auth.sessions(id uuid primary key,user_id uuid not null,factor_id uuid,aal text,not_after timestamptz);
+ create table auth.sessions(id uuid primary key,user_id uuid not null,factor_id uuid,aal text,not_after timestamptz,created_at timestamptz default clock_timestamp());
  create table auth.mfa_factors(id uuid primary key,user_id uuid not null,status text not null);
  create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
  create function auth.uid() returns uuid language sql stable as $$select coalesce(nullif(auth.jwt()->>'sub',''),nullif(current_setting('request.jwt.claim.sub',true),''))::uuid$$;
@@ -117,6 +117,8 @@ try {
   await db.exec(await read('database/publication-processing-hold-v1.sql'));
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
  if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+ if(process.argv.includes('--c-withdrawal')){await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));}
+
 
  }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];

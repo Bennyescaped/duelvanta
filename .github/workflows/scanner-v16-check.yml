@@ -62,6 +62,9 @@ on:
       - 'database/market-checkout-compliance-*.sql'
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
+      - 'database/account-deletion-*'
+      - 'account-deletion-withdrawal.*'
+      - 'tests/account-deletion-*'
       - 'database/account-data-export-*'
       - 'database/account-processing-markers-*'
       - 'database/account-closure-privacy-*'
@@ -298,6 +301,11 @@ jobs:
         run: |
           node tests/battle-safety-regressions.mjs --native
           node tests/battle-safety-browser-contract-test.mjs test-results/battle-safety-sanctions-native.json
+      - name: C own withdrawal, committed Prepare boundary and complete candidate regression
+        run: |
+          node tests/account-deletion-withdrawal-regressions.mjs --native
+          node tests/account-deletion-withdrawal-browser-test.mjs
+          node tests/account-data-erasure-worker-test.mjs
       - name: D3 existing-source temporal evidence on native PostgreSQL 17
         run: |
           set -o pipefail
@@ -320,6 +328,9 @@ jobs:
             test-results/staff-processing-hold-*
             test-results/battle-safety-*
             test-results/b1-regression*
+            test-results/c-withdrawal-regression*
+            test-results/c-withdrawal-chromium/
+            test-results/account-deletion-withdrawal-*
             test-results/publication-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
@@ -575,6 +586,8 @@ jobs:
           npm audit --audit-level=high --prefix .github/ci
           ln -s .github/ci/node_modules node_modules
           .github/ci/node_modules/.bin/playwright install chromium
+      - name: C withdrawal Chromium Auth and MFA contract
+        run: node tests/account-deletion-withdrawal-chromium-test.mjs
       - name: Battle and profile database access boundaries
         run: node tests/auth-boundary-database-test.mjs
       - name: Step 9A MFA browser and Edge service boundary
@@ -604,6 +617,7 @@ jobs:
           node --check api/market-stripe-refund.js
           node --check profile.js
           node --check profile-data-rights.js
+          node --check account-deletion-withdrawal.js
           node tests/runtime-routing-contract-test.mjs
           node tests/account-home-battle-live-test.mjs
           node tests/trade-sale-only-test.mjs
@@ -631,6 +645,7 @@ jobs:
           node tests/account-data-rights-contract-test.mjs
           node tests/account-data-rights-database-test.mjs
           node tests/account-data-erasure-worker-test.mjs
+          node tests/account-deletion-withdrawal-browser-test.mjs
           node tests/account-data-erasure-username-guard-test.mjs "$PWD/node_modules/@electric-sql/pglite/dist/index.js"
           node tests/account-data-rights-ui-test.mjs "$PWD/node_modules/linkedom/esm/index.js"
           node tests/market-stripe-connect-contract-test.mjs

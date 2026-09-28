@@ -38,6 +38,8 @@ try{
  await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));
  assert.equal((await scalar('select get_security_schema_readiness_v1() v')).compatible,true);
  assert.equal((await scalar('select get_market_legal_schema_readiness_v1() v')).compatible,true);
+ if(process.argv.includes('--c-withdrawal')){await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));}
+
  await tx('normal restriction; exact audit/report binding; immutable originals; idempotent undo',async()=>{
   const {r,id}=await sanction();assert.equal(await safety(),true);
   const audit=await scalar("select details v from admin_audit_log where details->>'report_id'=$1",[r]);assert.equal(audit.sanction_id,id);

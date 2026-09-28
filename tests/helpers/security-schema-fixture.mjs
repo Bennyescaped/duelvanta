@@ -11,7 +11,7 @@ export async function securitySchemaFixture(db){
  create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
  create or replace function auth.uid() returns uuid language sql stable as $$select nullif(auth.jwt()->>'sub','')::uuid$$;
  create table auth.mfa_factors(id uuid primary key,user_id uuid not null,status text not null);
- create table auth.sessions(id uuid primary key,user_id uuid not null,factor_id uuid,aal text,not_after timestamptz);
+ create table auth.sessions(id uuid primary key,user_id uuid not null,factor_id uuid,aal text,not_after timestamptz,created_at timestamptz default clock_timestamp());
  revoke all on all tables in schema auth from public,anon,authenticated,service_role;`);
  for(const file of ['database/collect-scanner-v16-weekly-quota.sql','database/collect-scanner-v16-owner-control.sql',
  'database/battle-spectator-foundation-v1.sql','database/battle-spectator-media-v1.sql','database/battle-spectator-media-reconciler-v1.sql',

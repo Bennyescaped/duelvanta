@@ -80,6 +80,8 @@ try{
   await db.exec(await read('database/publication-processing-hold-v1.sql'));
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
  if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+ if(process.argv.includes('--c-withdrawal')){await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));}
+
 
  }
  for(const u of users)for(const s of ['normal','processing','closure','safety']){
