@@ -63,6 +63,8 @@ on:
       - 'database/market-tax-transparency-*.sql'
       - 'database/account-data-rights-*.sql'
       - 'database/account-deletion-*'
+      - 'database/account-erasure-l1-*'
+      - 'tests/account-erasure-l1-*'
       - 'account-deletion-withdrawal.*'
       - 'tests/account-deletion-*'
       - 'database/account-data-export-*'
@@ -306,6 +308,10 @@ jobs:
           node tests/account-deletion-withdrawal-regressions.mjs --native
           node tests/account-deletion-withdrawal-browser-test.mjs
           node tests/account-data-erasure-worker-test.mjs
+      - name: L1 fixed Erasure reduction and complete native C-chain regression
+        run: |
+          node tests/account-erasure-l1-regressions.mjs --native
+          node tests/account-data-erasure-worker-test.mjs
       - name: D3 existing-source temporal evidence on native PostgreSQL 17
         run: |
           set -o pipefail
@@ -328,6 +334,8 @@ jobs:
             test-results/staff-processing-hold-*
             test-results/battle-safety-*
             test-results/b1-regression*
+            test-results/l1-erasure-regression*
+            test-results/account-erasure-l1-*
             test-results/c-withdrawal-regression*
             test-results/c-withdrawal-chromium/
             test-results/account-deletion-withdrawal-*

@@ -39,6 +39,7 @@ try{
  assert.equal((await scalar('select get_security_schema_readiness_v1() v')).compatible,true);
  assert.equal((await scalar('select get_market_legal_schema_readiness_v1() v')).compatible,true);
  if(process.argv.includes('--c-withdrawal')){await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));}
+ if(process.argv.includes('--l1-erasure')){await db.exec(await read('database/account-erasure-l1-v1.sql'));await db.exec(await read('database/account-erasure-l1-readiness-v1.sql'));}
 
  await tx('normal restriction; exact audit/report binding; immutable originals; idempotent undo',async()=>{
   const {r,id}=await sanction();assert.equal(await safety(),true);

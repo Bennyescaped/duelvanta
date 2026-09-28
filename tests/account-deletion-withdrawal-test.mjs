@@ -13,7 +13,7 @@ const requestSQL="select request_my_account_deletion('KONTO LÖSCHEN',$1) v",wit
 const snapshots=['auth.users','public.market_seller_accounts','dv_market_private.account_deletion_holds','public.battle_reports','public.battle_matches','public.battle_ratings','public.battle_rating_events','public.admin_audit_log','dv_market_private.battle_safety_causes','dv_market_private.battle_safety_releases'];
 async function snap(){await admin(db);const o={};for(const t of snapshots)o[t]=await scalar(`select coalesce(jsonb_agg(to_jsonb(x) order by to_jsonb(x)::text),'[]') v from ${t} x`);return o;}
 async function request(u=B){await claim(db,u);return (await scalar(requestSQL,[randomUUID()])).request_id;}
-async function reauth(r,u=B,c=db){await claim(c,u);const ch=await scalar('select begin_my_account_deletion_withdrawal($1) v',[r],c);await admin(c);const s=randomUUID();await c.query("insert into auth.sessions(id,user_id,factor_id,aal,created_at) values($1,$2,$3,'aal2',clock_timestamp())",[s,u,fid(u)]);await claim(c,u,'authenticated',{session_id:s});return {ch,s};}
+async function reauth(r,u=B,c=db){await claim(c,u);const ch=await scalar('select begin_my_account_deletion_withdrawal($1) v',[r],c);await delay(5);await admin(c);const s=randomUUID();await c.query("insert into auth.sessions(id,user_id,factor_id,aal,created_at) values($1,$2,$3,'aal2',clock_timestamp())",[s,u,fid(u)]);await claim(c,u,'authenticated',{session_id:s});return {ch,s};}
 async function withdraw(r,auth,u=B,c=db){await claim(c,u,'authenticated',{session_id:auth.s});return scalar(withdrawSQL,[r,auth.ch],c);}
 async function worker(r,c=db){await claim(c,null,'service_role');const token=randomUUID();const rows=(await c.query('select * from claim_account_deletion_requests(20,$1)',[token])).rows;assert.ok(rows.some(x=>x.request_id===r));return token;}
 async function deny(fn,re){await db.exec('savepoint denied');let error;try{await fn();}catch(e){error=e;await db.exec('rollback to savepoint denied');}await db.exec('release savepoint denied');assert.ok(error,'expected denial');assert.match(error.message,re);}
@@ -24,6 +24,7 @@ try{
  for(const f of ['publication-processing-hold-v1','publication-processing-hold-readiness-v1','battle-safety-sanctions-v1','battle-safety-sanctions-readiness-v1','account-deletion-withdrawal-v1'])await db.exec(await read('database/'+f+'.sql'));
  await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));
  await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));
+ if(process.argv.includes('--l1-erasure')){await db.exec(await read('database/account-erasure-l1-v1.sql'));await db.exec(await read('database/account-erasure-l1-readiness-v1.sql'));}
  out.L2=await fks();assert.deepEqual(out.L2,originalFK,'C does not change Auth/Profile/BATTLE deletion cascades');
  assert.equal((await scalar('select get_security_schema_readiness_v1() v')).compatible,true);
  assert.equal((await scalar('select get_market_legal_schema_readiness_v1() v')).compatible,true);
@@ -86,11 +87,13 @@ try{
  await claim(db,B,'postgres',{session_id:a.s,role:'authenticated'});await deny(()=>scalar(withdrawSQL,[r,a.ch]),/self_authenticated/);
  await admin(db);await db.query('delete from auth.sessions where id=$1',[a.s]);await claim(db,B,'authenticated',{session_id:a.s});await deny(()=>scalar(withdrawSQL,[r,a.ch]),/session_invalid/);
  });
- // Committed entry must survive a failed/rolled-back data transaction (L1 stays open).
+ // Committed entry survives any later data-transaction error, including with L1 installed.
  const r=await request(A),a=await reauth(r,A),t=await worker(r);await db.query(enterSQL,[r,t]);
- await db.exec('begin');await deny(()=>db.query('select prepare_account_deletion_data($1,$2)',[r,t]),/account_publication_processing_restricted|username/);await db.exec('rollback');
+ if(process.argv.includes('--l1-erasure')){await admin(db);await db.exec("create function public.l1_fixture_failure() returns trigger language plpgsql as $$begin raise exception 'synthetic_prepare_failure';end$$;create trigger zz_l1_fixture_failure before update on profiles for each row execute function public.l1_fixture_failure();");await claim(db,null,'service_role');}
+ await db.exec('begin');await deny(()=>db.query('select prepare_account_deletion_data($1,$2)',[r,t]),process.argv.includes('--l1-erasure')?/synthetic_prepare_failure/:/account_publication_processing_restricted|username/);await db.exec('rollback');
+ if(process.argv.includes('--l1-erasure')){await admin(db);await db.exec('drop trigger zz_l1_fixture_failure on profiles;drop function public.l1_fixture_failure()');}
  await claim(db,null,'service_role');await db.query('select finish_account_deletion_request($1,$2,false,$3)',[r,t,'Known L1 guard']);
- await tx('committed Prepare entry + rollback + failed permanently rejects withdrawal; L1 unrepaired',async()=>{await deny(()=>withdraw(r,a,A),/prepare_or_history/);});
+ await tx('committed Prepare entry + rollback + failed permanently rejects withdrawal',async()=>{await deny(()=>withdraw(r,a,A),/prepare_or_history/);});
  if(native){
  let n=7000;
  async function fresh(){await admin(db);const u=uid(n++);await db.query('insert into auth.users(id,email) values($1,$2)',[u,u+'@example.invalid']);await db.query("insert into profiles(id,email,role,account_status,username) values($1,$2,'player','active',$3)",[u,u+'@example.invalid','race'+n]);await db.query("insert into auth.mfa_factors values($1,$2,'verified')",[fid(u),u]);await db.query("insert into auth.sessions(id,user_id,factor_id,aal) values($1,$2,$3,'aal2')",[sid(u),u,fid(u)]);const r=await request(u),auth=await reauth(r,u);return {u,r,auth};}

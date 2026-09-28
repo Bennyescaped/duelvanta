@@ -91,6 +91,7 @@ try{
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
  if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
  if(process.argv.includes('--c-withdrawal')){await db.exec(await read('database/account-deletion-withdrawal-v1.sql'));await db.exec(await read('database/account-deletion-withdrawal-readiness-v1.sql'));}
+ if(process.argv.includes('--l1-erasure')){await db.exec(await read('database/account-erasure-l1-v1.sql'));await db.exec(await read('database/account-erasure-l1-readiness-v1.sql'));}
 
 
  }

@@ -6,6 +6,8 @@ on:
       - 'control-center*.js'
       - 'database/battle-safety-*'
       - 'database/account-deletion-*'
+      - 'database/account-erasure-l1-*'
+      - 'tests/account-erasure-l1-*'
       - 'tests/account-deletion-*'
       - 'account-deletion-withdrawal.*'
       - 'battle*.html'
