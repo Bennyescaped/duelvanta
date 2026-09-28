@@ -51,15 +51,16 @@ try{
  for(const swap of [false,true]){
   // An actual RPC starts before the Hold, blocked in its existing legacy permission SELECT.
   // The report does not yet exist. Only the authentic reporter's broad INSERT supplies its ID.
-  for(const fake of [false,true]){
+  for(const fake of [false,'created_only','all_fields']){
    const f=await fixture(swap),id=uid(seq++),staff=await conn(J),holder=await conn(f.target),reporter=await conn(f.reporter),lock=await conn(O,'postgres');
    await lock.query('begin;lock table public.staff_permissions in access exclusive mode');
    await staff.query('begin');await event('staff begins before report/Hold',staff);
    const task=await pending(staff,"select public.review_battle_report($1,'review','native temporal evidence') v",[id]);await blocked(task,'review permission lock before Hold');
    await closure(holder,f,'real Closure completed');await event('Closure committed',holder);
-   await reporter.query(`insert into public.battle_reports(id,match_id,reporter_id,reported_user_id,category${fake?',created_at,status,reviewer_id,reviewing_at,resolved_at,resolution_action':''}) values($1,$2,$3,$4,'other'${fake?",'2000-01-01','reviewing',$5,'2000-01-02','2000-01-03','restrict'":''})`,fake?[id,f.m,f.reporter,f.target,O]:[id,f.m,f.reporter,f.target]);
+   const full=fake==='all_fields';
+   await reporter.query(`insert into public.battle_reports(id,match_id,reporter_id,reported_user_id,category${full?',created_at,status,reviewer_id,reviewing_at,resolved_at,resolution_action':fake?',created_at':''}) values($1,$2,$3,$4,'other'${full?",'2000-01-01','reviewing',$5,'2000-01-02','2000-01-03','restrict'":fake?",'2000-01-01'":''})`,full?[id,f.m,f.reporter,f.target,O]:[id,f.m,f.reporter,f.target]);
    await event('new report committed after Closure',reporter);await lock.query('commit');assert.equal(await finish(task),'review');await staff.query('commit');await event('old staff transaction committed',staff);
-   const state=await reportState(id);assert.equal(state.audits.length,1);assert.equal(state.audits[0].before_hold,true);assert.equal(state.report_time_before_hold,fake);assert.equal(state.reviewer_id,J);
+   const state=await reportState(id);assert.equal(state.audits.length,1);assert.equal(state.audits[0].before_hold,true);assert.equal(state.report_time_before_hold,!!fake);assert.equal(state.reviewer_id,J);
    output.cases.push({kind:'report_created_after_hold_old_waiting_review',swap,fake,state,conclusion:'audit timestamp is a false positive; report fields are spoofable'});
   }
   for(const auditBefore of [false,true]){
