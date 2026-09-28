@@ -148,7 +148,7 @@ try{
    await claim(u,'authenticated',writer);const pid=(await writer.query('select pg_backend_pid() pid')).rows[0].pid;
    const pending=(i===0?rpc('public',writer):writer.query("update public.profiles set collection_visibility='custom' where id=$1",[u])).then(()=>({ok:true}),e=>({ok:false,error:e.message}));
    let blocked=false;for(let k=0;k<100;k++){if((await observer.query('select cardinality(pg_blocking_pids($1)) n',[pid])).rows[0].n>0){blocked=true;break}await new Promise(r=>setTimeout(r,20))}
-   assert.equal(blocked,true);await db.exec('commit;reset role');const r=await pending;assert.equal(r.ok,false);assert.match(r.error,/account_closure_collection_private/);
+   assert.equal(blocked,true);await db.exec('commit;reset role');const r=await pending;assert.equal(r.ok,false);assert.match(r.error,process.argv.includes('--publication-hold')?/account_publication_processing_restricted/:/account_closure_collection_private/);
    assert.equal((await profile(u)).collection_visibility,'private');assert.equal(await visible(u),0);
    pass(`native ${i===0?'RPC public':'DML custom'} waiting behind real Closure commit cannot republish`);
   }
