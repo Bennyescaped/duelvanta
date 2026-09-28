@@ -186,6 +186,11 @@ try{
   // Start the client UPDATE while an internal marker transaction holds the row.
   // PostgreSQL must use the actual locked OLD row after that transaction commits.
   const writer=await db.connect(),observer=await db.connect();
+  if(process.argv.includes('--l1-erasure')){
+   await claim(A,'authenticated',writer);
+   assert.equal((await writer.query("select has_schema_privilege('dv_market_private','USAGE') allowed")).rows[0].allowed,false);
+   await writer.query("update public.profiles set display_name='G1 fresh invoker session' where id=$1",[A]);
+  }
   await db.exec('begin');await db.query('update public.profiles set data_processing_restricted_at=now(),account_closure_requested_at=now() where id=$1',[A]);
   await claim(A,'authenticated',writer);const pid=(await writer.query('select pg_backend_pid() pid')).rows[0].pid;
   const pending=writer.query('update public.profiles set data_processing_restricted_at=null,account_closure_requested_at=null where id=$1',[A]).then(()=>({ok:true}),e=>({ok:false,error:e.message}));

@@ -86,9 +86,15 @@ $body$;
   'dv_market_private.d4_protect_public_profile()'::regprocedure,
   'public.guard_profile_username_direct_update()'::regprocedure
  ) loop
+  -- A fresh invoker session may have no USAGE on this private schema.
+  -- Skip the private lookup in that case and run the original guard. Schema
+  -- access is never authorization: a positive bound capability is still needed.
   if position('l1_profile_reduction_allowed' in f.prosrc)=0 then
-   body:=regexp_replace(f.prosrc,'\mbegin\M',E'begin\n if dv_market_private.l1_profile_reduction_allowed(old,new) then return new;end if;','i');
+   body:=regexp_replace(f.prosrc,'\mbegin\M',E'begin\n if pg_catalog.has_schema_privilege(''dv_market_private'',''USAGE'') then\n  if dv_market_private.l1_profile_reduction_allowed(old,new) then return new;end if;\n end if;','i');
    if body=f.prosrc then raise exception 'unexpected_l1_guard_baseline';end if;
+   execute replace(f.definition,f.prosrc,body);
+  elsif position('has_schema_privilege' in f.prosrc)=0 then
+   body:=replace(f.prosrc,E'\n if dv_market_private.l1_profile_reduction_allowed(old,new) then return new;end if;',E'\n if pg_catalog.has_schema_privilege(''dv_market_private'',''USAGE'') then\n  if dv_market_private.l1_profile_reduction_allowed(old,new) then return new;end if;\n end if;');
    execute replace(f.definition,f.prosrc,body);
   end if;
  end loop;
