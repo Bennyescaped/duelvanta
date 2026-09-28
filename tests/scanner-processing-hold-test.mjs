@@ -94,6 +94,11 @@ try{
   await db.exec(await read('database/battle-spectator-epoch-processing-hold-v1.sql'));
   await db.exec(await read('database/battle-spectator-epoch-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--staff-hold')){
+  if(!process.argv.includes('--spectator-epoch-hold'))throw Error('D3 regression requires D2');
+  await db.exec(await read('database/staff-processing-hold-v1.sql'));
+  await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
+ }
  for(const u of users)for(const state of ['normal','hold','closure']){
   const other=u===A?B:A;await db.exec('begin');if(state!=='normal')await hold(u,state==='closure');
   const before=await ledger();await claim(u);const b=await budget();assert.equal(b.processingRestricted,state!=='normal');assert.equal(b.enabled,state==='normal');

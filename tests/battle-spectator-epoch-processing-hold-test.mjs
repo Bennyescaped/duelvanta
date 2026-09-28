@@ -46,7 +46,12 @@ try{
  await tx(async()=>{await db.exec('alter table public.profiles disable trigger battle_spectator_epoch_processing_hold');assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,false)});
  await tx(async()=>{await db.exec('drop trigger battle_spectator_epoch_processing_hold on public.profiles');assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,false)});
  pass('one replaced private sync, two non-callable private helpers, one profile trigger; ACL/owner/signatures preserved; readiness fingerprints trigger, idempotent candidate');
- await db.exec('update battle_spectator_media_private.config set media_enabled=true');
+
+ if(process.argv.includes('--staff-hold')){
+  if(!process.argv.includes('--spectator-epoch-hold'))throw Error('D3 regression requires D2');
+  await db.exec(await read('database/staff-processing-hold-v1.sql'));
+  await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
+ } await db.exec('update battle_spectator_media_private.config set media_enabled=true');
  for(const u of [A,B])for(const s of ['normal','processing','closure'])await tx(async()=>{
   const f=await setup(),before=await snap();await hold(u,s);const peer=u===A?B:A;
   if(s==='normal'){assert.equal((await state(f)).epoch.media_open,true);assert.equal((await state(f)).queue.length,0);await claim(peer);assert.equal((await scalar(publisher,[f.m])).epoch,f.epoch);await claim(C);assert.equal((await scalar(viewer,[f.m,f.tab])).epoch,f.epoch)}

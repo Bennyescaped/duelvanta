@@ -73,6 +73,8 @@ on:
       - 'database/battle-spectator-epoch-processing-hold-*'
       - 'tests/battle-spectator-epoch-processing-hold-*.mjs'
       - 'tests/battle-d3-temporal-*.mjs'
+      - 'database/staff-processing-hold-*'
+      - 'tests/staff-processing-hold-*.mjs'
       - 'database/battle-signal-processing-hold-*'
       - 'tests/battle-signal-processing-hold-*.mjs'
       - 'tests/scanner-processing-hold-*.mjs'
@@ -252,6 +254,20 @@ jobs:
           node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-scanner-processing-hold-test.log
           node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-account-data-export-collect-battle-test.log
           node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-production-upgrade-rehearsal.log
+      - name: D3 closed subset and full G1-G5 D1 D2 T2 regression on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/staff-processing-hold-test.mjs --native | tee test-results/staff-processing-hold-native.log
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --check --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-generate-security-readiness.log
+          node tests/battle-spectator-epoch-processing-hold-test.mjs --native --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-native.log
+          node tests/battle-spectator-withdrawal-test.mjs --native --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-battle-spectator-withdrawal-test.log
+          node tests/battle-signal-processing-hold-test.mjs --native --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-battle-signal-processing-hold-test.log
+          node tests/battle-player-processing-hold-test.mjs --native --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-battle-player-processing-hold-test.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-account-processing-markers-test.log
+          node tests/account-closure-privacy-test.mjs --native --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-account-closure-privacy-test.log
+          node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-scanner-processing-hold-test.log
+          node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-account-data-export-collect-battle-test.log
+          node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-production-upgrade-rehearsal.log
       - name: D3 existing-source temporal evidence on native PostgreSQL 17
         run: |
           set -o pipefail
@@ -271,6 +287,7 @@ jobs:
             test-results/battle-spectator-epoch-processing-hold-*
             test-results/battle-signal-processing-hold-*
             test-results/battle-d3-temporal-*
+            test-results/staff-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
   production_upgrade_p001:

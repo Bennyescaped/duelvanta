@@ -107,6 +107,11 @@ try {
   await db.exec(await read('database/battle-spectator-epoch-processing-hold-v1.sql'));
   await db.exec(await read('database/battle-spectator-epoch-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--staff-hold')){
+  if(!process.argv.includes('--spectator-epoch-hold'))throw Error('D3 regression requires D2');
+  await db.exec(await read('database/staff-processing-hold-v1.sql'));
+  await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
+ }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
   assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);
   await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:'10000000-0000-4000-8000-000000000003',role:'authenticated',aal:'aal1'})]);
