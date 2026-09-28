@@ -72,6 +72,7 @@ on:
       - 'tests/battle-spectator-withdrawal-*.mjs'
       - 'database/battle-spectator-epoch-processing-hold-*'
       - 'tests/battle-spectator-epoch-processing-hold-*.mjs'
+      - 'tests/battle-d3-temporal-*.mjs'
       - 'database/battle-signal-processing-hold-*'
       - 'tests/battle-signal-processing-hold-*.mjs'
       - 'tests/scanner-processing-hold-*.mjs'
@@ -251,6 +252,10 @@ jobs:
           node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-scanner-processing-hold-test.log
           node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-account-data-export-collect-battle-test.log
           node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold | tee test-results/battle-spectator-epoch-processing-hold-production-upgrade-rehearsal.log
+      - name: D3 existing-source temporal evidence on native PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/battle-d3-temporal-evidence-test.mjs | tee test-results/battle-d3-temporal-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -265,6 +270,7 @@ jobs:
             test-results/battle-spectator-withdrawal-*
             test-results/battle-spectator-epoch-processing-hold-*
             test-results/battle-signal-processing-hold-*
+            test-results/battle-d3-temporal-*
             test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
   production_upgrade_p001:
