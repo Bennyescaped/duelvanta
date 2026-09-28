@@ -57,6 +57,8 @@ try{
  if(process.argv.includes('--publication-hold')){
   await db.exec(await read('database/publication-processing-hold-v1.sql'));
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+
  }
  assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,true);
  assert.equal((await scalar('select public.get_market_legal_schema_readiness_v1() v')).compatible,true);

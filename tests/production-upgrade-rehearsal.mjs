@@ -116,6 +116,8 @@ try {
   if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
   await db.exec(await read('database/publication-processing-hold-v1.sql'));
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+
  }
   const r=(await db.query('select public.get_security_schema_readiness_v1() security,public.get_market_legal_schema_readiness_v1() legal')).rows[0];
   assert.equal(r.security.compatible,true);assert.equal(r.legal.compatible,true);

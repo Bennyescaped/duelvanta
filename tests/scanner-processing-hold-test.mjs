@@ -103,6 +103,8 @@ try{
   if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
   await db.exec(await read('database/publication-processing-hold-v1.sql'));
   await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+
  }
  for(const u of users)for(const state of ['normal','hold','closure']){
   const other=u===A?B:A;await db.exec('begin');if(state!=='normal')await hold(u,state==='closure');

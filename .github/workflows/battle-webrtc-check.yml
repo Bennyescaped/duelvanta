@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'battle*.js'
+      - 'control-center*.js'
+      - 'database/battle-safety-*'
       - 'battle*.html'
       - 'battle-spectator.css'
       - 'database/battle-spectator-*.sql'

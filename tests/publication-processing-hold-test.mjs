@@ -29,12 +29,15 @@ try{
  await db.exec(await read('database/publication-processing-hold-v1.sql'));await db.exec(await read('database/publication-processing-hold-v1.sql'));
  assert.equal((await q('select get_security_schema_readiness_v1() v')).rows[0].v.compatible,false);
  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ if(process.argv.includes('--b1-safety')){await db.exec(await read('database/battle-safety-sanctions-v1.sql'));await db.exec(await read('database/battle-safety-sanctions-readiness-v1.sql'));}
+
  const oldStorage=(await q("select policyname,cmd,qual,with_check from pg_policies where schemaname='storage' order by policyname")).rows;
  await db.exec(await read('database/publication-image-write-hold-v1.sql'));await db.exec(await read('database/publication-image-write-hold-v1.sql'));
  const newStorage=(await q("select policyname,cmd,qual,with_check from pg_policies where schemaname='storage' and policyname not like 'd4_%' order by policyname")).rows;assert.deepEqual(newStorage,oldStorage);
  for(const u of [A,B])for(const bucket of ['profile-avatars','collection-cards'])await q("insert into storage.objects(bucket_id,name) values($1,$2)",[bucket,u+'/existing.webp']);
  for(const name of ['get_security_schema_readiness_v1','get_market_legal_schema_readiness_v1'])assert.equal((await q('select '+name+'() v')).rows[0].v.compatible,true);
  const changedAllowed=new Set(['get_public_battle_ratings','get_public_battle_ranked_profile','get_battle_leaderboard','get_public_battle_recent','get_public_battle_stats','list_battle_spectator_matches','snapshot','get_security_schema_readiness_v1','get_market_legal_schema_readiness_v1']);
+ if(process.argv.includes('--b1-safety'))for(const name of ['moderate_battle_report','request_my_account_deletion'])changedAllowed.add(name);
  const nowFunctions=(await q("select n.nspname,p.proname,p.oid,p.prosrc,p.proacl::text,p.proowner,p.prosecdef,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','dv_market_private','battle_spectator_private','battle_spectator_media_private','dv_v16_private') order by p.oid")).rows;
  for(const old of oldFunctions){const now=nowFunctions.find(x=>x.oid===old.oid);assert.ok(now);if(changedAllowed.has(old.proname))assert.deepEqual({...now,prosrc:old.prosrc},old);else assert.deepEqual(now,old,'unchanged '+old.proname);}
  for(const [u,n] of [[A,0],[B,10]]){

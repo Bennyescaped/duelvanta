@@ -74,6 +74,9 @@ on:
       - 'tests/battle-spectator-epoch-processing-hold-*.mjs'
       - 'tests/battle-d3-temporal-*.mjs'
       - 'database/staff-processing-hold-*'
+      - 'database/battle-safety-*'
+      - 'tests/battle-safety-*'
+      - 'control-center*.js'
       - 'tests/staff-processing-hold-*.mjs'
       - 'database/battle-signal-processing-hold-*'
       - 'tests/battle-signal-processing-hold-*.mjs'
@@ -153,7 +156,7 @@ on:
 jobs:
   account_data_export_t2:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
@@ -291,6 +294,10 @@ jobs:
         run: |
           node tests/publication-image-contract-test.mjs
           node tests/publication-browser-contract-test.mjs test-results/publication-processing-hold-native.json
+      - name: B1 sanctions, Owner correction, native races and complete D4-chain regression
+        run: |
+          node tests/battle-safety-regressions.mjs --native
+          node tests/battle-safety-browser-contract-test.mjs test-results/battle-safety-sanctions-native.json
       - name: D3 existing-source temporal evidence on native PostgreSQL 17
         run: |
           set -o pipefail
@@ -311,6 +318,8 @@ jobs:
             test-results/battle-signal-processing-hold-*
             test-results/battle-d3-temporal-*
             test-results/staff-processing-hold-*
+            test-results/battle-safety-*
+            test-results/b1-regression*
             test-results/publication-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
@@ -515,6 +524,7 @@ jobs:
           node --check mfa.js
           node --check control-center.js
           node --check control-center-permissions.js
+          node --check control-center-safety.js
           node --check control-center-auth-preflight.js
       - name: Scanner V16 contract
         run: |
