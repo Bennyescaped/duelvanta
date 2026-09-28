@@ -90,6 +90,11 @@ try{
   await db.exec(await read('database/staff-processing-hold-v1.sql'));
   await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--publication-hold')){
+  if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ }
 
  for(const u of [A,B])for(const state of ['clear','processing','closure','package']){
   const other=u===A?B:A;
@@ -108,8 +113,11 @@ try{
   for(const field of fields){
    assert.equal(await scalar(`select public.can_update_own_profile_safe(jsonb_populate_record(p,jsonb_build_object('${field}','2030-01-01T00:00:00Z'))) v from public.profiles p where id=$1`,[u]),false);
   }
+  if(process.argv.includes('--publication-hold')&&['processing','package'].includes(state))await deny("update public.profiles set display_name='G1 allowed',data_processing_restricted_at=data_processing_restricted_at,account_closure_requested_at=account_closure_requested_at where id=$1",[u],/account_publication_processing_restricted/);
+  else {
   await db.query("update public.profiles set display_name='G1 allowed',data_processing_restricted_at=data_processing_restricted_at,account_closure_requested_at=account_closure_requested_at where id=$1",[u]);
   assert.equal(await scalar('select display_name v from public.profiles where id=$1',[u]),'G1 allowed');
+  }
   await db.query("select public.set_my_locale('de')");
   await db.query("select public.set_my_public_profile(null,'private',null)");
   assert.deepEqual(await markers(u),original);

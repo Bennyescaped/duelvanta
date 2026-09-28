@@ -85,6 +85,11 @@ try{
   await db.exec(await read('database/staff-processing-hold-v1.sql'));
   await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--publication-hold')){
+  if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ }
  await db.exec('update battle_spectator_media_private.config set media_enabled=true');
  for(const u of [A,B])for(const s of ['normal','processing','closure']){
   for(const sql of [link,consent])await tx(async()=>{const f=await setup(u);await hold(u,s);await claim(u);if(s!=='normal'){await deny(sql,[f.m,true]);for(const rpc of ['get_battle_spectator_status','get_battle_spectator_media_status','get_battle_spectator_media_publisher_admission'])await deny(`select public.${rpc}($1)`,[f.m]);}else{assert.ok(await scalar(sql,[f.m,true]));await claim(f.other);f.epoch=(await scalar('select public.get_battle_spectator_media_status($1) v',[f.m])).epoch;await owner();await db.query('delete from battle_spectator_media_private.revocations where match_id=$1',[f.m])}

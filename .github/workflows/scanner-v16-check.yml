@@ -95,6 +95,10 @@ on:
       - 'database/production-upgrade-manifest-v1.json'
       - 'supabase/functions/owner-invite-beta-user/**'
       - 'supabase/functions/invite-beta-user/**'
+      - 'tests/publication-*.mjs'
+      - 'tests/helpers/publication-*.mjs'
+      - 'database/publication-*.sql'
+      - 'supabase/functions/public-card-image/**'
       - 'tests/generate-security-readiness.mjs'
       - 'tests/helpers/security-schema-fixture.mjs'
       - 'api/compliance-message-dispatch.js'
@@ -268,6 +272,25 @@ jobs:
           node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-scanner-processing-hold-test.log
           node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-account-data-export-collect-battle-test.log
           node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold | tee test-results/staff-processing-hold-regression-production-upgrade-rehearsal.log
+      - name: D4 publication and full G1-G5 D1 D2 closed-D3 T2 regression on PostgreSQL 17
+        run: |
+          set -o pipefail
+          node tests/publication-processing-hold-test.mjs --native | tee test-results/publication-processing-hold-native.log
+          node tests/staff-processing-hold-test.mjs --native --publication-hold | tee test-results/publication-processing-hold-staff-native.log
+          node tests/generate-security-readiness.mjs --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --check --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-generate-security-readiness.log
+          node tests/battle-spectator-epoch-processing-hold-test.mjs --native --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-native.log
+          node tests/battle-spectator-withdrawal-test.mjs --native --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-battle-spectator-withdrawal-test.log
+          node tests/battle-signal-processing-hold-test.mjs --native --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-battle-signal-processing-hold-test.log
+          node tests/battle-player-processing-hold-test.mjs --native --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-battle-player-processing-hold-test.log
+          node tests/account-processing-markers-test.mjs --native --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-account-processing-markers-test.log
+          node tests/account-closure-privacy-test.mjs --native --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-account-closure-privacy-test.log
+          node tests/scanner-processing-hold-test.mjs --native --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-scanner-processing-hold-test.log
+          node tests/account-data-export-collect-battle-test.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-account-data-export-collect-battle-test.log
+          node tests/production-upgrade-rehearsal.mjs --native --data-export --trade-lock --processing-markers --closure-privacy --scanner-hold --battle-player-hold --battle-signal-hold --spectator-withdrawal --spectator-epoch-hold --staff-hold --publication-hold | tee test-results/publication-processing-hold-regression-production-upgrade-rehearsal.log
+      - name: D4 public browser and signed-URL contracts
+        run: |
+          node tests/publication-image-contract-test.mjs
+          node tests/publication-browser-contract-test.mjs test-results/publication-processing-hold-native.json
       - name: D3 existing-source temporal evidence on native PostgreSQL 17
         run: |
           set -o pipefail
@@ -288,6 +311,7 @@ jobs:
             test-results/battle-signal-processing-hold-*
             test-results/battle-d3-temporal-*
             test-results/staff-processing-hold-*
+            test-results/publication-processing-hold-*
             test-results/production-trade-lock-synthetic-existing-native*.json
           if-no-files-found: error
   production_upgrade_p001:

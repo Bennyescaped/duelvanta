@@ -16,7 +16,7 @@ const profile=u=>scalar('select to_jsonb(p) v from public.profiles p where id=$1
 const visible=u=>scalar('select count(*)::int v from public.get_public_duelvanta_collection($1)',[u===A?'g2_a':'g2_b']);
 const rpc=(visibility,client=db)=>client.query('select public.set_my_public_profile(null,$1,null)',[visibility]);
 const ready=()=>scalar('select public.get_market_legal_schema_readiness_v1() v');
-const deny=async(sql,args=[],pattern=/account_closure_collection_private/)=>{await db.exec('savepoint denied');try{await assert.rejects(()=>db.query(sql,args),pattern)}finally{await db.exec('rollback to savepoint denied;release savepoint denied')}};
+const deny=async(sql,args=[],pattern=process.argv.includes('--publication-hold')?/account_closure_collection_private|account_publication_processing_restricted/:/account_closure_collection_private/)=>{await db.exec('savepoint denied');try{await assert.rejects(()=>db.query(sql,args),pattern)}finally{await db.exec('rollback to savepoint denied;release savepoint denied')}};
 try{
  await securitySchemaFixture(db);
  for(const [u,email,role] of [[OWNER,'info@duelvanta.de','owner'],[A,'g2-a@example.invalid','player'],[B,'g2-b@example.invalid','player']]){
@@ -73,6 +73,11 @@ try{
   await db.exec(await read('database/staff-processing-hold-v1.sql'));
   await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--publication-hold')){
+  if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ }
 
  for(const u of users)for(const state of ['normal','processing_only','closure_private','closure_package','closure_public']){
   const other=u===A?B:A;await db.exec('begin');
@@ -82,9 +87,9 @@ try{
   const closed=['closure_private','closure_package'].includes(state),original=await profile(u),foreign=await profile(other);
   await claim(u);
   for(const mode of ['public','custom']){
-   if(closed){
-    await deny('select public.set_my_public_profile(null,$1,null)',[mode]);
-    await deny('update public.profiles set collection_visibility=$1 where id=$2',[mode,u]);
+   if(closed||(process.argv.includes('--publication-hold')&&original.data_processing_restricted_at&&original.collection_visibility==='private')){
+    await deny('select public.set_my_public_profile(null,$1,null)',[mode],/account_closure_collection_private|account_publication_processing_restricted/);
+    await deny('update public.profiles set collection_visibility=$1 where id=$2',[mode,u],/account_closure_collection_private|account_publication_processing_restricted/);
     assert.deepEqual(await profile(u),original);assert.equal(await visible(u),0);
    }else{
     await rpc(mode);assert.equal(await visible(u),1);
@@ -94,10 +99,13 @@ try{
   await rpc(null);await rpc('private');assert.equal(await visible(u),0);
   // Once private is actually established with Closure, the transition now blocks.
   if(state==='closure_public')await deny('select public.set_my_public_profile(null,$1,null)',['public']);
-  await db.query("update public.profiles set display_name='G2 allowed',collection_visibility=collection_visibility where id=$1",[u]);
+  const d4Frozen=process.argv.includes('--publication-hold')&&original.data_processing_restricted_at;
+  if(d4Frozen)await deny("update public.profiles set display_name='G2 allowed',collection_visibility=collection_visibility where id=$1",[u],/account_publication_processing_restricted/);
+  else await db.query("update public.profiles set display_name='G2 allowed',collection_visibility=collection_visibility where id=$1",[u]);
   await db.query("select public.set_my_locale('en')");
-  await db.query('select public.set_my_public_profile(null,null,$1)',[u+'/synthetic-avatar.webp']);
-  const current=await profile(u);assert.equal(current.display_name,'G2 allowed');assert.equal(current.collection_visibility,'private');
+  if(d4Frozen)await deny('select public.set_my_public_profile(null,null,$1)',[u+'/synthetic-avatar.webp'],/account_publication_processing_restricted/);
+  else await db.query('select public.set_my_public_profile(null,null,$1)',[u+'/synthetic-avatar.webp']);
+  const current=await profile(u);assert.equal(current.display_name,d4Frozen?original.display_name:'G2 allowed');assert.equal(current.collection_visibility,'private');
   for(const field of ['account_closure_requested_at','data_processing_restricted_at'])assert.equal(current[field],original[field]);
   const f=await db.query("update public.profiles set collection_visibility='public',display_name='FOREIGN' where id=$1 returning id",[other]);assert.equal(f.rows.length,0);
   await deny('select public.set_my_public_profile(null,$1,null,$2)',['public',other],/does not exist/);
@@ -120,7 +128,7 @@ try{
   await deny("select public.set_my_public_profile(null,'public',null)");
   for(const role of ['service_role','postgres']){
    await claim(u,role);await deny("select public.set_my_public_profile(null,'public',null)");
-   await deny("update public.profiles set collection_visibility='custom' where id=$1",[u],role==='service_role'?/permission denied/:/account_closure_collection_private/);
+   await deny("update public.profiles set collection_visibility='custom' where id=$1",[u],role==='service_role'?/permission denied/:/account_closure_collection_private|account_publication_processing_restricted/);
   }
   await claim(u);await deny('update public.profiles set account_closure_requested_at=null,data_processing_restricted_at=null where id=$1',[u],/account_processing_markers_protected|row-level security/);
   assert.deepEqual(await profile(u),original);

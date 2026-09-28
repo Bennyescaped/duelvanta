@@ -76,6 +76,11 @@ try{
   await db.exec(await read('database/staff-processing-hold-v1.sql'));
   await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
  }
+ if(process.argv.includes('--publication-hold')){
+  if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ }
  for(const u of [A,B])for(const s of ['normal','processing','closure'])await tx(async()=>{
  const m=await match(),other=u===A?B:A;
  // Signals predate Hold, including one stale opposite-party signal.

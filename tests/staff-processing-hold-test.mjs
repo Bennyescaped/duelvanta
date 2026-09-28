@@ -54,6 +54,10 @@ try{
  out.changed=changed;out.catalog=after;
  assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,false);
  await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
+ if(process.argv.includes('--publication-hold')){
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
+ }
  assert.equal((await scalar('select public.get_security_schema_readiness_v1() v')).compatible,true);
  assert.equal((await scalar('select public.get_market_legal_schema_readiness_v1() v')).compatible,true);
  for(const u of [AD,MOD,J])for(const p of ['battle_moderate','reports_review','users_restrict','review_reports'])await db.query('insert into public.staff_permissions(user_id,permission,granted_by) values($1,$2,$3) on conflict do nothing',[u,p,O]);

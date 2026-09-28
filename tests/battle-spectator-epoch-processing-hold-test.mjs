@@ -51,6 +51,11 @@ try{
   if(!process.argv.includes('--spectator-epoch-hold'))throw Error('D3 regression requires D2');
   await db.exec(await read('database/staff-processing-hold-v1.sql'));
   await db.exec(await read('database/staff-processing-hold-readiness-v1.sql'));
+ }
+ if(process.argv.includes('--publication-hold')){
+  if(!process.argv.includes('--staff-hold'))throw Error('D4 requires closed D3');
+  await db.exec(await read('database/publication-processing-hold-v1.sql'));
+  await db.exec(await read('database/publication-processing-hold-readiness-v1.sql'));
  } await db.exec('update battle_spectator_media_private.config set media_enabled=true');
  for(const u of [A,B])for(const s of ['normal','processing','closure'])await tx(async()=>{
   const f=await setup(),before=await snap();await hold(u,s);const peer=u===A?B:A;
