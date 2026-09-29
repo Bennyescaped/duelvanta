@@ -30,6 +30,9 @@ create table dv_market_private.psttg_unit_binding(
  command_id uuid not null unique, scope_ids uuid[] not null check(cardinality(scope_ids)>0),
  slots jsonb not null check(jsonb_typeof(slots)='array'),
  dependencies uuid[] not null, decision_ref uuid not null,
+ related_object_id uuid, related_incarnation uuid, related_version bigint,
+ foreign key(related_object_id,related_incarnation,related_version) references dv_market_private.psttg_object_anchor(object_id,incarnation,content_version),
+ check(num_nonnulls(related_object_id,related_incarnation,related_version) in (0,3)),
  manifest_seal bytea not null check(octet_length(manifest_seal)=32)
 );
 create table dv_market_private.psttg_unit_end_receipt(
@@ -154,6 +157,7 @@ begin
   if g.phase='fenced' and not(states ? 'copy_or_dependency_unresolved') then states:=states||'"copy_or_dependency_unresolved"'::jsonb;end if;
   units:=units||jsonb_build_array(jsonb_build_object('unit_id',s->'unit','slot',s->'slot','state',st,'guard_revision',g.revision,'demand_revision',g.demand_revision));
  end loop;
+ if rel is not null and (rel->>'target',rel->>'incarnation',rel->>'version') is distinct from (b.related_object_id::text,b.related_incarnation::text,b.related_version::text) then states:=states||'"integrity_violation"'::jsonb;end if;
  if frag is not null then
   if body is null or proof is null or rel is null or proof->>'extraction' is distinct from encode(dv_market_private.psttg_v2_hash(frag),'hex') or rel->>'relation'<>'corrects' or proof->'original_binding'->>'object_id' is distinct from rel->>'target' or proof->'original_binding'->>'incarnation' is distinct from rel->>'incarnation' or proof->'original_binding'->>'content_version' is distinct from rel->>'version' or states ?| array['missing_unexplained','integrity_violation','authorized_end_verified'] then
    states:=states||'"copy_or_dependency_unresolved"'::jsonb;
@@ -261,7 +265,7 @@ begin
   insert into dv_market_private.psttg_content_unit select u.*;
   slots:=slots||jsonb_build_array(jsonb_build_object('unit',uid,'slot',n,'kind',u.unit_kind,'seal',encode(u.unit_seal,'hex'),'group',id));
  end loop;
- binding.object_id:=id;binding.command_id:=(cmd->>'command_id')::uuid;binding.scope_ids:=scopes;binding.slots:=slots;binding.dependencies:=deps;binding.decision_ref:=(cmd->>'decision_ref')::uuid;
+ binding.object_id:=id;binding.command_id:=(cmd->>'command_id')::uuid;binding.scope_ids:=scopes;binding.slots:=slots;binding.dependencies:=deps;binding.decision_ref:=(cmd->>'decision_ref')::uuid;binding.related_object_id:=oa.object_id;binding.related_incarnation:=oa.incarnation;binding.related_version:=oa.content_version;
  binding.manifest_seal:=dv_market_private.psttg_v2_hash(jsonb_build_array(to_jsonb(anchor),to_jsonb(binding)-'manifest_seal'));
  insert into dv_market_private.psttg_unit_binding select binding.*;
  update dv_market_private.psttg_unit_guard set demand_revision=demand_revision+1 where unit_id=any(deps);

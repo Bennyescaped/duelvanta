@@ -61,6 +61,27 @@ try{
   }
   else if(state==='fenced')await q("update dv_market_private.psttg_unit_guard set phase='fenced',revision=2,manifest_id=gen_random_uuid(),manifest_revision=1,authorization_id=gen_random_uuid(),attempt_id=gen_random_uuid() where object_id=$1",[id]);
  }
+
+ // Native controlled guard counterparts run as fixture preparation, BEFORE
+ // immutable protections are installed. No trigger is disabled or replaced.
+ if(native){
+  const a=await db.connect(),b=await db.connect();
+  const ap=await val('select pg_backend_pid() v',[],a),bp=await val('select pg_backend_pid() v',[],b);
+  for(const writerFirst of [true,false]){
+   const f=await fixture(),fid=await capture(f),c=await fixture(f.cmd.scopes[0]);c.cmd.dependencies=(await units(fid)).map(u=>u.unit_id).sort();
+   const controlledFence=async client=>{
+    await q('select dv_market_private.psttg_v2_lock($1)',[f.cmd.scopes],client);
+    await q('select unit_id from dv_market_private.psttg_unit_guard where object_id=$1 order by unit_id for update',[fid],client);
+    await q("update dv_market_private.psttg_unit_guard set phase='fenced',revision=revision+1,manifest_id=gen_random_uuid(),manifest_revision=1,authorization_id=gen_random_uuid(),attempt_id=gen_random_uuid() where object_id=$1",[fid],client);
+   };
+   await q('begin',[],a);if(writerFirst)await capture(c,a);else await controlledFence(a);
+   let settled=false;const waiting=(writerFirst?(async()=>{await q('begin',[],b);try{await controlledFence(b);await q('commit',[],b)}catch(e){await q('rollback',[],b);throw e}})():capture(c,b)).then(v=>({v}),e=>({error:e.message})).finally(()=>settled=true);
+   let seen=false;for(let i=0;i<100&&!settled;i++){const pids=await val('select pg_blocking_pids($1) v',[bp]);if(pids.includes(ap)){out.locks.push({label:'fixture-preparation-capture-fence-'+writerFirst,waiting:bp,blocker:ap});seen=true;break}await new Promise(r=>setTimeout(r,20))}
+   assert.ok(seen);await q('commit',[],a);const r=await waiting;
+   if(writerFirst){assert.ok(!r.error,r.error);assert.ok((await read(c.cmd.object_id)).states.includes('copy_or_dependency_unresolved'))}else assert.match(r.error??'',/v2_target_guard/);
+  }
+  out.cases.push('ER08 controlled guard fixture preparation: capture/fence both orders; no end authorization');
+ }
  await db.exec('begin;'+sql.slice(protectionStart));
 
  assert.deepEqual((await q("select p.oid,p.prosrc,p.proacl::text,p.proowner,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' and p.proname not like 'psttg_v2_%' order by p.oid")).rows,before.rows);
@@ -70,7 +91,7 @@ try{
  const protectedBefore=await protectedSnapshot();
  let x,id,corr,cid;
  await check('ER01 slot, unit, owner, envelope and manifest verification',async()=>{x=await fixture();id=await capture(x);assert.deepEqual((await read(id)).states,['present_verified']);assert.equal((await units(id)).length,3)});
- await check('ER05 exact server original extraction and own correction group',async()=>{corr=await fixture(x.cmd.scopes[0]);corr.cmd.original={id,incarnation:x.cmd.incarnation,version:1};corr.content.body.amount=100;corr.content.body.correction_reason='synthetic correction';corr.content.source_fragment=project(corr.content.body);corr.content.original_fragment=project(x.content.body);cid=await capture(corr);assert.ok((await read(cid)).states.includes('required_correction_fragment'));assert.equal((await units(cid)).length,5)});
+ await check('ER05 exact server original extraction and own correction group',async()=>{corr=await fixture(x.cmd.scopes[0]);corr.cmd.original={id,incarnation:x.cmd.incarnation,version:1};corr.content.body.amount=100;corr.content.body.correction_reason='synthetic correction';corr.content.source_fragment=project(corr.content.body);corr.content.original_fragment=project(x.content.body);cid=await capture(corr);assert.ok((await read(cid)).states.includes('required_correction_fragment'));assert.equal((await units(cid)).length,5);assert.equal(await val('select related_object_id v from dv_market_private.psttg_unit_binding where object_id=$1',[cid]),id)});
  await check('ER05 missing extra wrong fields and foreign version rejected without mutation',async()=>{for(const change of [z=>delete z.content.original_fragment.amount,z=>z.content.original_fragment.extra=1,z=>z.content.original_fragment.amount=999,z=>z.cmd.original.version=2,z=>z.cmd.original.incarnation=randomUUID()]){const z=structuredClone(corr);z.cmd.command_id=randomUUID();z.cmd.object_id=randomUUID();change(z);await unchanged(()=>deny(()=>capture(z)))}});
  await check('ER17 independent random data keys and independently removable envelopes',async()=>{const us=[...await units(id),...await units(cid)],ks=[];for(const u of us){const k=await call('psttg_v2_decrypt',[u.wrapped_key,key]);ks.push(k.key);assert.equal(k.unit,u.unit_id);assert.equal(k.key_ref,u.key_ref)}assert.equal(new Set(ks).size,us.length);for(let i=1;i<us.length;i++)await deny(()=>call('psttg_v2_decrypt',[us[i].ciphertext,ks[0]]));assert.ok((await read(cid)).states.includes('required_correction_fragment'))});
  await check('ER19 no full inputs or low-entropy plaintext digests in new metadata',async()=>{for(const t of tables.filter(t=>t!=='psttg_content_unit')){const rows=await val(`select coalesce(jsonb_agg(to_jsonb(t)),'[]') v from dv_market_private.${t} t`);assert.ok(!JSON.stringify(rows).includes('synthetic_secret'));assert.ok(!JSON.stringify(rows).includes('not-for-fragment'));assert.ok(!JSON.stringify(rows).includes('original_fragment\":{'))}const proof=(await units(id)).find(u=>u.unit_kind==='proof');const p=await call('psttg_v2_plain',[proof.unit_id,key]);assert.deepEqual(Object.keys(p.request),['digest']);assert.ok(!JSON.stringify(p).includes('not-for-fragment'))});
@@ -115,7 +136,7 @@ try{
    }
   });
   await check('ER03 ER08 ER09 native shared requirements and controlled guards both orders',async()=>{
-   for(const phase of ['present','fenced'])for(const writerFirst of [false,true]){
+   for(const phase of ['present'])for(const writerFirst of [false,true]){
     const base=phase==='present'?await fixture():prepared.fenced.x;
     const fid=phase==='present'?await capture(base):prepared.fenced.id;
     const us=(await q('select unit_id from dv_market_private.psttg_unit_guard where object_id=$1 order by unit_id',[fid])).rows.map(u=>u.unit_id);
@@ -152,6 +173,11 @@ try{
    const f=await fixture();await q('begin');
    try{await q("update dv_market_private.psttg_scope_guards set phase=$2,fence_token=gen_random_uuid(),fence_target_digest=sha256('fixture'),fence_generation=generation,recovery_state='pending' where scope_id=$1",[f.cmd.scopes[0],phase]);await deny(()=>capture(f));}finally{await q('rollback')}
   }
+ });
+ await check('ER02 anchor version FK retains correction reference without original payload',async()=>{
+  assert.ok((await read(prepared.correction.id)).states.includes('required_correction_fragment'));
+  assert.equal(await val("select count(*)::int v from pg_constraint where conrelid='dv_market_private.psttg_unit_binding'::regclass and contype='f' and confrelid='dv_market_private.psttg_object_anchor'::regclass"),2);
+  await unchanged(()=>deny(()=>q('delete from dv_market_private.psttg_object_anchor where object_id=$1',[prepared.ended.id])));
  });
  await check('ER16 no end receipt insertion and no incomplete commits',async()=>{
   await unchanged(()=>deny(()=>q("insert into dv_market_private.psttg_unit_end_receipt select * from dv_market_private.psttg_unit_end_receipt limit 1")));
