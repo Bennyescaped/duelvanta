@@ -126,10 +126,12 @@ try{
  if(native){
   const a=await db.connect(),b=await db.connect();
   const pid=async c=>val('select pg_backend_pid() v',[],c),ap=await pid(a),bp=await pid(b);
+  // A grown connection lock set requires a fresh autocommit transaction before
+  // checking the intended idempotency outcome. Explicit growth cases still assert 40001.
   async function blocked(label,action,release,expected){
    let settled=false;const waiting=action().then(v=>({v}),e=>({error:e.message,code:e.code})).finally(()=>settled=true);
    let seen=false;for(let i=0;i<100&&!settled;i++){const pids=await val('select pg_blocking_pids($1) v',[bp]);if(pids.includes(ap)){out.locks.push({label,waiting:bp,blocker:ap});seen=true;break}await new Promise(r=>setTimeout(r,20))}
-   assert.ok(seen,label+' actual pg_blocking_pids');await release();let result=await waiting;if(connected&&!expected&&result.code==='40001'){out.connectionRetries=(out.connectionRetries??0)+1;result=await action().then(v=>({v}),e=>({error:e.message,code:e.code}));}if(expected)assert.match(result.error??'',expected);else assert.ok(!result.error,result.error);return result.v;
+   assert.ok(seen,label+' actual pg_blocking_pids');await release();let result=await waiting;if(connected&&result.code==='40001'&&(!expected||!expected.test('v2_scope_growth_retry'))){out.connectionRetries=(out.connectionRetries??0)+1;result=await action().then(v=>({v}),e=>({error:e.message,code:e.code}));}if(expected)assert.match(result.error??'',expected);else assert.ok(!result.error,result.error);return result.v;
   }
   await check('ER08 ER10 native parallel capture and idempotency conflict both orders',async()=>{
    for(const conflict of [false,true])for(const reverse of [false,true]){
