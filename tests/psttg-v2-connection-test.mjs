@@ -16,6 +16,8 @@ try{
  await publicationFixture(db);
  for(const f of ['psttg-capture-core-v1','psttg-removal-evaluation-v1','psttg-k5-synthetic-control-v1','psttg-representation-v2','psttg-v2-writer-unitmanifest-v1']){const sql=await readFile(new URL('../database/'+f+'.sql',import.meta.url),'utf8');if(f==='psttg-v2-writer-unitmanifest-v1'){const at=sql.indexOf('-- PROTECTION INSTALLATION:');await db.exec(sql.slice(0,at)+'commit;');globalThis.connectionProtection=sql.slice(at);}else await db.exec(sql);}
  const channels=[];for(let i=0;i<80;i++){const sid=await call('psttg_ensure_scope',['subject',randomBytes(32),null,null]);const g={channel_id:randomUUID(),target_system_ref:randomUUID(),environment_ref:randomUUID(),account_ref:randomUUID(),configuration_revision:1,scope_ids:[sid],operating_incarnation:randomUUID(),verification_key:randomBytes(32)};await q("insert into dv_market_private.psttg_v2_channel_v1(channel_id,target_system_ref,environment_ref,account_ref,configuration_revision,scope_ids,operating_incarnation,verification_key,contract_version) values($1,$2,$3,$4,1,$5,$6,$7,'psttg-k5-unitmanifest/1')",[g.channel_id,g.target_system_ref,g.environment_ref,g.account_ref,g.scope_ids,g.operating_incarnation,g.verification_key]);channels.push(g)}
+ const sharedBase=channels[79],sharedChannel={...sharedBase,channel_id:randomUUID(),operating_incarnation:randomUUID(),verification_key:randomBytes(32)};
+ await q("insert into dv_market_private.psttg_v2_channel_v1(channel_id,target_system_ref,environment_ref,account_ref,configuration_revision,scope_ids,operating_incarnation,verification_key,contract_version) values($1,$2,$3,$4,1,$5,$6,$7,'psttg-k5-unitmanifest/1')",[sharedChannel.channel_id,sharedChannel.target_system_ref,sharedChannel.environment_ref,sharedChannel.account_ref,sharedChannel.scope_ids,sharedChannel.operating_incarnation,sharedChannel.verification_key]);
  await db.exec('begin;'+globalThis.connectionProtection);
  const protectedTables=(await q("select schemaname,tablename from pg_tables where schemaname not in ('pg_catalog','information_schema') and schemaname not like 'pg_%' order by schemaname,tablename")).rows;
  const stateSQL='select jsonb_object_agg(k,v) v from ('+protectedTables.map(({schemaname:n,tablename:t})=>`select '${n}.${t}' k,encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(x) order by to_jsonb(x)::text),'[]')::text,'UTF8')),'hex') v from "${n}"."${t}" x`).join(' union all ')+') s';
@@ -91,6 +93,13 @@ try{
  });
  await check('quarantine rejects dependent reading and old tickets but accepts independent ingress',async()=>{
   const g=channels.shift(),src=await source(g),a=admission(g,src);await invoke(g,a,content);const n={contract:'psttg-k5-unitmanifest/1',action:'RESTORE_QUARANTINE',channel:g.channel_id,external_incarnation:randomUUID()};await call('psttg_v2_quarantine_v1',[g.channel_id,n,await sign(g,n)]);await deny(()=>invoke(g,transition(g,a,'ATTEMPTING',1,randomUUID(),1)),/v2_restore_quarantine/);await deny(()=>call('psttg_v2_read',[a.input_group,key,2]),/v2_restore_quarantine/);await receive(g,envelope(g,a.operation_ref,a.admission_ref,randomUUID(),1,'UNMAPPED'));
+ });
+ await check('restore quarantine follows dependent units across a second configured channel',async()=>{
+  const g=sharedBase,src=await source(g),a=admission(sharedChannel,src);await invoke(sharedChannel,a,content);const t=transition(sharedChannel,a,'ATTEMPTING',1,randomUUID(),1);await invoke(sharedChannel,t);const p1=new UnitTestPeer(g),p2=new UnitTestPeer(sharedChannel),observer=native?await db.connect():db,token=await p2.observeCommitted(t.attempt_ref,observer);p1.restore();
+  const n={contract:'psttg-k5-unitmanifest/1',action:'RESTORE_QUARANTINE',channel:g.channel_id,external_incarnation:p1.incarnation};await call('psttg_v2_quarantine_v1',[g.channel_id,n,await sign(g,n)]);
+  await deny(async()=>p2.effect(token),/peer_stale_or_revoked/);await deny(()=>p2.observeCommitted(t.attempt_ref,observer),/peer_quarantined_or_stopped/);
+  await deny(()=>invoke(sharedChannel,admission(sharedChannel,src),content),/v2_restore_quarantine/);
+  await receive(sharedChannel,envelope(sharedChannel,randomUUID(),randomUUID(),randomUUID(),1,'UNMAPPED'));
  });
  await check('private immutable journals no application grants no residual lock capability',async()=>{
   await deny(()=>q('update dv_market_private.psttg_v2_use_admission_v1 set input_revision=input_revision+1'));await deny(()=>q('delete from dv_market_private.psttg_v2_use_transition_v1'));await deny(()=>q('truncate dv_market_private.psttg_k5_unitmanifest_v1'));

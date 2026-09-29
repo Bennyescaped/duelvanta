@@ -581,6 +581,7 @@ begin
  ctx:=dv_market_private.psttg_v2_connection_lock_v1(ss,array[op],keys,array[ch]);
  select scopes into strict ss from dv_market_private.psttg_v2_connection_context_v1 where context_id=ctx;
  perform dv_market_private.psttg_v2_verify_ticket_v1(ch,jsonb_build_array(cmd,payload),ticket,signature);
+ if exists(select from dv_market_private.psttg_v2_channel_v1 q join dv_market_private.psttg_v2_connection_context_v1 c on q.channel_id=any(c.channel_ids) where c.context_id=ctx and q.quarantine) then raise exception 'v2_restore_quarantine';end if;
  select * into strict g from dv_market_private.psttg_v2_channel_v1 where channel_id=ch;
  if g.stopped and action not in ('BIND_EVIDENCE','RECONCILE','ABORT_UNSTARTED','ASSESS') then raise exception 'v2_channel_stopped';end if;
  if not(ss<@g.scope_ids) then raise exception 'v2_channel_scope';end if;
