@@ -10,6 +10,7 @@ create table dv_market_private.psttg_k5_channel_gate (
  incarnation uuid not null,
  verification_key bytea not null check(octet_length(verification_key)>=32),
  receipt_revision bigint not null default 0,
+ execution_epoch bigint not null default 0 check(execution_epoch>=0),
  stopped boolean not null default false,
  quarantine boolean not null default false,
  contract text not null check(contract in ('synthetic-atomic-v1','unsupported'))
@@ -215,7 +216,7 @@ end$$;
 
 create function dv_market_private.psttg_k5_begin(command jsonb,ticket jsonb,signature bytea) returns uuid
 language plpgsql volatile security definer set search_path='' as $$
-declare i dv_market_private.psttg_k5_end_intent; old dv_market_private.psttg_k5_end_attempt; a uuid:=(command->>'attempt_id')::uuid; e uuid;
+declare i dv_market_private.psttg_k5_end_intent; old dv_market_private.psttg_k5_end_attempt; a uuid:=(command->>'attempt_id')::uuid; e uuid; epoch bigint;
 begin
  if command is null or not(command ?& array['channel','command_id','intent_id','revision','state_revision','attempt_id','target']) or command-array['channel','command_id','intent_id','revision','state_revision','attempt_id','target']<>'{}'::jsonb then raise exception 'k5_command_shape';end if;
  perform dv_market_private.psttg_k5_entry((command->>'channel')::uuid,command,ticket,signature);
@@ -227,8 +228,9 @@ begin
  if exists(select from dv_market_private.psttg_k5_end_attempt where intent_id=i.intent_id and target=command->'target' and kind='APPLIED_SIMULATED') then raise exception 'k5_target_already_applied';end if;
  if exists(select from dv_market_private.psttg_k5_end_attempt d where d.intent_id=i.intent_id and d.kind='DISPATCH_RECORDED' and not exists(select from dv_market_private.psttg_k5_end_attempt r where r.attempt_id=d.attempt_id and r.kind in ('APPLIED_SIMULATED','DEFINITELY_NOT_APPLIED'))) then raise exception 'k5_unknown_no_retry';end if;
  if exists(select from dv_market_private.psttg_k5_end_attempt where attempt_id=a) then raise exception 'k5_attempt_reuse';end if;
+ update dv_market_private.psttg_k5_channel_gate set execution_epoch=execution_epoch+1 where channel_id=i.channel_id returning execution_epoch into epoch;
  insert into dv_market_private.psttg_k5_end_attempt(command_id,command_digest,intent_id,intent_revision,state_revision,attempt_id,target,incarnation,execution_epoch,kind,binding)
- values((command->>'command_id')::uuid,dv_market_private.psttg_k5_digest(command),i.intent_id,i.revision,i.state_revision+1,a,command->'target',i.incarnation,i.state_revision+1,'DISPATCH_RECORDED',command);
+ values((command->>'command_id')::uuid,dv_market_private.psttg_k5_digest(command),i.intent_id,i.revision,i.state_revision+1,a,command->'target',i.incarnation,epoch,'DISPATCH_RECORDED',command);
  update dv_market_private.psttg_k5_end_intent set state='DISPATCH_RECORDED',state_revision=state_revision+1 where intent_id=i.intent_id;
  return a;
 end$$;

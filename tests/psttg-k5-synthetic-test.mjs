@@ -60,7 +60,7 @@ const stable=x=>JSON.stringify(x,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v
 // appends simulated effects. Neither an object deletion nor a provider call
 // exists. Its secret is random per run and is never emitted in evidence.
 class Peer {
- constructor(channel,account,incarnation,secret){Object.assign(this,{channel,account,incarnation,secret});this.revoked=new Set();this.effects=new Map();this.receipts=new Map();this.quarantine=false;this.retired=new Set();this.targets=new Map();}
+ constructor(channel,account,incarnation,secret){Object.assign(this,{channel,account,incarnation,secret});this.revoked=new Set();this.effects=new Map();this.receipts=new Map();this.quarantine=false;this.retired=new Set();this.targets=new Map();this.issued=new Map();this.epochs=new Map();}
  async sign(body,c=db){return createHmac('sha256',this.secret).update(await canonical(body,c)).digest();}
  async ticket(command,c){if(this.quarantine)throw Error('k5_peer_restore_quarantine');const ticket={challenge:await call('psttg_k5_challenge',[],c),command_digest:await hashAt(command,c),incarnation:this.incarnation,channel:this.channel,contract:'synthetic-atomic-v1'};return [ticket,await this.sign(ticket,c)];}
  async dispatch(attempt,observer){
@@ -69,9 +69,17 @@ class Peer {
   const row=(await observer.query("select * from dv_market_private.psttg_k5_end_attempt where attempt_id=$1 and kind='DISPATCH_RECORDED'",[attempt])).rows[0];
   if(!row)throw Error('k5_uncommitted_dispatch');return row;
  }
+ register(token){
+  const id=token.attempt_id, target=token.target.target.id, epoch=Number(token.execution_epoch);
+  if(this.issued.has(id)){assert.equal(stable(this.issued.get(id)),stable(token));return token;}
+  if(epoch<=(this.epochs.get(target)??0))throw Error('k5_peer_old_epoch');
+  for(const old of this.issued.values())if(old.target.target.id===target&&!this.revoked.has(old.attempt_id))throw Error('k5_peer_old_start_possible');
+  this.issued.set(id,token);this.epochs.set(target,epoch);return token;
+ }
  effect(token){
   // Final check and append execute synchronously as one atomic peer operation.
   const id=token.attempt_id;
+  if(stable(this.issued.get(id))!==stable(token)||this.epochs.get(token.target.target.id)!==Number(token.execution_epoch))throw Error('k5_peer_old_epoch');
   if(stable(this.targets.get(token.target.target.id))!==stable(token.target))throw Error('k5_peer_target_reused');
   if(this.quarantine||token.incarnation!==this.incarnation||this.revoked.has(id)||this.retired.has(JSON.stringify(token.target)))throw Error('k5_peer_stale_at_effect');
   if(this.effects.has(id))return this.effects.get(id);
@@ -79,7 +87,7 @@ class Peer {
   this.effects.set(id,effect);return effect;
  }
  async result(token,apply=true){
-  let result;if(apply)result=this.effect(token);else {if(this.effects.has(token.attempt_id))throw Error('k5_already_applied');this.revoked.add(token.attempt_id);result={attempt:token.attempt_id,target:token.target,incarnation:token.incarnation,execution_epoch:Number(token.execution_epoch),operation:token.intent_id,result:'DEFINITELY_NOT_APPLIED'};}
+  let result;if(apply)result=this.effects.get(token.attempt_id)??this.effect(token);else {if(this.effects.has(token.attempt_id))throw Error('k5_already_applied');this.revoked.add(token.attempt_id);result={attempt:token.attempt_id,target:token.target,incarnation:token.incarnation,execution_epoch:Number(token.execution_epoch),operation:token.intent_id,result:'DEFINITELY_NOT_APPLIED'};}
   const body={source:'synthetic-atomic-v1',environment:'disposable-only',account:this.account,event_id:'result:'+token.attempt_id,...result,payload:{minimal:'synthetic-sensitive-result'},actual_event_at:new Date().toISOString()};
   if(this.receipts.has(body.event_id))return this.receipts.get(body.event_id);
   this.receipts.set(body.event_id,body);return body;
@@ -109,7 +117,7 @@ const authorize=f=>invoke('psttg_k5_authorize',f.command);
 async function begin(f,n=0){const i=await intent(f.command.intent_id);const command={channel:f.channel,command_id:randomUUID(),intent_id:i.intent_id,revision:i.revision,state_revision:i.state_revision,attempt_id:randomUUID(),target:f.command.manifest[n]};await invoke('psttg_k5_begin',command);return command.attempt_id;}
 async function transition(f,action,receipt_id=null){const i=await intent(f.command.intent_id);return invoke('psttg_k5_transition',{channel:f.channel,command_id:randomUUID(),intent_id:i.intent_id,revision:i.revision,state_revision:i.state_revision,action,receipt_id});}
 async function receive(f,body,c=db,{open=false,rollback=false}={}){if(!open)await c.query('begin');try{const id=await call('psttg_k5_receive',[f.channel,body,await f.peer.sign(body,c),key],c);if(!open)await c.query(rollback?'rollback':'commit');return id;}catch(e){if(!open)await c.query('rollback');throw e;}}
-const token=async id=>(await q("select * from dv_market_private.psttg_k5_end_attempt where attempt_id=$1 and kind='DISPATCH_RECORDED'",[id])).rows[0];
+const token=async id=>{const row=(await q("select * from dv_market_private.psttg_k5_end_attempt where attempt_id=$1 and kind='DISPATCH_RECORDED'",[id])).rows[0];return peers.get(row.target.channel).register(row);};
 async function admission(f,copy=false){const x=f.x;let e;
  if(copy){e={...x.e,operation_id:randomUUID(),event_kind:'copy',action_kind:'copy',idempotency_key:randomUUID(),original_record_id:f.ids[0],original_version:'v1',artifact_id:'synthetic-copy'};delete e.actual_event_at;delete e.attempt_id;}
  else {e={...x.e,operation_id:randomUUID(),event_kind:'draft',idempotency_key:randomUUID()};delete e.actual_event_at;delete e.attempt_id;await append(e,0);e.event_kind='ready';}
@@ -181,6 +189,10 @@ try{
  });
  await check('K5-E17 safe cancel requires definitive nonexecution and peer revocation',async()=>{
   const f=await fixture();await authorize(f);const id=await begin(f),t=await token(id);const receipt=await receive(f,await f.peer.result(t,false));await transition(f,'RECONCILE',receipt);await transition(f,'CANCELLED_SAFE');assert.equal(await value('select phase v from dv_market_private.psttg_scope_guards where scope_id=$1',[f.x.s]),'open');await deny(async()=>f.peer.effect(t),/k5_peer_stale_at_effect/);
+ });
+ await check('K5-E14 execution epoch remains monotone across safe cancellation and new intent',async()=>{
+  const f=await fixture();await authorize(f);const id=await begin(f),old=await token(id);const receipt=await receive(f,await f.peer.result(old,false));await transition(f,'RECONCILE',receipt);await transition(f,'CANCELLED_SAFE');
+  f.command={...f.command,intent_id:randomUUID(),command_id:randomUUID(),revision:2,binding:(await evaluate(f.x.s,f.ids.map(target))).binding};await authorize(f);const next=await token(await begin(f));assert.ok(Number(next.execution_epoch)>Number(old.execution_epoch));await deny(async()=>f.peer.effect(old),/k5_peer_old_epoch/);f.peer.effect(next);assert.equal(f.peer.effects.size,1);
  });
  await check('K5-E14 E15 E16 atomic simulated finalizer and unsafe precheck negative control',async()=>{
   const f=await fixture();await authorize(f);const id=await begin(f),t=await token(id);const precheck=!f.peer.revoked.has(id);assert.equal(precheck,true);await f.peer.result(t,false);await deny(async()=>f.peer.effect(t),/k5_peer_stale_at_effect/);
