@@ -261,7 +261,7 @@ end$$;
 
 create function dv_market_private.psttg_validate_payload(cls text,subtype text,p jsonb) returns void
 language plpgsql immutable set search_path='' as $$
-declare fields text[]; k text;
+declare fields text[]; k text; types jsonb;
 begin
  fields:=case cls
  when 'process_description' then array['period','procedures','relationships','responsibilities','deadlines','applied_version','changes']
@@ -276,6 +276,17 @@ begin
  foreach k in array fields loop
   if p->k='null'::jsonb or p->k='""'::jsonb then raise exception 'psttg_payload_incomplete';end if;
  end loop;
+ types:=case cls
+ when 'process_description' then '{"period":"string","procedures":"array","relationships":"array","responsibilities":"array","deadlines":"array","applied_version":"string","changes":"array"}'::jsonb
+ when 'due_diligence' then '{"inputs":"object","processing":"string","result":"string","rule_version":"string","reasons":"array","processor":"string"}'::jsonb
+ when 'reported_information' then '{"reported_information":"object","reporting_period":"number","submission_ref":"string","procedure":"string","transmission_status":"string","acceptance_status":"string"}'::jsonb
+ when 'provider_notice' then '{"content":"string","recipient_ref":"string","channel":"string","notice_version":"string","reporting_period":"number","delivery_meaning":"string"}'::jsonb
+ when 'cooperation_event' then '{"content":"string","reason":"string","subject_ref":"string","channel":"string","case_ref":"string","measure_ref":"string","scope":"string","lift_information":"string"}'::jsonb end;
+ foreach k in array fields loop
+  if jsonb_typeof(p->k) is distinct from types->>k then raise exception 'psttg_payload_type';end if;
+ end loop;
+ if p ? 'reporting_period' and ((p->>'reporting_period')::numeric<>trunc((p->>'reporting_period')::numeric) or (p->>'reporting_period')::numeric not between 1900 and 9990) then raise exception 'psttg_payload_type';end if;
+ if p ? 'original_fragment' and jsonb_typeof(p->'original_fragment')<>'object' then raise exception 'psttg_payload_type';end if;
  if jsonb_typeof(p->'source_fragments')<>'object' or p->'source_fragments'='{}'::jsonb then raise exception 'psttg_source_fragments';end if;
  if subtype='correction' and (not(p ?& array['original_fragment','correction_reason']) or p->'original_fragment' in ('null'::jsonb,'{}'::jsonb) or nullif(p->>'correction_reason','') is null) then raise exception 'psttg_correction_content';end if;
 end$$;

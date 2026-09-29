@@ -25,10 +25,10 @@ const payloadFor=cls=>({
  provider_notice:{content:'synthetic complete notice',recipient_ref:'synthetic-recipient',channel:'contract-peer',notice_version:'v1',reporting_period:2026,delivery_meaning:'notified'},
  cooperation_event:{content:'synthetic complete request',reason:'fixture',subject_ref:'synthetic-subject',channel:'contract-peer',case_ref:'synthetic-case',measure_ref:'none',scope:'synthetic',lift_information:'not_applicable'}
 }[cls]);
-async function operation({s,origin,cls='due_diligence',subtype='assessment',basis='native_seal',year,instant,fragment,action}={}){
+async function operation({s,origin,cls='due_diligence',subtype='assessment',basis='native_seal',year,instant,fragment,action,payloadOverride={}}={}){
  s??=await scope();origin??=await bind(s);
  action??={process_description:'process_document',due_diligence:'diligence',reported_information:'submission',provider_notice:'provider_notice_annual',cooperation_event:'cooperation_request'}[cls];
- const payload={...payloadFor(cls),source_fragments:{selected:{necessary_value:'synthetic-v1'}}};
+ const payload={...payloadFor(cls),source_fragments:{selected:{necessary_value:'synthetic-v1'}},...payloadOverride};
  if(fragment){payload.original_fragment=fragment;payload.correction_reason='synthetic correction';}
  const e={operation_id:randomUUID(),event_kind:'draft',action_kind:action,origin_id:origin.id,input_revision:'v1',input_digest:await hash(payload),input_ref:'synthetic-target',idempotency_key:randomUUID(),actor_ref:'controlled-fixture',producer_version:'fixture-v1',subject_scope_id:s};
  await append(e,0);e.event_kind='ready';await append(e,1,{input_snapshot:payload});e.event_kind='attempting';e.attempt_id=randomUUID();await append(e,2);
@@ -81,6 +81,9 @@ try{
   const x=await operation();for(const field of ['creation_year','executed','test'])await deny(()=>seal({...x,cmd:{...x.cmd,[field]:true}}),/psttg_record_shape/);
   await deny(()=>seal({...x,cmd:{...x.cmd,creation_proof:{created_at:'2020-01-01'}}}),/psttg_native_time_input/);
   await deny(()=>seal({...x,e:{...x.e,event_kind:'ready'}}),/psttg_execution_required/);
+ });
+ await check('A15 class payload types cannot masquerade as complete records',async()=>{
+  const x=await operation({payloadOverride:{inputs:5}});await deny(()=>seal(x),/psttg_payload_type/);
  });
  await check('A16 A17 A18 controlled modes remain distinct; no automatic profile or aggregation integration',async()=>{
   for(const mode of ['synthetic_test','provider_sandbox','real_operation','unresolved']){const s=await scope(),o=await bind(s,mode);assert.equal(await value('select operating_mode v from dv_market_private.psttg_origin_bindings where origin_id=$1',[o.id]),mode)}
