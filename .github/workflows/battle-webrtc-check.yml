@@ -2,6 +2,8 @@ name: Battle WebRTC Check
 on:
   pull_request:
     paths:
+      - 'database/psttg-*'
+      - 'tests/psttg-*'
       - 'battle*.js'
       - 'control-center*.js'
       - 'database/battle-safety-*'

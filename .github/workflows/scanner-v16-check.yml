@@ -4,6 +4,8 @@ on:
     branches: [scanner-v16, main]
   pull_request:
     paths:
+      - 'database/psttg-*'
+      - 'tests/psttg-*'
       - 'scanner-v16-*.js'
       - 'collect.html'
       - 'collect-ux.js'

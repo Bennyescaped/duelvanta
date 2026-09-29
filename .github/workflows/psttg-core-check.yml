@@ -1,0 +1,63 @@
+name: PStTG isolated K1 K3 core
+on:
+  pull_request:
+    paths:
+      - 'database/psttg-*'
+      - 'tests/psttg-*'
+      - '.github/workflows/psttg-core-check.yml'
+permissions:
+  contents: read
+jobs:
+  native_core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned isolated dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+      - name: Native PostgreSQL 17 core and independent connection races
+        run: node tests/psttg-capture-core-test.mjs --native
+      - name: Native unchanged existing data, functions, ACL and FK proof
+        run: node tests/psttg-existing-invariants-test.mjs --native
+      - name: Complete native L1 C B1 D3 D4 D1 D2 G1 G5 T2 upgrade readiness chain
+        run: node tests/account-erasure-l1-regressions.mjs --native
+      - name: Existing tax seller contract payment evidence regressions
+        run: |
+          node tests/market-tax-transparency-contract-test.mjs
+          node tests/market-tax-transparency-database-test.mjs
+          node tests/market-seller-compliance-database-test.mjs
+          node tests/market-checkout-compliance-database-test.mjs
+          node tests/account-data-rights-database-test.mjs
+          node tests/account-data-erasure-worker-test.mjs
+          node tests/market-stripe-connect-database-test.mjs
+          node tests/market-stripe-live-mode-database-test.mjs
+      - name: Synthetic results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: psttg-isolated-core-evidence
+          path: |
+            test-results/psttg-*.json
+            test-results/l1-erasure-regressions-native.json
+          if-no-files-found: error
