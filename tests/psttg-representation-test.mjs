@@ -32,14 +32,14 @@ try{
  const protectionStart=sql.indexOf('do $$declare t text;r record;begin');
  await db.exec(sql.slice(0,protectionStart)+'commit;');
  const prepared={};
- async function prepareEnd(xid,{keep=false,mismatch=false}={}){
+ async function prepareEnd(xid,{keep=false,mismatch=false,kind=null}={}){
   await q(`insert into dv_market_private.psttg_unit_end_receipt
    select u.unit_id,u.object_id,u.incarnation,u.content_version,u.slot,gen_random_uuid(),1,gen_random_uuid(),1,gen_random_uuid(),gen_random_uuid(),1,'active_db_unit_removed',gen_random_uuid(),gen_random_uuid(),u.unit_seal,b.manifest_seal,'synthetic_prepared_state_only',gen_random_uuid(),decode(repeat('00',32),'hex')
-   from dv_market_private.psttg_content_unit u join dv_market_private.psttg_unit_binding b using(object_id) where u.object_id=$1`,[xid]);
+   from dv_market_private.psttg_content_unit u join dv_market_private.psttg_unit_binding b using(object_id) where u.object_id=$1 and ($2::text is null or u.unit_kind=$2)`,[xid,kind]);
   await q(`update dv_market_private.psttg_unit_guard g set phase='ended',revision=2,manifest_id=r.manifest_id,manifest_revision=r.manifest_revision,authorization_id=r.authorization_id,attempt_id=r.attempt_id,result_id=r.result_id from dv_market_private.psttg_unit_end_receipt r where r.unit_id=g.unit_id and r.object_id=$1`,[xid]);
   if(mismatch)await q('update dv_market_private.psttg_unit_end_receipt set authorization_id=gen_random_uuid() where object_id=$1',[xid]);
   await q("update dv_market_private.psttg_unit_end_receipt r set receipt_seal=dv_market_private.psttg_v2_hash(to_jsonb(r)-'receipt_seal') where object_id=$1",[xid]);
-  if(!keep)await q('delete from dv_market_private.psttg_content_unit where object_id=$1',[xid]);
+  if(!keep)await q('delete from dv_market_private.psttg_content_unit where object_id=$1 and unit_id in(select unit_id from dv_market_private.psttg_unit_end_receipt where object_id=$1)',[xid]);
  }
  for(const state of ['ended','missing','contradictory','content_despite_end','bad_binding','bad_cipher','envelope_swap','bad_key','fenced']){
   const x=await fixture();const id=await capture(x);prepared[state]={x,id};
@@ -62,6 +62,7 @@ try{
   else if(state==='fenced')await q("update dv_market_private.psttg_unit_guard set phase='fenced',revision=2,manifest_id=gen_random_uuid(),manifest_revision=1,authorization_id=gen_random_uuid(),attempt_id=gen_random_uuid() where object_id=$1",[id]);
  }
 
+ const po=await fixture(),poid=await capture(po),pc=await fixture(po.cmd.scopes[0]);pc.cmd.original={id:poid,incarnation:po.cmd.incarnation,version:1};pc.content.body.correction_reason='fixture';pc.content.original_fragment=project(po.content.body);prepared.partial_correction={id:await capture(pc)};await prepareEnd(prepared.partial_correction.id,{kind:'original_fragment'});
  // Native controlled guard counterparts run as fixture preparation, BEFORE
  // immutable protections are installed. No trigger is disabled or replaced.
  if(native){
@@ -110,6 +111,7 @@ try{
    assert.deepEqual((await read(randomUUID())).states,['missing_unexplained']);
   });
  });
+ await check('ER06 ER15 valid individual end receipt does not resolve partial preservation group',async()=>{await unchanged(async()=>{const r=await read(prepared.partial_correction.id);assert.ok(r.states.includes('authorized_end_verified'));assert.ok(r.states.includes('present_verified'));assert.ok(r.states.includes('copy_or_dependency_unresolved'));assert.ok(!r.states.includes('required_correction_fragment'));});});
  await check('ER08 ER12 complete group requirements and persistent fenced targets',async()=>{
   const f=await fixture(),fid=await capture(f),us=(await units(fid)).map(u=>u.unit_id).sort();
   const c=await fixture(f.cmd.scopes[0]);c.cmd.dependencies=us.slice(0,1);await unchanged(()=>deny(()=>capture(c)));

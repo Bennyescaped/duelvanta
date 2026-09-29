@@ -157,6 +157,9 @@ begin
   if g.phase='fenced' and not(states ? 'copy_or_dependency_unresolved') then states:=states||'"copy_or_dependency_unresolved"'::jsonb;end if;
   units:=units||jsonb_build_array(jsonb_build_object('unit_id',s->'unit','slot',s->'slot','state',st,'guard_revision',g.revision,'demand_revision',g.demand_revision));
  end loop;
+ -- A valid per-slot receipt does not dissolve a still-present preservation
+ -- group. Only all-present or all-ended can be a complete group statement.
+ if states ? 'present_verified' and states ? 'authorized_end_verified' then states:=states||'"copy_or_dependency_unresolved"'::jsonb;end if;
  if rel is not null and (rel->>'target',rel->>'incarnation',rel->>'version') is distinct from (b.related_object_id::text,b.related_incarnation::text,b.related_version::text) then states:=states||'"integrity_violation"'::jsonb;end if;
  if frag is not null then
   if body is null or proof is null or rel is null or proof->>'extraction' is distinct from encode(dv_market_private.psttg_v2_hash(frag),'hex') or rel->>'relation'<>'corrects' or proof->'original_binding'->>'object_id' is distinct from rel->>'target' or proof->'original_binding'->>'incarnation' is distinct from rel->>'incarnation' or proof->'original_binding'->>'content_version' is distinct from rel->>'version' or states ?| array['missing_unexplained','integrity_violation','authorized_end_verified'] then
