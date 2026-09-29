@@ -37,6 +37,8 @@ try{
  assert.equal(result.core_coverage_complete,false);
  await scalar('select dv_market_private.check_psttg_evaluation_current($1) v',[result.binding]);
  assert.deepEqual(await snapshot(),readerBefore);
+ const k5Before=await snapshot();await db.exec(await read('database/psttg-k5-synthetic-control-v1.sql'));assert.deepEqual(await snapshot(),k5Before);
+ out.k5_install_preserves_existing=true;
  out.reader_before_after_hashes=readerBefore.rows;
  out.reader_preserves_all_rows_holds_generations_permissions=true;
  out.passed=true;out.tables=tables.length;out.functions=functions.length;
