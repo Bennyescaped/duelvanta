@@ -44,6 +44,10 @@ jobs:
         run: node tests/psttg-k5-synthetic-test.mjs --native
       - name: Native PostgreSQL 17 isolated representation reader and controlled state fixtures
         run: node tests/psttg-representation-test.mjs --native
+      - name: Native PostgreSQL 17 isolated V2 writer and unitmanifest connection
+        run: node tests/psttg-v2-connection-test.mjs --native
+      - name: Native V111 representation regression with installed V2 connection
+        run: node tests/psttg-representation-test.mjs --native --connection
       - name: Native unchanged existing data, functions, ACL and FK proof
         run: node tests/psttg-existing-invariants-test.mjs --native
       - name: Complete native L1 C B1 D3 D4 D1 D2 G1 G5 T2 upgrade readiness chain

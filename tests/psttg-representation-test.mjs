@@ -4,6 +4,7 @@ import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {publicationFixture} from './helpers/publication-hold-fixture.mjs';
 const native=process.argv.includes('--native');
+const connected=process.argv.includes('--connection');
 const db=native?await(await import('./helpers/f3-native-db.mjs')).createDatabase():new(await import('@electric-sql/pglite')).PGlite({extensions:{pgcrypto:(await import('@electric-sql/pglite/contrib/pgcrypto')).pgcrypto}});
 const key=randomBytes(48).toString('base64');
 const out={native,passed:false,cases:[],locks:[],boundary:'representation_only; prepared end fixtures are not end execution'};
@@ -76,7 +77,7 @@ try{
     await q("update dv_market_private.psttg_unit_guard set phase='fenced',revision=revision+1,manifest_id=gen_random_uuid(),manifest_revision=1,authorization_id=gen_random_uuid(),attempt_id=gen_random_uuid() where object_id=$1",[fid],client);
    };
    await q('begin',[],a);if(writerFirst)await capture(c,a);else await controlledFence(a);
-   let settled=false;const waiting=(writerFirst?(async()=>{await q('begin',[],b);try{await controlledFence(b);await q('commit',[],b)}catch(e){await q('rollback',[],b);throw e}})():capture(c,b)).then(v=>({v}),e=>({error:e.message})).finally(()=>settled=true);
+   let settled=false;const waiting=(writerFirst?(async()=>{await q('begin',[],b);try{await controlledFence(b);await q('commit',[],b)}catch(e){await q('rollback',[],b);throw e}})():capture(c,b)).then(v=>({v}),e=>({error:e.message,code:e.code})).finally(()=>settled=true);
    let seen=false;for(let i=0;i<100&&!settled;i++){const pids=await val('select pg_blocking_pids($1) v',[bp]);if(pids.includes(ap)){out.locks.push({label:'fixture-preparation-capture-fence-'+writerFirst,waiting:bp,blocker:ap});seen=true;break}await new Promise(r=>setTimeout(r,20))}
    assert.ok(seen);await q('commit',[],a);const r=await waiting;
    if(writerFirst){assert.ok(!r.error,r.error);assert.ok((await read(c.cmd.object_id)).states.includes('copy_or_dependency_unresolved'))}else assert.match(r.error??'',/v2_target_guard/);
@@ -84,6 +85,7 @@ try{
   out.cases.push('ER08 controlled guard fixture preparation: capture/fence both orders; no end authorization');
  }
  await db.exec('begin;'+sql.slice(protectionStart));
+ if(connected)await db.exec(await readFile(new URL('../database/psttg-v2-writer-unitmanifest-v1.sql',import.meta.url),'utf8'));
 
  assert.deepEqual((await q("select p.oid,p.prosrc,p.proacl::text,p.proowner,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' and p.proname not like 'psttg_v2_%' order by p.oid")).rows,before.rows);
 
@@ -125,9 +127,9 @@ try{
   const a=await db.connect(),b=await db.connect();
   const pid=async c=>val('select pg_backend_pid() v',[],c),ap=await pid(a),bp=await pid(b);
   async function blocked(label,action,release,expected){
-   let settled=false;const waiting=action().then(v=>({v}),e=>({error:e.message})).finally(()=>settled=true);
+   let settled=false;const waiting=action().then(v=>({v}),e=>({error:e.message,code:e.code})).finally(()=>settled=true);
    let seen=false;for(let i=0;i<100&&!settled;i++){const pids=await val('select pg_blocking_pids($1) v',[bp]);if(pids.includes(ap)){out.locks.push({label,waiting:bp,blocker:ap});seen=true;break}await new Promise(r=>setTimeout(r,20))}
-   assert.ok(seen,label+' actual pg_blocking_pids');await release();const result=await waiting;if(expected)assert.match(result.error??'',expected);else assert.ok(!result.error,result.error);return result.v;
+   assert.ok(seen,label+' actual pg_blocking_pids');await release();let result=await waiting;if(connected&&!expected&&result.code==='40001'){out.connectionRetries=(out.connectionRetries??0)+1;result=await action().then(v=>({v}),e=>({error:e.message,code:e.code}));}if(expected)assert.match(result.error??'',expected);else assert.ok(!result.error,result.error);return result.v;
   }
   await check('ER08 ER10 native parallel capture and idempotency conflict both orders',async()=>{
    for(const conflict of [false,true])for(const reverse of [false,true]){
@@ -187,4 +189,4 @@ try{
  });
  assert.deepEqual(await protectedSnapshot(),protectedBefore);out.existingTablesUnchanged=existingTables.length;out.functionsAndRightsUnchanged=true;
  out.passed=true;
-}catch(e){throw new Error(String(e.message).split('\n')[0]);}finally{await mkdir('test-results',{recursive:true});await writeFile(`test-results/psttg-representation-${native?'native':'local'}.json`,JSON.stringify(out,null,2));await db.close()}
+}catch(e){throw new Error(String(e.message).split('\n')[0]);}finally{await mkdir('test-results',{recursive:true});await writeFile(`test-results/psttg-representation-${connected?'connection-':''}${native?'native':'local'}.json`,JSON.stringify(out,null,2));await db.close()}
