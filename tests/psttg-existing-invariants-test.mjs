@@ -39,6 +39,10 @@ try{
  assert.deepEqual(await snapshot(),readerBefore);
  const k5Before=await snapshot();await db.exec(await read('database/psttg-k5-synthetic-control-v1.sql'));assert.deepEqual(await snapshot(),k5Before);
  out.k5_install_preserves_existing=true;
+ tables=(await db.query("select c.oid,n.nspname,c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and n.nspname not in ('pg_catalog','information_schema') and n.nspname not like 'pg_%' order by 2,3")).rows;
+ functions=(await db.query("select p.oid from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname not in ('pg_catalog','information_schema')")).rows.map(x=>x.oid);
+ const v2Before=await snapshot();await db.exec(await read('database/psttg-representation-v2.sql'));assert.deepEqual(await snapshot(),v2Before);
+ out.v2_install_preserves_existing=true;out.v2_existing_tables=tables.length;
  out.reader_before_after_hashes=readerBefore.rows;
  out.reader_preserves_all_rows_holds_generations_permissions=true;
  out.passed=true;out.tables=tables.length;out.functions=functions.length;

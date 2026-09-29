@@ -42,6 +42,8 @@ jobs:
         run: node tests/psttg-removal-evaluation-test.mjs --native
       - name: Native PostgreSQL 17 synthetic K5 and independent restore peer
         run: node tests/psttg-k5-synthetic-test.mjs --native
+      - name: Native PostgreSQL 17 isolated representation reader and controlled state fixtures
+        run: node tests/psttg-representation-test.mjs --native
       - name: Native unchanged existing data, functions, ACL and FK proof
         run: node tests/psttg-existing-invariants-test.mjs --native
       - name: Complete native L1 C B1 D3 D4 D1 D2 G1 G5 T2 upgrade readiness chain
