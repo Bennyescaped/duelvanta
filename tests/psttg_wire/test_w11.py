@@ -118,6 +118,13 @@ class Database(unittest.TestCase):
         cls.db=TestDatabase(native=NATIVE);cls.schemas=Schemas();cls.key=material()
         cls.edition=make_edition(cls.schemas);cls.multi=make_edition(cls.schemas,2,True,2)
         cls.admin=cls.db.connect()
+        # A failed real SQL context gate prevents the N01-N22 matrix from starting.
+        # Local PGlite deliberately cannot certify this native prerequisite.
+        if NATIVE:
+            try:cls('test_N01_commit').context_boundary_gate()
+            except Exception:
+                cls.db.close()
+                raise
     @classmethod
     def tearDownClass(cls):cls.db.close()
     def setUp(self):
@@ -132,6 +139,97 @@ class Database(unittest.TestCase):
     def native(self):
         if not NATIVE:self.skipTest('NATIVE_NOT_RUN: independent PG17/transaction requirement')
     def count(self,table):return self.admin.query('select count(*)::int n from dv_market_private.'+table)[0]['n']
+    def context_boundary_gate(self):
+        report={'gate':'V125-W11-context/1','mode':'native','status':'RUNNING','cases':[]}
+        out=ROOT/'test-results'/'w11-shape-boundary.json';out.parent.mkdir(exist_ok=True)
+        def save():out.write_text(json.dumps(report,indent=2)+'\n')
+        def run(name,operation):
+            row={'case':name,'status':'RUNNING'};report['cases'].append(row);save()
+            try:
+                detail=operation()
+                row.update(status='PASS',detail=detail)
+            except Exception as exc:
+                row.update(status='FAIL',error=str(exc));report['status']='FAIL';save()
+                raise
+            save();print('W11_SHAPE '+json.dumps(row),flush=True)
+        tables=('psttg_w11_envelope_proof_v1','psttg_v2_ingress_v1','psttg_w11_ack_ready_v1')
+        def counts():return {name:self.count(name) for name in tables}
+        def reject(operation,pattern):
+            before=counts();conn=self.db.connect();conn.query('begin isolation level read committed')
+            try:
+                with self.assertRaisesRegex(RuntimeError,pattern) as caught:operation(conn)
+            finally:conn.query('rollback')
+            self.assertEqual(counts(),before)
+            return {'error':str(caught.exception),'no_persistent_partial_write':True}
+        def bind_raw(conn,bridge,data):
+            # Negative tests only: mutate a verified fixture at the actual SQL gate.
+            # The application bridge and its closed payload interface stay unchanged.
+            return conn.query('select dv_market_private.psttg_w11_bind_verified_v1($1::jsonb,$2::bytea,$3::text) v',
+                [json.dumps(data),bridge._mac(conn,['w11-verified-input/1',data]),bridge._secret])[0]['v']
+        b,t,s,f=self.new();first={}
+        def first_commit():
+            self.assertIsNone(b._input(t)['context']['predecessor_proof_id'])
+            first.update(b.commit(self.db.connect(),t))
+            self.assertEqual(first['record_kind'],'BOUND');self.assertFalse(first['replay'])
+            self.assertFalse(first['external_ack_performed'])
+            return {'proof_id':first['proof_id'],'receipt_id':first['receipt_id']}
+        run('first_null_commits_original_19_key_context',first_commit)
+        history={}
+        def committed_parent():
+            hb,ht,hs,hf=self.new(predecessor=first['proof_id'])
+            result=hb.commit(self.db.connect(),ht)
+            self.assertEqual(result['record_kind'],'BOUND')
+            history.update(bridge=hb,token=ht,signed=hs,fixture=hf,result=result)
+            return {'proof_id':result['proof_id'],'predecessor_proof_id':first['proof_id']}
+        run('committed_same_channel_bound_predecessor',committed_parent)
+        nb,nt,ns,nf=self.new();valid=nb._input(nt)
+        self.assertEqual(len(valid['context']),19)
+        def bad_context(name,mutate,pattern):
+            data=copy.deepcopy(valid);mutate(data['context'])
+            run(name,lambda:reject(lambda conn:bind_raw(conn,nb,data),pattern))
+        bad_context('missing_predecessor',lambda c:c.pop('predecessor_proof_id'),'w11_predecessor_shape')
+        bad_context('extra_context_key',lambda c:c.update(extra=True),'v2_schema')
+        for key in valid['context']:
+            if key!='predecessor_proof_id':
+                bad_context('null_'+key,lambda c,k=key:c.update({k:None}),'v2_schema')
+                bad_context('missing_'+key,lambda c,k=key:c.pop(k),'v2_schema')
+        for name,value in [('array',[]),('object',{}),('boolean',True),('number',1)]:
+            bad_context('predecessor_'+name,lambda c,v=value:c.update(predecessor_proof_id=v),'w11_predecessor_shape')
+        for name,value in [('empty',''),('invalid_uuid','not-a-uuid')]:
+            bad_context('predecessor_'+name,lambda c,v=value:c.update(predecessor_proof_id=v),'invalid input syntax for type uuid')
+        bad_context('foreign_channel_predecessor',lambda c:c.update(predecessor_proof_id=first['proof_id']),'w11_predecessor')
+        bad_context('nonexistent_predecessor',lambda c:c.update(predecessor_proof_id=str(uuid4())),'query returned no rows')
+        hb=history['bridge'];ht=history['token']
+        self_ref=hb._input(ht);self_ref['context']['predecessor_proof_id']=history['result']['proof_id']
+        run('self_predecessor',lambda:reject(lambda conn:bind_raw(conn,hb,self_ref),'w11_predecessor'))
+        def uncommitted(conn):
+            result=nb.bind_in_transaction(conn,nt)
+            self.assertEqual(result['record_kind'],'BOUND')
+            data=copy.deepcopy(valid);c=data['context'];c['proof_id']=str(uuid4())
+            c['envelope']['payload']['detail_ref']=c['proof_id']
+            c['predecessor_proof_id']=result['proof_id']
+            return bind_raw(conn,nb,data)
+        run('same_transaction_uncommitted_predecessor',lambda:reject(uncommitted,'w11_predecessor'))
+        def conflict_parent():
+            c=copy.deepcopy(history['fixture']['context']);c['envelope']['proof_ref']=str(uuid4())
+            conflict=hb.commit(self.db.connect(),hb.freeze(history['signed'],c))
+            self.assertEqual(conflict['record_kind'],'CONFLICT')
+            data=hb._input(ht);data['context']['predecessor_proof_id']=conflict['proof_id']
+            return reject(lambda conn:bind_raw(conn,hb,data),'w11_predecessor')
+        run('conflict_record_not_a_bound_predecessor',conflict_parent)
+        for name,obj in [('null',{'x':None}),('extra',{'x':1,'extra':1}),('missing',{})]:
+            run('unchanged_v2_shape_'+name,lambda obj=obj:reject(lambda conn:conn.query(
+                "select dv_market_private.psttg_v2_shape($1::jsonb,array['x'])",[json.dumps(obj)]),'v2_schema'))
+        for name in ('root_null','root_extra','payload_null','payload_extra'):
+            envelope=copy.deepcopy(valid['context']['envelope'])
+            if name=='root_null':envelope['proof_ref']=None
+            elif name=='root_extra':envelope['extra']=True
+            elif name=='payload_null':envelope['payload']['detail_ref']=None
+            else:envelope['payload']['extra']=True
+            run('unchanged_receiver_'+name,lambda e=envelope:reject(lambda conn:conn.query(
+                'select dv_market_private.psttg_v2_receive_v1($1::uuid,$2::jsonb,$3::bytea,$4::text)',
+                [valid['context']['channel_id'],json.dumps(e),nb._mac(conn,e),nb._secret]),'v2_schema'))
+        report['status']='PASS';save()
     def test_local_schema_and_durability_gate(self):
         if NATIVE:
             self.assertEqual(self.admin.query('show fsync')[0]['fsync'],'on')

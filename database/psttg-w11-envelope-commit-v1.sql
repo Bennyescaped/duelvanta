@@ -101,7 +101,14 @@ begin
  perform dv_market_private.psttg_v2_shape(input,array['contract','codec','m02','context']);
  if input->>'contract' is distinct from 'V123-W11-verified-envelope-commit/1' or input->>'codec' is distinct from 'w11-canonical-json-base64/1' then raise exception 'w11_contract';end if;
  c:=input->'context';e:=c->'envelope';
- perform dv_market_private.psttg_v2_shape(c,array['proof_id','channel_id','operating_incarnation','operation_ref','envelope_revision','admission_id','attempt_transition_id','admission_commit_ref','input_revision','transition_commit_ref','transition_revision','scope_ids','configuration_revision','receipt_revision','mapping_revision','stop_revision','predecessor_proof_id','envelope','environment_binding']);
+ -- Only this mandatory key permits JSON null. Validate a temporary view;
+ -- retain c/input unchanged for attestation, replay and persistent evidence.
+ if jsonb_typeof(c) is distinct from 'object' or not (c ? 'predecessor_proof_id') then raise exception 'w11_predecessor_shape';end if;
+ if c->'predecessor_proof_id' <> 'null'::jsonb then
+  if jsonb_typeof(c->'predecessor_proof_id') is distinct from 'string' then raise exception 'w11_predecessor_shape';end if;
+  perform (c->>'predecessor_proof_id')::uuid;
+ end if;
+ perform dv_market_private.psttg_v2_shape(c-'predecessor_proof_id',array['proof_id','channel_id','operating_incarnation','operation_ref','envelope_revision','admission_id','attempt_transition_id','admission_commit_ref','input_revision','transition_commit_ref','transition_revision','scope_ids','configuration_revision','receipt_revision','mapping_revision','stop_revision','envelope','environment_binding']);
  select * into strict g from dv_market_private.psttg_v2_channel_v1 where channel_id=(c->>'channel_id')::uuid for update;
  if attestation is distinct from dv_market_private.psttg_w11_mac_v1(jsonb_build_array('w11-verified-input/1',input),g.verification_key) then raise exception 'w11_unverified_input';end if;
  if c->'environment_binding' is distinct from jsonb_build_object('origin','synthetic_test','environment','TEST','application','DAC7','dip_version','2.0','environment_ref',g.environment_ref,'account_ref',g.account_ref,'system_ref',g.target_system_ref) then raise exception 'w11_environment';end if;
