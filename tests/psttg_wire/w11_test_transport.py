@@ -37,6 +37,12 @@ class TestDatabase:
             self.process.stdin.close();self.process.wait(timeout=20)
 
 class Connection:
-    def __init__(self,owner,identity):self.owner=owner;self.identity=identity
+    def __init__(self,owner,identity):self.owner=owner;self.identity=identity;self._closed=False
     def query(self,sql,params=None):
+        if self._closed:raise RuntimeError('w11_connection_closed')
         return self.owner.request('query',connection=self.identity,sql=sql,params=params or [])
+    def close(self):
+        if self._closed:return True
+        result=self.owner.request('release',connection=self.identity)
+        self._closed=True
+        return result

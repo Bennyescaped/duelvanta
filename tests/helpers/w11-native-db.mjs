@@ -9,27 +9,28 @@ import pg from 'pg';
 export async function createW11Database(){
  assert.ok(['localhost','127.0.0.1'].includes(process.env.PGHOST));
  assert.equal(process.env.PGDATABASE,'postgres');
- let admin;const clients=[];const name='f3_ci_'+randomUUID().replaceAll('-','');
+ let admin;const clients=new Set();const name='f3_ci_'+randomUUID().replaceAll('-','');
  const adminConnect=async()=>{admin=new pg.Client({connectionTimeoutMillis:5000});admin.on('error',()=>{});await admin.connect();};
  await adminConnect();const version=(await admin.query('show server_version_num')).rows[0].server_version_num;
  assert.equal(Math.floor(Number(version)/10000),17,'native PG17 required');
  assert.equal((await admin.query('show fsync')).rows[0].fsync,'on');
  await admin.query(`create database ${name}`);
- const connect=async()=>{const c=new pg.Client({database:name,connectionTimeoutMillis:5000});c.on('error',()=>{});await c.connect();await c.query("set statement_timeout='12s';set idle_in_transaction_session_timeout='30s'");clients.push(c);return c};
+ const release=async c=>{assert.ok(clients.has(c),'unknown native connection');await c.end();clients.delete(c);};
+ const connect=async()=>{const c=new pg.Client({database:name,connectionTimeoutMillis:5000});c.on('error',()=>{});await c.connect();clients.add(c);try{await c.query("set statement_timeout='12s';set idle_in_transaction_session_timeout='30s'");return c;}catch(e){try{await release(c);}catch(cleanup){e.cause??=cleanup;}throw e;}};
  let client=await connect();
- return {name,version,connect,query:(...args)=>client.query(...args),exec:s=>client.query(s),
+ return {name,version,connect,release,query:(...args)=>client.query(...args),exec:s=>client.query(s),
   restart:async()=>{
    const bin=process.env.W11_PG_CTL,dir=process.env.W11_PG_DATA;
    assert.ok(bin&&dir&&isAbsolute(bin)&&isAbsolute(dir)&&basename(bin)==='pg_ctl'&&basename(dir).startsWith('w11_isolated_'),'N19 explicit disposable pg_ctl/data capability required');
    assert.equal(resolve((await admin.query('show data_directory')).rows[0].data_directory),resolve(dir));
    // No administrative client is left to receive an unhandled shutdown event.
-   for(const c of clients)await c.end();clients.length=0;await admin.end();
+   for(const c of clients)await release(c);await admin.end();
    await promisify(execFile)(bin,['-D',dir,'-m','fast','-w','restart'],{timeout:60000});
    await adminConnect();client=await connect();
    assert.equal(Math.floor(Number((await admin.query('show server_version_num')).rows[0].server_version_num)/10000),17);
    return {restarted:true};
   },close:async()=>{
-   for(const c of clients)await c.end();await admin.query(`drop database ${name} with (force)`);
+   for(const c of clients)await release(c);await admin.query(`drop database ${name} with (force)`);
    await admin.query('drop role if exists anon,authenticated,service_role');await admin.end();
   }};
 }

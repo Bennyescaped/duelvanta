@@ -2,6 +2,8 @@
 Every N01-N22 remains NATIVE_NOT_RUN in local mode, even if PGlite passes.
 """
 import copy
+from contextlib import contextmanager
+from time import monotonic, sleep
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 import json
@@ -21,6 +23,28 @@ from psttg_wire.w11_test_transport import TestDatabase
 NATIVE=False
 RESULTS=[]
 ROOT=Path(__file__).resolve().parents[2]
+
+@contextmanager
+def closed_connection(db, on_open=None):
+    """Own one test handle, including BEGIN failure; never mask its first error."""
+    conn=db.connect();primary=None
+    try:
+        if on_open is not None:on_open(conn)
+        yield conn
+    except BaseException as exc:
+        primary=exc
+        raise
+    finally:
+        errors=[]
+        for cleanup in (lambda:conn.query('rollback'),conn.close):
+            try:cleanup()
+            except BaseException as exc:errors.append(exc)
+        if errors:
+            if primary is not None:
+                for exc in errors:primary.add_note('connection cleanup: '+repr(exc))
+            else:
+                for exc in errors[1:]:errors[0].add_note('connection cleanup: '+repr(exc))
+                raise errors[0]
 
 def context(spec):
     c={k:str(uuid4()) for k in ('proof_id','channel_id','operating_incarnation','operation_ref',
@@ -112,6 +136,29 @@ class Local(unittest.TestCase):
         for forbidden in ('requests','urllib','http.client','sign_test','private_bytes','os.environ','PATCH'):
             self.assertNotIn(forbidden,(ROOT/'tests/psttg_wire/w11_bridge.py').read_text())
 
+    def test_11_connection_cleanup_paths(self):
+        for failure in ('none','begin','assertion','rollback','close','primary_and_cleanup'):
+            with self.subTest(failure=failure):
+                events=[];primary=RuntimeError('primary');cleanup=RuntimeError('cleanup')
+                class Conn:
+                    def query(inner,sql):
+                        events.append(sql)
+                        if sql=='begin' and failure in ('begin','primary_and_cleanup'):raise primary
+                        if sql=='rollback' and failure in ('rollback','primary_and_cleanup'):raise cleanup
+                    def close(inner):
+                        events.append('close')
+                        if failure in ('close','primary_and_cleanup'):raise cleanup
+                class DB:
+                    def connect(inner):return Conn()
+                caught=None
+                try:
+                    with closed_connection(DB()) as conn:
+                        conn.query('begin')
+                        if failure=='assertion':raise primary
+                except RuntimeError as exc:caught=exc
+                self.assertEqual(events,['begin','rollback','close'])
+                self.assertIs(caught,None if failure=='none' else primary if failure in ('begin','assertion','primary_and_cleanup') else cleanup)
+
 class Database(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -120,13 +167,19 @@ class Database(unittest.TestCase):
         cls.admin=cls.db.connect()
         # A failed real SQL context gate prevents the N01-N22 matrix from starting.
         # Local PGlite deliberately cannot certify this native prerequisite.
-        if NATIVE:
-            try:cls('test_N01_commit').context_boundary_gate()
-            except Exception:
-                cls.db.close()
-                raise
+        try:
+            cls('test_N01_commit').connection_lifecycle_gate()
+            if NATIVE:cls('test_N01_commit').context_boundary_gate()
+        except BaseException as exc:
+            try:cls.db.close()
+            except BaseException as cleanup:exc.add_note('global cleanup: '+repr(cleanup))
+            raise
     @classmethod
-    def tearDownClass(cls):cls.db.close()
+    def tearDownClass(cls):
+        cls.db.close()
+        out=ROOT/'test-results'/'w11-connection-lifecycle.json'
+        report=json.loads(out.read_text());report['global_cleanup']='PASS'
+        out.write_text(json.dumps(report,indent=2)+'\n')
     def setUp(self):
         if not NATIVE and self._testMethodName.startswith('test_N') and self._testMethodName not in ('test_N20_environment','test_N21_free_input'):
             self.skipTest('NATIVE_NOT_RUN: native durability gate deliberately not bypassed in PGlite')
@@ -139,9 +192,54 @@ class Database(unittest.TestCase):
     def native(self):
         if not NATIVE:self.skipTest('NATIVE_NOT_RUN: independent PG17/transaction requirement')
     def count(self,table):return self.admin.query('select count(*)::int n from dv_market_private.'+table)[0]['n']
+    def assert_backends_gone(self,pids):
+        deadline=monotonic()+5
+        while True:
+            rows=self.admin.query('select pid from pg_stat_activity where pid = any($1::int[])',[pids])
+            if not rows:return
+            if monotonic()>=deadline:self.fail('test connections still active: '+repr(rows))
+            sleep(0.05)
+    def connection_lifecycle_gate(self):
+        report={'gate':'W11-single-connection-close/1','mode':'native' if NATIVE else 'local',
+            'status':'RUNNING','native_backend_end':'NATIVE_NOT_RUN','global_cleanup':'NOT_RUN'}
+        out=ROOT/'test-results'/'w11-connection-lifecycle.json';out.parent.mkdir(exist_ok=True)
+        def save():out.write_text(json.dumps(report,indent=2)+'\n')
+        save()
+        try:
+            # Explicitly own both handles. Closing one never tears down the harness.
+            a=self.db.connect()
+            try:
+                with closed_connection(self.db) as b:
+                    self.assertEqual(a.query('select 1 as n')[0]['n'],1)
+                    self.assertEqual(b.query('select 2 as n')[0]['n'],2)
+                    pid=a.query('select pg_backend_pid() as pid')[0]['pid'] if NATIVE else None
+                    self.assertTrue(a.close());self.assertTrue(a.close())
+                    self.assertTrue(self.db.request('release',connection=a.identity))
+                    with self.assertRaisesRegex(RuntimeError,'w11_connection_closed'):a.query('select 1')
+                    with self.assertRaisesRegex(RuntimeError,'unknown or closed isolated connection'):
+                        self.db.request('query',connection=a.identity,sql='select 1',params=[])
+                    for identity in ('999999999','wrong',None,1):
+                        with self.assertRaisesRegex(RuntimeError,'invalid isolated connection|unknown isolated connection'):
+                            self.db.request('release',connection=identity)
+                    self.assertEqual(b.query('select 3 as n')[0]['n'],3)
+                    if NATIVE:
+                        self.assert_backends_gone([pid]);report.update(native_backend_end='PASS',closed_backend_pid=pid)
+            except BaseException as exc:
+                try:a.close()
+                except BaseException as cleanup:exc.add_note('connection cleanup: '+repr(cleanup))
+                raise
+            else:a.close()
+            report['status']='PASS'
+        except BaseException as exc:
+            report.update(status='FAIL',error=repr(exc));save();raise
+        save();print('W11_CONNECTION_LIFECYCLE '+json.dumps(report),flush=True)
     def context_boundary_gate(self):
         report={'gate':'V125-W11-context/1','mode':'native','status':'RUNNING','cases':[]}
         out=ROOT/'test-results'/'w11-shape-boundary.json';out.parent.mkdir(exist_ok=True)
+        handles=[];pids=[]
+        max_connections=self.admin.query('show max_connections')[0]['max_connections']
+        def track(conn):
+            handles.append(conn);pids.append(conn.query('select pg_backend_pid() as pid')[0]['pid'])
         def save():out.write_text(json.dumps(report,indent=2)+'\n')
         def run(name,operation):
             row={'case':name,'status':'RUNNING'};report['cases'].append(row);save()
@@ -155,10 +253,10 @@ class Database(unittest.TestCase):
         tables=('psttg_w11_envelope_proof_v1','psttg_v2_ingress_v1','psttg_w11_ack_ready_v1')
         def counts():return {name:self.count(name) for name in tables}
         def reject(operation,pattern):
-            before=counts();conn=self.db.connect();conn.query('begin isolation level read committed')
-            try:
+            before=counts()
+            with closed_connection(self.db,track) as conn:
+                conn.query('begin isolation level read committed')
                 with self.assertRaisesRegex(RuntimeError,pattern) as caught:operation(conn)
-            finally:conn.query('rollback')
             self.assertEqual(counts(),before)
             return {'error':str(caught.exception),'no_persistent_partial_write':True}
         def bind_raw(conn,bridge,data):
@@ -169,7 +267,7 @@ class Database(unittest.TestCase):
         b,t,s,f=self.new();first={}
         def first_commit():
             self.assertIsNone(b._input(t)['context']['predecessor_proof_id'])
-            first.update(b.commit(self.db.connect(),t))
+            with closed_connection(self.db,track) as conn:first.update(b.commit(conn,t))
             self.assertEqual(first['record_kind'],'BOUND');self.assertFalse(first['replay'])
             self.assertFalse(first['external_ack_performed'])
             return {'proof_id':first['proof_id'],'receipt_id':first['receipt_id']}
@@ -177,7 +275,7 @@ class Database(unittest.TestCase):
         history={}
         def committed_parent():
             hb,ht,hs,hf=self.new(predecessor=first['proof_id'])
-            result=hb.commit(self.db.connect(),ht)
+            with closed_connection(self.db,track) as conn:result=hb.commit(conn,ht)
             self.assertEqual(result['record_kind'],'BOUND')
             history.update(bridge=hb,token=ht,signed=hs,fixture=hf,result=result)
             return {'proof_id':result['proof_id'],'predecessor_proof_id':first['proof_id']}
@@ -212,7 +310,7 @@ class Database(unittest.TestCase):
         run('same_transaction_uncommitted_predecessor',lambda:reject(uncommitted,'w11_predecessor'))
         def conflict_parent():
             c=copy.deepcopy(history['fixture']['context']);c['envelope']['proof_ref']=str(uuid4())
-            conflict=hb.commit(self.db.connect(),hb.freeze(history['signed'],c))
+            with closed_connection(self.db,track) as conn:conflict=hb.commit(conn,hb.freeze(history['signed'],c))
             self.assertEqual(conflict['record_kind'],'CONFLICT')
             data=hb._input(ht);data['context']['predecessor_proof_id']=conflict['proof_id']
             return reject(lambda conn:bind_raw(conn,hb,data),'w11_predecessor')
@@ -229,7 +327,15 @@ class Database(unittest.TestCase):
             run('unchanged_receiver_'+name,lambda e=envelope:reject(lambda conn:conn.query(
                 'select dv_market_private.psttg_v2_receive_v1($1::uuid,$2::jsonb,$3::bytea,$4::text)',
                 [valid['context']['channel_id'],json.dumps(e),nb._mac(conn,e),nb._secret]),'v2_schema'))
+        self.assertEqual(len(report['cases']),58)
+        self.assertTrue(all(conn._closed for conn in handles))
+        self.assert_backends_gone(pids)
+        self.assertEqual(self.admin.query('show max_connections')[0]['max_connections'],max_connections)
+        report['connection_budget']={'owned_handles':len(handles),'closed_handles':len(handles),
+            'backend_pids':pids,'remaining_owned_backends':0,'max_connections':max_connections,
+            'fixture_observer_connections':'outside Shape-gate handle ownership; unchanged'}
         report['status']='PASS';save()
+        print('W11_SHAPE_CONNECTION_BUDGET '+json.dumps(report['connection_budget']),flush=True)
     def test_local_schema_and_durability_gate(self):
         if NATIVE:
             self.assertEqual(self.admin.query('show fsync')[0]['fsync'],'on')
