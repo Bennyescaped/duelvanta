@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="urn:oecd:ties:dsm:v1" xmlns:dsm="urn:oecd:ties:dsm:v1" 
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:iso="urn:oecd:ties:isodpitypes:v1" 
+			xmlns:stf="urn:oecd:ties:dpistf:v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0">
+			
+	<xsd:import namespace="urn:oecd:ties:isodpitypes:v1" schemaLocation="isodpitypes_v1.0.xsd"/>
+	<xsd:import namespace="urn:oecd:ties:dpistf:v1" schemaLocation="oecddpitypes_v1.0.xsd"/>
+	
+	<!--+++++++++++++++++++++++  Reusable Simple types ++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Message type definitions -->
+	<!--  -->
+	<xsd:simpleType name="MessageType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Message type defines the type of reporting.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="DPI">
+				<xsd:annotation>
+					<xsd:documentation>This type defines the messages to be exchanged.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- FileAcceptanceStatus -->
+	<xsd:simpleType name="FileAcceptanceStatus_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">File acceptance status: if the file was accepted or rejected by the receiver</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Accepted">
+				<xsd:annotation>
+					<xsd:documentation>The file was accepted by the receiver</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="Rejected">
+				<xsd:annotation>
+					<xsd:documentation>The file was rejected by the receiver</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!--++++++++++++++++++ Reusable Complex types +++++++++++++++++++++++++++++++++++++ -->
+	<!-- Message specification: Data identifying and describing the message as a whole -->
+	<xsd:complexType name="MessageSpec_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Information in the message header identifies the Tax Administration that is sending the message.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="TransmittingCountry" type="iso:CountryCode_Type"/>
+			<xsd:element name="ReceivingCountry" type="iso:CountryCode_Type"/>
+			<xsd:element name="MessageType" type="dsm:MessageType_EnumType">
+				<xsd:annotation>
+					<xsd:documentation>This data element specifies the type of message being sent. 
+					The only allowable entry for messages exchanged under the Model Rules in this field is “DPI”.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>			
+			<xsd:element name="Warning" type="stf:StringMin1Max4000_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Free text expressing the restrictions for use of the information this 
+					message contains and the legal framework under which it is given</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Contact" type="stf:StringMin1Max4000_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">All necessary contact information about persons responsible for and 
+					involved in the processing of the data transmitted in this message, both legally and technically. Free text as this is not
+					intended for automatic processing. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="MessageRefId" type="stf:StringMin1Max170_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Unique identifier for this DAC7 Status message</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Timestamp" type="xsd:dateTime"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Record Error type   -->
+	<xsd:complexType name="RecordError_Type">
+		<xsd:sequence>
+			<xsd:element name="Code" type="stf:StringMin1Max10_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Error Code</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Details" type="dsm:ErrorDetail_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Error Details</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="DocRefIDInError" type="stf:StringMin1Max200_Type" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">DocRefID of the record causing the error</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="FieldsInError" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Information on the fields causing the error</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="FieldPath" type="stf:StringMin1Max400_Type"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- File Error type   -->
+	<xsd:complexType name="FileError_Type">
+		<xsd:sequence>
+			<xsd:element name="Code" type="stf:StringMin1Max10_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Error Code</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Details" type="dsm:ErrorDetail_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Error Details</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Error Detail Type -->
+	<xsd:complexType name="ErrorDetail_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Error message provide more details about the error</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="stf:StringMin1Max4000_Type">
+				<xsd:attribute name="Language" type="iso:LanguageCode_Type"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Original Message Type -->
+	<xsd:complexType name="OriginalMessage_Type">
+		<xsd:sequence>
+			<xsd:element name="OriginalMessageRefID" type="stf:StringMin1Max170_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">The MessageRefID of the original message (Initial / Nil Report / Correction) 
+					for which the Status Message is provided</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Validation Errors Type -->
+	<xsd:complexType name="ValidationErrors_Type">
+		<xsd:sequence>
+			<xsd:element name="FileError" type="dsm:FileError_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="RecordError" type="dsm:RecordError_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Validation Result Type -->
+	<xsd:complexType name="ValidationResult_Type">
+		<xsd:sequence>
+			<xsd:element name="Status" type="dsm:FileAcceptanceStatus_EnumType">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Indicate if the file was accepted or rejected by the receiver</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="ValidatedBy" type="stf:StringMin1Max400_Type" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Indicate the version of the validation tool that was used to generate this Status Message</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- DAC7 Status Message Type -->
+	<xsd:complexType name="DAC7MessageStatus_Type">
+		<xsd:sequence>
+			<xsd:element name="OriginalMessage" type="dsm:OriginalMessage_Type"/>
+			<xsd:element name="ValidationErrors" type="dsm:ValidationErrors_Type"/>
+			<xsd:element name="ValidationResult" type="dsm:ValidationResult_Type"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Schema  element ++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- -->
+	<!-- DAC7 Status Message structure  -->
+	<xsd:element name="DAC7StatusMessage">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="MessageSpec" type="dsm:MessageSpec_Type"/>
+				<xsd:element name="DSMBody" type="dsm:DAC7MessageStatus_Type"/>
+			</xsd:sequence>
+			<xsd:attribute name="version" type="stf:StringMin1Max10_Type" fixed="1.0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">DAC7 Status Message Version</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- -->
+</xsd:schema>

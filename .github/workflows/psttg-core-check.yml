@@ -4,6 +4,7 @@ on:
     paths:
       - 'database/psttg-*'
       - 'tests/psttg-*'
+      - 'tests/psttg_wire/**'
       - '.github/workflows/psttg-core-check.yml'
 permissions:
   contents: read
@@ -36,6 +37,13 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
           ln -s .github/ci/node_modules node_modules
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned offline XML runtime
+        run: python -m pip install --disable-pip-version-check lxml==6.1.1
+      - name: Send-free DPI DSM DIP NN schema and business rules
+        run: python tests/psttg-wire-test.py
       - name: Native PostgreSQL 17 core and independent connection races
         run: node tests/psttg-capture-core-test.mjs --native
       - name: Native PostgreSQL 17 pure reader and two-order races
@@ -45,7 +53,7 @@ jobs:
       - name: Native PostgreSQL 17 isolated representation reader and controlled state fixtures
         run: node tests/psttg-representation-test.mjs --native
       - name: Native PostgreSQL 17 isolated V2 writer and unitmanifest connection
-        run: node tests/psttg-v2-connection-test.mjs --native
+        run: node tests/psttg-v2-connection-test.mjs --native --wire
       - name: Native V111 representation regression with installed V2 connection
         run: node tests/psttg-representation-test.mjs --native --connection
       - name: Native unchanged existing data, functions, ACL and FK proof

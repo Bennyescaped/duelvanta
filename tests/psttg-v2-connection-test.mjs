@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {randomUUID,randomBytes,createHmac} from 'node:crypto';
+import {randomUUID,randomBytes,createHmac,createHash} from 'node:crypto';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {UnitTestPeer} from './psttg-v2-test-peer.mjs';
 import {publicationFixture} from './helpers/publication-hold-fixture.mjs';
@@ -226,6 +226,35 @@ assert.ok(!headers.includes('synthetic-secret'));assert.ok(!headers.includes('am
    const t=transition(g,a,'ATTEMPTING',1,randomUUID(),1);await q('begin',[],ca);await invoke(g,t,{},ca,{transaction:false});assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_use_transition_v1 where admission_id=$1',[a.admission_ref],observer),0);await q('commit',[],ca);assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_use_transition_v1 where admission_id=$1',[a.admission_ref],observer),1);const after=await snapshot();await invoke(g,t);assert.deepEqual(await snapshot(),after);
    const e=envelope(g,a.operation_ref,a.admission_ref,t.attempt_ref,1,'SIMULATED');await q('begin',[],ca);await receive(g,e,ca);assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where channel_id=$1',[g.channel_id],observer),0);await q('rollback',[],ca);assert.deepEqual(await snapshot(),after);
    await q('begin',[],ca);const rid=await receive(g,e,ca);await q('commit',[],ca);assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where receipt_id=$1',[rid],observer),1);const saved=await snapshot();assert.equal(await receive(g,e),rid);assert.deepEqual(await snapshot(),saved);
+  });
+  if(process.argv.includes('--wire'))await check('W11 native V114 controlled wire receipt commit rollback replay and byte conflict',async()=>{
+   // Byte evidence stays in this isolated test artifact; no real receipt/producer adapter.
+   const fixture=JSON.parse(await readFile('test-results/psttg-wire-controlled.json','utf8'));
+   assert.equal(fixture.origin,'synthetic_test');assert.equal(fixture.outcome,'ACCEPTED');
+   const raw=Buffer.from(fixture.receipt_hex,'hex');
+   assert.equal(createHash('sha256').update(raw).digest('hex'),fixture.receipt_sha256);
+   const opaque=bytes=>{const h=createHash('sha256').update(bytes).digest('hex').slice(0,32);return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`};
+   const g=channels.shift(),src=await source(g),a=admission(g,src);await invoke(g,a,content);
+   const t=transition(g,a,'ATTEMPTING',1,randomUUID(),1);await invoke(g,t);
+   const peer=new UnitTestPeer(g),token=await peer.observeCommitted(t.attempt_ref,observer);
+   const e={...peer.effect(token),payload:{detail_ref:opaque(raw)}};
+   const baseline=await snapshot();await q('begin',[],ca);await receive(g,e,ca);
+   assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where channel_id=$1',[g.channel_id],observer),0);
+   await q('rollback',[],ca);assert.deepEqual(await snapshot(),baseline);
+   await q('begin',[],ca);const rid=await receive(g,e,ca);
+   assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where receipt_id=$1',[rid],observer),0);
+   await q('commit',[],ca);
+   assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where receipt_id=$1',[rid],observer),1);
+   const committed=await snapshot();assert.equal(await receive(g,e),rid);assert.deepEqual(await snapshot(),committed);
+   const conflict={...e,payload:{detail_ref:opaque(Buffer.concat([raw,Buffer.from('conflicting bytes')]))}};
+   assert.notEqual(await receive(g,conflict),rid);
+   assert.equal(await val('select count(*)::int v from dv_market_private.psttg_v2_ingress_v1 where channel_id=$1',[g.channel_id],observer),2);
+   assert.equal(await val('select stopped v from dv_market_private.psttg_v2_channel_v1 where channel_id=$1',[g.channel_id],observer),true);
+   assert.equal(peer.effects.size,1);await deny(()=>peer.observeCommitted(t.attempt_ref,observer),/peer_quarantined_or_stopped/);
+   assert.equal(await val('select count(*)::int v from dv_market_private.psttg_unit_end_receipt',[],observer),0);
+   out.wire={receipt_sha256:fixture.receipt_sha256,edition_binding:fixture.binding,rollback:true,independent_commit:true,
+    idempotent:true,conflict_preserved:true,external_ack_performed:false,real_receipt_adapter:false,
+    boundary:'Opaque test-only reference to separately hash-verified offline bytes; existing SIMULATED ingress unchanged'};
   });
   await check('native second restored database independent peer keeps effect and revocation history',async()=>{
    const g=channels.shift(),src=await source(g),a=admission(g,src);await invoke(g,a,content);const r=await captureRecord(g),m=await fence(g,r),peer=new UnitTestPeer(g);
