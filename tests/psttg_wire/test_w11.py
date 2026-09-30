@@ -2,6 +2,9 @@
 Every N01-N22 remains NATIVE_NOT_RUN in local mode, even if PGlite passes.
 """
 import copy
+from itertools import count
+from threading import get_ident, local
+from time import monotonic_ns
 from contextlib import contextmanager
 from time import monotonic, sleep
 from concurrent.futures import ThreadPoolExecutor
@@ -23,6 +26,132 @@ from psttg_wire.w11_test_transport import TestDatabase
 NATIVE=False
 RESULTS=[]
 ROOT=Path(__file__).resolve().parents[2]
+
+class _N11Observation:
+    """Bounded test diagnostics only: never synchronize or replace validation."""
+    def __init__(self, original, bridge, tokens):
+        self.original=original;self.thread=local();self.ids=count(1)
+        self.events=[];self.incomplete=[];self.budget=0;self.tokens={}
+        self.safe(self.bind_tokens,bridge,tokens)
+
+    def safe(self, action, *args, **kwargs):
+        try:return action(*args, **kwargs)
+        except BaseException as exc:
+            if len(self.incomplete)<16:self.incomplete.append(type(exc).__name__)
+
+    def emit(self, kind, **fields):
+        event=dict(event_id=next(self.ids),kind=kind,time_ns=monotonic_ns(),
+            role=getattr(self.thread,'role','unassigned'),thread_id=get_ident(),
+            validator_id=id(self.original),**fields)
+        size=len(json.dumps(event).encode())
+        if len(self.events)>=1024 or self.budget+size>1024*1024:
+            if 'diagnostic_limit' not in self.incomplete:self.incomplete.append('diagnostic_limit')
+            return
+        self.budget+=size;self.events.append(event)
+        return event['event_id']
+
+    def bind_tokens(self, bridge, tokens):
+        # Read issued immutable bytes; do not call _input/expectation/_restore.
+        for role,token in tokens.items():
+            raw=bridge._issued[token];data=json.loads(raw);m=data['m02'];c=data['context']
+            self.tokens[role]=dict(token_sha256=sha(raw),
+                original_byte_sha256={k:sha(_unb64(v)) for k,v in m['bytes'].items()},
+                declared_byte_sha256=m['byte_hashes'],spec=m['spec'],spec_sha256=sha(canonical(m['spec'])),
+                pin_sha256=sha(canonical(m['pin'])),
+                certificate_sha256=sha(_unb64(m['pin']['certificate'])),
+                public_key_sha256=sha(_unb64(m['pin']['public_key'])),
+                edition_binding=m['edition_binding'],schema_binding=m['schema_binding'],
+                unsigned_binding=m['unsigned_binding'],evidence_sha256=sha(canonical(m['evidence'])),
+                verifier_sources=m['verifier_sources'],context_sha256=sha(canonical(c)),
+                operation_ref=c['operation_ref'],proof_id=c['proof_id'],
+                K=[c['channel_id'],c['operating_incarnation'],c['operation_ref'],m['spec']['revision']],
+                envelope_proof_ref=c['envelope']['proof_ref'])
+
+    def begin(self, method, root):
+        from lxml import etree as ET
+        call_id=next(self.ids);self.thread.last_call=call_id
+        frame=sys._getframe(2);callers=[]
+        while frame is not None and len(callers)<16:
+            callers.append(frame.f_code.co_name);frame=frame.f_back
+        node=root.getroot() if hasattr(root,'getroot') else root
+        signed=any(x.tag=='{http://www.w3.org/2000/09/xmldsig#}Signature' for x in node)
+        kind='signed' if signed else 'unsigned' if 'build_envelope' in callers or 'check_unsigned' in callers else 'projected'
+        # This serialization is a diagnostic fingerprint, never persisted payload.
+        self.emit('call_start',call_id=call_id,method=method,root_kind=kind,
+            dom_serialization_sha256=sha(ET.tostring(root)),callers=callers,
+            original_byte_sha256=self.tokens.get(getattr(self.thread,'role',None),{}).get('original_byte_sha256'))
+        return call_id
+
+    def invoke(self, method, root):
+        call_id=self.safe(self.begin,method,root)
+        try:result=getattr(self.original,method)(root)
+        except BaseException as exc:
+            self.safe(self.emit,'call_end',call_id=call_id,method=method,
+                outcome='exception',exception_type=type(exc).__name__,message=str(exc))
+            raise
+        self.safe(self.emit,'call_end',call_id=call_id,method=method,outcome='return',result=result)
+        return result
+
+    def validate(self, root):return self.invoke('validate',root)
+    def assertValid(self, root):return self.invoke('assertValid',root)
+
+    @property
+    def error_log(self):
+        read_started=monotonic_ns()
+        snapshot=self.original.error_log  # Exactly one access; return this exact copy.
+        read_finished=monotonic_ns()
+        self.safe(self.record_snapshot,snapshot,read_started,read_finished)
+        return snapshot
+
+    def record_snapshot(self, snapshot, started, finished):
+        fields=('domain','domain_name','type','type_name','level','level_name','message','line','column','path')
+        entries=[{key:getattr(entry,key,None) for key in fields} for entry in snapshot]
+        self.emit('consumed_error_log',call_id=getattr(self.thread,'last_call',None),
+            snapshot_id=next(self.ids),snapshot_object_id=id(snapshot),read_started_ns=started,
+            read_finished_ns=finished,entry_count=len(snapshot),entries=entries)
+
+    def future(self, role, action, *args):
+        self.thread.role=role
+        self.safe(self.emit,'future_start')
+        try:result=action(*args)
+        except BaseException as exc:
+            self.safe(self.emit,'future_end',outcome='exception',exception_type=type(exc).__name__,message=str(exc))
+            raise
+        # Never log returned bundles, observation MACs or storage/HMAC secrets.
+        self.safe(self.emit,'future_end',outcome='return',return_type=type(result).__name__,
+            return_is_none=result is None,
+            result_summary={k:result[k] for k in ('record_kind','proof_id','replay','eligible','external_ack_performed','real_receipt_adapter') if k in result} if type(result) is dict else {})
+        return result
+
+    def finish(self, futures):
+        for role,future in futures.items():
+            if not future.done() or future.cancelled():self.incomplete.append('future_not_completed:'+role)
+            exc=future.exception() if future.done() and not future.cancelled() else None
+            self.emit('future_final_state',future_role=role,done=future.done(),cancelled=future.cancelled(),
+                exception_type=type(exc).__name__ if exc is not None else None,
+                message=str(exc) if exc is not None else None)
+        calls={e['call_id']:e for e in self.events if e['kind']=='call_start'}
+        snapshots=[e for e in self.events if e['kind']=='consumed_error_log']
+        if set(futures)!={'marker','conflict'} or set(self.tokens)!={'marker','conflict'}:
+            self.incomplete.append('missing_future_or_token')
+        for role in ('marker','conflict'):
+            if not any(e['role']==role for e in snapshots):self.incomplete.append('missing_snapshot:'+role)
+        for e in snapshots:
+            call=calls.get(e['call_id'],{})
+            if call.get('role')!=e['role'] or call.get('thread_id')!=e['thread_id'] or call.get('method')!='validate':
+                self.incomplete.append('snapshot_call_ambiguous')
+        binding=ROOT/'test-results/w11-ci-commit.txt'
+        report=dict(profile='V126-N11-observation/1',status='OBSERVATION_INCOMPLETE' if self.incomplete else 'OBSERVATION_CAPTURED',
+            not_a_fix=True,not_w11_acceptance=True,incomplete_reasons=self.incomplete,
+            basis_commit='5a35f5dfe0448b5e1e4818efe5202992748c3ca3',
+            test_file_sha256=sha(Path(__file__).read_bytes()),
+            ci_commit_tree=binding.read_text().splitlines() if binding.exists() else [],
+            tokens=self.tokens,events=sorted(self.events,key=lambda e:e['event_id']))
+        out=ROOT/'test-results';out.mkdir(exist_ok=True)
+        raw=json.dumps(report,indent=2).encode()
+        if len(raw)>2*1024*1024:
+            raw=json.dumps(dict(status='OBSERVATION_INCOMPLETE',reason='artifact_limit')).encode()
+        (out/'w11-n11-observation.json').write_bytes(raw+b'\n')
 
 @contextmanager
 def closed_connection(db, on_open=None):
@@ -425,12 +554,29 @@ class Database(unittest.TestCase):
         # survive as history; it must never remain effective after the conflict.
         b,t,s,f=self.new();b.commit(self.db.connect(),t)
         c=copy.deepcopy(f['context']);c['envelope']['proof_ref']=str(uuid4());other=b.freeze(s,c)
+        original=self.schemas.validators['dip.xsd']
+        observation=_N11Observation(original,b,{'marker':t,'conflict':other})
         def marker_race():
             try:return b.observe_and_mark(self.db.connect(),b.expectation(t))
-            except (Rejected,RuntimeError):return None
-        with ThreadPoolExecutor(2) as pool:
-            marker=pool.submit(marker_race);conflict=pool.submit(b.commit,self.db.connect(),other)
-            self.assertEqual(conflict.result()['record_kind'],'CONFLICT');marker.result()
+            except (Rejected,RuntimeError) as exc:
+                observation.safe(observation.emit,'marker_caught',exception_type=type(exc).__name__,message=str(exc))
+                return None
+        futures={};primary=None
+        self.schemas.validators['dip.xsd']=observation
+        try:
+            with ThreadPoolExecutor(2) as pool:
+                marker=pool.submit(observation.future,'marker',marker_race);futures['marker']=marker
+                conflict=pool.submit(observation.future,'conflict',b.commit,self.db.connect(),other);futures['conflict']=conflict
+                self.assertEqual(conflict.result()['record_kind'],'CONFLICT');marker.result()
+        except BaseException as exc:
+            primary=exc
+            raise
+        finally:
+            self.schemas.validators['dip.xsd']=original
+            try:observation.finish(futures)
+            except BaseException as exc:
+                if primary is not None:primary.add_note('OBSERVATION_INCOMPLETE: '+type(exc).__name__)
+                print('OBSERVATION_INCOMPLETE: '+type(exc).__name__,file=sys.stderr)
         read=b.observe_and_mark(self.db.connect(),b.expectation(t),False)
         self.assertFalse(read['eligible'])
     def test_N12_history(self):
