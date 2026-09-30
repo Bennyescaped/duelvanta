@@ -33,12 +33,27 @@ jobs:
           python -m pip install --disable-pip-version-check lxml==6.1.1 cryptography==46.0.0
       - name: Disposable runner-owned PostgreSQL 17 cluster
         run: |
-          if [ ! -x /usr/lib/postgresql/17/bin/initdb ]; then
-            sudo apt-get update
-            sudo apt-get install -y postgresql-17
-          fi
+          # Explicit PGDG source; Ubuntu noble's default archive does not provide PG17.
+          . /etc/os-release
+          test "$VERSION_CODENAME" = noble
+          test "$(dpkg --print-architecture)" = amd64
+          sudo install -d /usr/share/postgresql-common/pgdg /etc/postgresql-common
+          curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$RUNNER_TEMP/w11-pgdg.asc"
+          sudo install -m 644 "$RUNNER_TEMP/w11-pgdg.asc" /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          echo 'deb [arch=amd64 signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main' | sudo tee /etc/apt/sources.list.d/w11-pgdg.list
+          # Package installation must not create/start a system cluster.
+          echo 'create_main_cluster = false' | sudo tee /etc/postgresql-common/createcluster.conf
+          sudo apt-get update
+          pg_package_version=17.11-1.pgdg24.04+2
+          sudo apt-get install -y --no-install-recommends "postgresql-17=$pg_package_version" "postgresql-client-17=$pg_package_version"
           test "$(id -u)" != 0
           pg_bin=/usr/lib/postgresql/17/bin
+          for pg_tool in initdb postgres pg_ctl psql; do
+            test -x "$pg_bin/$pg_tool"
+            "$pg_bin/$pg_tool" --version
+          done
+          test "$(dpkg-query -W -f='${Version}' postgresql-17)" = "$pg_package_version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-client-17)" = "$pg_package_version"
           cluster="$RUNNER_TEMP/w11_isolated_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
           mkdir -p test-results "$RUNNER_TEMP/w11_ctl"
           "$pg_bin/initdb" -D "$cluster" -U postgres --auth=trust --no-locale
@@ -60,6 +75,8 @@ jobs:
           echo "W11_PSQL=$pg_bin/psql" >> "$GITHUB_ENV"
           echo "W11_RESTART_EVIDENCE=$GITHUB_WORKSPACE/test-results" >> "$GITHUB_ENV"
           "$pg_bin/psql" -X -v ON_ERROR_STOP=1 -c "select version(),current_setting('data_directory'),current_setting('fsync'),current_setting('synchronous_commit');"
+          test "$("$pg_bin/psql" -X -At -v ON_ERROR_STOP=1 -c 'show server_version_num')" = 170011
+          "$pg_bin/psql" -X -At -v ON_ERROR_STOP=1 -c "select json_build_object('version',version(),'data_directory',current_setting('data_directory'),'fsync',current_setting('fsync'),'synchronous_commit',current_setting('synchronous_commit'),'system_identifier',(select system_identifier::text from pg_control_system()),'postmaster_started',pg_postmaster_start_time())" > test-results/w11-cluster.json
           git rev-parse HEAD HEAD^{tree} > test-results/w11-ci-commit.txt
       - name: V124 unchanged N01-N22 native runner including real N19 restart
         run: |

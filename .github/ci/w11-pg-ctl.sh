@@ -17,12 +17,16 @@ state_sql="select json_build_object('version',current_setting('server_version_nu
 mapfile -t dbs < <("$W11_PSQL" -X -v ON_ERROR_STOP=1 -At -c "select datname from pg_database where datname like 'f3_ci_%'")
 test "${#dbs[@]}" = 1
 [[ "${dbs[0]}" =~ ^f3_ci_[0-9a-f]{32}$ ]]
-proof_sql="select coalesce(json_agg(json_build_object('proof_id',proof_id,'record_kind',record_kind,'commit_ref',commit_ref,'created_transaction',created_transaction::text,'cipher_commitment',encode(cipher_commitment,'hex'),'cipher_sha256',encode(sha256(ciphertext),'hex')) order by proof_id),'[]'::json) from dv_market_private.psttg_w11_envelope_proof_v1"
+proof_sql="select coalesce(json_agg(json_build_object('proof_id',proof_id,'receipt_id',receipt_id,'record_kind',record_kind,'commit_ref',commit_ref,'created_transaction',created_transaction::text,'cipher_commitment',encode(cipher_commitment,'hex'),'cipher_sha256',encode(sha256(ciphertext),'hex')) order by proof_id),'[]'::json) from dv_market_private.psttg_w11_envelope_proof_v1"
 "$W11_PSQL" -X -v ON_ERROR_STOP=1 -At -d "${dbs[0]}" -c "$proof_sql" > "$audit/w11-n19-proofs-before.json"
 before_pid=$(head -n 1 "$W11_PG_DATA/postmaster.pid")
 "$W11_REAL_PG_CTL" "$@" > "$audit/w11-n19-pgctl.log" 2>&1
 after_pid=$(head -n 1 "$W11_PG_DATA/postmaster.pid")
 test "$before_pid" != "$after_pid"
+if kill -0 "$before_pid" 2>/dev/null; then
+  echo 'Old W11 postmaster still exists after restart' >&2
+  exit 1
+fi
 "$W11_PSQL" -X -v ON_ERROR_STOP=1 -At -c "$state_sql" > "$audit/w11-n19-after.json"
 "$W11_PSQL" -X -v ON_ERROR_STOP=1 -At -d "${dbs[0]}" -c "$proof_sql" > "$audit/w11-n19-proofs-after.json"
 python - "$audit" "$before_pid" "$after_pid" "${dbs[0]}" <<'PY'
@@ -36,5 +40,5 @@ assert before['system_identifier']==after['system_identifier']
 assert before['postmaster_started']!=after['postmaster_started']
 assert before['fsync']==after['fsync']==before['synchronous_commit']==after['synchronous_commit']=='on'
 assert a and a==b
-(p/'w11-n19-restart.json').write_text(json.dumps(dict(cluster_before=before,cluster_after=after,postmaster_pid_before=sys.argv[2],postmaster_pid_after=sys.argv[3],database=sys.argv[4],committed_proofs_before_restart=a,persisted_proof_rows_identical=True,actual_pg_ctl_restart=True,full_m02_revalidation='REQUIRES_SEPARATE_N19_RUNNER_PASS'),indent=2)+'\n')
+(p/'w11-n19-restart.json').write_text(json.dumps(dict(cluster_before=before,cluster_after=after,postmaster_pid_before=sys.argv[2],postmaster_pid_after=sys.argv[3],old_postmaster_terminated=True,database=sys.argv[4],committed_proofs_before_restart=a,persisted_proof_rows_identical=True,actual_pg_ctl_restart=True,full_m02_revalidation='REQUIRES_SEPARATE_N19_RUNNER_PASS'),indent=2)+'\n')
 PY
