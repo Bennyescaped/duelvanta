@@ -1,5 +1,7 @@
 """Private offline XML/ZIP boundary. No network or external entity fallback."""
 from pathlib import Path, PurePosixPath
+from contextlib import nullcontext
+from threading import Lock
 import hashlib
 import io
 import json
@@ -76,6 +78,7 @@ class Schemas:
         self.parser = ET.XMLParser(resolve_entities=False, load_dtd=False, no_network=True)
         self.parser.resolvers.add(Resolver())
         self.validators = {}
+        self._dip_lock = Lock()
         for name in self.entries:
             self.validators[name] = ET.XMLSchema(ET.fromstring(self.bytes[name], self.parser, base_url='catalog:///' + name))
         self.binding = sha(canonical(manifest))
@@ -85,7 +88,8 @@ class Schemas:
         root = parse(data)
         require(root.tag == root_tag, 'xml_root_namespace')
         try:
-            self.validators[name].assertValid(root)
+            with self._dip_lock if name == 'dip.xsd' else nullcontext():
+                self.validators[name].assertValid(root)
         except ET.DocumentInvalid as exc:
             # Do not put sensitive values in error output.
             raise Rejected('xsd_invalid:' + name) from exc

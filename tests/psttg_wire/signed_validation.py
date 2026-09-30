@@ -69,8 +69,9 @@ def validate_bound_projection(verified, edition, spec, schemas=None):
         require(c14n(projection) == c14n(secure_parse(expected.xml)), 'm02_closed_envelope')
     # This reject is required evidence, not a PASS of the signed original.
     validator = schemas.validators['dip.xsd']
-    require(not validator.validate(original), 'm02_signed_raw_unexpected_xsd_pass')
-    errors = tuple(validator.error_log)
+    with schemas._dip_lock:
+        require(not validator.validate(original), 'm02_signed_raw_unexpected_xsd_pass')
+        errors = tuple(validator.error_log)
     require(len(errors) == 1 and errors[0].type_name == 'SCHEMAV_ELEMENT_CONTENT'
             and '{'+DS+'}Signature' in errors[0].message, 'm02_raw_reject_reason')
     stages = tuple((name, 'PASS') for name in STAGES)
