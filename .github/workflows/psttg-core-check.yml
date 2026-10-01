@@ -33,6 +33,8 @@ jobs:
           python -m pip install --disable-pip-version-check lxml==6.1.1 cryptography==46.0.0
       - name: V142 synthetic M03 reference eligibility T01-T30 and codec regression
         run: python tests/psttg_wire/test_m03_trust_profile.py
+      - name: V145 send-free M04 adapter state A01-A36 and codec regression
+        run: python tests/psttg_wire/test_m04_transport_state.py
       - name: V129 deterministic DIP validator lock regression
         run: python tests/psttg_wire/test_dip_lock.py
       - name: Disposable runner-owned PostgreSQL 17 cluster
