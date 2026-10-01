@@ -5,15 +5,17 @@ The real disposable harness supplies independent backend connections and a
 same-data-directory pg_ctl restart. No production endpoint is discoverable.
 """
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import replace
+from dataclasses import fields, replace
 from datetime import timedelta
 import ast
 from copy import deepcopy
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import threading
 from time import monotonic
 import unittest
@@ -34,6 +36,15 @@ from psttg_wire.security import canonical, sha
 
 NATIVE = '--native' in sys.argv
 EVIDENCE = {}
+
+
+def ack_projection(decision):
+    # Test evidence only: AckDecision is derived, never journalled. Include
+    # every value-type field; no caller-supplied witnesses or codec extension.
+    assert type(decision) is t.AckDecision
+    return json.loads(json.dumps({field.name: (
+        getattr(decision, field.name).value if field.name in ('state', 'fact')
+        else getattr(decision, field.name)) for field in fields(decision)}, sort_keys=True))
 
 
 class Database(p.NativeDatabase):
@@ -494,6 +505,12 @@ class Native(unittest.TestCase):
         self.store.commit(self.store.parse(cap.capture_ref,a.port(third,cap,kind=t.ReceiptKind.UNKNOWN_STATUS,ids=()),h.identity(),f.NOW))
         type(self).restart_unknown_operation=unknown
         cls=type(self);cls.restart_store=self.store;cls.restart_before=self.state();cls.restart_request=other.request_ref
+        cls.restart_interpretation=ref
+        cls.restart_ack_before=ack_projection(self.store.ack(ref))
+        self.assertIn(self.req.attempt_ref,self.cut().blocked)
+        self.assertEqual(cls.restart_ack_before['state'],t.AckState.ACK_NOT_ELIGIBLE.value)
+        self.assertFalse(cls.restart_ack_before['eligible_local'] or cls.restart_ack_before['external_ack_performed'])
+        EVIDENCE['R28_ack_before']={'interpretation_ref':ref,'decision':cls.restart_ack_before}
         EVIDENCE['R28_before']=cls.restart_before;result=self.db.request('restart');EVIDENCE['R28_restart']=result
         for key in ('data_directory','system_identifier','socket','port','current_user','session_user'):
             self.assertEqual(result['before'][key],result['after'][key])
@@ -507,6 +524,12 @@ class Native(unittest.TestCase):
         self.assertTrue(recovered['cut'].blocked and recovered['cut'].assertions)
         self.assertTrue(any(row.decision is t.Code.UNRESOLVED for _,row in recovered['cut'].interpretations.values()))
         EVIDENCE['R29_after']=recovered['state'];self.assertFalse(recovered['external_ack_performed'])
+        # ack() performs its own new independent recover/read, not a cached Cut.
+        ack_after=ack_projection(cls.restart_store.ack(cls.restart_interpretation))
+        EVIDENCE['R29_ack_after']={'interpretation_ref':cls.restart_interpretation,'decision':ack_after}
+        self.assertEqual(ack_after,cls.restart_ack_before)
+        self.assertFalse(ack_after['eligible_local'] or ack_after['external_ack_performed'] or ack_after['real_receipt_adapter'])
+        self.assertEqual(cls.restart_store.recover()['state'],cls.restart_before)
 
     def test_R30_unknown_restart(self):
         cls=type(self);before=cls.restart_store.recover();d=before['recovery'][cls.restart_request]
@@ -572,9 +595,99 @@ class Native(unittest.TestCase):
         recovered=self.store.recover();self.assertFalse(recovered['external_ack_performed'] or recovered['real_receipt_adapter'])
 
     def test_R35_v140_native(self):
-        output=io.StringIO();result=unittest.TextTestRunner(stream=output,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(p.Native))
+        self.assertNotEqual(os.getuid(),0,'R35 requires the existing non-root PG17 runner')
+        outer_env=dict(os.environ);outer_before=self.db.request('metadata')
+        pg_ctl=Path(outer_env['M04_PG_CTL'])
+        self.assertTrue(pg_ctl.is_absolute());self.assertEqual(pg_ctl.name,'pg_ctl')
+        pg_ctl=pg_ctl.resolve(strict=True);bin_dir=pg_ctl.parent
+        directory=Path(tempfile.mkdtemp(prefix='m04_isolated_r35_',dir='/tmp'))
+        socket=directory/'socket'
+        self.assertNotEqual(str(directory),outer_before['data_directory'])
+        self.assertNotEqual(str(socket),outer_before['socket'])
+        # Strip inherited libpq selectors/options/credentials, then bind only
+        # this fresh UNIX-socket cluster. No endpoint or password discovery.
+        nested_env={k:v for k,v in outer_env.items() if not k.startswith(('PG','M04_PG'))}
+        nested_env.update(M04_PG_DATA=str(directory),M04_PG_CTL=str(pg_ctl),
+                          PGHOST=str(socket),PGPORT='55438',PGUSER='postgres',PGDATABASE='postgres')
+        evidence={'data_directory':str(directory),'socket':str(socket),'os_uid':os.getuid(),
+                  'outer_before':outer_before,'commands':[]}
+        EVIDENCE['R35_cluster']=evidence
+        # The unchanged V140 harness writes fixed diagnostic names. Preserve
+        # the preceding standalone P26 evidence and retain nested copies apart.
+        diagnostics={ROOT/'test-results'/name: (ROOT/'test-results'/name).read_bytes()
+                     if (ROOT/'test-results'/name).exists() else None
+                     for name in ('m04-p26-restart-observation.log','m04-p26-postmaster.log')}
+        def command(binary,*args):
+            argv=[str(binary),*args]
+            run=subprocess.run(argv,env=nested_env,cwd=ROOT,text=True,capture_output=True,timeout=60)
+            evidence['commands'].append({'argv':argv,'returncode':run.returncode,
+                                         'stdout':run.stdout,'stderr':run.stderr})
+            run.check_returncode();return run.stdout
+        class NestedV140(p.Native):
+            @classmethod
+            def setUpClass(cls):
+                # Node captures these values once; its P26 restart stays bound
+                # to the nested cluster after Python's environment is restored.
+                with patch.dict(os.environ,nested_env,clear=True):
+                    try:super().setUpClass()
+                    finally:
+                        if 'db' in cls.__dict__:
+                            def close_remaining():
+                                if cls.db.process.poll() is None:cls.db.close()
+                            cls.addClassCleanup(close_remaining)
+        output=io.StringIO()
+        try:
+            self.assertRegex(command(bin_dir/'postgres','--version'),r'^postgres \(PostgreSQL\) 17\.')
+            command(bin_dir/'initdb','-D',str(directory),'-U','postgres','-A','trust','--no-instructions')
+            socket.mkdir()
+            options=f"-k {socket} -p 55438 -c listen_addresses='' -c fsync=on -c synchronous_commit=on"
+            command(pg_ctl,'-D',str(directory),'-l',str(directory/'postmaster.log'),'-o',options,'-w','start')
+            with patch.dict(p.EVIDENCE,{},clear=True):
+                try:
+                    result=unittest.TextTestRunner(stream=output,verbosity=2,failfast=True,
+                        resultclass=p.RecordedResult).run(unittest.defaultTestLoader.loadTestsFromTestCase(NestedV140))
+                finally:
+                    EVIDENCE['R35_v140_evidence']=deepcopy(p.EVIDENCE)
+                    EVIDENCE['R35_native_log']=output.getvalue()
+            evidence['P01_P32']={f'P{i:02}':next((v for k,v in result.outcomes.items()
+                if f'.test_P{i:02}_' in k),'NOT_EXECUTED') for i in range(1,33)}
+            evidence['tests_run']=result.testsRun;evidence['successful']=result.wasSuccessful()
+            evidence['skipped']=result.skipped
+            if 'db' in NestedV140.__dict__:
+                evidence['runtime']=NestedV140.db.ready
+                self.assertEqual(NestedV140.db.ready['cluster']['data_directory'],str(directory))
+            restart=EVIDENCE['R35_v140_evidence'].get('P26')
+            if restart:
+                for side in ('before','after'):
+                    self.assertEqual(restart[side]['data_directory'],str(directory))
+                    self.assertEqual(restart[side]['socket'],str(socket))
+                    self.assertNotEqual(restart[side]['system_identifier'],outer_before['system_identifier'])
+        finally:
+            # Suite teardown/class cleanup closes NativeDatabase before stop.
+            # Retain disposable data/logs as evidence; never touch outer roles.
+            try:
+                if 'db' in NestedV140.__dict__ and NestedV140.db.process.poll() is None:
+                    NestedV140.db.close()
+            finally:
+                try:
+                    if (directory/'postmaster.pid').exists():
+                        command(pg_ctl,'-D',str(directory),'-m','fast','-w','stop')
+                    evidence['stopped']=not (directory/'postmaster.pid').exists()
+                finally:
+                    log=directory/'postmaster.log'
+                    if log.exists():evidence['postmaster_log']=log.read_text()
+                    for path,previous in diagnostics.items():
+                        if path.exists() and path.read_bytes()!=previous:
+                            path.with_name(path.name.replace('m04-p26-','m04-r35-p26-')).write_bytes(path.read_bytes())
+                        if previous is None:path.unlink(missing_ok=True)
+                        else:path.write_bytes(previous)
+                    self.assertEqual(dict(os.environ),outer_env)
+                    evidence['outer_after']=self.db.request('metadata')
+                    self.assertEqual(evidence['outer_after'],outer_before)
+        self.assertTrue(evidence['stopped'])
         EVIDENCE['R35_native_log']=output.getvalue();self.assertEqual(result.testsRun,32)
         self.assertTrue(result.wasSuccessful());self.assertFalse(result.skipped)
+        self.assertEqual(set(evidence['P01_P32'].values()),{'PASS'})
         legacy=old.ResponseStore(self.profile,self.authority,self.proofs[0].bridge,self.db.connect)
         with self.assertRaises(Exception):legacy.recover()
         self.rq();self.assertEqual(self.cut().requests[self.req.request_ref],self.req)
