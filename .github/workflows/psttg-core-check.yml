@@ -113,6 +113,16 @@ jobs:
           if [ -n "${W11_PG_DATA:-}" ] && [ -f "$W11_PG_DATA/postmaster.pid" ]; then
             "$W11_REAL_PG_CTL" -D "$W11_PG_DATA" -m fast -w stop
           fi
+      - name: V132 M04 and W11 local regression
+        run: |
+          set -o pipefail
+          python tests/psttg_wire/test_m04_attempt_response.py 2>&1 | tee test-results/m04-v132.log
+          PYTHONPATH=tests python -m unittest psttg_wire.test_w11.Local -v 2>&1 | tee test-results/m04-w11-local.log
+      - name: V133 M04 native P01-P32 including same-cluster recovery
+        run: |
+          set -o pipefail
+          command -v rg >/dev/null || sudo apt-get install -y --no-install-recommends ripgrep
+          bash tests/helpers/m04-pg17-local.sh /usr/lib/postgresql/17/bin 2>&1 | tee test-results/m04-native.log
       - name: Native W11 and cluster restart evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -123,6 +133,8 @@ jobs:
             test-results/w11-*.json
             test-results/w11-*.log
             test-results/w11-ci-commit.txt
+            test-results/m04-response-store.json
+            test-results/m04-*.log
           if-no-files-found: error
   native_core:
     runs-on: ubuntu-latest
