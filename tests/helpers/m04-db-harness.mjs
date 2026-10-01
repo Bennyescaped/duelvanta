@@ -87,7 +87,7 @@ if(process.argv.includes('--syntax')) {
  const openAdmin=async()=>{admin=new pg.Client({connectionTimeoutMillis:5000});admin.on('error',()=>{});await admin.connect();};
  await openAdmin();
  const metadata=async()=>{
-  const row=(await admin.query("select current_setting('data_directory') data_directory,(pg_control_system()).system_identifier::text system_identifier,current_setting('unix_socket_directories') socket,current_setting('port') port,pg_postmaster_start_time()::text start_time,current_setting('server_version_num') version,current_setting('fsync') fsync,current_setting('synchronous_commit') synchronous_commit")).rows[0];
+  const row=(await admin.query("select current_setting('data_directory') data_directory,(pg_control_system()).system_identifier::text system_identifier,current_setting('unix_socket_directories') socket,current_setting('port') port,pg_postmaster_start_time()::text start_time,current_setting('server_version_num') version,current_setting('fsync') fsync,current_setting('synchronous_commit') synchronous_commit,current_setting('listen_addresses') listen_addresses,current_user,session_user")).rows[0];
   row.pid=Number((await readFile(resolve(dir,'postmaster.pid'),'utf8')).split('\n')[0]);
   assert.equal(resolve(row.data_directory),resolve(dir));assert.equal(resolve(row.socket),resolve(socket));
   assert.equal(Math.floor(Number(row.version)/10000),17);assert.equal(row.fsync,'on');assert.equal(row.synchronous_commit,'on');return row;
@@ -113,7 +113,13 @@ if(process.argv.includes('--syntax')) {
    else if(r.op==='metadata')result=await metadata();
    else if(r.op==='restart'){
     const before=await metadata();
-    const observation={version:'M04-P26-observation/1',before,log_path:resolve(dir,'postmaster.log'),cwd:process.cwd(),pg_environment:p26Environment(),commands:[],diagnostic_errors:[]};
+    // One option string from the bound successful first-start runtime; never defaults.
+    for(const key of ['socket','port','listen_addresses','fsync','synchronous_commit','current_user','session_user'])assert.equal(before[key],initial[key]);
+    assert.match(initial.socket,/^\/[a-zA-Z0-9_./-]+$/);assert.match(initial.port,/^[0-9]+$/);
+    assert.equal(initial.listen_addresses,'');assert.equal(initial.fsync,'on');assert.equal(initial.synchronous_commit,'on');
+    assert.equal(initial.current_user,'postgres');assert.equal(initial.session_user,'postgres');
+    const startOptions=`-k ${initial.socket} -p ${initial.port} -c listen_addresses='${initial.listen_addresses}' -c fsync=${initial.fsync} -c synchronous_commit=${initial.synchronous_commit}`;
+    const observation={version:'M04-P26-observation/1',before,log_path:resolve(dir,'postmaster.log'),cwd:process.cwd(),pg_environment:p26Environment(),commands:[],diagnostic_errors:[],first_start_bound:initial,restart_options:startOptions};
     // Observation failures are recorded, never substituted for the pg_ctl error.
     const observe=async(label,fn)=>{try{return await fn();}catch(e){observation.diagnostic_errors.push({label,...p26Error(e)});}};
     await observe('bind_log_before_stop',()=>p26Save(observation));
@@ -127,13 +133,16 @@ if(process.argv.includes('--syntax')) {
      const ports=[...new Set([Number(before.port),configuredPort].filter(p=>Number.isInteger(p)&&p>0&&p<=65535))];
      observation.before_start=await observe('state_before_start',()=>p26State(dir,socket,before,ports));
      await observe('save_before_start',()=>p26Save(observation));
-     try{await p26Command(observation,bin,['-D',dir,'-l',resolve(dir,'postmaster.log'),'-w','start']);}
+     try{await p26Command(observation,bin,['-D',dir,'-l',resolve(dir,'postmaster.log'),'-o',startOptions,'-w','start']);}
      catch(e){observation.after_failed_start=await observe('state_after_failed_start',()=>p26State(dir,socket,before,ports));throw e;}
     }catch(e){observation.failure=p26Error(e);throw e;}
     finally{await observe('save_after_pg_ctl',()=>p26Save(observation));if(observation.diagnostic_errors.length)process.stderr.write(JSON.stringify({p26_diagnostic_errors:observation.diagnostic_errors})+'\n');}
     await openAdmin();primary=await connect();const after=await metadata();
     assert.equal(after.system_identifier,before.system_identifier);assert.equal(after.data_directory,before.data_directory);
     assert.equal(after.socket,before.socket);assert.equal(after.port,before.port);assert.notEqual(after.pid,before.pid);assert.notEqual(after.start_time,before.start_time);
+    for(const key of ['socket','port','listen_addresses','fsync','synchronous_commit','current_user','session_user'])assert.equal(after[key],initial[key]);
+    observation.after_successful_start=after;observation.start_options_parity=true;
+    await observe('save_after_successful_start',()=>p26Save(observation));
     result={before,after,old_postmaster_ended:ended,initdb_during_restart:false};
    }else if(r.op==='close'){
     for(const c of [...connections])await release(c);await admin.query(`drop database ${name} with (force)`);await admin.end();answer(r.id,true);lines.close();return;
