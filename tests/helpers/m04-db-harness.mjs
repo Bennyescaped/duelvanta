@@ -8,6 +8,7 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import readline from 'node:readline';
 import {installW11} from './w11-native-fixture.mjs';
+import {installW11 as installHistoryW11} from './m04-history-native-fixture.mjs';
 
 // P26 observation only. JSON uses .log to match the existing artifact upload.
 // No environment dump: only the four non-secret local connection selectors.
@@ -47,10 +48,10 @@ const p26Save=async observation=>{
  const output=resolve('test-results');await mkdir(output,{recursive:true});
  const log=await p26Stat(observation.log_path);
  if(log.exists){try{const bytes=await readFile(observation.log_path);log.byte_length=bytes.length;log.sha256=createHash('sha256').update(bytes).digest('hex');log.base64=bytes.toString('base64');
-  log.artifact='m04-p26-postmaster.log';await writeFile(resolve(output,log.artifact),bytes);
+  log.artifact=historyMode?'m04-r28-postmaster.log':'m04-p26-postmaster.log';await writeFile(resolve(output,log.artifact),bytes);
  }catch(e){log.read_or_copy_error=p26Error(e);}}
  observation.postmaster_log=log;
- await writeFile(resolve(output,'m04-p26-restart-observation.log'),JSON.stringify(observation,null,2)+'\n');
+ await writeFile(resolve(output,historyMode?'m04-r28-restart-observation.log':'m04-p26-restart-observation.log'),JSON.stringify(observation,null,2)+'\n');
 };
 const p26Command=async(observation,bin,args)=>{
  const record={argv:[bin,...args],cwd:process.cwd(),pg_environment:p26Environment(),monotonic_start_ns:process.hrtime.bigint().toString()};
@@ -61,13 +62,16 @@ const p26Command=async(observation,bin,args)=>{
 };
 // End P26 observation helpers.
 
-const ddl=await readFile(new URL('../../database/psttg-m04-response-store-v1.sql',import.meta.url),'utf8');
+const historyMode=process.argv.includes('--history');
+const installFixture=historyMode?installHistoryW11:installW11;
+const ddl=await readFile(new URL('../../database/psttg-m04-response-store-v1.sql',import.meta.url),'utf8')+
+ (historyMode?await readFile(new URL('../../database/psttg-m04-adapter-history-v1.sql',import.meta.url),'utf8'):'');
 if(process.argv.includes('--syntax')) {
  const {PGlite}=await import('@electric-sql/pglite');
  const {pgcrypto}=await import('@electric-sql/pglite/contrib/pgcrypto');
  const p=new PGlite({extensions:{pgcrypto}});
  const db={query:(...a)=>p.query(...a),exec:s=>p.exec(s),connect:async()=>p,release:async()=>{}};
- await installW11(db);await p.exec(ddl);
+ await installFixture(db);await p.exec(ddl);
  const tables=(await p.query("select c.relname,c.relrowsecurity,c.relacl from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='dv_market_private' and c.relname like 'm04_%' and c.relkind='r' order by 1")).rows;
  const functions=(await p.query("select p.proname,p.prosecdef,p.provolatile,p.proconfig,p.proacl from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='dv_market_private' and p.proname like 'm04_%' order by 1")).rows;
  assert.equal(tables.length,3);assert.ok(tables.every(t=>t.relrowsecurity));
@@ -97,7 +101,7 @@ if(process.argv.includes('--syntax')) {
  const release=async c=>{if(connections.has(c)){await c.end();connections.delete(c);}};
  primary=await connect();
  const db={query:(...a)=>primary.query(...a),exec:s=>primary.query(s),connect,release};
- const fixture=await installW11(db);await db.exec(ddl);
+ const fixture=await installFixture(db);await db.exec(ddl);
  console.log(JSON.stringify({ready:true,native:true,version:initial.version,name,cluster:initial}));
  const lines=readline.createInterface({input:process.stdin});
  const answer=(id,result,error)=>process.stdout.write(JSON.stringify({id,result,error})+'\n');
@@ -119,7 +123,7 @@ if(process.argv.includes('--syntax')) {
     assert.equal(initial.listen_addresses,'');assert.equal(initial.fsync,'on');assert.equal(initial.synchronous_commit,'on');
     assert.equal(initial.current_user,'postgres');assert.equal(initial.session_user,'postgres');
     const startOptions=`-k ${initial.socket} -p ${initial.port} -c listen_addresses='${initial.listen_addresses}' -c fsync=${initial.fsync} -c synchronous_commit=${initial.synchronous_commit}`;
-    const observation={version:'M04-P26-observation/1',before,log_path:resolve(dir,'postmaster.log'),cwd:process.cwd(),pg_environment:p26Environment(),commands:[],diagnostic_errors:[],first_start_bound:initial,restart_options:startOptions};
+    const observation={version:historyMode?'M04-R28-observation/1':'M04-P26-observation/1',before,log_path:resolve(dir,'postmaster.log'),cwd:process.cwd(),pg_environment:p26Environment(),commands:[],diagnostic_errors:[],first_start_bound:initial,restart_options:startOptions};
     // Observation failures are recorded, never substituted for the pg_ctl error.
     const observe=async(label,fn)=>{try{return await fn();}catch(e){observation.diagnostic_errors.push({label,...p26Error(e)});}};
     await observe('bind_log_before_stop',()=>p26Save(observation));
