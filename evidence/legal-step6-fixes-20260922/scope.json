@@ -1,0 +1,15 @@
+{
+  "sourceHead": "a4e92abb8bd2b96f690d9c9438b4200854a953c1",
+  "technicalHead": "b89cecc22e7eb2eb80716078a29584f383dd653e",
+  "main": "50f88213571be13255bb52eb489cc28cca660001",
+  "stagingProject": "xhmjxrcskfhbovhitdej",
+  "productionExcluded": "enifiaqsnqtbzylnfrpi",
+  "migrationSha256": "a02e01bba93bda7e942850e776410fae1d752edb629b80319d9970859270d25f",
+  "migrationBlob": "f1714dc1b5fc9ebeab0dbff5c974ac1696dc28ef",
+  "stagingMutationCount": 0,
+  "stagingMigrationApplied": false,
+  "productionConnectionCount": 0,
+  "realPayments": 0,
+  "realEmails": 0,
+  "scope": "Repository fixes and isolated CI only; no live Staging integration or new runtime email-OFF attestation"
+}

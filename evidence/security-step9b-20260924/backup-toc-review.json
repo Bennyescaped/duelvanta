@@ -1,0 +1,31 @@
+{
+  "source": "Operator Mac export; uploaded pg_restore TOC",
+  "archive_created": "2026-09-24 13:15:52 CEST",
+  "server": "17.6",
+  "client": "17.11",
+  "format": "CUSTOM",
+  "toc_entries_header": 2107,
+  "toc_sha256": "8220443c90563a1617dac8ecf99389dc6639bcdd5a56681d3e20a58da0a89ef5",
+  "auth_table_data_entries": 27,
+  "default_acl_entries": 27,
+  "row_security_entries": 114,
+  "policy_entries": 45,
+  "object_acl_entries": 497,
+  "evidence_limits": [
+    "TOC confirms archive entries, not actual row counts or fixture hashes",
+    "Operator screenshot shows dump and complete offline decoding succeeded; archive not uploaded",
+    "No restore rehearsal yet",
+    "Storage object bytes and external settings not included",
+    "Archive contains sensitive Auth data; keep secured with operator"
+  ],
+  "roles_export": {
+    "source": "Operator screenshot 2026-09-24 13:20:41",
+    "result": "pg_dumpall --roles-only --no-role-passwords completed; SHA-256 printed",
+    "filename": "DUELVANTA-STAGING-roles-20260924-Bt5dJw",
+    "sha256": "75f70ca11af01fd3d4d5f375c83ca8fd3e9e07b282c4f63fe4321d2aa3a7ecf7",
+    "contents_reviewed": true,
+    "role_count": 16,
+    "membership_count": 21,
+    "password_clauses": false
+  }
+}

@@ -1,0 +1,14 @@
+-- Reviewed data-free baseline supplement, 2026-09-23. Not a live migration.
+-- Provenance: index-provenance.json. Existing Supabase/PG17 definitions preserved.
+CREATE UNIQUE INDEX account_deletion_one_open_request_idx ON dv_market_private.account_deletion_requests USING btree (user_id) WHERE (status = ANY (ARRAY['requested'::text, 'processing'::text, 'retained'::text]));
+CREATE INDEX listing_notice_appeals_queue_idx ON dv_market_private.listing_notice_appeals USING btree (status, submitted_at);
+CREATE INDEX listing_notice_events_notice_idx ON dv_market_private.listing_notice_events USING btree (notice_id, created_at, id);
+CREATE INDEX listing_notices_listing_idx ON dv_market_private.listing_notices USING btree (listing_id, submitted_at DESC);
+CREATE INDEX listing_notices_queue_idx ON dv_market_private.listing_notices USING btree (status, submitted_at);
+CREATE INDEX listing_notices_reporter_idx ON dv_market_private.listing_notices USING btree (reporter_user_id, submitted_at DESC);
+CREATE INDEX profiles_founder_generation_idx ON public.profiles USING btree (founder_generation, founder_number);
+CREATE UNIQUE INDEX profiles_username_unique_ci ON public.profiles USING btree (lower(username)) WHERE (username IS NOT NULL);
+CREATE INDEX seller_account_audit_seller_idx ON dv_market_private.seller_account_audit USING btree (seller_id, changed_at DESC);
+CREATE INDEX seller_declarations_seller_idx ON dv_market_private.seller_declarations USING btree (seller_id, declaration_kind, accepted_at DESC);
+CREATE INDEX seller_review_actions_seller_idx ON dv_market_private.seller_review_actions USING btree (seller_id, created_at DESC);
+CREATE INDEX seller_tax_identifiers_seller_idx ON dv_market_private.seller_tax_identifiers USING btree (seller_id);

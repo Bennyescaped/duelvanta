@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/workspace/scratch/66d2895b21fd/duelvanta",
+    "head": "07e5c1d9463bfbc73dae8d95d6d061e789d34716",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta",
+    "head": "ebe700e840aef602c8835d095ec0dbf8ca33f902",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-f3",
+    "head": "cd92ec135eae3b3ec2df9aa93500a0349f454805",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-date",
+    "head": "b328de5dbcec76790de50d71d6bd1fceabe0b5fe",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/35046679b8fa/duelvanta-mobile",
+    "head": "cba449b18b7cf60cdb99d5c1321ecb1cb3a377f1",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/178f23939c12/duelvanta",
+    "head": "625494fad01b90d33172c0f3e6d550d9eb5aa481",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/67acfd3561e5/duelvanta",
+    "head": "7a9cee4019c0dc590f12dcc48c54743426636b9d",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/67acfd3561e5/duelvanta-s6-fix",
+    "head": "7b80e80a0907413cb9a8ef48c6fffd23b1eb617a",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/2c6fd056f27a/duelvanta",
+    "head": "2323e77b852bcc59ea419d1f09f4d17454db2755",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/2c6fd056f27a/duelvanta-s6-a03",
+    "head": "cad19fea9117c4c090746e25ff952be218506bca",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/21c6a2b0a77c/duelvanta",
+    "head": "e7a9809252f53b6e68de5a2bc042bcd74cb0009e",
+    "branch": "marketplace-ux-v1",
+    "changes": 2
+  },
+  {
+    "path": "/workspace/scratch/21c6a2b0a77c/duelvanta-actions-fix",
+    "head": "af8e329d29dae90945ceb0860d10b2080d213483",
+    "branch": "fix/trade-action-aliases",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/fbfb9510eaba/duelvanta",
+    "head": "14711c5236a50443984e333610e40e3d4dd297e8",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/1ca13ec7abbf/duelvanta",
+    "head": "589fb67fe2bdf4efae5cda526946dff38df59bb5",
+    "branch": "marketplace-ux-v1",
+    "changes": 11
+  },
+  {
+    "path": "/workspace/scratch/28bb4fe0ae9c/duelvanta",
+    "head": "e9055ac5b659b59a0eee279e32dc8709f6f572da",
+    "branch": "scanner-v16",
+    "changes": 11
+  },
+  {
+    "path": "/workspace/scratch/82b4a44985a0/duelvanta",
+    "head": "a2e3097c6264f3e467d14fe449a40a2d3c18b95a",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  },
+  {
+    "path": "/workspace/scratch/162399692991/duelvanta",
+    "head": "0db8ed6ab9103c9844528cb48086be2245861078",
+    "branch": "marketplace-ux-v1",
+    "changes": 1
+  },
+  {
+    "path": "/workspace/scratch/162399692991/duelvanta-step9a",
+    "head": "2a2d016c64529f736fef1a2dcfba688bf523d47f",
+    "branch": "marketplace-ux-v1",
+    "changes": 0
+  }
+]

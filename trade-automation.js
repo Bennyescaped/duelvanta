@@ -18,7 +18,7 @@
     const dialog=document.createElement('dialog');
     dialog.id='dvNotifyDialog';
     dialog.className='dvNotifyDialog';
-    dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Benachrichtigungen</h2><button id="dvNotifyClose" class="close" type="button">✕</button></div><div class="dvNotifyTools"><span class="dvNotifyHint">Kauf · Angebot · Annahme · Versand · Erhalt</span><button id="dvNotifyReadAll" class="btn ghost" type="button">ALLE GELESEN</button></div><div id="dvNotifyList" class="dvNotifyList"></div><div id="dvNotifyMsg" class="msg"></div></div>';
+    dialog.innerHTML='<div class="modal"><div class="modalHead"><h2>Benachrichtigungen</h2><button id="dvNotifyClose" class="close" type="button">✕</button></div><div class="dvNotifyTools"><span class="dvNotifyHint">Kauf · Angebot · Chat · Versand · Erhalt · Probleme</span><button id="dvNotifyReadAll" class="btn ghost" type="button">ALLE GELESEN</button></div><div id="dvNotifyList" class="dvNotifyList"></div><div id="dvNotifyMsg" class="msg"></div></div>';
     document.body.appendChild(dialog);
   }
 
@@ -38,13 +38,23 @@
     host.innerHTML=notifications.length?notifications.map(n=>`<article class="dvNotifyRow ${n.is_unread?'unread':''}" data-dv-note="${n.notification_id}"><div class="dvNotifyTop"><span class="dvNotifyTitle">${esc(n.title)}</span><span class="dvNotifyTime">${esc(stamp(n.created_at))}</span></div><div class="dvNotifyBody">${esc(n.body)}</div></article>`).join(''):'<div class="empty">Noch keine Benachrichtigungen.</div>';
   }
 
+  const isSwap=item=>/swap/.test(String(item?.context_type||'')+' '+String(item?.action_type||'')+' '+String(item?.kind||'')+' '+String(item?.action_key||''));
+
   async function refresh(){
     if(busy)return;
     busy=true;
     try{
-      const [a,n]=await Promise.all([db.rpc('get_my_trade_actions'),db.rpc('get_my_market_notifications',{p_limit:40})]);
+      try{
+        const sync=await db.rpc('sync_my_trade_notifications_v2');
+        if(sync?.error&&!/Could not find the function|schema cache/i.test(sync.error.message||''))console.warn('TRADE notification sync',sync.error);
+      }catch(error){console.warn('TRADE notification sync unavailable',error)}
+      const [a,n]=await Promise.all([
+        db.rpc('get_my_trade_actions'),
+        db.rpc('get_my_market_notifications',{p_limit:60})
+      ]);
       if(a.error)throw a.error;if(n.error)throw n.error;
-      actions=a.data||[];notifications=n.data||[];
+      actions=(a.data||[]).filter(item=>!isSwap(item)).sort((x,y)=>(Number(x.priority||99)-Number(y.priority||99))||(new Date(y.created_at||0)-new Date(x.created_at||0)));
+      notifications=(n.data||[]).filter(item=>!isSwap(item));
       renderActions();renderNotifications();
     }catch(error){
       console.warn('DUELVANTA TRADE automation',error);
@@ -58,7 +68,17 @@
     document.getElementById('dvOrdersTab')?.click();
   }
   function openOffer(){document.querySelector('[data-tab="offers"]')?.click()}
-  function route(item){if(item?.order_id)return openOrder(item.order_id);if(item?.offer_id)return openOffer()}
+  function openPickup(type,id){
+    if(type&&id&&window.DV_PICKUP_MESSAGES?.open)return window.DV_PICKUP_MESSAGES.open(type,id);
+    document.getElementById('dvPickupMessagesTab')?.click();
+  }
+  function route(item){
+    if(isSwap(item))return;
+    if(item?.context_type==='pickup_order')return openPickup('order',item.context_id);
+    if(item?.order_id)return openOrder(item.order_id);
+    if(item?.offer_id)return openOffer();
+    const key=String(item?.action_key||'');
+  }
 
   async function openNotification(item){
     if(!item)return;
@@ -96,7 +116,7 @@
     if(typeof db==='undefined'||typeof user==='undefined'||!user||!document.querySelector('.tabs'))return false;
     installed=true;mount();bind();refresh();
     setInterval(()=>{if(!document.hidden)refresh()},30000);
-    window.DV_TRADE_AUTOMATION={version:'1.0',refresh,get actions(){return actions},get notifications(){return notifications}};
+    window.DV_TRADE_AUTOMATION={version:'2.0',refresh,get actions(){return actions},get notifications(){return notifications}};
     return true;
   }
 

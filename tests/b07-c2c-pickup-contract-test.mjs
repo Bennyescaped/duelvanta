@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+
+const sql=await readFile(new URL('../database/b07-l07-01-c2c-swap-v1-pickup.sql',import.meta.url),'utf8');
+const swapUi=await readFile(new URL('../trade-c2c-swap.js',import.meta.url),'utf8');
+const marketplaceUx=await readFile(new URL('../trade-marketplace-ux.js',import.meta.url),'utf8');
+const tradeJs=await readFile(new URL('../trade.js',import.meta.url),'utf8');
+const tradeHtml=await readFile(new URL('../trade.html',import.meta.url),'utf8');
+const pickupMessagesSql=await readFile(new URL('../database/b07-l07-01-pickup-messages-v1.sql',import.meta.url),'utf8');
+const pickupMessagesListSql=await readFile(new URL('../database/b07-l07-01-pickup-messages-v1-list.sql',import.meta.url),'utf8');
+const pickupMessagesUi=await readFile(new URL('../trade-pickup-messages.js',import.meta.url),'utf8');
+const must=(needle,label)=>assert.ok(sql.includes(needle),`${label}: ${needle}`);
+const mustNot=(needle,label)=>assert.ok(!sql.includes(needle),`${label}: ${needle}`);
+const mustUi=(needle,label)=>assert.ok(swapUi.includes(needle),`${label}: ${needle}`);
+const mustMarket=(needle,label)=>assert.ok(marketplaceUx.includes(needle),`${label}: ${needle}`);
+const mustTrade=(needle,label)=>assert.ok(tradeJs.includes(needle),`${label}: ${needle}`);
+const mustPickupSql=(needle,label)=>assert.ok(pickupMessagesSql.includes(needle),`${label}: ${needle}`);
+const mustPickupList=(needle,label)=>assert.ok(pickupMessagesListSql.includes(needle),`${label}: ${needle}`);
+const mustPickupUi=(needle,label)=>assert.ok(pickupMessagesUi.includes(needle),`${label}: ${needle}`);
+
+must("'fulfillment_mode',v_thread.fulfillment_mode",'fulfillment mode must be inside immutable revision content');
+must("'schema_version','c2c-swap-revision-v2'",'pickup-aware revision schema version missing');
+must('create_market_swap_proposal_v2','pickup-aware proposal RPC missing');
+must('propose_market_swap_revision_v2','pickup-aware revision RPC missing');
+must("v_thread.fulfillment_mode='shipping'",'shipping-only address and fulfillment branch missing');
+must("v_thread.fulfillment_mode<>'pickup'",'pickup availability guard missing');
+must("v_now+interval '2 hours'",'pickup handover code must expire after 2 hours');
+must('h.attempt_count>=8','pickup brute-force limit missing');
+must("raise exception 'swap_pickup_requires_other_party'",'pickup must require bilateral parties');
+must("confirmation_mode','pickup_bilateral_handover'",'pickup bilateral completion evidence missing');
+must('market_swap_pickup_handovers','private pickup evidence table missing');
+must("'pickup',case when t.fulfillment_mode='pickup'",'participant read model must expose pickup status');
+mustNot('platform_fee_collected','pickup must not introduce fees');
+mustNot('record_market_tax_remuneration(','pickup must not book tax remuneration');
+
+assert.ok(!tradeHtml.includes('trade-b07-c2c-ux-bridge.js'),'TRADE page must not load obsolete C2C UX bridge');
+mustUi("swap.dataset.swapPropose=id",'C2C module must keep compatibility with dynamically decorated listings');
+mustUi("if(l.listing_type==='trade')button.remove()",'trade-only listing must not retain price-offer action after refresh decoration');
+mustUi("window.DV_C2C_SWAP={version:'1.5'",'integrated C2C UI version marker missing');
+mustUi('try{if(!await loadSwaps())return false}','initial schema-cache miss must stay retryable');
+mustUi('retryMs=Math.min(Math.round(retryMs*1.5),2000)','mobile startup retry must use bounded backoff');
+mustUi("window.addEventListener('pageshow',()=>scheduleInstall(0))",'C2C initializer must retry when preview page becomes active');
+mustUi("const secondary=tabs.querySelector('.dvTradeSecondary')",'C2C tab must detect an already rebuilt Marketplace navigation');
+mustUi('if(secondary)secondary.appendChild(button)','C2C tab must attach to existing secondary Marketplace navigation when it initializes late');
+mustUi('else if(sell?.parentElement===tabs)tabs.insertBefore(button,sell)','C2C tab must preserve the early-init path before Marketplace navigation rebuild');
+assert.ok(!swapUi.includes('tries>150'),'C2C initializer must not permanently stop after the old 12-second timeout');
+assert.ok(!swapUi.includes('if(!await loadSwaps()){installed=true;return true}'),'missing RPC must never latch C2C as installed');
+assert.ok(!swapUi.includes('MutationObserver'),'C2C module must remain free of recursive DOM observers');
+
+mustPickupSql('create table if not exists dv_market_private.market_pickup_messages','private pickup message table missing');
+mustPickupSql('alter table dv_market_private.market_pickup_messages enable row level security','pickup message table must enforce RLS');
+mustPickupSql('revoke all on dv_market_private.market_pickup_messages from public, anon, authenticated','pickup message table must have no direct browser access');
+mustPickupSql('get_market_pickup_conversation_v1','participant conversation read RPC missing');
+mustPickupSql('send_market_pickup_message_v1','participant message send RPC missing');
+mustPickupSql("v_swap.fulfillment_mode<>'pickup'",'swap messages must be pickup-only');
+mustPickupSql("v_order.fulfillment_group<>'pickup'",'order messages must be pickup-only');
+mustPickupSql("'pickup_messages','Koordination persönlicher Übergaben','external_review_required'",'pickup-message retention must remain externally gated before release');
+mustPickupList('list_my_market_pickup_conversations_v1','unified pickup conversation list RPC missing');
+mustPickupList("'swap'::text context_type",'unified list must include swap contexts');
+mustPickupList("'order'::text",'unified list must include order contexts');
+assert.doesNotThrow(()=>new Function(pickupMessagesUi),'pickup chat UI must parse as JavaScript');
+assert.ok(tradeHtml.includes('trade-pickup-messages.js?v=1.0'),'TRADE page must load pickup chat UI');
+assert.ok(tradeHtml.indexOf('trade-pickup-messages.js?v=1.0')>tradeHtml.indexOf('trade-marketplace-ux.js?v=1.1'),'pickup chat must initialize after Marketplace navigation');
+mustPickupUi("button.textContent='ABHOLUNG CHAT'",'pickup chat must expose a first-class TRADE area');
+mustPickupUi("db.rpc('list_my_market_pickup_conversations_v1')",'pickup chat list must use participant-scoped RPC');
+mustPickupUi("db.rpc('get_market_pickup_conversation_v1'",'pickup chat read must use participant-scoped RPC');
+mustPickupUi("db.rpc('send_market_pickup_message_v1'",'pickup chat send must use participant-scoped RPC');
+mustPickupUi("const tabs=document.querySelector('.tabs'),secondary=tabs?.querySelector('.dvTradeSecondary')",'pickup chat must attach natively to rebuilt Marketplace navigation');
+mustPickupUi("window.DV_PICKUP_MESSAGES={version:'1.0'",'pickup chat version marker missing');
+assert.ok(!pickupMessagesUi.includes('MutationObserver'),'pickup chat must not use DOM bridge observers');
+assert.ok(!pickupMessagesUi.includes('trade-c2c-swap'),'pickup chat must remain independent from swap implementation internals');
+
+console.log('PASS: C2C pickup is revision-bound, startup-order safe and uses one private pickup chat for swaps and orders');
+
+assert.ok(!tradeHtml.includes('trade-c2c-swap.js'),'retired swap module must not load');

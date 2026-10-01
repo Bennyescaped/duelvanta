@@ -1,0 +1,132 @@
+{
+  "read_at": "2026-09-25T11:05:13.527Z",
+  "review": "All seven deployed source bundles read. No TRADE-creation entrypoint. No invocations, secrets or changes.",
+  "functions": [
+    {
+      "project": "enifiaqsnqtbzylnfrpi",
+      "slug": "invite-beta-user",
+      "version": 2,
+      "bundle_sha256": "3dccb81ae8b8bbd47894b1dd9480334b58ae2afd355875920cf118e30bf5088f",
+      "files": [
+        {
+          "name": "index.ts",
+          "rpcs": [],
+          "tables": [
+            "beta_waitlist",
+            "beta_waitlist",
+            "beta_waitlist"
+          ]
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "enifiaqsnqtbzylnfrpi",
+      "slug": "public-card-image",
+      "version": 2,
+      "bundle_sha256": "46745f13d9e7cbadcf1190e8cce2ff3c6777e30393ef1d749862b9602847e043",
+      "files": [
+        {
+          "name": "index.ts",
+          "rpcs": [],
+          "tables": [
+            "collection_items",
+            "profiles",
+            "collection_folders",
+            "collection-cards"
+          ]
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "xhmjxrcskfhbovhitdej",
+      "slug": "owner-invite-beta-user",
+      "version": 5,
+      "bundle_sha256": "70460a09691a8363a8429b8329b05f7a4fdcc7b79d9080ac2bd37bb11b94c856",
+      "files": [
+        {
+          "name": "owner-invite-beta-user/index.ts",
+          "rpcs": [
+            "get_my_privileged_access_v1"
+          ],
+          "tables": [
+            "admin_audit_log"
+          ]
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "xhmjxrcskfhbovhitdej",
+      "slug": "battle-spectator-media-broker",
+      "version": 5,
+      "bundle_sha256": "a3e312252259144da2db3034c0cdeff15a67a4560dd3bbd354596ce4cfe6e501",
+      "files": [
+        {
+          "name": "index.ts",
+          "rpcs": [
+            "reserve_battle_spectator_media_viewer",
+            "get_battle_spectator_media_publisher_admission"
+          ],
+          "tables": []
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "xhmjxrcskfhbovhitdej",
+      "slug": "battle-spectator-media-reconciler",
+      "version": 6,
+      "bundle_sha256": "f7924705a1e9b7a681226369a557b872196e7f49d98dd204a93aa58800d50756",
+      "files": [
+        {
+          "name": "index.ts",
+          "rpcs": [
+            "get_pending_battle_spectator_media_revocations",
+            "complete_battle_spectator_media_revocation"
+          ],
+          "tables": []
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "xhmjxrcskfhbovhitdej",
+      "slug": "battle-spectator-media-inspect",
+      "version": 3,
+      "bundle_sha256": "6fcd499c43f1a6ba5ff0841d68889f2017dbd6a4b330c889378e0c66e1ccc081",
+      "files": [
+        {
+          "name": "index.ts",
+          "rpcs": [],
+          "tables": []
+        }
+      ],
+      "trade_entrypoint": false
+    },
+    {
+      "project": "xhmjxrcskfhbovhitdej",
+      "slug": "invite-beta-user",
+      "version": 1,
+      "bundle_sha256": "da31e262d90358f5e4c8e19947262dd2cfd1dab6df9dd6f89fbc2816ccd9122c",
+      "files": [
+        {
+          "name": "invite-beta-user/index.ts",
+          "rpcs": [],
+          "tables": []
+        },
+        {
+          "name": "owner-invite-beta-user/index.ts",
+          "rpcs": [
+            "get_my_privileged_access_v1"
+          ],
+          "tables": [
+            "admin_audit_log"
+          ]
+        }
+      ],
+      "trade_entrypoint": false
+    }
+  ]
+}

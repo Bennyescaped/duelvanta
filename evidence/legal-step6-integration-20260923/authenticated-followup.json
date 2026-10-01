@@ -1,0 +1,66 @@
+{
+  "before": {
+    "at": "2026-09-23T09:08:25.636822+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "after": {
+    "at": "2026-09-23T09:11:14.485892+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "result": "FAIL: archived order DV-260917-000010 remains invisible after ORDER OEFFNEN, reproduced twice",
+  "role": "existing test buyer; Judge without marketplace privileges confirmed by user",
+  "dom": [
+    {
+      "type": "text",
+      "text": "{\n  heading: 'Käufe und Verkäufe.',\n  openDialogs: 0,\n  orderNumbers: [\n    'DV-260913-000006',\n    'DV-260917-000010',\n    'DV-260917-000009',\n    'DV-260917-000008',\n    'DV-260915-000007',\n    'DV-260913-000006',\n    'DV-260913-000004',\n    'DV-260917-000009',\n    'DV-260917-000010',\n    'DV-260917-000008',\n    'DV-260913-000004'\n  ],\n  targetVisible: false\n}"
+    }
+  ]
+}

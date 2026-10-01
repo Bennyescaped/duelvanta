@@ -1,0 +1,22 @@
+.spectator-shell [hidden],#battleSpectatorPanel [hidden],#spLogout[hidden]{display:none!important}
+.spectator-shell{max-width:1100px;margin:auto}.spectator-shell .hero{padding-bottom:24px}
+.spectator-shell h1{font-size:clamp(32px,6vw,64px)}.spectator-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px 0}
+.spectator-shell button,.spectator-shell input,#battleSpectatorPanel button{min-height:44px}
+.spectator-shell a.btn{text-decoration:none}.spectator-shell #spMessage{min-height:24px;line-height:1.6;overflow-wrap:anywhere}
+.spectator-invite,.spectator-view,#battleSpectatorPanel{border:1px solid #51432b;border-radius:18px;padding:24px;margin:28px 0;background:#111214}
+.spectator-invite label{display:block;font-weight:700}.spectator-invite input,#battleSpectatorPanel input{flex:1;min-width:0;width:100%;padding:14px;border:1px solid #665338;border-radius:8px;background:#191a1d;color:#fff}
+.spectator-invite .spectator-actions{align-items:stretch}.spectator-invite input{min-width:180px}
+.spectator-count{display:flex;flex-direction:column;align-items:center;min-width:90px;gap:4px}.spectator-count strong{font-size:36px;color:#d4af62}
+.spectator-players{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;margin:24px 0}.spectator-players article{min-width:0;padding:20px;background:#1b1c20;border-radius:12px}
+.spectator-players h3,.spectator-view h2{overflow-wrap:anywhere}.spectator-status{text-align:center;padding:18px;border-block:1px solid #39352c;line-height:1.6}
+/* Media tracks are not the three-column Host / VS / Guest status row. */
+#spMedia{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;min-width:0}
+#spMedia:empty{display:none}
+#spMedia>video{display:block;width:100%;max-width:100%;min-width:0;height:auto;aspect-ratio:16/9;object-fit:contain;background:#080b0d;border-radius:12px}
+#spMedia>audio{display:none}
+#spMedia:has(>video)+.spectator-placeholder{display:none}
+@media(max-width:620px){#spMedia{grid-template-columns:minmax(0,1fr)}}
+.spectator-placeholder{text-align:center;max-width:650px;margin:36px auto;line-height:1.7;color:#c4c4c7}.spectator-placeholder img{width:54px;height:54px;opacity:.65}.spectator-placeholder h3{color:#e4d6b9}
+.spectator-footer{padding:36px 0;margin-top:24px;text-align:center;font-weight:700;color:#c5a161}.spectator-footer p{font-weight:400;max-width:700px;margin:14px auto;line-height:1.6}
+#battleSpectatorPanel .spectator-actions{margin-bottom:8px}#battleSpectatorPanel .meta{overflow-wrap:anywhere;line-height:1.5}
+@media(max-width:620px){.spectator-invite,.spectator-view,#battleSpectatorPanel{padding:16px}.spectator-players{grid-template-columns:1fr;gap:8px}.spectator-players .versus{text-align:center;font-size:20px}.spectator-shell .sectionHead{align-items:flex-start;gap:14px}.spectator-shell .sectionHead h2{font-size:23px}.spectator-actions .btn{white-space:normal;text-align:center}.spectator-invite .spectator-actions{flex-direction:column}}

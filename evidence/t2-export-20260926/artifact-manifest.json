@@ -1,0 +1,22 @@
+{
+  "technical_head": "2973b83a9d9a077406ca295d8a8669ceef3dd715",
+  "artifact_id": 10900797836,
+  "artifact_sha256": "17e0a23a00cb822e9c9b16cba39ec71c0e710a50c75c55ccccbbbfbcf34c46a6",
+  "workflow_run": 36226086945,
+  "artifact_name": "account-data-export-t2-evidence",
+  "native_pg_version": "17.11",
+  "files": [
+    {
+      "path": "account-data-export-native-lock.json",
+      "sha256": "34ffb6995d28551bf319a649d4a7cc02e98e50df70997800e37f06ce31cdfc68"
+    },
+    {
+      "path": "account-data-export-native.json",
+      "sha256": "be33dfa53df6c7c20bc855f38eaf34ffa5db86f4584607f2287873e750887683"
+    },
+    {
+      "path": "production-trade-lock-synthetic-existing-native.json",
+      "sha256": "bd4a47450326fe935954e87994290db3458957719467584562b807c632a1d261"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+BASELINE SQL PASS 72
+[
+  { nspname: 'public', count: 30 },
+  { nspname: 'dv_v16_private', count: 9 }
+]
+APPLIED U001 database/market-seller-compliance-v1.sql
+APPLIED U002 database/production-upgrade/notice-action-source-61404cf.sql
+APPLIED U003 database/market-checkout-compliance-v1.sql
+APPLIED U004 database/market-tax-transparency-v1.sql
+APPLIED U005 database/account-data-rights-v1.sql
+APPLIED U006 database/account-data-erasure-username-guard-v1.sql
+APPLIED U007 database/market-stripe-connect-sandbox-v1.sql
+APPLIED U008 database/trade-order-lifecycle-payment-hardening-v1.sql
+APPLIED U009 pgcrypto_digest_schema_hardening_v1
+APPLIED U010 market_stripe_payment_result_columns_v1
+APPLIED U011 trade_actions_column_aliases_v1
+APPLIED U012 database/production-upgrade/trade-actions-reviewed-source.sql
+APPLIED U013 market_stripe_event_ordering_hardening_v1
+APPLIED U014 market_stripe_refund_evidence_hardening_v1
+APPLIED U015 market_stripe_refund_evidence_immutability_fix_v1
+APPLIED U016 b07_tracking_delivery_window_v1
+APPLIED U017 b07_l07_01_release1_shipping_close_v1
+APPLIED U018 b07_l07_01_release1_shipping_close_v1_hardening
+APPLIED U019 b07_l07_01_shipping_deadline_hardening_v1
+APPLIED U020 b07_c2c_eligibility_dependency_v1
+APPLIED U021 b07_l07_01_c2c_swap_v1_schema
+APPLIED U022 b07_l07_01_c2c_swap_v1_binding
+APPLIED U023 b07_l07_01_c2c_swap_v1_fulfillment_shipping
+APPLIED U024 b07_l07_01_c2c_swap_v1_fulfillment_receive
+APPLIED U025 b07_l07_01_c2c_swap_v1_problems
+APPLIED U026 b07_l07_01_c2c_swap_v1_pickup_schema
+APPLIED U027 b07_l07_01_c2c_swap_v1_pickup_revision
+APPLIED U028 b07_l07_01_c2c_swap_v1_pickup_proposals
+APPLIED U029 b07_l07_01_c2c_swap_v1_pickup_binding
+APPLIED U030 b07_l07_01_c2c_swap_v1_pickup_code
+APPLIED U031 database/b07-l07-01-c2c-swap-v1-pickup.sql
+APPLIED U032 b07_l07_01_c2c_swap_v1_completion_compat
+APPLIED U033 b07_l07_01_c2c_swap_v1_pickup_completion_compat
+APPLIED U034 b07_l07_01_pickup_messages_v1
+APPLIED U035 b07_l07_01_pickup_messages_v1_list
+APPLIED U036 b07_l07_01_order_pickup_handover_staging_repair_v1
+APPLIED U037 account_data_rights_pickup_messages_hardening_v1
+APPLIED U038 b07_trade_only_no_money_v1
+APPLIED U039 b07_sealed_sale_only_v1
+APPLIED U040 trade_notifications_v2
+APPLIED U041 trade_notifications_v2_kind_expansion
+APPLIED U042 trade_notifications_v2_cutover
+APPLIED U043 b07_sale_only_release_v1
+APPLIED U044 b07_sale_only_notifications_v1
+APPLIED U045 b07_sale_only_public_listings_v1
+APPLIED U046 b07_offer_reservation_v1_staging
+APPLIED U047 b07_offer_reservation_sale_only_reads
+APPLIED U048 b07_shipping_receipt_completion_realign_v1
+APPLIED U049 battle_beta_account_status_v1
+APPLIED U050 battle_dispute_resolution_v1
+APPLIED U051 battle_judge_desk_v1
+APPLIED U052 battle_spectator_foundation_v1
+APPLIED U053 battle_spectator_media_v1
+APPLIED U054 battle_spectator_media_publisher_admission_v1
+APPLIED U055 battle_spectator_media_reconciler_v1
+APPLIED U056 collect_empty_binder_delete
+APPLIED U057 trade_legal_contract_model_v1
+APPLIED U058 auth_privileged_step_up_v1
+APPLIED U059 security_privilege_mfa_hardening_v1
+APPLIED U060 security_readiness_v1
+READINESS {
+  security: { revision: 'privilege-mfa-v1', compatible: true },
+  legal: { revision: 'trade-legal-contract-model-v1.2', compatible: true }
+}
+READINESS DIFF 0 []
+P005 PASS unlocked controls: real fixed prepare/accept and price offers succeed
+P005 PASS installation rollback leaves original schema and permissions intact
+P005 PASS complete lock plus readiness installs atomically and reapplies idempotently
+P005 PASS locked legal/security readiness passes without disabling existing-order UI
+P005 PASS anon: all 17 new-commerce RPCs and six direct INSERT sinks denied
+P005 PASS authenticated: all 17 new-commerce RPCs and six direct INSERT sinks denied
+P005 PASS service_role: all 17 new-commerce RPCs and six direct INSERT sinks denied
+P005 PASS all five retired swap creation sinks remain locked for privileged writes
+P005 PASS owner/definer/replica writes, old-order grafting and republishing denied by physical triggers
+P005 PASS service_role BYPASSRLS with adversarial future DML grants still blocked; grants rolled back
+P005 PASS fixed fresh/prepared, service acceptance and price acceptance leave counts unchanged
+P005 PASS service-role payment preparation for an existing order remains allowed
+P005 PASS accepted fixed retries, reservation release, offer decline and withdrawal remain usable
+P005 PASS real HTTP checkout handler + real DB: locked fixed request returns 409 before any provider call
+P005 PASS real HTTP fixed-price accepted replay recovers existing payment through mocked read only
+P005 PASS actual own-order reads/export, problem open/withdraw, cancellation acceptance and listing closure succeed
+P005 PASS actual B2C withdrawal/receipt and service-role full-refund preparation succeed
+P005 PASS existing manual order receipt completes under lock
+P005 PASS actual data-rights request, claim, listing anonymization and DB completion succeed; external Auth/Storage not invoked
+P005 PASS disabled lock trigger makes readiness fail closed
+P0-05 REHEARSAL COMPLETE

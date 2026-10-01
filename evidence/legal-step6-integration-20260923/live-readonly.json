@@ -1,0 +1,104 @@
+{
+  "project": "xhmjxrcskfhbovhitdej",
+  "before": {
+    "at": "2026-09-23T08:41:47.147783+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "after": {
+    "at": "2026-09-23T08:43:02.908123+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "catalog_readonly": {
+    "snapshots": [
+      {
+        "count": 7,
+        "snapshot_version": "checkout-contract-v1",
+        "withdrawal_eligible": false,
+        "contract_classification": "c2c"
+      },
+      {
+        "count": 1,
+        "snapshot_version": "checkout-contract-v1",
+        "withdrawal_eligible": false,
+        "contract_classification": "b2c"
+      }
+    ],
+    "private_grants": 0,
+    "anon_private_usage": false,
+    "authenticated_private_usage": false
+  },
+  "preview": {
+    "deployment": "dpl_36h91ZCxYFKV54erdj8wruQmUq78",
+    "host": "duelvantav5vision-ig00rh9hf-bennyescaped-3783.vercel.app",
+    "commit": "464408a05f5bca25fa5e01c852dd8fac8976732f",
+    "runtime": {
+      "environment": "preview",
+      "supabase": "xhmjxrcskfhbovhitdej",
+      "http_status": 200
+    },
+    "browser": {
+      "landing": "PASS",
+      "login_page": "PASS",
+      "authenticated_test_session": "BLOCKIERT",
+      "title": "Login · DUELVANTA",
+      "path": "/login.html",
+      "guard_assets": "Not reached; no delivered guard version asserted"
+    }
+  },
+  "email": {
+    "value": "unset",
+    "source": "manuell im Vercel-Dashboard bestätigt durch Nutzer; Project und Shared; kein API-Nachweis"
+  },
+  "sql": {
+    "basis": "begin read only;\nselect jsonb_build_object(\n'at',now(),'postgres',current_setting('server_version'),\n'history',(select jsonb_agg(jsonb_build_object('version',version,'name',name)) from supabase_migrations.schema_migrations where version='20260923081953'),\n'readiness',public.get_market_legal_schema_readiness_v1(),\n'stripe',(select jsonb_build_object('sandbox_enabled',sandbox_enabled,'live_mode',live_mode) from dv_market_private.market_payment_configuration where singleton),\n'counts',jsonb_build_object('listings',(select count(*) from public.market_listings),'offers',(select count(*) from public.market_offers),'deals',(select count(*) from public.market_deals),'orders',(select count(*) from public.market_orders),'contract_snapshots',(select count(*) from dv_market_private.market_contract_snapshots),'withdrawal_drafts',(select count(*) from dv_market_private.market_withdrawal_drafts),'withdrawals',(select count(*) from dv_market_private.market_withdrawals),'payment_attempts',(select count(*) from dv_market_private.market_payment_attempts))\n) as evidence; commit;",
+    "extra": "begin read only; select jsonb_build_object(\n'snapshots',(select jsonb_agg(x) from (select contract_classification,snapshot_version,withdrawal_eligible,count(*) from dv_market_private.market_contract_snapshots group by 1,2,3)x),\n'private_grants',(select count(*) from information_schema.role_table_grants where table_schema='dv_market_private' and grantee in ('anon','authenticated')),\n'authenticated_private_usage',has_schema_privilege('authenticated','dv_market_private','USAGE'),\n'anon_private_usage',has_schema_privilege('anon','dv_market_private','USAGE')\n) as evidence; commit;"
+  }
+}

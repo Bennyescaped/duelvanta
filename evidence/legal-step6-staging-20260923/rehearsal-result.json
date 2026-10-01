@@ -1,0 +1,291 @@
+[
+  {
+    "mode": "baseline",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    },
+    "diffs": [],
+    "grants": [
+      {
+        "proname": "confirm_market_withdrawal_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "create_market_offer_v3",
+        "service_execute": false
+      },
+      {
+        "proname": "get_my_market_withdrawable_contracts",
+        "service_execute": false
+      },
+      {
+        "proname": "prepare_fixed_price_market_offer_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "prepare_market_withdrawal_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "review_market_price_offer_v1",
+        "service_execute": false
+      }
+    ]
+  },
+  {
+    "mode": "live_indexes",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": false
+    },
+    "diffs": [
+      [
+        "table",
+        "dv_market_private.account_deletion_requests",
+        "13f6f506c591badfe57303638c194374"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notice_appeals",
+        "1418287b27984c699b08643f1b02137e"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notice_events",
+        "e3a0a5a8220fced971a308a297638aed"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notices",
+        "e082b5c7fb5d0f7ee4c3763c9934ebd5"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_account_audit",
+        "8bd42ac80eb5e66e0f7e5fc76361e698"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_declarations",
+        "12d0174d96366178fdeb14ae6547b798"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_review_actions",
+        "e491cc8bbb68ca3d16b78e4e7b2e89d1"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_tax_identifiers",
+        "510d54f5c67b6ae1dfffd3210d82b800"
+      ],
+      [
+        "table",
+        "public.profiles",
+        "0a6ea8af112ea57312b79a45b7b2405d"
+      ]
+    ],
+    "grants": [
+      {
+        "proname": "confirm_market_withdrawal_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "create_market_offer_v3",
+        "service_execute": false
+      },
+      {
+        "proname": "get_my_market_withdrawable_contracts",
+        "service_execute": false
+      },
+      {
+        "proname": "prepare_fixed_price_market_offer_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "prepare_market_withdrawal_v1",
+        "service_execute": false
+      },
+      {
+        "proname": "review_market_price_offer_v1",
+        "service_execute": false
+      }
+    ]
+  },
+  {
+    "mode": "live_defaults",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": false
+    },
+    "diffs": [
+      [
+        "function",
+        "public.confirm_market_withdrawal_v1(p_draft_id uuid)",
+        "62de1c6ffc464853b83eb2401efe7ff1"
+      ],
+      [
+        "function",
+        "public.create_market_offer_v3(p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text, p_expected_updated_at timestamp with time zone, p_offer_review_hash text)",
+        "4c6625c1747a2e80e78d910d901f9183"
+      ],
+      [
+        "function",
+        "public.get_my_market_withdrawable_contracts()",
+        "7713f73688bda1d4b3bf569497024905"
+      ],
+      [
+        "function",
+        "public.prepare_fixed_price_market_offer_v1(p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone, p_checkout_hash text, p_live_mode boolean)",
+        "804afbf63f6f2c320f6e89f78a029b04"
+      ],
+      [
+        "function",
+        "public.prepare_market_withdrawal_v1(p_contract_snapshot_id uuid, p_consumer_name text, p_confirmation_email text)",
+        "b4c0ebc27773da956d30beebe5ae9c7d"
+      ],
+      [
+        "function",
+        "public.review_market_price_offer_v1(p_listing_id uuid, p_requested_quantity integer, p_amount numeric)",
+        "450fdd04e110cf7f9673b064661c4f4f"
+      ]
+    ],
+    "grants": [
+      {
+        "proname": "confirm_market_withdrawal_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "create_market_offer_v3",
+        "service_execute": true
+      },
+      {
+        "proname": "get_my_market_withdrawable_contracts",
+        "service_execute": true
+      },
+      {
+        "proname": "prepare_fixed_price_market_offer_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "prepare_market_withdrawal_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "review_market_price_offer_v1",
+        "service_execute": true
+      }
+    ]
+  },
+  {
+    "mode": "live_indexes_and_defaults",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": false
+    },
+    "diffs": [
+      [
+        "function",
+        "public.confirm_market_withdrawal_v1(p_draft_id uuid)",
+        "62de1c6ffc464853b83eb2401efe7ff1"
+      ],
+      [
+        "function",
+        "public.create_market_offer_v3(p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text, p_expected_updated_at timestamp with time zone, p_offer_review_hash text)",
+        "4c6625c1747a2e80e78d910d901f9183"
+      ],
+      [
+        "function",
+        "public.get_my_market_withdrawable_contracts()",
+        "7713f73688bda1d4b3bf569497024905"
+      ],
+      [
+        "function",
+        "public.prepare_fixed_price_market_offer_v1(p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone, p_checkout_hash text, p_live_mode boolean)",
+        "804afbf63f6f2c320f6e89f78a029b04"
+      ],
+      [
+        "function",
+        "public.prepare_market_withdrawal_v1(p_contract_snapshot_id uuid, p_consumer_name text, p_confirmation_email text)",
+        "b4c0ebc27773da956d30beebe5ae9c7d"
+      ],
+      [
+        "function",
+        "public.review_market_price_offer_v1(p_listing_id uuid, p_requested_quantity integer, p_amount numeric)",
+        "450fdd04e110cf7f9673b064661c4f4f"
+      ],
+      [
+        "table",
+        "dv_market_private.account_deletion_requests",
+        "13f6f506c591badfe57303638c194374"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notice_appeals",
+        "1418287b27984c699b08643f1b02137e"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notice_events",
+        "e3a0a5a8220fced971a308a297638aed"
+      ],
+      [
+        "table",
+        "dv_market_private.listing_notices",
+        "e082b5c7fb5d0f7ee4c3763c9934ebd5"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_account_audit",
+        "8bd42ac80eb5e66e0f7e5fc76361e698"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_declarations",
+        "12d0174d96366178fdeb14ae6547b798"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_review_actions",
+        "e491cc8bbb68ca3d16b78e4e7b2e89d1"
+      ],
+      [
+        "table",
+        "dv_market_private.seller_tax_identifiers",
+        "510d54f5c67b6ae1dfffd3210d82b800"
+      ],
+      [
+        "table",
+        "public.profiles",
+        "0a6ea8af112ea57312b79a45b7b2405d"
+      ]
+    ],
+    "grants": [
+      {
+        "proname": "confirm_market_withdrawal_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "create_market_offer_v3",
+        "service_execute": true
+      },
+      {
+        "proname": "get_my_market_withdrawable_contracts",
+        "service_execute": true
+      },
+      {
+        "proname": "prepare_fixed_price_market_offer_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "prepare_market_withdrawal_v1",
+        "service_execute": true
+      },
+      {
+        "proname": "review_market_price_offer_v1",
+        "service_execute": true
+      }
+    ]
+  }
+]

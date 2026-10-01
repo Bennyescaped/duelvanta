@@ -13,7 +13,7 @@ const fetchImpl=async(url,options)=>{
   assert.equal(options.redirect,'error');
   if(url.endsWith('/auth/v1/user')){assert.equal(options.headers['x-dv-accounting-key'],undefined);return{ok:authOk,status:authOk?200:401,json:async()=>({id:user})};}
   if(!rpcAvailable)throw new Error('private connection details must not escape');
-  if(url.endsWith('/dv_v16_openai_scan_budget'))return{ok:true,json:async()=>({enabled:true,remaining,monthlyRemainingEurMicros,budgetResetsAt:'2026-10-01T00:00:00+02:00'})};
+  if(url.endsWith('/dv_v16_openai_scan_budget'))return{ok:true,json:async()=>({enabled:true,processingRestricted:false,remaining,monthlyRemainingEurMicros,budgetResetsAt:'2026-10-01T00:00:00+02:00'})};
   if(url.endsWith('/dv_v16_settle_openai_scan')){
     if(settlementFails)throw new Error('settlement unavailable');
     assert.equal(options.headers['x-dv-accounting-key'],env.DV_OPENAI_ACCOUNTING_KEY);

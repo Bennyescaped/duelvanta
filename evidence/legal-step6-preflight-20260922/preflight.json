@@ -1,0 +1,1006 @@
+{
+  "observedAt": "2026-09-22",
+  "sourceHead": "faf730970c4637f8109e27a56725a97a30d252be",
+  "project": "xhmjxrcskfhbovhitdej",
+  "productionExcluded": "enifiaqsnqtbzylnfrpi",
+  "migration": {
+    "path": "supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql",
+    "blob": "42c75129a4bf982d8d010f1bbbdc35b7dd2d6fb3",
+    "sha256": "18cc18efeb2c32db43fb20150157eab57164fe8d6ed469feb7bf5dbdd92d261e"
+  },
+  "payment": {
+    "currency": "EUR",
+    "provider": "stripe_connect",
+    "live_mode": false,
+    "singleton": true,
+    "updated_at": "2026-09-15T08:36:26.591757+00:00",
+    "charge_model": "direct_charge",
+    "policy_version": "stripe-connect-sandbox-v1",
+    "sandbox_enabled": false,
+    "platform_fee_bps": 0,
+    "platform_fee_fixed_cents": 0,
+    "platform_fee_tax_treatment": "review_required",
+    "seller_invoice_issuance_enabled": false
+  },
+  "privateBrowserGrants": [],
+  "schemaPrivileges": [
+    {
+      "acl": [
+        "pg_database_owner=UC/pg_database_owner",
+        "postgres=U/pg_database_owner",
+        "=U/pg_database_owner",
+        "anon=U/pg_database_owner",
+        "authenticated=U/pg_database_owner",
+        "service_role=U/pg_database_owner"
+      ],
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=UC/postgres"
+      ],
+      "schema": "dv_market_private"
+    }
+  ],
+  "rls": [
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "authenticated=r/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_seller_accounts"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": false,
+      "table": "dv_market_private.trade_user_eligibility"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.seller_legal_profiles"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.seller_account_audit"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.marketplace_compliance_policy"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.seller_review_actions"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.seller_declarations"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.seller_tax_identifiers"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.listing_notices"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.listing_notice_appeals"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.listing_notice_events"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.marketplace_message_outbox"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_contract_snapshots"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_revision_items"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_confirmations"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_reservations"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.marketplace_message_delivery_events"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_value_snapshots"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_shipping_addresses"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_fulfillments"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_threads"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_revisions"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_cases"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_swap_pickup_handovers"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_tax_events"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_tax_exports"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_tax_export_rows"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_pickup_messages"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.data_retention_rules"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.account_deletion_requests"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.account_deletion_holds"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.user_data_export_events"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.account_data_rights_audit"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": false,
+      "table": "dv_market_private.market_pickup_handovers"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": false,
+      "table": "public.market_notification_sync_state"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_payment_configuration"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_stripe_accounts"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_stripe_onboarding_requests"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_payment_attempts"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_payment_allocations"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_refund_requests"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_invoice_authorizations"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_financial_documents"
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "table": "dv_market_private.market_stripe_events"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "authenticated=arwd/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.battle_signals"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_default_shipping_addresses"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "anon=arwdDxt/postgres",
+        "authenticated=arwdDxt/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.profiles"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_reviews"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "authenticated=arwdDxt/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.beta_waitlist"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=ard/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_offers"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "anon=arwxt/postgres",
+        "authenticated=arwxt/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.collection_folders"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "authenticated=arwdDxt/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.battle_reports"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=r/postgres"
+      ],
+      "rls": true,
+      "table": "public.staff_applications"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "authenticated=r/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.battle_matches"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.username_reservations"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=r/postgres"
+      ],
+      "rls": true,
+      "table": "public.staff_permissions"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=r/postgres"
+      ],
+      "rls": true,
+      "table": "public.admin_audit_log"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.battle_rating_events"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=arwd/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_listings"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres",
+        "authenticated=r/postgres"
+      ],
+      "rls": true,
+      "table": "public.battle_ratings"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_deal_shipping_addresses"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_shipping_address_access_log"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_listing_images"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_deals"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_order_items"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_order_shipping_addresses"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_order_shipping_access_log"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "authenticated=arwdDxt/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.collection_items"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_order_payments"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_notifications"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_shipping_profiles"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_shipping_profile_rules"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_orders"
+    },
+    {
+      "acl": [
+        "postgres=a*r*w*d*D*x*t*m/postgres",
+        "service_role=arwdDxt/postgres"
+      ],
+      "rls": true,
+      "table": "public.market_order_cases"
+    }
+  ],
+  "functions": [
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_listing_id uuid, p_requested_quantity integer, p_amount numeric, p_message text",
+      "name": "create_market_offer_v2",
+      "result": "uuid",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_order_id uuid",
+      "name": "recalculate_market_order",
+      "result": "void",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "",
+      "name": "attach_market_deal_to_order",
+      "result": "trigger",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_offer_id uuid, p_action text",
+      "name": "respond_to_market_offer",
+      "result": "void",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "",
+      "name": "emit_market_offer_notification",
+      "result": "trigger",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "args": "p_seller_id uuid",
+      "name": "market_checkout_seller_party",
+      "result": "jsonb",
+      "schema": "dv_market_private"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "args": "p_listing market_listings",
+      "name": "market_checkout_product_snapshot",
+      "result": "jsonb",
+      "schema": "dv_market_private"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_listing_id uuid, p_quantity integer",
+      "name": "review_market_checkout",
+      "result": "jsonb",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "args": "",
+      "name": "capture_market_contract_snapshot",
+      "result": "trigger",
+      "schema": "dv_market_private"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_listing_id uuid, p_quantity integer, p_request_id uuid, p_expected_updated_at timestamp with time zone, p_checkout_hash text",
+      "name": "buy_market_listing_v3",
+      "result": "jsonb",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "",
+      "name": "export_my_duelvanta_data",
+      "result": "jsonb",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "args": "p_user_id uuid, p_require_private_buyer boolean",
+      "name": "require_trade_eligibility",
+      "result": "void",
+      "schema": "dv_market_private"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "",
+      "name": "get_my_market_offers_v2",
+      "result": "jsonb",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "",
+      "name": "expire_market_offer_reservations_v1",
+      "result": "integer",
+      "schema": "public"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "args": "p_offer_id uuid, p_request_id uuid, p_checkout_hash text",
+      "name": "checkout_accepted_market_offer_v1",
+      "result": "jsonb",
+      "schema": "public"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "market_offers_buyer_id_fkey",
+      "table": "market_offers",
+      "definition": "FOREIGN KEY (buyer_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "market_offers_check",
+      "table": "market_offers",
+      "definition": "CHECK ((buyer_id <> seller_id))"
+    },
+    {
+      "name": "market_offers_currency_check",
+      "table": "market_offers",
+      "definition": "CHECK ((currency = 'EUR'::text))"
+    },
+    {
+      "name": "market_offers_listing_id_fkey",
+      "table": "market_offers",
+      "definition": "FOREIGN KEY (listing_id) REFERENCES market_listings(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "market_offers_offer_type_check",
+      "table": "market_offers",
+      "definition": "CHECK ((offer_type = ANY (ARRAY['price'::text, 'trade'::text])))"
+    },
+    {
+      "name": "market_offers_pkey",
+      "table": "market_offers",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "market_offers_requested_quantity_check",
+      "table": "market_offers",
+      "definition": "CHECK (((requested_quantity >= 1) AND (requested_quantity <= 1000)))"
+    },
+    {
+      "name": "market_offers_seller_id_fkey",
+      "table": "market_offers",
+      "definition": "FOREIGN KEY (seller_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "market_offers_status_check",
+      "table": "market_offers",
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'declined'::text, 'withdrawn'::text, 'expired'::text, 'cancelled'::text])))"
+    },
+    {
+      "name": "marketplace_message_outbox_attempts_check",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "CHECK ((attempts >= 0))"
+    },
+    {
+      "name": "marketplace_message_outbox_contract_snapshot_id_fkey",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "FOREIGN KEY (contract_snapshot_id) REFERENCES dv_market_private.market_contract_snapshots(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "marketplace_message_outbox_delivery_status_check",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "CHECK ((delivery_status = ANY (ARRAY['pending'::text, 'sending'::text, 'sent'::text, 'failed'::text])))"
+    },
+    {
+      "name": "marketplace_message_outbox_message_kind_check",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "CHECK ((message_kind = ANY (ARRAY['notice_received'::text, 'notice_decided'::text, 'seller_statement_of_reasons'::text, 'appeal_received'::text, 'appeal_decided'::text, 'order_confirmation'::text])))"
+    },
+    {
+      "name": "marketplace_message_outbox_notice_id_fkey",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "FOREIGN KEY (notice_id) REFERENCES dv_market_private.listing_notices(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "marketplace_message_outbox_pkey",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "marketplace_message_outbox_recipient_kind_check",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "CHECK ((recipient_kind = ANY (ARRAY['reporter'::text, 'seller'::text, 'buyer'::text])))"
+    },
+    {
+      "name": "marketplace_message_outbox_recipient_user_id_fkey",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "FOREIGN KEY (recipient_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "marketplace_message_outbox_source_check",
+      "table": "dv_market_private.marketplace_message_outbox",
+      "definition": "CHECK (((((notice_id IS NOT NULL))::integer + ((contract_snapshot_id IS NOT NULL))::integer) = 1))"
+    },
+    {
+      "name": "market_contract_snapshots_buyer_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (buyer_id) REFERENCES auth.users(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((round((goods_total + shipping_cost), 2) = total_price))"
+    },
+    {
+      "name": "market_contract_snapshots_contract_classification_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((contract_classification = ANY (ARRAY['c2c'::text, 'b2c'::text])))"
+    },
+    {
+      "name": "market_contract_snapshots_currency_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((currency = 'EUR'::text))"
+    },
+    {
+      "name": "market_contract_snapshots_deal_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (deal_id) REFERENCES market_deals(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_deal_id_key",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "UNIQUE (deal_id)"
+    },
+    {
+      "name": "market_contract_snapshots_goods_total_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((goods_total > (0)::numeric))"
+    },
+    {
+      "name": "market_contract_snapshots_listing_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (listing_id) REFERENCES market_listings(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_offer_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (offer_id) REFERENCES market_offers(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_order_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (order_id) REFERENCES market_orders(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_payment_provider_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((payment_provider = 'manual_beta'::text))"
+    },
+    {
+      "name": "market_contract_snapshots_pkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "market_contract_snapshots_quantity_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK (((quantity >= 1) AND (quantity <= 1000)))"
+    },
+    {
+      "name": "market_contract_snapshots_seller_id_fkey",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "FOREIGN KEY (seller_id) REFERENCES auth.users(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "market_contract_snapshots_seller_type_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((seller_type = ANY (ARRAY['private'::text, 'trader'::text])))"
+    },
+    {
+      "name": "market_contract_snapshots_shipping_cost_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK (((shipping_cost >= (0)::numeric) AND (shipping_cost <= (500)::numeric)))"
+    },
+    {
+      "name": "market_contract_snapshots_total_price_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((total_price > (0)::numeric))"
+    },
+    {
+      "name": "market_contract_snapshots_unit_price_check",
+      "table": "dv_market_private.market_contract_snapshots",
+      "definition": "CHECK ((unit_price > (0)::numeric))"
+    }
+  ],
+  "offerTypes": [
+    {
+      "count": 2,
+      "offer_type": "price"
+    }
+  ],
+  "withdrawalTables": [
+    null,
+    null
+  ],
+  "readinessRpcExists": false,
+  "mutationCount": 0,
+  "previewProbe": {
+    "runtimeGet": 302,
+    "unauthenticatedPost": 401,
+    "deliveryFlagVerified": false,
+    "authenticatedPreviewTest": false
+  },
+  "criticalDeleteBoundary": {
+    "rls_policies": [
+      {
+        "cmd": "SELECT",
+        "qual": "((buyer_id = ( SELECT auth.uid() AS uid)) OR (seller_id = ( SELECT auth.uid() AS uid)))",
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "market_offers",
+        "permissive": "PERMISSIVE",
+        "policyname": "offers_read_participants",
+        "schemaname": "public",
+        "with_check": null
+      },
+      {
+        "cmd": "DELETE",
+        "qual": "((buyer_id = ( SELECT auth.uid() AS uid)) AND (status = 'pending'::text))",
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "market_offers",
+        "permissive": "PERMISSIVE",
+        "policyname": "offers_delete_buyer",
+        "schemaname": "public",
+        "with_check": null
+      }
+    ],
+    "delete_triggers": [
+      {
+        "name": "block_restricted_market_offers",
+        "definition": "CREATE TRIGGER block_restricted_market_offers BEFORE INSERT OR DELETE OR UPDATE ON public.market_offers FOR EACH ROW EXECUTE FUNCTION dv_market_private.block_restricted_account_mutation()"
+      }
+    ],
+    "authenticated_delete": true,
+    "authenticated_insert": true,
+    "authenticated_update": false
+  }
+}

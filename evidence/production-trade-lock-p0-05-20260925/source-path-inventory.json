@@ -1,0 +1,460 @@
+{
+  "scope": "All tracked non-test JS/HTML/TS scanned; literal inventory supplements manual source review. Computed RPCs and browser fallbacks remain covered by physical write guards. Not a general call-graph proof.",
+  "files_scanned": 144,
+  "files": [
+    {
+      "path": "admin-delivery-review.js",
+      "sha256": "89fe39712d83249216033530cfa3eb6a775809ec5c74b58eace247995efc759a",
+      "literal_rpcs": [
+        "get_owner_market_delivery_reviews_b07",
+        "review_market_order_delivery_b07"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "admin-notice-action.js",
+      "sha256": "290c88f7222994bc8781a39f63fe0a9644bffd07211d333c4e441ebce9238849",
+      "literal_rpcs": [
+        "decide_marketplace_listing_notice",
+        "get_owner_marketplace_notices",
+        "review_marketplace_notice_appeal"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "admin-seller-review.js",
+      "sha256": "cba964dcabeb8fa3407c43ec97409b5148170e2a12dc888242040fcf1256d8de",
+      "literal_rpcs": [
+        "get_owner_market_seller_reviews",
+        "review_market_seller_onboarding"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "admin.html",
+      "sha256": "029b7f6bce7de7cd1251fc560325ffe47c818fe0027d0734ff3c9f64f3fa7c0b",
+      "literal_rpcs": [
+        "dv_v16_owner_openai_scan_settings",
+        "dv_v16_owner_update_openai_scan_policy",
+        "get_my_market_owner_access"
+      ],
+      "literal_relations": [
+        "beta_waitlist"
+      ]
+    },
+    {
+      "path": "api/account-data-erasure.js",
+      "sha256": "04021954ae73e160971c36894ed90206a733749fb3b2762760d71b2ede1bd267",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/compliance-message-dispatch.js",
+      "sha256": "7159df6d5f6edf7107866a15d8e453da7cf5e1f2f73deb7ca39bf6661c253b60",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/market-stripe-checkout.js",
+      "sha256": "d626aeffa1ebf21f845140b842caeac3ece626ba2ccc25e4cfa392d4869de155",
+      "literal_rpcs": [
+        "accept_fixed_price_market_offer_v1",
+        "bind_market_stripe_checkout_session",
+        "prepare_fixed_price_market_offer_v1",
+        "prepare_market_stripe_payment"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "api/market-stripe-lib.js",
+      "sha256": "ab9d471abbaa110a8f8249498a2de97d15dbf0ca8e9d3c036cdf2bf780ef95a2",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/market-stripe-onboarding.js",
+      "sha256": "f877edba1e7ad35db6e375f30190c9b3d985dacdb58df50781f10e5c72b41205",
+      "literal_rpcs": [
+        "mark_market_stripe_onboarding_link_created",
+        "prepare_market_stripe_onboarding",
+        "register_market_stripe_account",
+        "register_market_stripe_test_account"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "api/market-stripe-refund.js",
+      "sha256": "6eccaf2e82cbae7b5a858202adbf99ab2b807aafa844d40997508d9eb56145f9",
+      "literal_rpcs": [
+        "mark_market_stripe_refund_submitted",
+        "prepare_market_stripe_full_refund"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "api/market-stripe-webhook.js",
+      "sha256": "df437f6dfcf18fac7ec47c262a4addac8ec68f879cd6398a52578d58c36a808e",
+      "literal_rpcs": [
+        "apply_market_stripe_event",
+        "reconcile_market_stripe_refund_evidence"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "api/scanner-v16-gemini.js",
+      "sha256": "e561201ced974a1fa3c105e694446e473a1def196b87aa219a7dd887b85ee87a",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/scanner-v16-openai.js",
+      "sha256": "8d198bf9dc88a67e10131e45f67e5554d11d7eb7f74975e21c03464fcbfc39be",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/scanner-v16-recognize.js",
+      "sha256": "64a720a916c01582b216e946d27778b472693c033cf1b7e49c8324cc696e7a7d",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/scanner-v16-reference.js",
+      "sha256": "3918d60096fcef1407ca2505e3f9e8da68285700b9ac3ca5d4c758377517531f",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "api/scanner-v16-ximilar.js",
+      "sha256": "eb0db32c0df46a184f9aee57553c4dc3729a89870bd8d3fc89e6ab8440ae768b",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "listing-report.js",
+      "sha256": "b3ea143edb3fa328d416efc020ea383b795740f13c039aed5419350dfd3fb74b",
+      "literal_rpcs": [
+        "get_marketplace_notice_status",
+        "submit_marketplace_listing_notice",
+        "submit_marketplace_notice_appeal"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "offers-fix.js",
+      "sha256": "2be6bad1079eae1d96ee1b78e019b4375c38bd0c1a28b39632bc83af6f1caf1f",
+      "literal_rpcs": [],
+      "literal_relations": [
+        "market_offers"
+      ]
+    },
+    {
+      "path": "seller-onboarding.js",
+      "sha256": "19a9187b0ea39e85b8a14be5ea1e83c0db4a6f6f9a9d456934937657d0c5fd6c",
+      "literal_rpcs": [
+        "get_my_market_seller_onboarding",
+        "save_my_market_seller_legal_profile",
+        "set_my_market_seller_type",
+        "submit_my_market_seller_onboarding"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "seller-trust.js",
+      "sha256": "8203bf059bad1485099be4f8ee4ea7ad9111730841429edc60ece022f124fb04",
+      "literal_rpcs": [
+        "get_market_seller_profile",
+        "get_public_market_reviews"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "supabase/functions/battle-spectator-media-broker/index.ts",
+      "sha256": "dc661000084ca626d871322739554221d4ee0fac981af3de083c679911fe513b",
+      "literal_rpcs": [
+        "get_battle_spectator_media_publisher_admission",
+        "reserve_battle_spectator_media_viewer"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "supabase/functions/battle-spectator-media-reconciler/index.ts",
+      "sha256": "7c9988beeb66404a677255fa04c07a96886c575f1daed4c0d12449b1da1f667e",
+      "literal_rpcs": [
+        "complete_battle_spectator_media_revocation",
+        "get_pending_battle_spectator_media_revocations"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "supabase/functions/invite-beta-user/index.ts",
+      "sha256": "09c872878847b8d11d65a856ef89aee927dd8ee615bfde7e929d041db3a8781c",
+      "literal_rpcs": [],
+      "literal_relations": []
+    },
+    {
+      "path": "supabase/functions/owner-invite-beta-user/index.ts",
+      "sha256": "de1e47e6bc5288e03ee08e7aca293e37bc7e4692251f4e22237d80d21f20149a",
+      "literal_rpcs": [
+        "get_my_privileged_access_v1"
+      ],
+      "literal_relations": [
+        "admin_audit_log"
+      ]
+    },
+    {
+      "path": "trade-automation.js",
+      "sha256": "51bb16b5f8309c02cc15cbc21bb0195fd3f960a6e78c519c2b21b09a79071fad",
+      "literal_rpcs": [
+        "get_my_market_notifications",
+        "get_my_trade_actions",
+        "mark_all_market_notifications_read",
+        "mark_market_notification_read",
+        "sync_my_trade_notifications_v2"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-b07-eligibility.js",
+      "sha256": "834aad90a97450de16a2181e85fbc973af2645793b5867d0665a57c333e48e0c",
+      "literal_rpcs": [
+        "confirm_my_market_private_buyer",
+        "confirm_my_market_trade_eligibility",
+        "get_my_market_trade_eligibility"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-b07-order-lifecycle.js",
+      "sha256": "ee0f43d6b87641538f2a9e837181f9b8b531f96f6e20c37f405894daabbd407c",
+      "literal_rpcs": [
+        "confirm_market_pickup_handover_b07",
+        "create_market_pickup_handover_code_b07",
+        "get_my_market_order_b07_status",
+        "request_market_order_delivery_review_b07"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-b07-reviews.js",
+      "sha256": "ed0bca13887cc45b1ce7e2b006d102199fb318a5566bf98dd4779e48a7a655e7",
+      "literal_rpcs": [
+        "get_my_market_review_state_v1",
+        "report_market_transaction_review_v1",
+        "submit_market_transaction_review_v1"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-c2c-swap-problems.js",
+      "sha256": "d734a267d8f489d02c389d7d70d2f09ed46645543208816eb3a9d3605efc2d70",
+      "literal_rpcs": [
+        "get_my_market_swap_cases_v1",
+        "get_my_market_swaps_v1",
+        "open_market_swap_problem_v1",
+        "respond_market_swap_problem_v1",
+        "withdraw_market_swap_problem_v1"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-c2c-swap.js",
+      "sha256": "12b576d8e51e5be506403855fa8f9cee750f2844a7d568b21d2be61275064cf9",
+      "literal_rpcs": [
+        "confirm_market_swap_pickup_v1",
+        "create_market_swap_pickup_code_v1",
+        "create_market_swap_proposal_v1",
+        "create_market_swap_proposal_v2",
+        "get_my_market_swaps_v1",
+        "mark_market_swap_shipped_v1",
+        "propose_market_swap_revision_v1",
+        "propose_market_swap_revision_v2"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-checkout.js",
+      "sha256": "c6968810c1ab25db74a5b6227c48e730c5a19e0d8ae63eb4c43e377d741a51a2",
+      "literal_rpcs": [
+        "review_market_checkout"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-legal-readiness.js",
+      "sha256": "4bc383462e606988e89bba8bb2e02a4645abb997b7618e213036fd51878d24f1",
+      "literal_rpcs": [
+        "get_market_legal_schema_readiness_v1"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-offer-details.js",
+      "sha256": "89b2f77215170f6f279fe137961e2bae9cd26a55fa1157fdb25f961e89038db4",
+      "literal_rpcs": [
+        "get_my_market_offers_v2"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-order-resolution.js",
+      "sha256": "78d4c19cdd73bba137bf2bc6e9bf296e12061812c8177b30fb2c1ee5a3d6cf6e",
+      "literal_rpcs": [
+        "get_my_market_order_cases",
+        "get_my_market_orders",
+        "open_market_order_problem_v2",
+        "request_market_order_cancellation",
+        "respond_market_order_cancellation",
+        "respond_market_order_problem",
+        "withdraw_market_order_cancellation",
+        "withdraw_market_order_problem"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-orders.js",
+      "sha256": "f82be6241086d66fc88a1b3b53ebfd1c5600d2a1a17b314e7bb690e77526925a",
+      "literal_rpcs": [
+        "confirm_market_order_shipping",
+        "confirm_market_withdrawal_v1",
+        "get_market_order_items",
+        "get_market_order_shipping_address",
+        "get_market_payment_sandbox_status",
+        "get_my_market_deals",
+        "get_my_market_order_contract_documents",
+        "get_my_market_orders",
+        "get_my_market_withdrawable_contracts",
+        "mark_market_order_shipped",
+        "prepare_market_withdrawal_v1",
+        "upsert_my_market_order_shipping_address"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-payment-flow.js",
+      "sha256": "5f7ae274c70572db2d7a77eacfa0ff8e2d1a50633ece80080c95d80e4fc6c41d",
+      "literal_rpcs": [
+        "confirm_market_deal_received",
+        "get_my_market_deals",
+        "mark_market_deal_shipped"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-pickup-messages.js",
+      "sha256": "d928f04c189ee78653b60a0118f879fb87c30b8f47c3f22a75574c02f9c45d98",
+      "literal_rpcs": [
+        "get_market_pickup_conversation_v1",
+        "list_my_market_pickup_conversations_v1",
+        "send_market_pickup_message_v1"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-sealed.js",
+      "sha256": "4357bc5eb594b6162e0efb067d7ed19b0b25012bb4796380ed844ead80a5494d",
+      "literal_rpcs": [
+        "add_my_market_listing_image",
+        "create_market_offer_v3",
+        "create_sealed_market_listing_draft_v3",
+        "delete_my_sealed_market_listing_draft",
+        "edit_my_sealed_market_listing_v3",
+        "get_market_listing_image_manifest",
+        "get_my_market_deals",
+        "publish_my_sealed_market_listing",
+        "remove_my_market_listing_image",
+        "review_market_price_offer_v1"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-search-archive.js",
+      "sha256": "22fdb1ab5540c5415e2215f34c636cff328ad0705f9af8e6427752b250a2150a",
+      "literal_rpcs": [
+        "get_my_market_orders"
+      ],
+      "literal_relations": [
+        "market_offers"
+      ]
+    },
+    {
+      "path": "trade-seller-compliance.js",
+      "sha256": "e10eb24b4cebfeae42cacda75d82a06919cf406b1dbbcd170071961d56b4afa1",
+      "literal_rpcs": [
+        "get_market_seller_disclosures",
+        "get_my_market_seller_onboarding"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-seller-moderation.js",
+      "sha256": "1c48cf9f58646e8f17f061f07adc447157a294c4db6ae11420097d038e6480e7",
+      "literal_rpcs": [
+        "get_my_marketplace_moderation_cases",
+        "submit_my_marketplace_moderation_appeal"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-shipping-address.js",
+      "sha256": "9a1157c9a594cb6f19b67e37dde7c237a4d9d21cf88426f95544c0817d1aa0be",
+      "literal_rpcs": [
+        "get_market_deal_shipping_address",
+        "get_my_market_deals",
+        "get_my_market_shipping_status",
+        "upsert_my_market_shipping_address"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-shipping-options.js",
+      "sha256": "7693e3cb62736993fe45d5f4c26031a9f3db7099b91d2509d61f17de50f59593",
+      "literal_rpcs": [
+        "edit_my_market_listing_v3",
+        "get_my_market_deals",
+        "mark_market_deal_shipped"
+      ],
+      "literal_relations": [
+        "market_listings"
+      ]
+    },
+    {
+      "path": "trade-shipping-profiles.js",
+      "sha256": "a05c621a4b16dee3300b6b93a961567d8dbb877814a87504fee919f96748f007",
+      "literal_rpcs": [
+        "delete_my_market_shipping_profile",
+        "get_my_market_shipping_profiles",
+        "upsert_my_market_shipping_profile"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade-v2.js",
+      "sha256": "c03fc29645138cdf150f8b1729ba9e1fd4d6518d2838a01ecd682e000566612c",
+      "literal_rpcs": [
+        "confirm_market_deal_complete",
+        "get_my_market_deals",
+        "submit_market_review"
+      ],
+      "literal_relations": []
+    },
+    {
+      "path": "trade.js",
+      "sha256": "23ae958c221f2cf9fbc815901db9c7a5094e7629ad905f3d6726c3310b3880f2",
+      "literal_rpcs": [
+        "complete_market_deal",
+        "edit_my_market_listing",
+        "expire_market_listings",
+        "finish_my_market_listing",
+        "renew_my_market_listing"
+      ],
+      "literal_relations": [
+        "collection-cards",
+        "collection_items",
+        "market_listings",
+        "market_offers",
+        "profiles"
+      ]
+    }
+  ]
+}

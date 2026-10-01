@@ -1,0 +1,17 @@
+{
+  "project": "xhmjxrcskfhbovhitdej",
+  "tool": "supabase_apply_migration",
+  "migration": "trade_legal_contract_model_v1",
+  "source": "supabase/migrations/20260921190000_trade_legal_contract_model_v1.sql",
+  "gitBlob": "c7b5df68a6d4dd37804e0efd59f9a076957b3dc8",
+  "sha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\":true}"
+      }
+    ],
+    "isError": false
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "revision": "p0-04-final-v59",
+  "observed_at_utc": "2026-09-25T10:11:18.654316+00:00",
+  "status": "PASS_STORED_CONFIGURATION_WITH_DOCUMENTED_WRITE_ONLY_LIMIT",
+  "remote_head": "2a67f48633b4abd81a418311f9824c285d9ed31e",
+  "ci": {
+    "scanner731": "success",
+    "battle207": "success"
+  },
+  "production_project": "enifiaqsnqtbzylnfrpi",
+  "vercel_project": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+  "created_keys": [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_URL",
+    "DUELVANTA_PUBLIC_ORIGIN"
+  ],
+  "scope": [
+    "production"
+  ],
+  "service_type": "Secret/write-only",
+  "other_types": "Config",
+  "source_to_input_exact": {
+    "anon": true,
+    "service_role": true
+  },
+  "source_claim_checks": {
+    "ref": "enifiaqsnqtbzylnfrpi",
+    "roles": [
+      "anon",
+      "service_role"
+    ],
+    "both_not_expired": true,
+    "cryptographic_signature_check": false
+  },
+  "provider_save_success_count": 4,
+  "persisted_entries_after_reload": 4,
+  "readback_exact": {
+    "anon": true,
+    "url": true,
+    "origin": true,
+    "service_role": null
+  },
+  "service_readback_reason": "Provider write-only Secret; no independent decrypted-value verification",
+  "service_runtime_probe": false,
+  "site_url": "https://duelvanta.de",
+  "redirect_urls": [
+    "https://duelvanta.de/admin.html",
+    "https://duelvanta.de/app.html",
+    "https://duelvanta.de/welcome.html",
+    "https://duelvanta.de/reset-password.html"
+  ],
+  "auth_configuration_changed": false,
+  "keys_rotated": false,
+  "preview_values_copied": false,
+  "production_deployment_before_and_after": "dpl_ENc313pWZJMSn6y21VbURMEWLMkt",
+  "deployment_sha": "50f88213571be13255bb52eb489cc28cca660001",
+  "deployment_triggered": false,
+  "git_push": false,
+  "merge": false,
+  "p0_05_started": false,
+  "no_key_values_recorded": true
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "duelvanta.de",
+    "type": "TXT",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "name": "_dmarc.duelvanta.de",
+    "type": "TXT",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "name": "duelvanta.de",
+    "type": "MX",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "name": "duelvanta.com",
+    "type": "A",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "name": "www.duelvanta.com",
+    "type": "CNAME",
+    "error": "<urlopen error timed out>"
+  }
+]

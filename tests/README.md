@@ -24,11 +24,11 @@ test users or purchases to run these checks.
 
 ## Local DOM integration
 
-Install `linkedom@0.18.12` into a temporary directory (no production dependency),
-then run:
+Install the locked CI-only dependencies without lifecycle scripts, then run:
 
 ```sh
-node tests/trade-dom-test.mjs /absolute/path/to/node_modules/linkedom/esm/index.js
+npm ci --ignore-scripts --prefix .github/ci
+node tests/trade-dom-test.mjs "$PWD/.github/ci/node_modules/linkedom/esm/index.js"
 ```
 
 The runner loads the existing TRADE page scripts against local fixtures. It models
@@ -43,6 +43,10 @@ unread notification badge, notification dialog/read state, direct order routing,
 `AKTION ERFORDERLICH` for address and receipt, and removal of the receipt action
 after completion.
 
+The same browser fixture verifies the simplified mobile Marketplace navigation,
+contextual section headings, compact non-market views, touch quantity controls and
+the explicit transition from an accepted price proposal to its Order.
+
 ## Static contract regressions
 
 Run with plain Node.js:
@@ -51,6 +55,11 @@ Run with plain Node.js:
 node tests/trade-automation-contract-test.mjs
 node tests/trade-shipping-contract-test.mjs
 node tests/trade-resolution-contract-test.mjs
+node tests/trade-marketplace-ux-contract-test.mjs
+node tests/market-seller-compliance-database-test.mjs
+node tests/market-seller-onboarding-contract-test.mjs
+node tests/trade-seller-compliance-contract-test.mjs
+node tests/market-seller-enforcement-contract-test.mjs
 ```
 
 The automation contract checks notification event kinds, required-action types,
@@ -67,6 +76,25 @@ locks, bounded inventory restoration, preservation of paused/withdrawn listings,
 problem-vs-cancellation phase separation, participant RPC isolation, future provider
 refund preparation and truthful `manual_beta` wording. None of these static tests
 performs a network call.
+
+The seller-compliance database regression runs the proposed schema in a disposable
+PGlite database. It verifies legacy-safe seller backfill, private/trader
+classification, private legal-data isolation, limited public trader disclosure,
+status-change auditing and the server-side listing guard. The proposal in
+`database/market-seller-compliance-v1.sql` has not been applied to production.
+
+The onboarding contract checks the separate private/trader flow, explicit unchecked
+declarations, protected tax-data boundary, authenticated return route and mobile
+layout. The standalone onboarding page remains unlinked until the proposed database
+foundation is available in a safe review environment.
+
+The seller-disclosure contract checks the buyer-facing private/trader labels,
+restricted trader detail view, batch RPC, legacy pending state and the absence of
+birth, tax and payment data from the public disclosure module.
+
+The seller-enforcement contract checks the disabled-by-default rollout flag,
+owner-only approval/activation, mandatory tax-identifier gate, automatic pausing
+after a restriction and the Marketplace redirect into seller onboarding.
 
 ## Optional real-browser local test
 
@@ -144,5 +172,8 @@ accounts only for the human/mobile acceptance pass after a useful batch of chang
    and buyer's acceptance notification opens the resulting Order directly. If that
    Order is later cancelled by agreement, the offer must display `STORNIERT`.
 
-The purpose of this real pass is UX/mobile judgment, not database discovery. No
-Stripe payment, payout or automatic refund/payment confirmation is enabled.
+The purpose of this real pass is UX/mobile judgment, not database discovery. The
+Stripe Connect review tests use local mocks and a disposable database only; the
+sandbox stays default-off and no provider payment, payout or refund is sent.
+The controlled external acceptance sequence is documented in
+`STRIPE_CONNECT_SANDBOX_ACCEPTANCE.md` and requires an isolated Supabase project.

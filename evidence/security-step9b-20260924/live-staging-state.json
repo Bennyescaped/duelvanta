@@ -1,0 +1,79 @@
+{
+  "technical_head": "53365b10105bb37de3a78e23dcc4642b544ffd25",
+  "project": "xhmjxrcskfhbovhitdej",
+  "migrations": [
+    {
+      "version": "20260924113112",
+      "name": "auth_privileged_step_up_v1",
+      "file": "database/auth-privileged-step-up-v1.sql",
+      "sha256": "fdc4339b99545a24f3f6f1c68afcb89abae32b8e16a6d0ddb3f3816ad22f44c8"
+    },
+    {
+      "version": "20260924113132",
+      "name": "security_privilege_mfa_hardening_v1",
+      "file": "database/security-privilege-mfa-hardening-v1.sql",
+      "sha256": "d1ce7f093c521ad90022e42ab946570572556d3543470a9cfd55893e39b8b927"
+    },
+    {
+      "version": "20260924113153",
+      "name": "security_readiness_v1",
+      "file": "database/security-readiness-v1.sql",
+      "sha256": "a75ef2472c83218de2581223ae11ee11a89951a3194a96843e8727c4d968c1d7"
+    }
+  ],
+  "security": {
+    "revision": "privilege-mfa-v1",
+    "compatible": true
+  },
+  "legal": {
+    "revision": "trade-legal-contract-model-v1.2",
+    "compatible": true
+  },
+  "dangerous_table_grants": 0,
+  "three_rls_gaps_closed": true,
+  "counts": {
+    "listings": 16,
+    "offers": 4,
+    "deals": 10,
+    "orders": 8,
+    "snapshots": 10,
+    "withdrawals": 1,
+    "attempts": 3,
+    "allocations": 3
+  },
+  "stripe": {
+    "sandbox": false,
+    "live": false
+  },
+  "outbox": {
+    "pending": 12,
+    "max_attempts": 0,
+    "errors": 0
+  },
+  "snapshots": [
+    {
+      "id": "801ae92b-9569-4178-a1c2-2ece5165d6a3",
+      "sha256": "f736fd45f67cba0411580fe65976daa7ccc185abbf69b52cea29114f43bf3091",
+      "hash_valid": true
+    },
+    {
+      "id": "a4642a8f-3167-42c1-953b-eb3e9234b611",
+      "sha256": "dfbc9dd2fc3c3d5677e62a23d29637e038522491e3b5f419c81fdaf9196469d7",
+      "hash_valid": true
+    }
+  ],
+  "edge": [
+    {
+      "name": "owner-invite-beta-user",
+      "version": 5,
+      "verify_jwt": true,
+      "bundle_sha256": "70460a09691a8363a8429b8329b05f7a4fdcc7b79d9080ac2bd37bb11b94c856"
+    },
+    {
+      "name": "invite-beta-user",
+      "version": 1,
+      "verify_jwt": true,
+      "bundle_sha256": "da31e262d90358f5e4c8e19947262dd2cfd1dab6df9dd6f89fbc2816ccd9122c"
+    }
+  ]
+}

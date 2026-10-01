@@ -1,0 +1,56 @@
+{
+  "timestamp_utc": "2026-09-25T11:12:37.448762+00:00",
+  "base_remote_head": "d72334c31376aed549beed879102f58491b72b5e",
+  "remote_ci": {
+    "Scanner V16 Check": {
+      "run": 732,
+      "id": 36124209015,
+      "conclusion": "success"
+    },
+    "Battle WebRTC Check": {
+      "run": 208,
+      "id": 36124209012,
+      "conclusion": "success"
+    }
+  },
+  "pull_request": {
+    "number": 5,
+    "open": true,
+    "draft": true,
+    "merged": false
+  },
+  "production": {
+    "head": "50f88213571be13255bb52eb489cc28cca660001",
+    "deployment": "dpl_ENc313pWZJMSn6y21VbURMEWLMkt",
+    "state": "READY",
+    "migration_count": 72,
+    "last_migration": "20260911181702",
+    "p005_lock_triggers": 0
+  },
+  "environment_scope_read": {
+    "method": "fresh authenticated Vercel DOM after reload; no reveal/edit",
+    "SUPABASE_URL": "Production / Config",
+    "SUPABASE_ANON_KEY": "Production / Config",
+    "SUPABASE_SERVICE_ROLE_KEY": "Production / Secret",
+    "DUELVANTA_PUBLIC_ORIGIN": "Production / Config",
+    "secret_values_read": false
+  },
+  "external_mutations": [],
+  "candidate_pushed": false,
+  "candidate_native_pg17_ci": "NOT_RUN",
+  "local_engine": "PostgreSQL 18.3 / PGlite 0.5.8",
+  "local_result": "PASS",
+  "additional_regressions": [
+    "generate-security-readiness.mjs --check: PASS (original target unchanged)",
+    "generate-security-readiness.mjs --trade-lock --check: PASS",
+    "market-stripe-connect-api-test.mjs: PASS",
+    "market-stripe-live-mode-api-test.mjs: PASS",
+    "account-data-erasure-worker-test.mjs: PASS",
+    "git diff --check: PASS"
+  ],
+  "limits": [
+    "No native PG17 or multi-session lock-install race run for new candidate. CI wiring prepared, not executed.",
+    "No real PostgREST gateway/browser end-to-end or external Stripe/Auth/Storage actions. Actual application roles, SQL functions and checkout handler tested through isolated adapters.",
+    "V59 key-source attestation retained; environment names/types/scopes refreshed, not secret bytes."
+  ]
+}

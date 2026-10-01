@@ -16,9 +16,9 @@
 <button id="continueBtn" class="continue" disabled>DUELVANTA BETRETEN</button><div id="status" class="status">Sicherer Account-Abgleich läuft …</div>
 </section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/api/compliance-message-dispatch?runtime_config=1"></script>
 <script>
-const SB_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';const SB_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
-const db=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const el=id=>document.getElementById(id);
+const config=window.DV_SUPABASE;if(!config)throw new Error('DUELVANTA activation database is not safely configured');const db=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});window.__dvAppDb=db;const el=id=>document.getElementById(id);
 async function start(){
   await new Promise(r=>setTimeout(r,450));
   const {data:{session}}=await db.auth.getSession();

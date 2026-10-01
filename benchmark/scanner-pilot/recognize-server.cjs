@@ -1,9 +1,7 @@
 'use strict';
 const {createHash}=require('node:crypto');
 const {provider}=require('./openai-server.cjs');
-const AUTH_URL='https://enifiaqsnqtbzylnfrpi.supabase.co';
-// Existing publishable key; no privileged key and no second Auth client.
-const PUBLISHABLE_KEY='sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM';
+const {resolveSupabaseRuntimeConfig}=require('../../supabase-environment.js');
 const error=(status,code)=>Object.assign(new Error(code),{status,code});
 const requireThat=(value,status,code)=>{if(!value)throw error(status,code)};
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -23,6 +21,8 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       if(config?.enabled!==true){if(req.method==='GET')return res.status(200).json({active:false,remaining:0});throw error(403,'scanner_closed')}
       requireThat(typeof env.OPENAI_API_KEY==='string'&&env.OPENAI_API_KEY.trim(),503,'provider_unavailable');
       requireThat(typeof env.DV_OPENAI_ACCOUNTING_KEY==='string'&&env.DV_OPENAI_ACCOUNTING_KEY.length>=32,503,'accounting_unavailable');
+      let runtime;try{runtime=resolveSupabaseRuntimeConfig(env)}catch{throw error(503,'accounting_unavailable')}
+      const AUTH_URL=runtime.url,PUBLISHABLE_KEY=runtime.key;
       const authorization=String(req.headers.authorization||'');requireThat(/^Bearer [A-Za-z0-9_.-]+$/.test(authorization)&&authorization.length<12000,401,'sign_in_required');
       const headers={apikey:PUBLISHABLE_KEY,Authorization:authorization,'Content-Type':'application/json'};
       // Verify the supplied access token with the existing Auth service. Never trust decoded claims alone.
@@ -45,9 +45,15 @@ function createHandler({env=process.env,config,fetchImpl=fetch,now=Date.now,call
       // Missing RPC, timeout, duplicate, exhausted allowance or a lost reservation response all fail closed.
       const accountingHeaders={...headers,'x-dv-accounting-key':env.DV_OPENAI_ACCOUNTING_KEY};
       const reservation=await json(AUTH_URL+'/rest/v1/rpc/dv_v16_reserve_openai_scan',{method:'POST',headers:accountingHeaders,body:JSON.stringify({p_request_id:body.requestId,p_image_sha256:sha256,p_tcg:body.tcg,p_kind:kind})});
-      const rejection={duplicate:[409,'scan_already_reserved'],closed:[403,'scanner_closed'],monthly_budget:[429,'openai_monthly_budget_reached']};
+      const rejection={account_data_processing_restricted:[403,'account_data_processing_restricted'],duplicate:[409,'scan_already_reserved'],closed:[403,'scanner_closed'],monthly_budget:[429,'openai_monthly_budget_reached']};
       const [status,code]=rejection[reservation?.reason]||[429,'scan_limit_reached'];requireThat(reservation?.allowed===true,status,code);
       requireThat(Number.isSafeInteger(reservation.eurPerUsdMicros)&&reservation.eurPerUsdMicros>0,503,'accounting_unavailable');
+      // Recheck the existing Hold after reservation, immediately before provider start.
+      // A missing/stale DB contract fails closed; existing reservations are not refunded
+      // or cancelled here, and the settlement path below remains unchanged.
+      const admission=await json(AUTH_URL+'/rest/v1/rpc/dv_v16_openai_scan_budget',{method:'POST',headers,body:'{}'});
+      requireThat(typeof admission?.processingRestricted==='boolean',503,'accounting_unavailable');
+      requireThat(admission.processingRestricted===false,403,'account_data_processing_restricted');
       let result,providerError;
       try{result=await (kind==='slab'?callSlabProvider:callProvider)({image,tcg:body.tcg,env,fetchImpl,now})}
       catch(e){providerError=e;result=e.accounting||{}}

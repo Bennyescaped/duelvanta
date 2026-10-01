@@ -1,0 +1,592 @@
+{
+  "technicalHead": "91bad0f6546d579f4d8adc99f26027e45a36e891",
+  "scanner": {
+    "jobs": [
+      {
+        "id": 107086740073,
+        "name": "validate",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 35832063879,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "JavaScript syntax",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Scanner V16 contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Gemini private pilot (no provider calls)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Ximilar integration and durable quota boundary (no paid calls)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verified artwork reference cache",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Pokemon and One Piece recognition",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Evidence quality gates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Explainable confidence UI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Resilience and capture guidance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Guided benchmark session",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Web camera readiness",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Native iOS photo capture",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Mobile photo pipeline and state recovery",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Direct mobile route and benchmark integration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Install Chromium browser test runtime",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Battle and profile database access boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Trade contracts and mobile order flow",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Second mobile acceptance regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "COLLECT empty states and price completeness",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Integrated COLLECT scanner and binder E2E",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          },
+          {
+            "name": "Mobile browser upload E2E",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24
+          },
+          {
+            "name": "Real complex-card reference recognition and recovery",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 25
+          },
+          {
+            "name": "Read-only live catalog availability",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 26
+          },
+          {
+            "name": "Browser evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 53
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 54
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 55
+          }
+        ]
+      },
+      {
+        "id": 107086740309,
+        "name": "quota_database",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 35832063879,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Real SQL quota and B07 C2C regressions in disposable database",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          }
+        ]
+      },
+      {
+        "id": 107086740344,
+        "name": "collect_f3_database",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 35832063879,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install pinned test dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Required real PostgreSQL role, cleanup and lock-order regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "F3 PostgreSQL evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Fixed-price PostgreSQL evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Legal catalog readiness PostgreSQL evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Withdrawal PostgreSQL evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      }
+    ]
+  },
+  "battle": {
+    "jobs": [
+      {
+        "id": 107086740010,
+        "name": "spectator_database",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 35832063873,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Real PostgreSQL spectator access, lifecycle and concurrent role boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Spectator database evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 107086740251,
+        "name": "battle_webrtc",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 35832063873,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Isolated camera restart and async state regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install pinned browser test runtime",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Independent spectator browser lifecycle and read-only UI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Real WebRTC browser regression with isolated signaling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Browser evidence (no media recordings)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "artifacts": [
+      {
+        "id": 10737468531,
+        "name": "v16-mobile-recognition",
+        "size_in_bytes": 6254374,
+        "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737468531",
+        "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737468531/zip",
+        "expired": false,
+        "created_at": "2026-09-23T07:32:43Z",
+        "expires_at": "2026-12-22T07:30:27Z",
+        "updated_at": "2026-09-23T07:32:43Z",
+        "digest": "sha256:35d179bcd7685218446352c7f782818a0f55e7ab30cfff78bd2fdddb714e0af0",
+        "workflow_run": {
+          "id": 35832063879,
+          "repository_id": 1360393939,
+          "head_repository_id": 1360393939,
+          "head_branch": "marketplace-ux-v1",
+          "head_sha": "91bad0f6546d579f4d8adc99f26027e45a36e891"
+        }
+      },
+      {
+        "id": 10737417157,
+        "name": "trade-legal-schema-readiness-evidence",
+        "size_in_bytes": 2663,
+        "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737417157",
+        "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737417157/zip",
+        "expired": false,
+        "created_at": "2026-09-23T07:31:07Z",
+        "expires_at": "2026-12-22T07:30:27Z",
+        "updated_at": "2026-09-23T07:31:07Z",
+        "digest": "sha256:18cbf3950f94f44bfaa9b81d2240efd690cb49dfdf52c92cef4e5fc2970dbb8b",
+        "workflow_run": {
+          "id": 35832063879,
+          "repository_id": 1360393939,
+          "head_repository_id": 1360393939,
+          "head_branch": "marketplace-ux-v1",
+          "head_sha": "91bad0f6546d579f4d8adc99f26027e45a36e891"
+        }
+      },
+      {
+        "id": 10737307231,
+        "name": "trade-fixed-price-postgres-evidence",
+        "size_in_bytes": 1438,
+        "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737307231",
+        "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737307231/zip",
+        "expired": false,
+        "created_at": "2026-09-23T07:31:06Z",
+        "expires_at": "2026-12-22T07:30:27Z",
+        "updated_at": "2026-09-23T07:31:06Z",
+        "digest": "sha256:4b3bf842d6a98edf0aef6702479fbf7aca39fa233a28407502c795bd85416bd5",
+        "workflow_run": {
+          "id": 35832063879,
+          "repository_id": 1360393939,
+          "head_repository_id": 1360393939,
+          "head_branch": "marketplace-ux-v1",
+          "head_sha": "91bad0f6546d579f4d8adc99f26027e45a36e891"
+        }
+      },
+      {
+        "id": 10737187438,
+        "name": "trade-withdrawal-postgres-evidence",
+        "size_in_bytes": 845,
+        "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737187438",
+        "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737187438/zip",
+        "expired": false,
+        "created_at": "2026-09-23T07:31:08Z",
+        "expires_at": "2026-12-22T07:30:27Z",
+        "updated_at": "2026-09-23T07:31:08Z",
+        "digest": "sha256:2db8abb36ade938b8468399bf69c27339e03e264178b2191402988b40ec7d74a",
+        "workflow_run": {
+          "id": 35832063879,
+          "repository_id": 1360393939,
+          "head_repository_id": 1360393939,
+          "head_branch": "marketplace-ux-v1",
+          "head_sha": "91bad0f6546d579f4d8adc99f26027e45a36e891"
+        }
+      },
+      {
+        "id": 10737018136,
+        "name": "collect-f3-postgres-evidence",
+        "size_in_bytes": 3050,
+        "url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737018136",
+        "archive_download_url": "https://api.github.com/repos/Bennyescaped/duelvanta/actions/artifacts/10737018136/zip",
+        "expired": false,
+        "created_at": "2026-09-23T07:31:05Z",
+        "expires_at": "2026-12-22T07:30:27Z",
+        "updated_at": "2026-09-23T07:31:05Z",
+        "digest": "sha256:172dd768f965a8af6a5976ab2206f6962ef6e876f8caabb14cefc8389c21c15e",
+        "workflow_run": {
+          "id": 35832063879,
+          "repository_id": 1360393939,
+          "head_repository_id": 1360393939,
+          "head_branch": "marketplace-ux-v1",
+          "head_sha": "91bad0f6546d579f4d8adc99f26027e45a36e891"
+        }
+      }
+    ]
+  }
+}

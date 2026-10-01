@@ -1,0 +1,54 @@
+{
+  "profile": "V116-pinned/1",
+  "package_sha256": "e3d0fc1702bc7c599e4aca3bdb081d6f51cbb97824d875070e663ebc56f85582",
+  "files": [
+    {
+      "file": "DPIXML_v1.0.xsd",
+      "namespace": "urn:oecd:ties:dpi:v1",
+      "sha256": "96492f9914e912561fa5e6996348a0169eaa51fcc09d4401cd5f8c4f7096a04d",
+      "source_member": "amtlicher_datensatz_v1_2/Amtlicher_Datensatz_v1_2/DPI-Schema/DPIXML_v1.0.xsd"
+    },
+    {
+      "file": "isodpitypes_v1.0.xsd",
+      "namespace": "urn:oecd:ties:isodpitypes:v1",
+      "sha256": "188cf3ec0a7ff4e482851424b50802e6260514972e4f9c7fb5875c583f745b21",
+      "source_member": "amtlicher_datensatz_v1_2/Amtlicher_Datensatz_v1_2/DPI-Schema/isodpitypes_v1.0.xsd"
+    },
+    {
+      "file": "oecddpitypes_v1.0.xsd",
+      "namespace": "urn:oecd:ties:dpistf:v1",
+      "sha256": "89a8915792eef3602805c302dff2c042235b6b356b07286441c096c91e1a29c0",
+      "source_member": "amtlicher_datensatz_v1_2/Amtlicher_Datensatz_v1_2/DPI-Schema/oecddpitypes_v1.0.xsd"
+    },
+    {
+      "file": "erweiterung_amtlichen_datensatz.xml",
+      "namespace": "urn:oecd:ties:dsm:v1",
+      "sha256": "c8bf4ae7a3abb45f53be74f4aa4fcf15ad10e2d1f2f49d20a12bd9d61e075599",
+      "source_member": "amtlicher_datensatz_v1_2/Erweiterung des amtlichen Datensatzes/erweiterung_amtlichen_datensatz.xml"
+    },
+    {
+      "file": "dip.xsd",
+      "namespace": "http://itzbund.de/ozg/bzst/post/dip/v2/",
+      "sha256": "65e506a76a97193f7fa1b860070546647f4d096e2c0288548d5cf4bdacf99e02",
+      "source_member": "dip_schema_zip_2025/dip.xsd"
+    },
+    {
+      "file": "dip-types.xsd",
+      "namespace": "http://itzbund.de/ozg/bzst/post/dip/v2/",
+      "sha256": "66cf8e898fa36e06bacb9991946ae54587384210a0bc03970e77a5fcfebe80a6",
+      "source_member": "dip_schema_zip_2025/dip-types.xsd"
+    },
+    {
+      "file": "dipResponse.xsd",
+      "namespace": "http://itzbund.de/ozg/bzst/post/dip/v2/",
+      "sha256": "f064f3ba666223b55c233b8ee31f025977e21e99bf1e8a4a5f93c5ace2ad0c9f",
+      "source_member": "dip_schema_zip_2025/dipResponse.xsd"
+    },
+    {
+      "file": "dipMessage.xsd",
+      "namespace": "http://itzbund.de/ozg/bzst/post/dipmsg/v1/",
+      "sha256": "3d5a8a896917b312b7596542ccebbfdc0ef4dd1f3617677450df1fc2b9026d30",
+      "source_member": "dip_schema_zip_nutzernachrichten/dipMessage.xsd"
+    }
+  ]
+}

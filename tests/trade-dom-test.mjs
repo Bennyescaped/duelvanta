@@ -6,6 +6,10 @@ import {webcrypto} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 const {parseHTML}=await import(pathToFileURL(process.argv[2]).href);
 const html=await readFile(new URL('../trade.html',import.meta.url),'utf8');
+const releaseGate=await readFile(new URL('../trade-release-gate.js',import.meta.url),'utf8');
+const manifestBlock=releaseGate.match(/const TRADE_SCRIPTS=\[([\s\S]*?)\n\s*\];/)?.[1]||'';
+const gatedScripts=[...manifestBlock.matchAll(/'([^']+\.js(?:\?v=[^']+)?)'/g)].map(match=>match[1]);
+if(!gatedScripts.length)throw Error('TRADE release-gate runtime manifest missing');
 const {window}=parseHTML(html),{document}=window;
 // LinkeDOM deliberately omits native dialog/select behavior and capture phases.
 // Model only these required DOM behaviors; actual browser verification is separate.
@@ -42,15 +46,25 @@ const sandbox={document,console,URL,URLSearchParams,Intl,Date,JSON,Math,Number,S
   setInterval:(fn,ms)=>{const t=setInterval(fn,ms);timers.add(t);return t},clearInterval,
   requestAnimationFrame:fn=>setTimeout(fn,0),cancelAnimationFrame:clearTimeout,
   addEventListener:()=>{},confirm:()=>true,alert:message=>{throw Error(String(message))},prompt:()=>null,
-  CSS:{escape:s=>s},getComputedStyle:()=>({}),fetch:()=>{throw Error('Remote requests forbidden in local tests')}
+  CSS:{escape:s=>s},getComputedStyle:node=>({display:node.id==='daily'&&document.getElementById('app')?.dataset.tradeView!=='market'?'none':''}),fetch:()=>{throw Error('Remote requests forbidden in local tests')}
 };
+sandbox.DV_SUPABASE=Object.freeze({url:'https://example.supabase.co',key:'test-publishable-key',environment:'test'});
 sandbox.window=sandbox;sandbox.globalThis=sandbox;
 const context=vm.createContext(sandbox);
 try{
   await run('tests/trade-ui-mock.js');
   for(const node of document.querySelectorAll('script[src]')){
     const path=node.getAttribute('src').split('?')[0];
-    if(path.startsWith('https:')||['i18n.js','site-nav.js'].includes(path))continue;
+    if(path.startsWith('https:')||path.startsWith('/api/')||['i18n.js','site-nav.js','trade-release-gate.js'].includes(path))continue;
+    await run(path);
+  }
+  // The real app loads this ordered stack through trade-release-gate.js in preview/internal mode.
+  // LinkeDOM does not execute dynamically appended scripts, so replay the gate's actual manifest here.
+  for(const source of gatedScripts){
+    const path=source.split('?')[0];
+    // trade-search-archive.js is MutationObserver-driven and is covered by the real Chromium E2E below.
+    // LinkeDOM's observer delivery can starve its synthetic event loop when that module filters nested cards.
+    if(path==='trade-search-archive.js')continue;
     await run(path);
   }
   await run('tests/trade-ui-selftest.js');

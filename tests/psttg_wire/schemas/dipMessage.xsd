@@ -1,0 +1,161 @@
+<!-- bearbeitet mit XMLSpy v2025 (x64) (https://www.altova.com) von Informationstechnikzentrum Bund (ITZBund) (Informationstechnikzentrum Bund (ITZBund)) -->
+<!-- Mit XMLSpy v2023 sp1 (x64) (http://www.altova.com) von L Bk (evaluation) bearbeitet -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dipmsg="http://itzbund.de/ozg/bzst/post/dipmsg/v1/" targetNamespace="http://itzbund.de/ozg/bzst/post/dipmsg/v1/" elementFormDefault="qualified">
+	<xs:element name="dipMessage" type="dipmsg:DipMessageType"/>
+	<xs:element name="messageInformationList" type="dipmsg:MessageInformationListType">
+		<xs:annotation>
+			<xs:documentation>Liste mit Informationen zu bereitgestellten Nachrichten</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="DipMessageType">
+		<xs:sequence>
+			<xs:element name="environment" type="dipmsg:environmentType">
+				<xs:annotation>
+					<xs:documentation>
+						Gibt an, ob es sich um eine echte bzw. produktive Nachricht oder eine Testnachricht handelt.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="messageId" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						Id der Nachricht.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="messageType" type="dipmsg:messageTypeType">
+				<xs:annotation>
+					<xs:documentation>
+						Typ der Nachricht.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="senderApplicationCode" type="dipmsg:applicationCodeType">
+				<xs:annotation>
+					<xs:documentation>
+						Kennung des Fachverfahrens/Fachbereichs, welche die Nachricht versendet hat.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="customerIdentifier" type="dipmsg:CustomerIdentifierType">
+				<xs:annotation>
+					<xs:documentation>
+						Fachlicher Identifier des Empfaengers der Nachricht
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="creationTime" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>
+						Zeitpunkt, zu dem die Nachricht vom Fachverfahren verschickt wurde.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CustomerIdentifierType">
+		<xs:annotation>
+			<xs:documentation>Ordnungsmerkmal</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="identityProvider" type="dipmsg:identityProviderType">
+				<xs:annotation>
+					<xs:documentation>Festlegung, welchem Provider der Identifier zuzuordnen ist: BZST-CERT bei einem BZSt-Konto, ELSTER bei einem
+						ELSTER-Konto
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="identifier" type="dipmsg:identifierType">
+				<xs:annotation>
+					<xs:documentation>BZSt-Nummer oder Steuernummer entsprechend dem Provider</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MessageInformationListType">
+		<xs:annotation>
+			<xs:documentation>Liste mit Informationen zu bereitgestellten Nachrichten</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="messageInformation" type="dipmsg:MessageInformationType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Informationen zu einer bereitgestellten Nachricht</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MessageInformationType">
+		<xs:annotation>
+			<xs:documentation>Informationen zu einer bereitgestellten Nachricht</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="messageNumber" type="dipmsg:MessageNumberType">
+				<xs:annotation>
+					<xs:documentation>ID ("Vorgangsnummer") der Nachricht</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="messageType" type="dipmsg:messageTypeType">
+				<xs:annotation>
+					<xs:documentation>Typ der Nachricht</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="MessageNumberType">
+		<xs:annotation>
+			<xs:documentation>ID ("Vorgangsnummer") der Nachricht</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="messageTypeType">
+		<xs:annotation>
+			<xs:documentation>Typ der Nutzernachricht
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="PROTOKOLL"/>
+			<xs:enumeration value="NACHRICHT"/>
+			<xs:enumeration value="VERWALTUNGSAKT"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="environmentType">
+		<xs:annotation>
+			<xs:documentation>PROD oder TEST Umgebung</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TEST"/>
+			<xs:enumeration value="PROD"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="applicationCodeType">
+		<xs:annotation>
+			<xs:documentation>Benennung des Absender-Fachverfahrens, z.B. DAC7, CESOP, CRS.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="identifierType">
+		<xs:annotation>
+			<xs:documentation>Nummer innerhalb des Ordnungsmerkmals</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="16"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="identityProviderType">
+		<xs:annotation>
+			<xs:documentation>Festlegung, welchem Provider die Identifier-Kennung zuzuordnen ist: BZST-CERT einem BZSt-Zertifikat, ELSTER einem ELSTER-Konto
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BZST-CERT"/>
+			<xs:enumeration value="ELSTER"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

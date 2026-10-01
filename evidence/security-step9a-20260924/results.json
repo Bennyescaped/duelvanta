@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "liveMfaPass": false,
+  "results": [
+    {
+      "width": 390,
+      "case": "actual MFA page: failed challenge stays closed; fixture success navigates",
+      "passed": true
+    },
+    {
+      "width": 1363,
+      "case": "actual MFA page: failed challenge stays closed; fixture success navigates",
+      "passed": true
+    },
+    {
+      "case": "Judge/Moderator step-up link; normal player not enrolled by staff flow",
+      "passed": true
+    },
+    {
+      "case": "actual Edge handler AAL1",
+      "passed": true,
+      "realMail": false
+    },
+    {
+      "case": "actual Edge handler revoked",
+      "passed": true,
+      "realMail": false
+    },
+    {
+      "case": "actual Edge handler nonowner staff",
+      "passed": true,
+      "realMail": false
+    },
+    {
+      "case": "actual Edge handler owner AAL2",
+      "passed": true,
+      "realMail": false
+    }
+  ]
+}

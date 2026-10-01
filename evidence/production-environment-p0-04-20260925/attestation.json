@@ -1,0 +1,123 @@
+{
+  "observed_at_utc": "2026-09-25T09:02:08.300259+00:00",
+  "source_commit": "08284a01ea81c8874cf675375956451140af7888",
+  "production_deployment": {
+    "id": "dpl_ENc313pWZJMSn6y21VbURMEWLMkt",
+    "sha": "50f88213571be13255bb52eb489cc28cca660001",
+    "target": "production",
+    "state": "READY"
+  },
+  "ci": {
+    "scanner": {
+      "run": 730,
+      "id": 36097709399,
+      "conclusion": "success"
+    },
+    "battle": {
+      "run": 206,
+      "id": 36097709393,
+      "conclusion": "success"
+    }
+  },
+  "auth": {
+    "production": {
+      "ref": "enifiaqsnqtbzylnfrpi",
+      "site_url": "https://duelvanta.de",
+      "redirect_urls": [
+        "https://duelvanta.de/admin.html",
+        "https://duelvanta.de/app.html",
+        "https://duelvanta.de/welcome.html",
+        "https://duelvanta.de/reset-password.html"
+      ],
+      "wildcards": false,
+      "source": "authenticated Supabase URL Configuration DOM"
+    },
+    "staging": {
+      "ref": "xhmjxrcskfhbovhitdej",
+      "site_url": "http://localhost:3000",
+      "redirect_urls": [],
+      "source": "authenticated Supabase URL Configuration DOM"
+    }
+  },
+  "vercel": {
+    "project": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+    "shared_variables_linked": false,
+    "production_missing": [
+      "SUPABASE_URL",
+      "SUPABASE_ANON_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "DUELVANTA_PUBLIC_ORIGIN"
+    ],
+    "production_present": [
+      "OPENAI_API_KEY",
+      "DV_OPENAI_ACCOUNTING_KEY"
+    ],
+    "openai_scope": "Production and Preview shared entry; no provider-value attestation",
+    "accounting_scope": "separate Production and Preview entries; value/DB hash not compared",
+    "source": "authenticated Project and Shared environment-variable DOM"
+  },
+  "keys": {
+    "browser_publishable": {
+      "provider_key_id": "c190dfd3-a643-4455-86e9-9e8d07df9524",
+      "disabled": false,
+      "matches_source_constant": true,
+      "source": "Supabase get_publishable_keys for Production"
+    },
+    "legacy_anon": {
+      "disabled": false,
+      "source": "Supabase get_publishable_keys"
+    },
+    "legacy_service_role": {
+      "exists": true,
+      "legacy_keys_enabled": true,
+      "value_revealed": false,
+      "source": "authenticated API Keys / Legacy DOM"
+    },
+    "server_binding": "BLOCKED_MISSING_VERCEL_PRODUCTION_ENTRIES",
+    "no_key_values_recorded": true
+  },
+  "domains": [
+    {
+      "name": "duelvanta.de",
+      "target": "Production",
+      "valid": true
+    },
+    {
+      "name": "www.duelvanta.de",
+      "redirect": "duelvanta.de",
+      "status": 308,
+      "valid": true
+    },
+    {
+      "name": "duelvantav5vision.vercel.app",
+      "redirect": "duelvanta.de",
+      "status": 307,
+      "valid": true
+    }
+  ],
+  "tests": {
+    "runtime-routing-contract-test.mjs": "PASS",
+    "supabase-runtime-config-test.mjs": "PASS; 18 invalid runtime configurations rejected"
+  },
+  "production_mutations": [],
+  "p0_05_started": false,
+  "static_http": [
+    {
+      "url": "https://duelvanta.de/login.html",
+      "status": 200,
+      "production_key_match": true,
+      "sha256": "b07dc129f8821f82e4e0c9e18340742efe5750a151b2eab1d80e67290385fe7f"
+    },
+    {
+      "url": "https://www.duelvanta.de/app.html",
+      "final_url": "https://duelvanta.de/app.html",
+      "status": 200,
+      "production_key_match": true,
+      "sha256": "c1469b970601f1771350975e285583e2b9a1b85368c98d86164d5a4b3b4e124c"
+    }
+  ],
+  "failed_probe": {
+    "url": "https://duelvanta.de/supabase-config.js",
+    "result": "HTTPError; no runtime-config PASS inferred"
+  }
+}

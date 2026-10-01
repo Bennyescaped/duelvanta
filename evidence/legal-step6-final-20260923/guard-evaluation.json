@@ -1,0 +1,31 @@
+{
+  "guardVersion": "1.2",
+  "source": "Exact repository guard consuming fresh live SQL result locally; not authenticated Preview UI",
+  "cases": [
+    {
+      "name": "actual Staging readiness",
+      "available": true,
+      "passed": true
+    },
+    {
+      "name": "wrong revision",
+      "available": false,
+      "passed": true
+    },
+    {
+      "name": "error",
+      "available": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected response",
+      "available": false,
+      "passed": true
+    },
+    {
+      "name": "timeout",
+      "available": false,
+      "passed": true
+    }
+  ]
+}

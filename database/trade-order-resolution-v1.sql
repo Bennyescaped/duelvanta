@@ -428,7 +428,7 @@ begin
     from public.market_orders o
     where o.buyer_id=auth.uid() and o.status='shipped' and o.shipped_at is not null
       and not exists(select 1 from public.market_order_cases c where c.order_id=o.id and c.case_type='problem' and c.status='open')
-  ) actions
+  ) actions(action_key,action_type,priority,title,subject,quantity,amount,order_id,offer_id,created_at)
   order by actions.priority,actions.created_at desc;
 end;
 $$;

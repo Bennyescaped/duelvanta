@@ -1,0 +1,1769 @@
+{
+  "source": "isolated reviewed P0-02 schema at 556469f879d6104e33b37e721278a8f3d10678fd; no live user rows",
+  "fields": [
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "singleton",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Medienkonfiguration, keine eigene Teilnahmezeile."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "media_enabled",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Medienkonfiguration, keine eigene Teilnahmezeile."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "max_viewers_per_match",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Medienkonfiguration, keine eigene Teilnahmezeile."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "consent_version",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Medienkonfiguration, keine eigene Teilnahmezeile."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "consent_version",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "granted",
+      "type": "boolean",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer Medien-/Revokationszustand; Epoch/Generation nicht exportieren."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "epoch",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer Medien-/Revokationszustand; Epoch/Generation nicht exportieren."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "generation",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer Medien-/Revokationszustand; Epoch/Generation nicht exportieren."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "media_open",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer Medien-/Revokationszustand; Epoch/Generation nicht exportieren."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer Medien-/Revokationszustand; Epoch/Generation nicht exportieren."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "id",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "epoch",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "reason",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "state",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Gemeinsamer technischer Arbeitsauftrag/Revokationsgrund; kein sicherer einzelner Owner. Rest vor erweitertem Rechteexport gesondert prüfen."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "generation",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Generation, Session- und Tab-Identifikatoren ausgeschlossen."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Zugangslink/Secret und Generation, keine eindeutig eigene Datenzeile."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "generation",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Zugangslink/Secret und Generation, keine eindeutig eigene Datenzeile."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "secret_hash",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Zugangslink/Secret und Generation, keine eindeutig eigene Datenzeile."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "enabled",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Zugangslink/Secret und Generation, keine eindeutig eigene Datenzeile."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Zugangslink/Secret und Generation, keine eindeutig eigene Datenzeile."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "session_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Generation, Session- und Tab-Identifikatoren ausgeschlossen."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "tab_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Generation, Session- und Tab-Identifikatoren ausgeschlossen."
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "expires_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "starts_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "ends_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "credit_limit",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "prior_credits",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "reserved_credits",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "active",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globaler Kreditbestand; keine eindeutige Nutzerzuordnung. Keine Zuordnung aggregierter Kosten erfinden."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "source_id",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "period_start",
+      "type": "date",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "estimated_eur_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "estimated_usd_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "successful_scans",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "source_note",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Historischer Gesamtimport ohne user_id; individueller Anteil nicht rekonstruierbar aus dieser Tabelle."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "period_start",
+      "type": "date",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "settled_eur_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "reserved_eur_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "estimated_usd_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "input_tokens",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "output_tokens",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "successful_scans",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globales Monatsaggregat; enthält keine sichere individuelle Zuordnung."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "singleton",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "enabled",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "raw_weekly_limit",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "slab_weekly_limit",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "monthly_budget_eur_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "reservation_eur_micros",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "accounting_key_sha256",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "eur_per_usd_micros",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "fx_date",
+      "type": "date",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "tracking_started_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "legacy_unclassified_attempts",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy/Budget und Accounting-Key-Hash; kein persönlicher Datensatz, keine Schlüssel exportieren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "request_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "week_start",
+      "type": "date",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "image_sha256",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "tcg",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "kind",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "reserved_eur_micros",
+      "type": "bigint",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "eur_per_usd_micros",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "estimated_cost_eur_micros",
+      "type": "bigint",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "estimated_cost_usd_micros",
+      "type": "bigint",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "input_tokens",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "output_tokens",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "settled_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "reserved_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "week_start",
+      "type": "date",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "raw_used",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "slab_used",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "singleton",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Interne Operator-/Sicherheitsbindung; kein Scanner-Accounting."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Interne Operator-/Sicherheitsbindung; kein Scanner-Accounting."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Interne Operator-/Sicherheitsbindung; kein Scanner-Accounting."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "singleton",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy; keine persönliche Usage-Zeile."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "enabled",
+      "type": "boolean",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy; keine persönliche Usage-Zeile."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "raw_weekly_limit",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy; keine persönliche Usage-Zeile."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "slab_weekly_limit",
+      "type": "integer",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Globale Policy; keine persönliche Usage-Zeile."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "request_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "period_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "period_id verweist auf globalen Kreditbestand; keine persönlichen Verbrauchswerte verloren."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "week_start",
+      "type": "date",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "image_sha256",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "tcg",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "kind",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "credits",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "reserved_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "week_start",
+      "type": "date",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "raw_used",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "slab_used",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "id",
+      "type": "bigint",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "actor_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "target_user_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "action",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "details",
+      "type": "jsonb",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: administrative Nachweise mit Akteur/Ziel/Freitext; nicht Teil dieses Exports."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "tcg",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "mode",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "visibility",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "invite_code",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "title",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "language",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "status",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_ready",
+      "type": "boolean",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_ready",
+      "type": "boolean",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_result",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_result",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "winner_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_display_name",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_founder_number",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_display_name",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_founder_number",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "started_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "completed_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderator_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderator_joined_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderation_state",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "paused_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "paused_by",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderation_note",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "Einladung/Freitext/Namens-/Founder-/Moderationsdaten ausgeschlossen; Staff/Review bleibt konkreter Rest."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "id",
+      "type": "bigint",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "tcg",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_id",
+      "type": "uuid",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_before",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_after",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_before",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_after",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_delta",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_delta",
+      "type": "integer",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "result",
+      "type": "text",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "EIGENE PROJEKTION",
+      "reason": "Nur eigener Seitenwert bzw. eigenes Ergebnis; keine Gegnerwerte/rohen winner_id."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "host_id = auth.uid() OR guest_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "user_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "tcg",
+      "type": "text",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "rating",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "games",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "wins",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "losses",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "draws",
+      "type": "integer",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "user_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reporter_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reported_user_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "category",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "details",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "status",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "resolved_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewer_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewer_note",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "resolution_action",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewing_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Meldung/Fremdperson/Review/Staff gemischt. Vollständig ausgeschlossen, konkrete Fremdrechte-/Auskunftsentscheidung offen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "id",
+      "type": "bigint",
+      "owner": "sender_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "match_id",
+      "type": "uuid",
+      "owner": "sender_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "sender_id",
+      "type": "uuid",
+      "owner": "sender_id = auth.uid()",
+      "status": "FILTER/ABLEITUNG",
+      "reason": "Identität nur für Ownerprüfung bzw. eigene Host-/Gastrolle; rohe Kennung nicht im Zusatzpayload."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "signal_type",
+      "type": "text",
+      "owner": "sender_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "payload",
+      "type": "jsonb",
+      "owner": "sender_id = auth.uid()",
+      "status": "AUSSCHLUSS",
+      "reason": "SDP/ICE/Netzwerk- und potenzielle Zugangsdaten im Payload ausgeschlossen."
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "sender_id = auth.uid()",
+      "status": "AUFNAHME",
+      "reason": "Nur Zeilen gemäß Owner-Prädikat; explizite Feldprojektion."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "applicant_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "requested_role",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "tcg",
+      "type": "text[]",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "experience",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "rules_knowledge",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "languages",
+      "type": "text[]",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "availability",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "motivation",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "status",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewer_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewer_note",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "created_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewed_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "REST/AUSSCHLUSS",
+      "reason": "REST: Staff-/Bewerbungs-/Review-Daten außerhalb dieses T2-Teilblocks; nicht ungeprüft ausgeben."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "user_id",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Staff-/Grantor-Daten außerhalb dieses T2-Teilblocks."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "permission",
+      "type": "text",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Staff-/Grantor-Daten außerhalb dieses T2-Teilblocks."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "granted_by",
+      "type": "uuid",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Staff-/Grantor-Daten außerhalb dieses T2-Teilblocks."
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "granted_at",
+      "type": "timestamp with time zone",
+      "owner": "Keine eindeutige persönliche Zeile im gewählten Scope",
+      "status": "AUSSCHLUSS",
+      "reason": "Staff-/Grantor-Daten außerhalb dieses T2-Teilblocks."
+    }
+  ]
+}

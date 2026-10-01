@@ -1,0 +1,1204 @@
+{
+  "engine": "native-postgresql17",
+  "version": "170011",
+  "lock": true,
+  "synthetic": true,
+  "liveApplied": false,
+  "cases": [
+    "actual hardened V1 baseline and overwritten Pickup entry reproduced",
+    "candidate reapplication; exactly two function changes; Pickup/ACL/RLS/holds/erasure unchanged",
+    "matching security and legal readiness passes; stale contract fails closed",
+    "196 field decisions cover the actual 25-table scanner/BATTLE/staff schema",
+    "all persistent fixture tables guarded against unexpected DML including zero-row writes",
+    "existing payload and withdrawals retained; Pickup restored via unchanged helper only",
+    "two-user current settled/unsettled and historical scanner ownership",
+    "host/guest self projection; no opponent ratings; waiting/draw and foreign match boundaries",
+    "own signal metadata, expired presence, grants and withdrawn consent; no cleanup/admission calls",
+    "secret/session/signal/report/staff canaries absent; explicit extension keys and collection isolation",
+    "repeatable output, empty account and historical-only account; one hash-bound audit event per call",
+    "Owner role does not broaden export ownership",
+    "missing subject/anon denied; existing service ACL remains subject-bound; no owner argument or private access",
+    "future scanner/match columns excluded by projection"
+  ],
+  "passed": true,
+  "guardedTables": 96,
+  "checkedSequences": 15,
+  "columns": [
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "singleton",
+      "type": "boolean"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "media_enabled",
+      "type": "boolean"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "max_viewers_per_match",
+      "type": "integer"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "config",
+      "column_name": "consent_version",
+      "type": "text"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "consent_version",
+      "type": "text"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "granted",
+      "type": "boolean"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "consents",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "epoch",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "generation",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "media_open",
+      "type": "boolean"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "epochs",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "id",
+      "type": "bigint"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "epoch",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "reason",
+      "type": "text"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "state",
+      "type": "text"
+    },
+    {
+      "schema": "battle_spectator_media_private",
+      "table_name": "revocations",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "grants",
+      "column_name": "generation",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "generation",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "secret_hash",
+      "type": "text"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "enabled",
+      "type": "boolean"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "links",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "session_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "tab_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "battle_spectator_private",
+      "table_name": "presence",
+      "column_name": "expires_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "starts_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "ends_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "credit_limit",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "prior_credits",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "reserved_credits",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "credit_period",
+      "column_name": "active",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "source_id",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "period_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "estimated_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "estimated_usd_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "successful_scans",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_cost_import",
+      "column_name": "source_note",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "period_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "settled_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "reserved_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "estimated_usd_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "input_tokens",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "output_tokens",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_monthly_cost",
+      "column_name": "successful_scans",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "singleton",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "enabled",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "raw_weekly_limit",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "slab_weekly_limit",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "monthly_budget_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "reservation_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "accounting_key_sha256",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "eur_per_usd_micros",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "fx_date",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "tracking_started_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_policy",
+      "column_name": "legacy_unclassified_attempts",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "request_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "week_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "image_sha256",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "tcg",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "kind",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "reserved_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "eur_per_usd_micros",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "estimated_cost_eur_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "estimated_cost_usd_micros",
+      "type": "bigint"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "input_tokens",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "output_tokens",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "settled_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_scan_reservation",
+      "column_name": "reserved_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "week_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "raw_used",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "openai_weekly_usage",
+      "column_name": "slab_used",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "singleton",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "operator_identity_v1",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "singleton",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "enabled",
+      "type": "boolean"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "raw_weekly_limit",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_policy",
+      "column_name": "slab_weekly_limit",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "request_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "period_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "week_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "image_sha256",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "tcg",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "kind",
+      "type": "text"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "credits",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "scan_reservation",
+      "column_name": "reserved_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "week_start",
+      "type": "date"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "raw_used",
+      "type": "integer"
+    },
+    {
+      "schema": "dv_v16_private",
+      "table_name": "weekly_usage",
+      "column_name": "slab_used",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "id",
+      "type": "bigint"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "actor_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "target_user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "action",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "details",
+      "type": "jsonb"
+    },
+    {
+      "schema": "public",
+      "table_name": "admin_audit_log",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "tcg",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "mode",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "visibility",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "invite_code",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "title",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "language",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "status",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_ready",
+      "type": "boolean"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_ready",
+      "type": "boolean"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_result",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_result",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "winner_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_display_name",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "host_founder_number",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_display_name",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "guest_founder_number",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "started_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "completed_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderator_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderator_joined_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderation_state",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "paused_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "paused_by",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_matches",
+      "column_name": "moderation_note",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "id",
+      "type": "bigint"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "tcg",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_before",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_after",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_before",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_after",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "host_delta",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "guest_delta",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "result",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_rating_events",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "tcg",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "rating",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "games",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "wins",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "losses",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "draws",
+      "type": "integer"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_ratings",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reporter_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reported_user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "category",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "details",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "status",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "resolved_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewer_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewer_note",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "resolution_action",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_reports",
+      "column_name": "reviewing_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "id",
+      "type": "bigint"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "match_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "sender_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "signal_type",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "payload",
+      "type": "jsonb"
+    },
+    {
+      "schema": "public",
+      "table_name": "battle_signals",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "applicant_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "requested_role",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "tcg",
+      "type": "text[]"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "experience",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "rules_knowledge",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "languages",
+      "type": "text[]"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "availability",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "motivation",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "status",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewer_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewer_note",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "created_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "updated_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_applications",
+      "column_name": "reviewed_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "user_id",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "permission",
+      "type": "text"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "granted_by",
+      "type": "uuid"
+    },
+    {
+      "schema": "public",
+      "table_name": "staff_permissions",
+      "column_name": "granted_at",
+      "type": "timestamp with time zone"
+    }
+  ]
+}

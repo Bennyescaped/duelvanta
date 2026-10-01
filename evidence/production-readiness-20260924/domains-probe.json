@@ -1,0 +1,26 @@
+[
+  {
+    "host": "duelvanta.de",
+    "status": 200,
+    "final_url": "https://duelvanta.de",
+    "headers": {
+      "Strict-Transport-Security": "max-age=63072000"
+    }
+  },
+  {
+    "host": "www.duelvanta.de",
+    "status": 200,
+    "final_url": "https://duelvanta.de/",
+    "headers": {
+      "Strict-Transport-Security": "max-age=63072000"
+    }
+  },
+  {
+    "host": "duelvanta.com",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "host": "www.duelvanta.com",
+    "error": "HTTP Error 502: Bad Gateway"
+  }
+]

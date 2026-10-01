@@ -1,0 +1,7 @@
+{
+  "columns": true,
+  "triggers": true,
+  "functions": true,
+  "sequences": true,
+  "constraints": true
+}

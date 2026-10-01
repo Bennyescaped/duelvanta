@@ -1,0 +1,160 @@
+2026-09-23T07:30:52.4524450Z PASS F3 isolated PostgreSQL/PGlite SQL-role tests: owner, nonempty, invisible reference, anonymous, restricted, direct DELETE/TRUNCATE denied, repeat, erasure and auth cascade.
+2026-09-23T07:30:52.4531808Z PASS real PostgreSQL role regressions; concurrency is a separate mandatory job step.
+2026-09-23T07:30:52.7389933Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit
+2026-09-23T07:30:52.9328900Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure
+2026-09-23T07:30:53.0988739Z PASS A-commit
+2026-09-23T07:30:53.1063617Z PASS A-rollback-winner
+2026-09-23T07:30:53.1129749Z PASS A-rollback-both
+2026-09-23T07:30:53.1194258Z PASS C-commit
+2026-09-23T07:30:53.1263051Z PASS C-rollback-winner
+2026-09-23T07:30:53.1325467Z PASS C-rollback-both
+2026-09-23T07:30:53.1412413Z PASS B-commit
+2026-09-23T07:30:53.1480027Z PASS B-rollback-winner
+2026-09-23T07:30:53.1544414Z PASS B-rollback-both
+2026-09-23T07:30:53.1616274Z PASS D-commit
+2026-09-23T07:30:53.1687375Z PASS D-rollback-winner
+2026-09-23T07:30:53.1748601Z PASS D-rollback-both
+2026-09-23T07:30:54.7729121Z PASS: fixed-price PostgreSQL concurrency uses separate authenticated/service-role connections; same request replays once, final inventory cannot oversell, acceptance creates one deal/order/payment evidence
+2026-09-23T07:30:58.0807356Z PASS: offline catalog contract 64 tables 201 function names 266 checks
+2026-09-23T07:31:04.3002771Z PASS: catalog readiness PostgreSQL17 109 checks; full migration rehearsal and corruption fail-closed
+2026-09-23T07:31:04.5183958Z PASS: withdrawal is B2C-snapshot-bound, replay-safe, immutable, deduplicated and separated from order/payment mutation
+2026-09-23T07:30:33.3210075Z PASS: Scanner V16.9 direct mobile route, unified pipeline, benchmark, resilience and TCG recognition
+2026-09-23T07:30:33.3538842Z PASS: fixed binder positions and legacy/unpositioned cards share compact pages without hiding cards.
+2026-09-23T07:30:33.3985708Z PASS integrated scanner readiness, repeated taps, catalog context and load failure
+2026-09-23T07:30:33.7938378Z PASS: dedicated 15-credit slab request, label/card distinction, bounded crop, certificate preservation, explicit confirmation, existing collection company constraints; no real paid calls
+2026-09-23T07:30:33.7990711Z PASS: Sanji label fallback, provenance, no invented Pokemon denominator, no OCR conflict overwrite, explicit save gates
+2026-09-23T07:30:33.8702765Z PASS: branch-only reference transport, fixed host/path, redirect denial, no credentials, type/size bounds, success-only caching
+2026-09-23T07:30:34.1042962Z PASS: OpenAI evidence → original V16 catalog/language/quality/result/benchmark; exact-photo binding, no invented OCR, no replay imports, conflicts and no-match recovery.
+2026-09-23T07:30:34.1457586Z PASS: verified existing Auth, scanner-v16 preview/main production gates, validation, committed quota before provider, concurrent/cold-start duplicate prevention, exhausted/missing ledger and provider failure; zero real API calls
+2026-09-23T07:30:34.2118268Z PASS: verified reference bytes, exact source/TCG mapping, separate reprints, unchanged evidence, external fallback and catalog integration
+2026-09-23T07:30:34.2144896Z PASS: failed direct catalog reads retry via bounded same-origin transport
+2026-09-23T07:30:34.2658970Z PASS: Scanner V16.2 Pokemon/One Piece OCR normalization and variant ranking
+2026-09-23T07:30:34.3120648Z PASS: Scanner V16.3 evidence gates for One Piece variants, Pokemon language ambiguity and foil reflection
+2026-09-23T07:30:34.3658089Z PASS: Scanner V16.4 explainable confidence headlines, evidence chips and rival comparison
+2026-09-23T07:30:34.4276433Z PASS: Scanner V16.5 retry guidance, identifier voting and continuous repeat guard policy
+2026-09-23T07:30:34.4871398Z PASS: Scanner V16.9 benchmark session ground truth, metrics and direct-route wiring
+2026-09-23T07:30:34.5436944Z PASS: Scanner V16.9 top-level live camera service and recovery policy
+2026-09-23T07:30:34.5976950Z PASS: Scanner V16.9 separate native camera and gallery input policy
+2026-09-23T07:30:34.6474667Z PASS: Scanner V16.9 photo pipeline, analysis start, state recovery and duplicate binding guard
+2026-09-23T07:30:34.6934644Z PASS: Scanner V16.10 direct route, split photo inputs and benchmark completion integration
+2026-09-23T07:30:49.5491510Z PASS: auth boundary allows beta/active BATTLE accounts, blocks suspended/restricted/null access, and privileged RPCs require AAL2 plus a live session
+2026-09-23T07:30:50.1618049Z PASS: centralized Production/Preview Supabase routing, COLLECT/BATTLE/Spectator adoption, scanner quota isolation and runtime hardcoding scan
+2026-09-23T07:30:50.5265315Z PASS: sale-only forms/runtime; no swap actions, notifications, archives or pickup entry; order chat retained
+2026-09-23T07:30:50.9770631Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked
+2026-09-23T07:30:51.0151665Z PASS: TRADE automation contract, historical notification coverage and sale-only UI, action routing and hardening
+2026-09-23T07:30:52.9705607Z PASS: real SQL action queries, ordering, ownership, anonymous denial and payment-gated lifecycle actions
+2026-09-23T07:30:53.0356727Z PASS: order resolution plus B07 Release-1 shipping, C2C problem deadlines, optional carrier automation and private C2C flow
+2026-09-23T07:30:53.0718089Z PASS: private address + seller shipping profile contract, RLS, RPC isolation, sealed safety and auto/manual fallback
+2026-09-23T07:30:53.1069018Z PASS: C2C pickup is revision-bound, startup-order safe and uses one private pickup chat for swaps and orders
+2026-09-23T07:30:53.1390725Z PASS: Combined Shipping missing-profile fallback cannot write NULL shipping values
+2026-09-23T07:30:53.5905987Z PASS: TRADE is production-locked for normal users, preview/owner runtime loads behind a stable boot shell, gated scripts are queued concurrently in execution order, and public listing shares remain production-locked
+2026-09-23T07:30:53.5908926Z PASS: simplified Marketplace navigation, search/archive separation, release gate, trade-only no-money invariant, sealed sale-only invariant, C2C integration, mobile swap layout, fast selling forms, offer wording and checkout controls
+2026-09-23T07:30:53.6367980Z PASS: 42 assertions; strict versioned, GET-only probe, timeout, correct mock error and executed loader revisions
+2026-09-23T07:30:53.6461894Z PASS: 52 actual-profile fixture checks; ordinary reads retained, no second buyer profile or automatic confirmation
+2026-09-23T07:30:53.6515468Z PASS: 50 private-buyer checkout fixture checks; incompatible review stays blocked; no provider requests
+2026-09-23T07:30:53.6607398Z PASS: 92 order-read boundary checks; missing schema is skipped, optional errors bounded, existing order errors preserved
+2026-09-23T07:30:55.8729491Z PASS: 35 isolated private-buyer SQL/role scenarios; migration NOT applied to Staging
+2026-09-23T07:30:57.0310877Z PASS: 4 real Chromium profile/guard scenarios; duplicate buyer UI removed, no external requests or profile mutations
+2026-09-23T07:30:58.3347086Z PASS: price-offer review freezes total/shipping, stale review fails, repeated seller acceptance creates one deal/order
+2026-09-23T07:30:58.3362888Z PASS: legal-model candidate wiring and schema guard; NOT a legal, staging or production acceptance
+2026-09-23T07:31:00.3946252Z PASS: seller classification, legacy-safe backfill, private data isolation, public trader disclosure and server-side listing guard
+2026-09-23T07:31:00.4845277Z PASS: private/trader onboarding fields, explicit declarations, secure RPC boundary and mobile layout contract
+2026-09-23T07:31:00.5203792Z PASS: private/trader listing labels, restricted trader details and bounded public disclosure batch
+2026-09-23T07:31:00.5512142Z PASS: owner-reviewed seller activation, tax gate, automatic listing pause and onboarding redirect
+2026-09-23T07:31:00.5827138Z PASS: notice, status, reasoned decision, reporter/seller appeal and owner review contracts
+2026-09-23T07:31:02.7259242Z PASS: private notice intake, owner decision, seller statement, reporter/seller appeals and immutable audit
+2026-09-23T07:31:02.8026714Z PASS: buyer-aware immutable checkout, legacy RPC revocation, durable confirmation and default-off delivery contracts
+2026-09-23T07:31:05.0170608Z PASS: C2C/B2C snapshots remain immutable, documents are access-bound and delivery claims are audited
+2026-09-23T07:31:05.1188060Z PASS: PROFILE/runtime isolation plus privileged MFA, AAL2 control-center gate and recovery session revocation; 18 invalid runtime configurations rejected
+2026-09-23T07:31:05.1189990Z PASS: marketplace and PROFILE previews are locked to the isolated staging Supabase project
+2026-09-23T07:31:05.1528903Z PASS: append-only PStTG/DAC7 ledger, strict thresholds and backend-only exports are contracted
+2026-09-23T07:31:07.5736355Z PASS: tax ledger separates contracts from remuneration, preserves corrections and exports exact PStTG boundaries
+2026-09-23T07:31:07.6844015Z PASS: public listing, preview-only AfterShip tracking and compliance dispatcher dry-runs pass
+2026-09-23T07:31:09.8925749Z PASS: pickup messages are exported without counterpart IDs and erasure creates a manual retention hold without inventing an automatic deadline
+2026-09-23T07:31:09.8951262Z PASS: data-rights UI, pickup-message export/hold runtime boundary, private RPC boundaries, disabled worker and CI wiring are present
+2026-09-23T07:31:12.2450754Z PASS: own-data export is minimized, deletion blockers are enforced, and erasure is staged with immutable audit
+2026-09-23T07:31:12.3503894Z PASS: erasure worker is disabled by default and performs mocked storage/auth cleanup with audit completion
+2026-09-23T07:31:14.3251557Z PASS: B02 real username trigger allows only locked service-role erasure and clears bypass on success/failure
+2026-09-23T07:31:14.4937377Z PASS: profile deletion UI requires exact confirmation and explains server-side blockers
+2026-09-23T07:31:14.5345661Z PASS: Stripe Connect keeps sandbox regression guards and adds an explicit default-off live boundary
+2026-09-23T07:31:14.6085535Z PASS: mocked Stripe APIs stay disabled by default, signed and idempotency-bound without provider calls
+2026-09-23T07:31:16.8621778Z PASS: sandbox payment, allocations, ledger, replay and full refund transitions are database-enforced
+2026-09-23T07:31:16.9591452Z PASS: Stripe live mode is default-off, action-gated, mode-bound and webhook-independent from new payments
+2026-09-23T07:31:19.2080727Z PASS: Stripe live database mode is explicit, isolated, default-off and preserves in-flight webhook processing
+2026-09-23T07:31:20.3254919Z PASS Keine Tausch-CTAs oder Tausch-Tabs
+2026-09-23T07:31:20.3255936Z PASS Historische Nur-Tausch-Inserate bleiben ausgeblendet
+2026-09-23T07:31:20.3257415Z PASS Single, Graded und Sealed bieten ausschließlich Verkauf
+2026-09-23T07:31:20.3258498Z PASS Hauptnavigation zeigt Markt, Bestellungen und Verkaufen
+2026-09-23T07:31:20.3259384Z PASS Nebenbereiche sind eindeutig benannt
+2026-09-23T07:31:20.3260323Z PASS Startansicht erklärt den direkten Handelsweg
+2026-09-23T07:31:20.3261029Z PASS Single-Sonderoptionen sind eingeklappt
+2026-09-23T07:31:20.3261763Z PASS Preis und Versandkosten bleiben im Single-Hauptformular
+2026-09-23T07:31:20.3262606Z PASS Automatisch übernommene Kartendaten werden erklärt
+2026-09-23T07:31:20.3263216Z PASS Leere Versandkosten werden nicht als kostenlos dargestellt
+2026-09-23T07:31:20.3263977Z PASS Sealed-Spezialangaben sind eingeklappt
+2026-09-23T07:31:20.3264425Z PASS Sealed-Kernangaben bleiben sofort sichtbar
+2026-09-23T07:31:20.3264927Z PASS Neues Sealed-Standardinserat startet mit geschlossenen Zusatzangaben
+2026-09-23T07:31:20.3265558Z PASS Individueller Versand öffnet den benötigten Versandhinweis
+2026-09-23T07:31:20.3266094Z PASS AKTION ERFORDERLICH zeigt offene Lieferadresse
+2026-09-23T07:31:20.3266536Z PASS Ungelesene Benachrichtigung erscheint als Badge
+2026-09-23T07:31:20.3266948Z PASS Benachrichtigungsdialog zeigt Angebotsannahme
+2026-09-23T07:31:20.3267366Z PASS Alle-gelesen Aktion nutzt Notification-RPC
+2026-09-23T07:31:20.3267818Z PASS Festpreis öffnet eigenen Kaufdialog
+2026-09-23T07:31:20.3268188Z PASS Menge darf zum Bearbeiten leer sein
+2026-09-23T07:31:20.3268553Z PASS Leere Menge kann nicht bestellt werden
+2026-09-23T07:31:20.3268987Z PASS 3 Stück verwenden Staffelpreis 220 €
+2026-09-23T07:31:20.3269483Z PASS Serverprüfung zeigt Verkäuferrolle und Vertragspartner
+2026-09-23T07:31:20.3270450Z PASS B2C-Abschlussbutton trägt den exakten Pflichttext
+2026-09-23T07:31:20.3270976Z PASS Plus-Schaltfläche erhöht die Menge auf dem Handy
+2026-09-23T07:31:20.3271519Z PASS Minus-Schaltfläche verringert die Menge auf dem Handy
+2026-09-23T07:31:20.3271992Z PASS 5 Stück verwenden Staffelpreis 215 €
+2026-09-23T07:31:20.3272390Z PASS Menge über Bestand gesperrt
+2026-09-23T07:31:20.3272687Z PASS Bruchmenge gesperrt
+2026-09-23T07:31:20.3273001Z PASS Doppelklick sendet nur eine Anfrage
+2026-09-23T07:31:20.3273554Z PASS Unklarer Provider-/DB-Status ist sichtbar und mit derselben Anfrage erneut versuchbar
+2026-09-23T07:31:20.3274404Z PASS Wiederholung verwendet identische Request-ID
+2026-09-23T07:31:20.3274994Z PASS Menge, Angebotsversion und geprüfter Checkout-Hash werden gesendet
+2026-09-23T07:31:20.3275629Z PASS Fehlgeschlagene Zahlungsaufforderung erzeugt keinen lokalen Vertrag
+2026-09-23T07:31:20.3276208Z PASS Daily Deal verschwindet außerhalb des Marktplatzes
+2026-09-23T07:31:20.3276723Z PASS Bestellansicht erklärt Käufer- und Verkäuferrolle
+2026-09-23T07:31:20.3277122Z PASS Order zeigt Stückzahl
+2026-09-23T07:31:20.3277436Z PASS Order zeigt Stückpreis
+2026-09-23T07:31:20.3277880Z PASS Ungeprüfter Versand als vorläufig gekennzeichnet
+2026-09-23T07:31:20.3278385Z PASS Order bietet den unveränderbaren Bestellnachweis an
+2026-09-23T07:31:20.3278978Z PASS Bestellbestätigung zeigt die unveränderbare Dokumentversion
+2026-09-23T07:31:20.3279604Z PASS Bestätigte Testorder zeigt ausschließlich den Stripe-Testmodus
+2026-09-23T07:31:20.3280141Z PASS Ausstehende Testzahlung kann nicht doppelt gestartet werden
+2026-09-23T07:31:20.3280732Z PASS Ein Erhalts-/Abschlussbutton statt doppelter Bestätigung
+2026-09-23T07:31:20.3281209Z PASS AKTION ERFORDERLICH wechselt nach Versand auf Erhalt
+2026-09-23T07:31:20.3281710Z PASS Neue Versandbenachrichtigung wird ungelesen gezählt
+2026-09-23T07:31:20.3282337Z PASS Versandbenachrichtigung ist sichtbar
+2026-09-23T07:31:20.3282847Z PASS Einzelne Benachrichtigung wird serverseitig als gelesen markiert
+2026-09-23T07:31:20.3283366Z PASS Benachrichtigung führt zur passenden Order
+2026-09-23T07:31:20.3284185Z PASS Nach Erhaltsbestätigung bleibt keine erledigte Aktion offen
+2026-09-23T07:31:20.3284741Z PASS Erhaltsbestätigung wird genau einmal ausgelöst
+2026-09-23T07:31:20.3285224Z PASS Angebot zeigt gewünschte Menge und Produktart
+2026-09-23T07:31:20.3285700Z PASS 60 € / 9,1 % Nachlass gegenüber Mengenpreis
+2026-09-23T07:31:20.3286092Z PASS Angebotsnachricht wird als Text escaped
+2026-09-23T07:31:20.3286553Z PASS Alte Angebote erhalten keinen erfundenen Vergleichspreis
+2026-09-23T07:31:20.3287012Z PASS Kein alter direkter Deal-Abschluss in Angeboten
+2026-09-23T07:31:20.3287467Z PASS Verhandlungsbasis verwendet weiterhin Angebotsdialog
+2026-09-23T07:31:20.3287976Z PASS Preisangebot erklärt Bindung und Vertragsschluss
+2026-09-23T07:31:20.3288503Z ALL UI TESTS PASSED — mocks only, no live transaction.
+2026-09-23T07:31:21.8093567Z PASS: TRADE Mobile browser acceptance
+2026-09-23T07:31:22.8565134Z PASS: TRADE Desktop browser acceptance
+2026-09-23T07:31:22.8615902Z PASS: TRADE browser acceptance on mobile and desktop viewports
+2026-09-23T07:31:32.0297382Z PASS: 17 real Chromium scenarios; no external app or provider requests
+2026-09-23T07:31:38.8867019Z PASS: 9 Chromium order-reader scenarios; old evidence stays readable, no external calls
+2026-09-23T07:31:39.6308484Z PASS: withdrawal UI shows the exact frozen contract before confirmation and renders immutable receipt hash without refund/cancel action
+2026-09-23T07:31:40.4798695Z PASS: mobile public notice, receipt, reasoned status and reporter appeal
+2026-09-23T07:31:40.6507443Z PASS: 074/084 numeric set resolution, explicit TCG core bridge, failure guidance, exact video geometry, contour/stability gate and manual candidate recovery
+2026-09-23T07:31:40.7247235Z PASS: independent votes, 081/084 conflict, observed DE excludes JP, exposure/jitter/dropout tolerance and hard capture gates
+2026-09-23T07:31:40.7857560Z PASS COLLECT F1/F2 display fixtures
+2026-09-23T07:32:04.3846238Z PASS COLLECT F1/F2 browser matrix {"browser":"140.0.7339.186","viewports":[{"width":1363,"height":844},{"width":390,"height":844}],"network":"fixture-only; external requests blocked"}
+2026-09-23T07:32:07.6226129Z PASS mobile UI chromium 1363x844; writes=0
+2026-09-23T07:32:09.2110300Z PASS mobile UI chromium 390x844; writes=0
+2026-09-23T07:32:10.8440213Z PASS mobile UI chromium 430x844; writes=0
+2026-09-23T07:32:12.8320958Z PASS F3 isolated PostgreSQL/PGlite SQL-role tests: owner, nonempty, invisible reference, anonymous, restricted, direct DELETE/TRUNCATE denied, repeat, erasure and auth cascade.
+2026-09-23T07:32:27.2085763Z PASS F3 browser fixtures {"engine":"140.0.7339.186","viewports":[{"width":1363,"height":844},{"width":390,"height":844},{"width":430,"height":844}],"network":"local fixtures only","dbConcurrency":"NOT TESTED"}
+2026-09-23T07:32:30.8580237Z PASS mobile COLLECT → one OpenAI mock → confirm → saved binder → reopen; same URL/session, no lab or V15
+2026-09-23T07:32:42.3188154Z PASS: real Tesseract pixel OCR → normalized identifier → production catalog adapter → correct Pokemon/One Piece candidate → evidence/result → benchmark; manual recovery and error-state recovery

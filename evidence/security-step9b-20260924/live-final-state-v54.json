@@ -1,0 +1,85 @@
+{
+  "at": "2026-09-24T13:47:59.738178+00:00",
+  "legal": {
+    "revision": "trade-legal-contract-model-v1.2",
+    "compatible": true
+  },
+  "counts": {
+    "deals": 10,
+    "offers": 4,
+    "orders": 8,
+    "attempts": 3,
+    "listings": 16,
+    "snapshots": 10,
+    "allocations": 3,
+    "withdrawals": 1
+  },
+  "outbox": {
+    "sent": 0,
+    "total": 12,
+    "errors": 0,
+    "pending": 12,
+    "max_attempts": 0
+  },
+  "stripe": {
+    "live_mode": false,
+    "sandbox_enabled": false
+  },
+  "security": {
+    "revision": "privilege-mfa-v1",
+    "compatible": true
+  },
+  "contracts": [
+    {
+      "id": "801ae92b-9569-4178-a1c2-2ece5165d6a3",
+      "sha256": "f736fd45f67cba0411580fe65976daa7ccc185abbf69b52cea29114f43bf3091",
+      "hash_valid": true
+    },
+    {
+      "id": "a4642a8f-3167-42c1-953b-eb3e9234b611",
+      "sha256": "dfbc9dd2fc3c3d5677e62a23d29637e038522491e3b5f419c81fdaf9196469d7",
+      "hash_valid": true
+    }
+  ],
+  "staff_cleanup": [
+    {
+      "id": "5c3d1d09-6fd3-4cb8-a091-a24023bbc5d8",
+      "role": "player",
+      "status": "suspended",
+      "sessions": 0,
+      "permissions": 0,
+      "verified_factors": 1
+    },
+    {
+      "id": "4e4d60fb-cc94-4104-a50b-75e57ad892e4",
+      "role": "player",
+      "status": "suspended",
+      "sessions": 0,
+      "permissions": 0,
+      "verified_factors": 1
+    },
+    {
+      "id": "2b46a3c4-6bc7-428c-a65f-f87b395b3677",
+      "role": "player",
+      "status": "suspended",
+      "sessions": 0,
+      "permissions": 0,
+      "verified_factors": 1
+    }
+  ],
+  "last_migrations": [
+    {
+      "name": "security_readiness_v1",
+      "version": "20260924113153"
+    },
+    {
+      "name": "security_privilege_mfa_hardening_v1",
+      "version": "20260924113132"
+    },
+    {
+      "name": "auth_privileged_step_up_v1",
+      "version": "20260924113112"
+    }
+  ],
+  "migration_count": 53
+}

@@ -18,8 +18,8 @@
   async function loadFolders(){if(!root.db||!root.currentUser)return[];const {data,error}=await root.db.from('collection_folders').select('*').eq('user_id',root.currentUser.id).order('sort_order').order('created_at');if(error)throw error;root.folders=data||[];const requested=new URLSearchParams(location.search).get('folder');root.activeFolder=root.folders.some(f=>f.id===requested)?requested:'';return root.folders}
   async function boot(){
     if(root.DV_V16_E2E){status('E2E · echte lokale OCR · Katalogantworten durch Testserver isoliert');return}
-    if(!root.supabase){status('Scanner lokal bereit · Anmeldung/Import derzeit nicht verfügbar');return}
-    if(!root.db)root.db=root.supabase.createClient('https://enifiaqsnqtbzylnfrpi.supabase.co','sb_publishable_pk2szDe_g7fJLUdAMEUevw_odrDmnuM',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    if(!root.supabase||!root.DV_SUPABASE){status('Scanner lokal bereit · Anmeldung/Import derzeit nicht verfügbar');return}
+    if(!root.db)root.db=root.supabase.createClient(root.DV_SUPABASE.url,root.DV_SUPABASE.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     try{const {data:{session}}=await root.db.auth.getSession();if(!session){status('Scanner bereit · für Collection-Import anmelden');document.getElementById('routeLogin')?.classList.remove('hidden');return}root.currentUser=session.user;await Promise.all([loadFolders(),root.loadItems()]);status('Scanner bereit · Collection verbunden')}catch(error){console.warn('V16 host boot',error);status('Scanner bereit · Collection konnte nicht verbunden werden')}
   }
   root.DV_V16_DEPS_READY=Promise.all([

@@ -1,0 +1,1110 @@
+{
+  "native": true,
+  "serverVersion": "170011",
+  "commit": "ff6ae94f361079969f886577d403c9ec35904721",
+  "migrationSha256": "c7d061943629d692ada147ba27c9909105507929756deacc6a3a8cedb259b5c6",
+  "cases": [
+    {
+      "name": "baseline without candidate",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "complete exact candidate",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "authenticated read-only transaction",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "required nullability",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "required nullability restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing column",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing column restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing rpc",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing rpc restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "wrong function body",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "wrong function body restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "wrong function owner",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "wrong function owner restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "changed null-call behavior",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "changed null-call behavior restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "wrong signature",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "wrong signature restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected relevant index",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected relevant index restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing uniqueness",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing uniqueness restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "disabled immutable contract trigger",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "disabled immutable contract trigger restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "disabled immutable withdrawal trigger",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "disabled immutable withdrawal trigger restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "disabled reservation guard",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "disabled reservation guard restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "disabled rls",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "disabled rls restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "browser private schema access",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "browser private schema access restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "browser private table access",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "browser private table access restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "browser column mutation",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "browser column mutation restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "backend direct mutation",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "backend direct mutation restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "retired rpc exposed",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "retired rpc exposed restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "new rpc revoked",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "new rpc revoked restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing reservation state constraint",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing reservation state constraint restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "weakened delete policy",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "weakened delete policy restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "foreign key missing",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "foreign key missing restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "outbox check missing",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "outbox check missing restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index account_deletion_one_open_request_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index account_deletion_one_open_request_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notice_appeals_queue_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notice_appeals_queue_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notice_events_notice_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notice_events_notice_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_listing_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_listing_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_queue_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_queue_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_reporter_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index listing_notices_reporter_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index profiles_founder_generation_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index profiles_founder_generation_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index profiles_username_unique_ci",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index profiles_username_unique_ci restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_account_audit_seller_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_account_audit_seller_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_declarations_seller_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_declarations_seller_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_review_actions_seller_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_review_actions_seller_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_tax_identifiers_seller_idx",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing baseline index seller_tax_identifiers_seller_idx restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE review_market_price_offer_v1(uuid,integer,numeric)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE review_market_price_offer_v1(uuid,integer,numeric) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE review_market_price_offer_v1(uuid,integer,numeric)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE review_market_price_offer_v1(uuid,integer,numeric) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE review_market_price_offer_v1(uuid,integer,numeric)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE review_market_price_offer_v1(uuid,integer,numeric) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE get_my_market_withdrawable_contracts()",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE get_my_market_withdrawable_contracts() restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE get_my_market_withdrawable_contracts()",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE get_my_market_withdrawable_contracts() restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE get_my_market_withdrawable_contracts()",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE get_my_market_withdrawable_contracts() restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE prepare_market_withdrawal_v1(uuid,text,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE prepare_market_withdrawal_v1(uuid,text,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE prepare_market_withdrawal_v1(uuid,text,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE prepare_market_withdrawal_v1(uuid,text,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE prepare_market_withdrawal_v1(uuid,text,text)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE prepare_market_withdrawal_v1(uuid,text,text) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE confirm_market_withdrawal_v1(uuid)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected service EXECUTE confirm_market_withdrawal_v1(uuid) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE confirm_market_withdrawal_v1(uuid)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "unexpected anon EXECUTE confirm_market_withdrawal_v1(uuid) restored",
+      "compatible": true,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE confirm_market_withdrawal_v1(uuid)",
+      "compatible": false,
+      "passed": true
+    },
+    {
+      "name": "missing authenticated EXECUTE confirm_market_withdrawal_v1(uuid) restored",
+      "compatible": true,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "indexes": [
+    {
+      "name": "account_deletion_one_open_request_idx",
+      "definition": "CREATE UNIQUE INDEX account_deletion_one_open_request_idx ON dv_market_private.account_deletion_requests USING btree (user_id) WHERE (status = ANY (ARRAY['requested'::text, 'processing'::text, 'retained'::text]))",
+      "indisunique": true,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": "(status = ANY (ARRAY['requested'::text, 'processing'::text, 'retained'::text]))",
+      "expression": null
+    },
+    {
+      "name": "listing_notice_appeals_queue_idx",
+      "definition": "CREATE INDEX listing_notice_appeals_queue_idx ON dv_market_private.listing_notice_appeals USING btree (status, submitted_at)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "listing_notice_events_notice_idx",
+      "definition": "CREATE INDEX listing_notice_events_notice_idx ON dv_market_private.listing_notice_events USING btree (notice_id, created_at, id)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "listing_notices_listing_idx",
+      "definition": "CREATE INDEX listing_notices_listing_idx ON dv_market_private.listing_notices USING btree (listing_id, submitted_at DESC)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "listing_notices_queue_idx",
+      "definition": "CREATE INDEX listing_notices_queue_idx ON dv_market_private.listing_notices USING btree (status, submitted_at)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "listing_notices_reporter_idx",
+      "definition": "CREATE INDEX listing_notices_reporter_idx ON dv_market_private.listing_notices USING btree (reporter_user_id, submitted_at DESC)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "profiles_founder_generation_idx",
+      "definition": "CREATE INDEX profiles_founder_generation_idx ON public.profiles USING btree (founder_generation, founder_number)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "profiles_username_unique_ci",
+      "definition": "CREATE UNIQUE INDEX profiles_username_unique_ci ON public.profiles USING btree (lower(username)) WHERE (username IS NOT NULL)",
+      "indisunique": true,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": "(username IS NOT NULL)",
+      "expression": "lower(username)"
+    },
+    {
+      "name": "seller_account_audit_seller_idx",
+      "definition": "CREATE INDEX seller_account_audit_seller_idx ON dv_market_private.seller_account_audit USING btree (seller_id, changed_at DESC)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "seller_declarations_seller_idx",
+      "definition": "CREATE INDEX seller_declarations_seller_idx ON dv_market_private.seller_declarations USING btree (seller_id, declaration_kind, accepted_at DESC)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "seller_review_actions_seller_idx",
+      "definition": "CREATE INDEX seller_review_actions_seller_idx ON dv_market_private.seller_review_actions USING btree (seller_id, created_at DESC)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    },
+    {
+      "name": "seller_tax_identifiers_seller_idx",
+      "definition": "CREATE INDEX seller_tax_identifiers_seller_idx ON dv_market_private.seller_tax_identifiers USING btree (seller_id)",
+      "indisunique": false,
+      "indisvalid": true,
+      "indisready": true,
+      "predicate": null,
+      "expression": null
+    }
+  ],
+  "defaultPrivileges": [
+    {
+      "type": "S",
+      "role": "anon",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "anon",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "anon",
+      "privilege": "USAGE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "authenticated",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "authenticated",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "authenticated",
+      "privilege": "USAGE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "postgres",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "postgres",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "postgres",
+      "privilege": "USAGE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "service_role",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "service_role",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "S",
+      "role": "service_role",
+      "privilege": "USAGE",
+      "grantable": false
+    },
+    {
+      "type": "f",
+      "role": "anon",
+      "privilege": "EXECUTE",
+      "grantable": false
+    },
+    {
+      "type": "f",
+      "role": "authenticated",
+      "privilege": "EXECUTE",
+      "grantable": false
+    },
+    {
+      "type": "f",
+      "role": "postgres",
+      "privilege": "EXECUTE",
+      "grantable": false
+    },
+    {
+      "type": "f",
+      "role": "service_role",
+      "privilege": "EXECUTE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "DELETE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "INSERT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "MAINTAIN",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "REFERENCES",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "TRIGGER",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "TRUNCATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "anon",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "DELETE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "INSERT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "MAINTAIN",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "REFERENCES",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "TRIGGER",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "TRUNCATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "authenticated",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "DELETE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "INSERT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "MAINTAIN",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "REFERENCES",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "TRIGGER",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "TRUNCATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "postgres",
+      "privilege": "UPDATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "DELETE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "INSERT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "MAINTAIN",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "REFERENCES",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "SELECT",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "TRIGGER",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "TRUNCATE",
+      "grantable": false
+    },
+    {
+      "type": "r",
+      "role": "service_role",
+      "privilege": "UPDATE",
+      "grantable": false
+    }
+  ],
+  "catalogSha256": "f8e0e4cf5e000d60776a26e5bbd5275318fde632d8e3f55c5bd9a6cf42a33604",
+  "rpcGrants": [
+    {
+      "signature": "review_market_price_offer_v1(uuid,integer,numeric)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "create_market_offer_v3(uuid,integer,numeric,text,timestamptz,text)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "get_my_market_withdrawable_contracts()",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamptz,text,boolean)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "prepare_market_withdrawal_v1(uuid,text,text)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "confirm_market_withdrawal_v1(uuid)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "get_market_legal_schema_readiness_v1()",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": true
+        },
+        {
+          "role": "service_role",
+          "allowed": false
+        }
+      ]
+    },
+    {
+      "signature": "release_fixed_price_market_offer_v1(uuid,text)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": false
+        },
+        {
+          "role": "service_role",
+          "allowed": true
+        }
+      ]
+    },
+    {
+      "signature": "accept_fixed_price_market_offer_v1(uuid,uuid,text,timestamptz,boolean)",
+      "rights": [
+        {
+          "role": "anon",
+          "allowed": false
+        },
+        {
+          "role": "authenticated",
+          "allowed": false
+        },
+        {
+          "role": "service_role",
+          "allowed": true
+        }
+      ]
+    }
+  ]
+}

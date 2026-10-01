@@ -1,0 +1,54 @@
+{
+  "rls": {
+    "count": 74,
+    "unchanged": true
+  },
+  "columns": {
+    "count": 951,
+    "unchanged": true
+  },
+  "indexes": {
+    "count": 183,
+    "unchanged": true
+  },
+  "policies": {
+    "count": 32,
+    "unchanged": true
+  },
+  "triggers": {
+    "count": 59,
+    "unchanged": true
+  },
+  "functions": {
+    "count": 267,
+    "unchanged": true
+  },
+  "sequences": {
+    "count": 14,
+    "unchanged": true
+  },
+  "schema_acl": {
+    "count": 2,
+    "unchanged": true
+  },
+  "constraints": {
+    "count": 525,
+    "unchanged": true
+  },
+  "column_grants": {
+    "count": null,
+    "unchanged": true
+  },
+  "invalid_indexes": {
+    "count": 0,
+    "unchanged": true
+  },
+  "default_privileges": {
+    "count": 27,
+    "unchanged": true
+  },
+  "invalid_constraints": {
+    "count": 0,
+    "unchanged": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "target": "olgwhgcrtsgsyymiglbu",
+  "backup_objects": 91,
+  "production_objects": 86,
+  "staging_objects": 5,
+  "total_bytes": 53011650,
+  "all_size_etag_checks_pass": true,
+  "source_inventories_unchanged": true,
+  "manifest_sha256": "d7fd822998ed7ed20ea285fa758a6fd6c2a31a7a3fceb9296dd6ef050dc16800",
+  "restore_samples": [
+    {
+      "bucket": "collection-cards",
+      "path_sha256": "6e603d4ddb1d28719f58f617523983a0546b49e961de521a028c28dd0290af6a",
+      "size": 319596,
+      "sha256": "74387a089d88aa508dd66afd47c63b00ea510c0305b5508a4083712efa146f62",
+      "restored_original_path": true,
+      "redownload_hash_match": true
+    },
+    {
+      "bucket": "market-listing-images",
+      "path_sha256": "46148c79b4ee60535a4601f7645a3b1be2d26cc6431d4b80930634a0e5124d62",
+      "size": 264471,
+      "sha256": "8b952156aeefad8657629fcf98f9e9e3ffb639e50311ee354a9a77880d88fcd9",
+      "restored_original_path": true,
+      "redownload_hash_match": true
+    },
+    {
+      "bucket": "profile-avatars",
+      "path_sha256": "fa3b032dbee65038af165e5c906533bd2bcbbbf6bc82215166c7622d083be3b2",
+      "size": 32101,
+      "sha256": "2c574387292f98668ac3ce7e357b0be1b618d6039a2fd402a1682f00e568458e",
+      "restored_original_path": true,
+      "redownload_hash_match": true
+    }
+  ],
+  "scope": "Three Storage-service samples under original bucket/path, not a restore of all 91 objects. Dashboard import regenerates storage object IDs/timestamps and leaves owner fields null; source DB metadata remains in provider backup. Existing policies bind access to first path segment. No authenticated end-user Storage test."
+}

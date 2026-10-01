@@ -1,0 +1,76 @@
+{
+  "head": "260f5f3133e354ae0dd1f875bb623714a77f3897",
+  "deployment": "dpl_GRZaur1M6n6Hf2h2Mcw6npTWrLLy",
+  "staging": "xhmjxrcskfhbovhitdej",
+  "visible_diagnostics": "LIVE-LEGAL-DIAGNOSE · READ ONLY · v1.1\nGESAMT: PASS\nBrowser-Session: PASS\nGuard/RPC/Loader: PASS\nReadiness-RPC: GET get_market_legal_schema_readiness_v1 · compatible=true · revision=trade-legal-contract-model-v1.2\nPrivate SELECT-Grenzen:\ndv_market_private.market_contract_snapshots: PASS · HTTP_406/PGRST106\ndv_market_private.market_withdrawal_drafts: PASS · HTTP_406/PGRST106\ndv_market_private.market_withdrawals: PASS · HTTP_406/PGRST106\ndv_market_private.marketplace_message_outbox: PASS · HTTP_406/PGRST106\nTrace: 1:guard/installed → 2:guard/state → 3:loader/release-start → 4:loader/release-state → 5:guard/probe-start → 6:guard/probe-result → 7:guard/state → 8:loader/guard-settled → 9:loader/loader-start → 10:loader/loader-loaded → 11:loader/runtime-ready\nDirekte Browser-GETs mit Accept-Profile=dv_market_private; nur Status/Fehlercode wird ausgewertet. Tokens und Antwortdaten werden nie angezeigt.",
+  "before": {
+    "at": "2026-09-23T11:50:58.192401+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "after": {
+    "at": "2026-09-23T11:52:35.474252+00:00",
+    "counts": {
+      "deals": 8,
+      "offers": 2,
+      "orders": 6,
+      "listings": 14,
+      "withdrawals": 0,
+      "payment_attempts": 2,
+      "withdrawal_drafts": 0,
+      "contract_snapshots": 8
+    },
+    "stripe": {
+      "live_mode": false,
+      "sandbox_enabled": false
+    },
+    "history": [
+      {
+        "name": "trade_legal_contract_model_v1",
+        "version": "20260923081953"
+      }
+    ],
+    "postgres": "17.6",
+    "readiness": {
+      "revision": "trade-legal-contract-model-v1.2",
+      "compatible": true
+    }
+  },
+  "document_previous_proof": {
+    "filename": "DUELVANTA-DV-260913-000006-Bestellbestaetigung.txt",
+    "bytes": 719,
+    "utf8": true,
+    "version": "checkout-contract-v1",
+    "order_reference": "DV-260913-000006",
+    "product_text": true,
+    "sha256_evidence": true,
+    "file_sha256": "8996d376d69be6d43ceb837b9bdd6c8c77e7b67012d07736ded264117ec3e85a"
+  },
+  "email": {
+    "value": "unset",
+    "source": "manuell im Vercel-Dashboard bestätigt durch Nutzer, Project und Shared; kein API-Nachweis"
+  }
+}

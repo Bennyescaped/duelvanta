@@ -1,0 +1,228 @@
+{
+  "date": "2026-09-22",
+  "repository": "Bennyescaped/duelvanta",
+  "branch": "marketplace-ux-v1",
+  "published_head": "822f4b9b32b2d00806ab2c152cbd3d71c5fc688c",
+  "parent": "2f352a8781a4358713a1ce7e4d7a235918eba004",
+  "published_tree": "a4f1d4a48d3e51d99811d07e429d25028187f475",
+  "codex_local_commit": "efd6d1b9d06b3ca4f1e5c1d8d6d7dca412b5433a",
+  "same_19_git_blobs_as_user_codex_result": true,
+  "method": "GitHub connector: content-addressed blobs/tree, new commit, non-forced fast-forward of existing development branch",
+  "main_verified_unchanged": "50f88213571be13255bb52eb489cc28cca660001",
+  "pull_request": {
+    "number": 5,
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "head": "822f4b9b32b2d00806ab2c152cbd3d71c5fc688c"
+  },
+  "ci": {
+    "scanner": {
+      "run_id": 35715793199,
+      "run_number": 644,
+      "conclusion": "success",
+      "head_sha": "822f4b9b32b2d00806ab2c152cbd3d71c5fc688c",
+      "validate_job_id": 106706852488,
+      "jobs": {
+        "validate": "success",
+        "quota_database": "success",
+        "collect_f3_database": "success"
+      },
+      "observed_assertion_counts": {
+        "readiness": 40,
+        "profile": 11,
+        "order_read_boundary": 92
+      },
+      "new_chromium_scenarios": {
+        "readiness": 13,
+        "order_read_boundary": 9
+      },
+      "trade_dom": "pass",
+      "trade_browser_mobile": "pass",
+      "trade_browser_desktop": "pass",
+      "existing_pglite_database_regressions": "pass",
+      "skipped_by_existing_pr_event_conditions": [
+        "Real complex-card reference recognition and recovery",
+        "Read-only live catalog availability"
+      ]
+    },
+    "battle": {
+      "run_id": 35715793036,
+      "run_number": 120,
+      "conclusion": "success",
+      "head_sha": "822f4b9b32b2d00806ab2c152cbd3d71c5fc688c"
+    },
+    "actual_pr_test_merge_ref": "8468c3745584e78d05ea97ebf74a9936569bb1a8",
+    "test_merge_ref_file_diff_to_published_head": [],
+    "artifact": {
+      "id": 10689340017,
+      "name": "v16-mobile-recognition",
+      "sha256_reported_in_ci_log": "cca847ac09add43098f150e1a8c83e0c3f6c151a15878d150c96133e034dc897",
+      "bytes_reported_in_ci_log": 6205049,
+      "downloaded_in_this_session": false
+    }
+  },
+  "preview": {
+    "id": "dpl_8tMuYUaMHvqppaJwuv95Rw9qGsZE",
+    "state": "READY",
+    "source": "git",
+    "github_commit_ref": "marketplace-ux-v1",
+    "github_commit_sha": "822f4b9b32b2d00806ab2c152cbd3d71c5fc688c",
+    "target": null,
+    "project_id": "prj_dAtH0I1mwiHhOsA64J3iq97SoVnd",
+    "hostname": "duelvantav5vision-jjo8zo1qr-bennyescaped-3783.vercel.app",
+    "branch_alias": "duelvantav5vision-git-marketplace-ux-v1-bennyescaped-3783.vercel.app",
+    "deployment_metadata_verified": true,
+    "trade_html_fetch_status": 302,
+    "branch_alias_fetch_status": 302,
+    "redirect_type": "Vercel SSO; no authenticated application HTML returned",
+    "logged_in_application_acceptance": "NOT PERFORMED",
+    "manual_deploy_requested": false
+  },
+  "changes_excluded": [
+    "SQL",
+    "migrations",
+    "schema release marker",
+    "package files",
+    "lockfiles",
+    "transport file",
+    "COLLECT runtime",
+    "BATTLE runtime",
+    "scanner release gate"
+  ],
+  "external_mutations_not_performed": [
+    "Production",
+    "Production Supabase",
+    "Staging Supabase",
+    "Stripe enablement",
+    "Payments",
+    "Refunds",
+    "Payouts",
+    "Email send",
+    "manual deployment",
+    "PR merge"
+  ],
+  "limitations": [
+    "No legal or production approval.",
+    "Client compatibility barrier is not server authorization.",
+    "No acceptance of the unapplied legal model migration.",
+    "Logged-in preview test is still open."
+  ],
+  "checksums_provenance": "User-supplied Codex final checksums; all 19 Git blob IDs matched in the published tree. SHA256/size entries retain the supplied exact byte identity.",
+  "files": [
+    {
+      "path": "trade-legal-readiness.js",
+      "git_blob_sha": "3b3f71dd99aabf8107f9fc4d30d0728e002df198",
+      "sha256": "7093df4aaede2fa2335f7ad363e94390ed6b9d145684cd73b6e511b448eee26d",
+      "bytes": 5220
+    },
+    {
+      "path": "tests/trade-legal-readiness-test.mjs",
+      "git_blob_sha": "82628297c78a14dc1462659564c7cca9c2d8381f",
+      "sha256": "0df5716462df0af4dadd0d671b07361d7415f4e48ec3e6c4fd222fb21c4cd1ad",
+      "bytes": 4963
+    },
+    {
+      "path": "trade.html",
+      "git_blob_sha": "ae01f3e922b5e7b5c092359139280e61b92140b4",
+      "sha256": "08ff27cee80a033bcb74a79ae7506b173d06dbea10aa7b25c6484d33335411df",
+      "bytes": 5771
+    },
+    {
+      "path": "profile.html",
+      "git_blob_sha": "41fc127ec9fd51cfa90cde6be344575cf7273c80",
+      "sha256": "5b9009b275850b011cbdeb96108d5fc0a3c6a93cb6054f397ee531a05d68774d",
+      "bytes": 7404
+    },
+    {
+      "path": "tests/trade-ui-mock.js",
+      "git_blob_sha": "81baca6aa35bd75bb2081abc3353fa59bebfe1ed",
+      "sha256": "85c4e62c104e9ab0bfea7b0f36f278c0cda0fb2096721bc563488a115fd94f2d",
+      "bytes": 6915
+    },
+    {
+      "path": "tests/trade-ui-selftest.js",
+      "git_blob_sha": "7cdac0a88782fd85ab422de82c79632db6cd01f3",
+      "sha256": "aa926ae08564f18cc38784cac69b6fc393d60a715ebcb3f32d93a68d81a675f0",
+      "bytes": 14009
+    },
+    {
+      "path": "tests/trade-legal-contract-model-test.mjs",
+      "git_blob_sha": "ab6f3ab257bd2dd3b8a70b131918fec1e62a8060",
+      "sha256": "78e485c7d4615d7c7c2c8b162b07b624c048950105c939217034408cb584e0a2",
+      "bytes": 6351
+    },
+    {
+      "path": "trade-release-gate.js",
+      "git_blob_sha": "b7f23c80c959bd19495147d462f1dd9020b1f9ec",
+      "sha256": "905f26bcf57de452937dd9e51dc6560f79890d32ec3655a84422455f17ca55a1",
+      "bytes": 5754
+    },
+    {
+      "path": "profile.js",
+      "git_blob_sha": "c1eadcfd26e78b83f697146877f8d815b6e024fd",
+      "sha256": "b9b1116f748b4eca6b61ea409e34e52674c2a11f263272d15648c86e1677f1f1",
+      "bytes": 13751
+    },
+    {
+      "path": "tests/supabase-runtime-config-test.mjs",
+      "git_blob_sha": "df4d169d69c75b8ac768a3033bc5b80d508bfdd0",
+      "sha256": "52da406648ef1a16a4234f5cb06f2ae66bf02d1871df4a0553f53ddcf0b01924",
+      "bytes": 15348
+    },
+    {
+      "path": "tests/trade-release-gate-test.mjs",
+      "git_blob_sha": "09443d9fe61d726746bded9af5a36dc89ed7e855",
+      "sha256": "e257894097b94f34c2b8af5b9c38f5758050572d6407d0ca9b31b4fe77c54ea4",
+      "bytes": 5292
+    },
+    {
+      "path": "tests/trade-marketplace-ux-contract-test.mjs",
+      "git_blob_sha": "466e10b35cf29338f3f8e240e87c73e44e054bb4",
+      "sha256": "5b2ff3caaa733eb184fedef99b579fa0ab0d8e1ddfef415275448e1f564807cf",
+      "bytes": 8834
+    },
+    {
+      "path": ".github/workflows/scanner-v16-check.yml",
+      "git_blob_sha": "09b6521c09e490078fc5dddf71551bb1576d868d",
+      "sha256": "af0565021a3f55dba84bcf0fcbb27a69877355cb856adfd7abf99aac50fa93e1",
+      "bytes": 16729
+    },
+    {
+      "path": "tests/trade-legal-readiness-browser-test.mjs",
+      "git_blob_sha": "a178d2562a559c2b68b1551cad04cd141762ac9d",
+      "sha256": "3323a6b35c2276c6ab1a30ebc01075526d16816c48ec23f80a2b1d6487a02637",
+      "bytes": 11742
+    },
+    {
+      "path": "tests/trade-legal-profile-boundary-test.mjs",
+      "git_blob_sha": "aa5e3d5e4eeac7a10bf35c81a6f37ad8ba597cff",
+      "sha256": "32538689128f51798ea36f5111da2c9621661c9bfcc44bb4228f847b2b6520c9",
+      "bytes": 2863
+    },
+    {
+      "path": "trade-orders.js",
+      "git_blob_sha": "09aafa9a199195effa45ab9a2929a4fa33573645",
+      "sha256": "95f05fe7af22954f99a24a03109fbf562964fb0ec46eb879f847c3fc55d70c52",
+      "bytes": 32263
+    },
+    {
+      "path": "tests/trade-legal-order-boundary-test.mjs",
+      "git_blob_sha": "7e8a11499ce6009239d27ab0d4539d5b3fbe4dc7",
+      "sha256": "5df2a204253d6f6da5a1f00aa0068ad29fea7a97b8deda35aed825651f61f577",
+      "bytes": 4843
+    },
+    {
+      "path": "tests/trade-legal-order-browser-test.mjs",
+      "git_blob_sha": "6886711ad07b969ea094f412a74fa9b80d16e964",
+      "sha256": "6bfe9e73d8407883d6b57886101e38957d16ccf912e4a573b5dfb520d7a35481",
+      "bytes": 7432
+    },
+    {
+      "path": "tests/market-stripe-connect-contract-test.mjs",
+      "git_blob_sha": "7ccdefcfc18b4a8450fb8770a88f6517cf6049ce",
+      "sha256": "df8ca501ee3d28ac8e60ba5fb870eed99ac0ced70073341b7e5aa7e072f64d56",
+      "bytes": 10220
+    }
+  ]
+}

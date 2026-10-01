@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-09-25T04:25:48.289Z",
+  "authorization": "User explicitly requested: Lösche DUELVANTA-RECOVERY-9C-20260924 endgültig.",
+  "target": "olgwhgcrtsgsyymiglbu",
+  "name": "DUELVANTA-RECOVERY-9C-20260924",
+  "deleted": true,
+  "verification": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"projects\":[{\"id\":\"enifiaqsnqtbzylnfrpi\",\"ref\":\"enifiaqsnqtbzylnfrpi\",\"organization_id\":\"wcvgofoparyktdglujwd\",\"organization_slug\":\"wcvgofoparyktdglujwd\",\"name\":\"DUELVANTA\",\"region\":\"eu-central-1\",\"status\":\"ACTIVE_HEALTHY\",\"database\":{\"host\":\"db.enifiaqsnqtbzylnfrpi.supabase.co\",\"version\":\"17.6.1.166\",\"postgres_engine\":\"17\",\"release_channel\":\"ga\"},\"created_at\":\"2026-09-04T17:03:50.410968Z\"},{\"id\":\"xhmjxrcskfhbovhitdej\",\"ref\":\"xhmjxrcskfhbovhitdej\",\"organization_id\":\"wcvgofoparyktdglujwd\",\"organization_slug\":\"wcvgofoparyktdglujwd\",\"name\":\"DUELVANTA-STAGING\",\"region\":\"eu-central-1\",\"status\":\"ACTIVE_HEALTHY\",\"database\":{\"host\":\"db.xhmjxrcskfhbovhitdej.supabase.co\",\"version\":\"17.6.1.166\",\"postgres_engine\":\"17\",\"release_channel\":\"ga\"},\"created_at\":\"2026-09-13T09:03:18.741202Z\"}]}"
+      }
+    ],
+    "isError": false
+  },
+  "scope": "Only temporary recovery project deleted. Production and Staging retained, ACTIVE_HEALTHY. No P0-01 begun."
+}

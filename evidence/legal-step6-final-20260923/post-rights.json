@@ -1,0 +1,147 @@
+{
+  "drafts": 0,
+  "grants": [
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "buy_market_listing_v3(uuid,integer,uuid,timestamp with time zone,text)",
+      "service_role": true,
+      "authenticated": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "checkout_accepted_market_offer_v1(uuid,uuid,text)",
+      "service_role": true,
+      "authenticated": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "confirm_market_withdrawal_v1(uuid)",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "create_market_offer_v2(uuid,integer,numeric,text)",
+      "service_role": true,
+      "authenticated": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "create_market_offer_v3(uuid,integer,numeric,text,timestamp with time zone,text)",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "expire_market_offer_reservations_v1()",
+      "service_role": true,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "get_market_legal_schema_readiness_v1()",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "get_my_market_withdrawable_contracts()",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "prepare_fixed_price_market_offer_v1(uuid,integer,uuid,timestamp with time zone,text,boolean)",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "prepare_market_withdrawal_v1(uuid,text,text)",
+      "service_role": false,
+      "authenticated": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "anon": false,
+      "owner": "postgres",
+      "signature": "review_market_price_offer_v1(uuid,integer,numeric)",
+      "service_role": false,
+      "authenticated": true
+    }
+  ],
+  "readiness": {
+    "revision": "trade-legal-contract-model-v1.2",
+    "compatible": true
+  },
+  "withdrawals": 0,
+  "eligible_b2c": 0,
+  "snapshot_versions": [
+    {
+      "count": 1,
+      "snapshot_version": "checkout-contract-v1",
+      "contract_classification": "b2c"
+    },
+    {
+      "count": 7,
+      "snapshot_version": "checkout-contract-v1",
+      "contract_classification": "c2c"
+    }
+  ],
+  "reviewed_price_offers": 0,
+  "private_browser_grants": 0
+}
