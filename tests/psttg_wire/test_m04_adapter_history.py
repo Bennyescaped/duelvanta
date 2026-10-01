@@ -434,7 +434,7 @@ class Native(unittest.TestCase):
         self.assertEqual(self.cut().interpretations[ref][1].resolved_attempt,self.req.attempt_ref)
 
     def test_R24_swapped_response(self):
-        other,*_=self.request(index=1);self.rq(other);self.rq();self.send();cap,_=self.raw()
+        self.rq();self.send();other,*_=self.request(index=1);self.rq(other);cap,_=self.raw()
         claims=(t.Claim(t.ClaimKind.ORIGINAL_TICKET,other.attempt.transfer_ticket,h.identity()),
                 t.Claim(t.ClaimKind.ITEM,self.req.attempt.item_position,h.identity()))
         self.store.commit(self.store.parse(cap.capture_ref,a.port(self.req,cap,claims=claims),h.identity(),f.NOW))
