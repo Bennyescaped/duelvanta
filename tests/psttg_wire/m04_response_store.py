@@ -21,6 +21,19 @@ CONTRACT = 'V133-M04-synthetic-store/1'
 CODEC = 'm04-json-hex/1'
 
 
+def _pg_int8(value, *, minimum=-(1 << 63)):
+    """Exact, non-null PostgreSQL int8 boundary; never normalize opaque IDs."""
+    if type(value) is str:
+        digits = value[1:] if value.startswith('-') else value
+        require(0 < len(digits) <= 19 and all('0' <= c <= '9' for c in digits)
+                and (digits == '0' or not digits.startswith('0'))
+                and value != '-0', 'm04_int8_format')
+        value = int(value)
+    require(type(value) is int and minimum <= value <= (1 << 63)-1,
+            'm04_int8_range')
+    return value
+
+
 def encode_response(r):
     require(type(r) is ResponseInput, 'm04_store_response')
     d = asdict(r)
@@ -122,7 +135,17 @@ class ResponseStore:
 
     def _call(self, db, name, params, casts):
         marks = ','.join('$'+str(i+1)+'::'+t for i,t in enumerate(casts))
-        return db.query('select dv_market_private.'+name+'('+marks+') v', params)[0]['v']
+        value = db.query('select dv_market_private.'+name+'('+marks+') v', params)[0]['v']
+        # Only these SQL results contain M04 int8 orders. JSONB claims, xid8,
+        # UUIDs and observed service identifiers are deliberately untouched.
+        if name == 'm04_order_next_v1':
+            return _pg_int8(value, minimum=1)
+        if name == 'm04_state_v1':
+            return value | {kind: [row | {'event_order': _pg_int8(row['event_order'], minimum=1)}
+                                  for row in value[kind]] for kind in ('attempts', 'journal')}
+        if name == 'm04_write_v1':
+            return value | {'event_order': _pg_int8(value['event_order'], minimum=1)}
+        return value
 
     def _state(self, db):
         return self._call(db, 'm04_state_v1', [self.profile], ['uuid'])

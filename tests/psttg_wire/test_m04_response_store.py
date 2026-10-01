@@ -128,6 +128,84 @@ class Local(unittest.TestCase):
                 self.assertFalse(any(isinstance(x,ast.Pass) for x in ast.walk(node)))
 
 
+class Int8Boundary(unittest.TestCase):
+    def test_exact_signed_range(self):
+        for n in (0,1,-1,-(1 << 63),(1 << 63)-1):
+            for value in (n,str(n)):
+                with self.subTest(value=value):
+                    result=store_module._pg_int8(value)
+                    self.assertIs(type(result),int);self.assertEqual(result,n)
+
+    def test_reject_noncanonical_or_out_of_range(self):
+        invalid=(True,False,1.0,None,'',' 1','1 ','+1','1.0','1e3','0x10','not-a-number',
+                 '01','-01','-0','\u0661',[],{},-(1 << 63)-1,1 << 63,str(-(1 << 63)-1),str(1 << 63))
+        for value in invalid:
+            with self.subTest(value=value),self.assertRaises(Rejected):store_module._pg_int8(value)
+
+    def test_nonnullable_positive_order_contract(self):
+        for value in (0,'0',-1,'-1',-(1 << 63),str(-(1 << 63)),None,True,1.0):
+            with self.subTest(value=value),self.assertRaises(Rejected):
+                store_module._pg_int8(value,minimum=1)
+        self.assertEqual(store_module._pg_int8('1',minimum=1),1)
+        self.assertEqual(store_module._pg_int8(str((1 << 63)-1),minimum=1),(1 << 63)-1)
+
+    def test_all_sql_order_results_and_opaque_values(self):
+        from unittest.mock import Mock
+        s=object.__new__(ResponseStore);db=Mock()
+        opaque={'attempt_ref':'001','created_transaction':'9223372036854775808',
+                'binding':{'transfer_ticket':'001','item_position':'1'}}
+        state={'attempts':[opaque|{'event_order':'10'}], 'journal':[{'event_order':'2'}],
+               'services':[{'observed_value':'0001'}]}
+        db.query.return_value=[{'v':state}]
+        result=s._call(db,'m04_state_v1',[],[])
+        self.assertEqual([result['attempts'][0]['event_order'],result['journal'][0]['event_order']],[10,2])
+        self.assertEqual(state['attempts'][0]['event_order'],'10')
+        for key,value in opaque.items():self.assertEqual(result['attempts'][0][key],value)
+        self.assertEqual(result['services'],state['services'])
+        for name in ('m04_order_next_v1','m04_write_v1'):
+            db.query.return_value=[{'v':'3' if name=='m04_order_next_v1' else {'event_order':'3','commit_ref':'001'}}]
+            result=s._call(db,name,[],[])
+            self.assertEqual(result if name=='m04_order_next_v1' else result['event_order'],3)
+        db.query.return_value=[{'v':opaque}]
+        self.assertIs(s._call(db,'psttg_w11_read_bound_v1',[],[]),opaque)
+        for name,value in (('m04_order_next_v1',None),('m04_state_v1',{'attempts':[{'event_order':None}],'journal':[]}),
+                           ('m04_write_v1',{'event_order':None})):
+            db.query.return_value=[{'v':value}]
+            with self.subTest(name=name),self.assertRaises(Rejected):s._call(db,name,[],[])
+
+    def test_p01_payload_with_native_sequence_string(self):
+        # Public adapter flow with a transport double, NOT native persistence.
+        from unittest.mock import Mock
+        from psttg_wire.test_w11 import context
+        schemas=Schemas();key=material();edition=make_edition(schemas)
+        spec=EnvelopeSpec(str(uuid4()),'2026-10-01T10:00:00Z','SYNTHETIC-M04-INT8')
+        signed=sign_test(build_envelope(edition,spec,schemas),key)
+        bridge=W11Bridge(key.pin,b's'*32,'synthetic-local-storage-reference-only',schemas)
+        token=bridge.freeze(signed,context(spec));expected=bridge.expectation(token)
+        stored={'bundle':{'input':bridge._input(token)},'observation':{},'observation_mac':'00'}
+        proof=ProofInput.make(bridge,expected,Scope('TEST',str(uuid4()),None))
+        op=store_module.FrozenOperation('ATTEMPT',stored['bundle']['input']['context']['envelope']['attempt_ref'],proof.scope,proof=proof)
+        db=Mock();payloads=[]
+        def query(sql,params):
+            if 'm04_gate_v1(' in sql:return [{'v':{'challenge':{}}}]
+            if 'm04_state_v1(' in sql:return [{'v':{'attempts':[],'journal':[],'services':[]}}]
+            if 'm04_order_next_v1(' in sql:return [{'v':'1'}]
+            if 'm04_write_v1(' in sql:
+                payloads.append(json.loads(params[1]))
+                return [{'v':{'event_order':'1','external_ack_performed':False,'real_receipt_adapter':False}}]
+            raise AssertionError(sql)
+        db.query.side_effect=query
+        s=ResponseStore(str(uuid4()),expected['proof_id'],bridge,lambda:db)
+        with patch.object(s,'_load',return_value=(signed,stored)),patch.object(bridge,'_mac',return_value='\\x00'):
+            result=s.in_transaction(db,op)
+        self.assertEqual(len(payloads),1);p=payloads[0]
+        self.assertIs(type(p['event_order']),int);self.assertEqual(p['event_order'],1)
+        self.assertEqual(p['source']['binding']['prepared_order'],1)
+        self.assertEqual(p['source']['binding']['item_position'],spec.item_position)
+        self.assertEqual(p['source']['binding']['proof']['signed_sha256'],sha(signed.xml))
+        self.assertEqual(result['decision'].status,Status.BOUND)
+
+
 @unittest.skipUnless(NATIVE,'NATIVE_NOT_RUN: accepted V134 runtime blocker')
 class Native(unittest.TestCase):
     @classmethod
@@ -507,7 +585,7 @@ class RecordedResult(unittest.TextTestResult):
 
 
 if __name__=='__main__':
-    suite=unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(Local),unittest.defaultTestLoader.loadTestsFromTestCase(Native)])
+    suite=unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(Int8Boundary),unittest.defaultTestLoader.loadTestsFromTestCase(Local),unittest.defaultTestLoader.loadTestsFromTestCase(Native)])
     result=unittest.TextTestRunner(verbosity=2,failfast=True,resultclass=RecordedResult).run(suite)
     cases={n[5:8]:next((v for k,v in result.outcomes.items() if k.endswith('.'+n)),
                       'NOT_EXECUTED' if NATIVE else 'NATIVE_NOT_RUN') for n in Native.__dict__ if n.startswith('test_P')}
