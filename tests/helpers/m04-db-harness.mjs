@@ -1,13 +1,65 @@
 // Private M04 test infrastructure. Native mode: an explicitly owned PG17 UNIX
 // socket cluster only. --syntax: PGlite DDL/catalog inspection, NEVER P01-P32.
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile, stat, mkdir, writeFile} from 'node:fs/promises';
 import {resolve, basename, isAbsolute} from 'node:path';
-import {randomUUID} from 'node:crypto';
+import {randomUUID, createHash} from 'node:crypto';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import readline from 'node:readline';
 import {installW11} from './w11-native-fixture.mjs';
+
+// P26 observation only. JSON uses .log to match the existing artifact upload.
+// No environment dump: only the four non-secret local connection selectors.
+const p26Environment=()=>Object.fromEntries(['PGHOST','PGPORT','PGUSER','PGDATABASE'].map(k=>[k,process.env[k]??null]));
+const p26Error=e=>({code:e.code??null,message:e.message});
+const p26Stat=async path=>{
+ try {const s=await stat(path);return {path,exists:true,size:s.size,uid:s.uid,gid:s.gid,mode:(s.mode&0o7777).toString(8),mtime:s.mtime.toISOString(),mtime_ms:s.mtimeMs};}
+ catch(e){return {path,exists:e.code==='ENOENT'?false:null,error:p26Error(e)};}
+};
+const p26Process=pid=>{
+ if(!Number.isSafeInteger(pid)||pid<=0)return {pid,exists:null};
+ try{process.kill(pid,0);return {pid,exists:true};}
+ catch(e){return {pid,exists:e.code==='ESRCH'?false:e.code==='EPERM'?true:null,error:p26Error(e)};}
+};
+const p26State=async(dir,socket,before,ports)=>{
+ const pidPath=resolve(dir,'postmaster.pid'),pidfile=await p26Stat(pidPath);
+ if(pidfile.exists){try{pidfile.text=await readFile(pidPath,'utf8');pidfile.process=p26Process(Number(pidfile.text.split('\n')[0]));}catch(e){pidfile.read_error=p26Error(e);}}
+ const listeners={};
+ for(const path of ['/proc/net/tcp','/proc/net/tcp6']){
+  try{const lines=(await readFile(path,'utf8')).split('\n');listeners[path]={header:lines[0],listen_rows:lines.slice(1).filter(line=>{const f=line.trim().split(/\s+/);return f[3]==='0A'&&ports.includes(parseInt(f[1]?.split(':')[1],16));})};}
+  catch(e){listeners[path]={error:p26Error(e)};}
+ }
+ return {monotonic_ns:process.hrtime.bigint().toString(),data_directory:dir,system_identifier_before_stop:before.system_identifier,
+  socket,port:before.port,old_postmaster:p26Process(before.pid),pidfile,directory:await p26Stat(dir),socket_directory:await p26Stat(socket),
+  socket_files:await Promise.all(ports.map(port=>p26Stat(resolve(socket,'.s.PGSQL.'+port)))),local_tcp_listeners:listeners};
+};
+const p26Config=async(bin,dir)=>{
+ const values={};
+ for(const key of ['listen_addresses','port','unix_socket_directories','fsync','synchronous_commit']){
+  const executable=resolve(bin,'../postgres'),args=['-D',dir,'-C',key];
+  try{const r=await promisify(execFile)(executable,args,{timeout:10000});values[key]={argv:[executable,...args],exitcode:0,stdout:r.stdout,stderr:r.stderr};}
+  catch(e){values[key]={argv:[executable,...args],exitcode:typeof e.code==='number'?e.code:null,stdout:e.stdout??'',stderr:e.stderr??'',error:p26Error(e)};}
+ }
+ return {source:'read-only postgres -C: configuration files without initial-start command-line overrides',values};
+};
+const p26Save=async observation=>{
+ const output=resolve('test-results');await mkdir(output,{recursive:true});
+ const log=await p26Stat(observation.log_path);
+ if(log.exists){try{const bytes=await readFile(observation.log_path);log.byte_length=bytes.length;log.sha256=createHash('sha256').update(bytes).digest('hex');log.base64=bytes.toString('base64');
+  log.artifact='m04-p26-postmaster.log';await writeFile(resolve(output,log.artifact),bytes);
+ }catch(e){log.read_or_copy_error=p26Error(e);}}
+ observation.postmaster_log=log;
+ await writeFile(resolve(output,'m04-p26-restart-observation.log'),JSON.stringify(observation,null,2)+'\n');
+};
+const p26Command=async(observation,bin,args)=>{
+ const record={argv:[bin,...args],cwd:process.cwd(),pg_environment:p26Environment(),monotonic_start_ns:process.hrtime.bigint().toString()};
+ observation.commands.push(record);
+ try{const r=await promisify(execFile)(bin,args,{timeout:60000});Object.assign(record,{exitcode:0,stdout:r.stdout,stderr:r.stderr});return r;}
+ catch(e){Object.assign(record,{exitcode:typeof e.code==='number'?e.code:null,signal:e.signal??null,killed:e.killed??false,stdout:e.stdout??'',stderr:e.stderr??'',error:p26Error(e)});throw e;}
+ finally{record.monotonic_end_ns=process.hrtime.bigint().toString();}
+};
+// End P26 observation helpers.
 
 const ddl=await readFile(new URL('../../database/psttg-m04-response-store-v1.sql',import.meta.url),'utf8');
 if(process.argv.includes('--syntax')) {
@@ -60,10 +112,25 @@ if(process.argv.includes('--syntax')) {
    }else if(r.op==='release'){const c=handles.get(r.connection);if(c)await release(c);handles.delete(r.connection);result=true;}
    else if(r.op==='metadata')result=await metadata();
    else if(r.op==='restart'){
-    const before=await metadata();for(const c of [...connections])await release(c);handles.clear();await admin.end();
-    await promisify(execFile)(bin,['-D',dir,'-m','fast','-w','stop'],{timeout:60000});
-    let ended=false;try{process.kill(before.pid,0);}catch(e){assert.equal(e.code,'ESRCH');ended=true;}assert.ok(ended,'old postmaster must be absent');
-    await promisify(execFile)(bin,['-D',dir,'-l',resolve(dir,'postmaster.log'),'-w','start'],{timeout:60000});
+    const before=await metadata();
+    const observation={version:'M04-P26-observation/1',before,log_path:resolve(dir,'postmaster.log'),cwd:process.cwd(),pg_environment:p26Environment(),commands:[],diagnostic_errors:[]};
+    // Observation failures are recorded, never substituted for the pg_ctl error.
+    const observe=async(label,fn)=>{try{return await fn();}catch(e){observation.diagnostic_errors.push({label,...p26Error(e)});}};
+    await observe('bind_log_before_stop',()=>p26Save(observation));
+    for(const c of [...connections])await release(c);handles.clear();await admin.end();
+    let ended=false;
+    try{
+     await p26Command(observation,bin,['-D',dir,'-m','fast','-w','stop']);
+     try{process.kill(before.pid,0);}catch(e){assert.equal(e.code,'ESRCH');ended=true;}assert.ok(ended,'old postmaster must be absent');
+     observation.configuration=await observe('read_configuration',()=>p26Config(bin,dir));
+     const configuredPort=Number(observation.configuration?.values.port?.stdout);
+     const ports=[...new Set([Number(before.port),configuredPort].filter(p=>Number.isInteger(p)&&p>0&&p<=65535))];
+     observation.before_start=await observe('state_before_start',()=>p26State(dir,socket,before,ports));
+     await observe('save_before_start',()=>p26Save(observation));
+     try{await p26Command(observation,bin,['-D',dir,'-l',resolve(dir,'postmaster.log'),'-w','start']);}
+     catch(e){observation.after_failed_start=await observe('state_after_failed_start',()=>p26State(dir,socket,before,ports));throw e;}
+    }catch(e){observation.failure=p26Error(e);throw e;}
+    finally{await observe('save_after_pg_ctl',()=>p26Save(observation));if(observation.diagnostic_errors.length)process.stderr.write(JSON.stringify({p26_diagnostic_errors:observation.diagnostic_errors})+'\n');}
     await openAdmin();primary=await connect();const after=await metadata();
     assert.equal(after.system_identifier,before.system_identifier);assert.equal(after.data_directory,before.data_directory);
     assert.equal(after.socket,before.socket);assert.equal(after.port,before.port);assert.notEqual(after.pid,before.pid);assert.notEqual(after.start_time,before.start_time);
