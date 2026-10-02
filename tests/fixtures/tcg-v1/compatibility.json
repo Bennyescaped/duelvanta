@@ -1,0 +1,11 @@
+{
+  "source_commit": "5d8a5e2d4c5a97e4fc86330d50cd6f48ccc9e186",
+  "synthetic": true,
+  "pokemon": ["062 / 063", "Karte 062/063 DE", "215/203", "223/197", "198/165", "074/084", "001/010", "0/100", "215/0", "1234/203", "TG01/TG30", "SWSH001", "062/063 074/084", "O62／O63"],
+  "one_piece": ["OP05-119", "OPOS-119", "0P05-119", "OP5 119", "ST1-012", "EB1-006", "PRB1-001", "P-001", "5T1-012", "E81-006", "PR81-001", "OP05-119 ST01-012", "DON!!", "LEADER", "UNKNOWN"],
+  "languages": ["DE", "EN", "JP", "ja", "jpn", "KR", "ko", "kor", "German", "Deutsch", "English", "Japanese", "Korean", "zh-cn", "CN", "FR", "IT", "ES", "OTHER", "", null, "unknown"],
+  "pokemon_variants": ["Special Illustration Rare", "Illustration Rare", "Shiny Ultra Rare", "Shiny Rare", "Hyper Rare", "Secret Rare", "Rainbow", "Reverse Holo", "Holo", "Promo", "Uncommon", "", "unknown"],
+  "one_piece_variants": ["Manga", "Treasure Rare", "Signed", "Tournament Winner", "Parallel Alt Art", "Special Rare", "Promo", "Reprint", "Wanted Poster", "", "unknown"],
+  "tcgdex_card": {"id":"synthetic-074","name":"Synthetic Card","localId":"074","rarity":"Uncommon","image":"https://example.invalid/pk","set":{"id":"synthetic","name":"Synthetic Set","cardCount":{"official":84,"total":84}}},
+  "optcg_names": ["Synthetic", "Synthetic (Parallel)", "Synthetic Alternate Art", "Synthetic Manga", "Synthetic Winner", "Synthetic Finalist", "Synthetic Participant", "Synthetic Wanted Poster", "Synthetic (SP)", "Synthetic Reprint", "Synthetic Promo"]
+}

@@ -7,6 +7,8 @@ on:
       - 'database/psttg-*'
       - 'tests/psttg-*'
       - 'scanner-v16-*.js'
+      - 'tcg-v1-*.js'
+      - 'tests/tcg-v1-*.mjs'
       - 'collect.html'
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
@@ -547,6 +549,8 @@ jobs:
           node --check control-center-permissions.js
           node --check control-center-safety.js
           node --check control-center-auth-preflight.js
+      - name: TCG V1 foundation (local synthetic contracts, no provider calls)
+        run: node --test tests/tcg-v1-foundation-test.mjs
       - name: Scanner V16 contract
         run: |
           node tests/scanner-v16-contract-test.mjs
