@@ -9,6 +9,10 @@ on:
       - 'scanner-v16-*.js'
       - 'tcg-v1-*.js'
       - 'tests/tcg-v1-*.mjs'
+      - 'tests/tcg-i2-*.mjs'
+      - 'tests/generate-tcg-i2-readiness.mjs'
+      - 'tests/helpers/tcg-i2-*'
+      - 'database/tcg-i2-*'
       - 'collect.html'
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
@@ -320,6 +324,12 @@ jobs:
         run: |
           set -o pipefail
           node tests/battle-d3-temporal-evidence-test.mjs | tee test-results/battle-d3-temporal-native.log
+      - name: I2 authored readiness and isolated native PostgreSQL17 matrix
+        run: |
+          set -o pipefail
+          node tests/generate-tcg-i2-readiness.mjs --check | tee test-results/tcg-i2-readiness.log
+          node tests/tcg-i2-schema-inventory.mjs | tee test-results/tcg-i2-inventory.log
+          node tests/tcg-i2-database-test.mjs --native | tee test-results/tcg-i2-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -327,6 +337,7 @@ jobs:
           name: account-data-export-t2-evidence
           path: |
             test-results/account-data-export-*
+            test-results/tcg-i2-*
             test-results/account-processing-markers-*
             test-results/account-closure-privacy-*
             test-results/scanner-processing-hold-*
@@ -508,6 +519,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    env:
+      NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -551,6 +564,8 @@ jobs:
           node --check control-center-auth-preflight.js
       - name: TCG V1 foundation (local synthetic contracts, no provider calls)
         run: node --test tests/tcg-v1-foundation-test.mjs
+      - name: I2 frozen-base consumer and writer parity (synthetic only)
+        run: node --test tests/tcg-i2-consumers-test.mjs
       - name: Scanner V16 contract
         run: |
           node tests/scanner-v16-contract-test.mjs
@@ -682,6 +697,7 @@ jobs:
       - name: COLLECT empty states and price completeness
         run: |
           node tests/collect-ux-test.mjs
+          node tests/tcg-i2-collect-dom-test.mjs
           node tests/collect-ux-browser-test.mjs
           node tests/collect-mobile-ui-test.mjs
           node tests/collect-binder-delete-database-test.mjs

@@ -58,7 +58,7 @@
   function onePieceIds(text){if(window.DV_SCAN_V16_TCG?.onePieceIds)return window.DV_SCAN_V16_TCG.onePieceIds(text);const s=String(text||'').normalize('NFKC').toUpperCase().replace(/[—–−]/g,'-'),out=[];for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*(\d{1,2})\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`${m[1]}${m[2].padStart(2,'0')}-${m[3].padStart(3,'0')}`});for(const m of s.matchAll(/\bP\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`P-${m[1].padStart(3,'0')}`});return out}
   async function ocr(c,psm='6'){try{if(window.DV_SCAN_V16_OCR)return await window.DV_SCAN_V16_OCR.read(c,psm);const r=await Tesseract.recognize(c,'eng',{tessedit_pageseg_mode:psm,preserve_interword_spaces:'1'});return String(r?.data?.text||'')}catch{return''}}
   function votePasses(texts,tcg){
-    const parse=tcg==='pokemon'?pokemonIds:onePieceIds,key=id=>window.DV_SCAN_V16_TCG.idCode(id,tcg),votes=new Map();
+    const parse=text=>window.DV_TCG_V1_CONSUMERS.parse(text,tcg).candidates,key=id=>window.DV_SCAN_V16_TCG.idCode(id,tcg),votes=new Map();
     // One vote per independent crop. Never count joined text as a new pass.
     texts.forEach((text,pass)=>{for(const [code,id] of new Map(parse(text).map(id=>[key(id),id]))){const v=votes.get(code)||{...id,passes:[]};v.passes.push(pass);votes.set(code,v)}});
     return [...votes.values()].sort((a,b)=>b.passes.length-a.passes.length);
@@ -71,7 +71,7 @@
   }
   async function identify(card,tcg,onEvidence=()=>{}){
     if(!window.Tesseract)return null;
-    const crops=tcg==='pokemon'?[[prepRect(card,0,.84,.67,1,1.1),'6'],[prepRect(card,0,.88,1,1,1),'11'],[prepRect(card,0,.58,1,1,1.3),'6']]:[[prepRect(card,0,.48,1,1,1.3),'6'],[prepRect(card,0,.74,1,1,1.1),'6'],[prepRect(card,0,.88,1,1,1),'11']];
+    const crops=window.DV_TCG_V1_CONSUMERS.adapter(tcg).recognitionProfile.ocr_regions.map(([x0,y0,x1,y1,contrast,psm])=>[prepRect(card,x0,y0,x1,y1,contrast),String(psm)]);
     const texts=await Promise.all(crops.map(([crop,psm])=>ocr(crop,psm))),initial=votePasses(texts,tcg);
     if(initial.length!==1||initial[0].passes.length<2)for(let pass=0;pass<2;pass++)texts.push(await ocr(footerCrop(card,tcg,pass),'7'));
     const votes=votePasses(texts,tcg),evidence={votes,observedLanguage:observedLanguage(texts),independentPasses:texts.length};onEvidence(evidence);return votes.length?{...votes[0],evidence}:null;
@@ -99,15 +99,16 @@
       return loadImageDirect(transport);
     }
   }
-  async function visualScore(card,url,tcg='pokemon',onReference=null){
+  async function visualScore(card,url,tcg,onReference=null){
     try{
-      if(!url)return null;const ref=canvasFrom(await loadImage(url),null,card.width),regions=tcg==='one_piece'?[[.05,.08,.95,.74,.48],[.08,.16,.92,.66,.32],[.04,.04,.96,.96,.20]]:[[.07,.10,.93,.70,.46],[.10,.16,.90,.62,.34],[.04,.04,.96,.96,.20]];let total=0,weight=0;
+      if(!url)return null;const ref=canvasFrom(await loadImage(url),null,card.width),regions=window.DV_TCG_V1_CONSUMERS.adapter(tcg).recognitionProfile.visual_regions;let total=0,weight=0;
       for(const [x0,y0,x1,y1,w] of regions){const hs=hashSim(hashRegion(card,x0,y0,x1,y1),hashRegion(ref,x0,y0,x1,y1)),cs=colorSim(colorGrid(card,x0,y0,x1,y1),colorGrid(ref,x0,y0,x1,y1));if(hs!=null||cs!=null){const s=(hs??cs)*.68+(cs??hs)*.32;total+=s*w;weight+=w}}
       if(onReference)onReference(ref);return weight?Math.round(total/weight*10000)/100:null;
     }catch{return null}
   }
   function sizeRect(source){const {w,h}=size(source);return{w,h}}
   async function recognizeRegion(card,tcg,{identifierOverride,cardObservedLanguage,providerObservation,providerReplay=false,onProgress=()=>{}}={}){
+    window.DV_TCG_V1_CONSUMERS.requireGame(tcg,'scanner');
     const provider=providerObservation?window.DV_SCAN_V16_PROVIDER.read(providerObservation,tcg):null;
     const q=quality(card);let identifierEvidence=null,id=provider?provider.id:identifierOverride||await identify(card,tcg,evidence=>{identifierEvidence=evidence});
     const observedLanguage=provider?.language||identifierEvidence?.observedLanguage||cardObservedLanguage||null;
@@ -148,7 +149,7 @@
     try{const sample=canvasFrom(source,null,280),s=size(source),scale=sample.width/s.w,e=fitCenteredRect(sample),frame=window.DV_SCAN_V16_LIVE.inspect(sample.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sample.width,sample.height),e);return frame.presence&&frame.aligned?window.DV_SCAN_V16_LIVE.captureRect(frame.rect,scale,s.w,s.h):null}catch{return null}
   }
   async function analyze(source,{mode='single',tcg='pokemon',layout='2x2',onProgress,identifierOverride,cardObservedLanguage,providerObservation,providerObservations,providerReplay=false,sourcePrepared=false,regionsOverride}={}){
-    if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');if(!['pokemon','one_piece'].includes(tcg))throw new Error('TCG wird in V16 noch nicht unterstützt.');
+    if(!MODES.has(mode))throw new Error('Unbekannter Scanmodus.');window.DV_TCG_V1_CONSUMERS.requireGame(tcg,'scanner');
     if(providerObservation&&!['single','continuous'].includes(mode))throw new Error('Eine einzelne KI-Antwort gilt für genau eine Karte.');
     if(regionsOverride&&(!Array.isArray(regionsOverride)||!regionsOverride.length||regionsOverride.some(r=>![r.x,r.y,r.w,r.h].every(Number.isFinite))))throw new Error('Ungültige Kartenbereiche.');
     const regions=regionsOverride||(sourcePrepared&&['single','continuous'].includes(mode)?[{x:0,y:0,...sizeRect(source),index:0,slot:1,row:1,col:1}]:regionsFor(source,mode,layout)),results=[];

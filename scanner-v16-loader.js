@@ -1,3 +1,5 @@
+
+    'tcg-v1-contracts.js','tcg-v1-game-adapters.js','tcg-v1-catalog-providers.js','tcg-v1-registry.js','tcg-v1-consumers.js',
 (()=>{
   'use strict';
   if(window.DV_SCAN_V16_REDIRECT||window.__DV_V16_LOADING)return;window.__DV_V16_LOADING=true;
