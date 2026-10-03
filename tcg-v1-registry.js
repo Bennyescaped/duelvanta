@@ -17,6 +17,6 @@
   function reserved(game,name){return{game_key:game,display_name:name,status:'planned',adapter_id:null,adapter_version:null,capabilities:caps(false),supported_languages:{manual:[],catalog:[],scanner:[],pricing:[]},variant_capabilities:variants({}),presentation:{label:name,icon_path:null,badge:'neutral'},providers:[]}}
   return C.createRegistry([
     legacy('pokemon',P.tcgdex,['DE','EN','JP','KR']),legacy('one_piece',P.optcg,['EN']),
-    reserved('magic','Magic: The Gathering'),reserved('yugioh','Yu-Gi-Oh!'),reserved('naruto','Naruto')
+    {...reserved('magic','Magic: The Gathering'),adapter_id:G.magic.adapter_id,adapter_version:G.magic.adapter_version},reserved('yugioh','Yu-Gi-Oh!'),reserved('naruto','Naruto')
   ],{adapters:Object.values(G),providers:Object.values(P)});
 });

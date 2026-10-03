@@ -133,8 +133,102 @@
       return C.immutable({status,state:status==='valid'?'unknown':status,resolution:'not_attempted',original,game_key:game,collector,language:lang,rarity:rarity(game,input.rarity),variant:variant(game,{variant:input.variant||'',rarity:input.rarity||'',name:input.name||'',set:input.set||''}),query:status==='valid'?{game_key:game,collector_number:collector.comparison_code,language:lang.language}:null,review_required:true});
     }
     return C.gameAdapter({game_key:game,adapter_id:game+'_legacy_v1',adapter_version:'1',parseCollectorEvidence,
-      normalizeSetRef:value=>C.ref(value,{game_key:game,entity_kind:'set'}),normalizeCardRef:value=>C.ref(value,{game_key:game,entity_kind:'card'}),normalizeLanguage:language,normalizeRarity:raw=>rarity(game,raw),normalizeVariant:input=>variant(game,input),normalizeObservation,
+      normalizeSetRef:value=>C.ref(value,{game_key:game,entity_kind:'set'}),normalizeCardRef:value=>C.ref(value,{game_key:game,entity_kind:'card'}),normalizeLanguage:language,normalizeRarity:raw=>rarity(game,raw),normalizeVariant:(input,structuredEvidence=undefined)=>{if(structuredEvidence!==undefined)C.fail('structured_variant_evidence_unsupported');return variant(game,input)},normalizeObservation,
       recognitionProfile:profile,metadataSchema:schema,searchDescriptors:[{key:'name',kind:'text',values:[]},{key:'collector_number',kind:'text',values:[]},{key:'set',kind:'text',values:[]}],presentation:{label:game==='pokemon'?'Pokémon':'One Piece Card Game',icon_path:null,badge:game},battleProfile:{modes:['webcam_casual','webcam_ranked']}});
   }
-  return C.freeze({pokemon:make('pokemon',pokemonIds,normalizePokemonCode),one_piece:make('one_piece',onePieceIds,normalizeOnePieceCode)});
+  const magicLanguageAliases={EN:['EN','en'],DE:['DE','de'],FR:['FR','fr'],IT:['IT','it'],ES:['ES','es','sp'],JP:['JP','ja','jp'],KR:['KR','ko','kr'],CN:['CN','zh-cn','zhs','cs']};
+  const magicProviderLanguages=['en','de','fr','it','es','ja','ko','zhs'];
+  function magicLanguage(raw){
+    if(raw!==null)C.text(raw,{empty:true});
+    const code=Object.keys(magicLanguageAliases).find(k=>magicLanguageAliases[k].includes(raw))||null;
+    return C.immutable({status:code?'valid':'unknown',original:raw,language:code,locale:code?C.locales[code]:null,legacy:code||raw});
+  }
+  function magicRarity(raw){
+    if(raw!==null)C.text(raw,{empty:true});const code=['common','uncommon','rare','mythic','special','bonus'].includes(raw)?'magic:'+raw:null;
+    return C.rarityResult({status:code?'valid':'unknown',original:raw,code},'magic');
+  }
+  function magicCollector(input){
+    C.collectorInput(input);
+    // Each delimited literal is only syntactic evidence. No number conversion,
+    // suffix removal, Unicode normalization or OCR substitution is performed.
+    const parts=input.text.trim()?input.text.trim().split(/\s+/u):[];
+    const codes=[...new Set(parts.filter(code=>code.length<=128))];
+    const status=parts.some(code=>code.length>128)?'unknown':codes.length===1?'valid':codes.length>1?'ambiguous':'unknown';
+    return C.immutable({status,original:input.text,source:input.source,candidates:codes.map(code=>({code})),comparison_code:status==='valid'?codes[0]:null});
+  }
+  function magicRef(value,kind){
+    const r=C.ref(value,{game_key:'magic',provider_key:'scryfall',entity_kind:kind});
+    C.choice(r.namespace,[kind==='set'?'api/sets':'api/cards']);
+    if(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(r.external_id)||r.discriminator!==null)C.fail('magic printing ref');
+    if(kind==='set'){if(r.locale!==null)C.fail('magic set locale')}else C.choice(r.locale,Object.keys(magicLanguageAliases).map(k=>C.locales[k]));
+    return r;
+  }
+  const magicFaceCounts={normal:1,transform:2,modal_dfc:2,split:2,adventure:2};
+  function completeMagicArt(e){const n=Object.hasOwn(magicFaceCounts,e.printing_context.layout)?magicFaceCounts[e.printing_context.layout]:0;return n>0&&e.illustration_ids.length===n&&e.illustration_ids.every(id=>id!==null)}
+  function baseMagicTreatment(e,finish){
+    if(e.frame===null||e.border_color===null||e.full_art===null)return null;
+    const modern=['2003','2015'].includes(e.frame),bordered=['black','white'].includes(e.border_color);
+    const neutral=['legendary',...(finish==='etched'?['etched']:[])];
+    const special=e.frame_effects.filter(x=>!neutral.includes(x));
+    const promos=e.promo_types.filter(x=>x!=='boosterfun');
+    if(modern&&bordered&&!e.full_art&&special.length===0&&promos.length===0)return'normal';
+    if(modern&&e.border_color==='borderless'&&special.length===0&&promos.length===0)return'borderless';
+    if(modern&&bordered&&special.length===1&&promos.length===0){if(special[0]==='extendedart')return'extended_art';if(special[0]==='showcase')return'showcase'}
+    if(modern&&bordered&&!e.full_art&&special.length===0&&promos.length===2&&promos.includes('prerelease')&&promos.includes('datestamped')&&finish==='foil')return'prerelease_stamp';
+    return null;
+  }
+  function standardMagicReference(r){return r!==null&&r!==undefined&&baseMagicTreatment(r,null)==='normal'&&r.printing_context.variation===false&&r.variation_of===null&&r.printing_context.oracle_id!==null&&completeMagicArt(r)}
+  function comparableMagicConcept(a,b){
+    const x=a.printing_context,y=b.printing_context;
+    return x.oracle_id!==null&&x.oracle_id===y.oracle_id&&x.lang===y.lang&&magicProviderLanguages.includes(x.lang)&&x.layout===y.layout&&completeMagicArt(a)&&completeMagicArt(b);
+  }
+  function retroMagicReference(e){
+    const r=e.reference_printing;if(e.reference_kind!=='earlier_modern_standard'||!standardMagicReference(r)||!comparableMagicConcept(e,r))return false;
+    const a=e.printing_context,b=r.printing_context;
+    return a.reprint===true&&a.id!==b.id&&a.released_at!==null&&b.released_at!==null&&b.released_at<a.released_at;
+  }
+  function magicArtwork(e){
+    const r=e.reference_printing;if(!standardMagicReference(r)||!comparableMagicConcept(e,r))return null;
+    if(e.reference_kind==='same_set_standard'){
+      if(e.printing_context.set_id!==r.printing_context.set_id||e.variation_of!==null&&e.variation_of!==r.printing_context.id)return null;
+      if(e.printing_context.id===r.printing_context.id){
+        if(e.printing_context.variation!==false||e.variation_of!==null||baseMagicTreatment(e,null)!=='normal')return null;
+        // A selfreference denotes the same record, not two conflicting art claims.
+        if(Object.keys(e.printing_context).some(k=>e.printing_context[k]!==r.printing_context[k]))return null;
+        for(const k of ['frame','border_color','full_art','variation_of'])if(e[k]!==r[k])return null;
+        for(const k of ['frame_effects','promo_types','illustration_ids'])if(JSON.stringify(e[k])!==JSON.stringify(r[k]))return null;
+      }
+    }else if(e.reference_kind==='earlier_modern_standard'){
+      if(!retroMagicReference(e)||e.variation_of!==null)return null;
+    }else return null;
+    return e.illustration_ids.every((id,i)=>id===r.illustration_ids[i])?'normal':'alternate_art';
+  }
+  function magicVariant(input,structuredEvidence=undefined){
+    C.variantInput(input);let finish=null,artwork=null,treatment=null;
+    if(structuredEvidence!==undefined){
+      const e=C.magicVariantEvidence(structuredEvidence);
+      finish=e.chosen_finish!==null&&e.available_finishes.includes(e.chosen_finish)?e.chosen_finish:null;
+      treatment=baseMagicTreatment(e,finish);
+      if(treatment===null&&['1993','1997'].includes(e.frame)&&['black','white'].includes(e.border_color)&&e.full_art===false&&e.frame_effects.every(x=>x==='legendary'||x==='etched'&&finish==='etched')&&e.promo_types.every(x=>x==='boosterfun')&&retroMagicReference(e))treatment='retro_frame';
+      artwork=magicArtwork(e);
+    }
+    const valid=finish!==null&&artwork!==null&&treatment!==null;
+    return C.variantResult({status:valid?'valid':'unknown',original:input,legacy_family:valid?treatment:'unknown',game_code:valid?'magic:'+treatment:null,finish,artwork,treatment,edition:null},'magic');
+  }
+  function makeMagic(){
+    const schema={version:'1',fields:['set_code','set_provider_id','printed_language_code','collector_total'].map(key=>({key,type:'text',values:[]})).concat({key:'face_side',type:'enum',values:['front','back','unknown']})};
+    function normalizeObservation(input){
+      const original=C.observation(input),metadata=C.metadata(schema,input.metadata);
+      for(const value of Object.values(metadata))if(/^[\[{]/.test(value.trim()))C.fail('magic scalar metadata');
+      if(metadata.set_provider_id&&!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(metadata.set_provider_id))C.fail('magic set observation UUID');
+      const collector=magicCollector({text:input.identifier||'',source:input.source}),lang=magicLanguage(input.language);
+      const printed=metadata.printed_language_code?magicLanguage(metadata.printed_language_code):null;
+      const status=input.selected_game!=='magic'||input.observed_game!==null&&!['unknown','magic'].includes(input.observed_game)?'game_conflict':input.observed_game===null||input.observed_game==='unknown'?'unknown':collector.status==='ambiguous'||input.uncertain?'ambiguous':collector.status!=='valid'?'identifier_invalid':lang.status!=='valid'||printed&&(printed.status!=='valid'||printed.language!==lang.language)?'unknown':'valid';
+      return C.immutable({status,state:status==='valid'?'unknown':status,resolution:'not_attempted',original,game_key:'magic',collector,language:lang,rarity:magicRarity(input.rarity),variant:magicVariant({variant:input.variant||'',rarity:input.rarity||'',name:input.name||'',set:input.set||''}),query:status==='valid'?{game_key:'magic',collector_number:collector.comparison_code,language:lang.language}:null,review_required:true});
+    }
+    return C.gameAdapter({game_key:'magic',adapter_id:'magic_paper_v1',adapter_version:'1',parseCollectorEvidence:magicCollector,normalizeSetRef:v=>magicRef(v,'set'),normalizeCardRef:v=>magicRef(v,'card'),normalizeLanguage:magicLanguage,normalizeRarity:magicRarity,normalizeVariant:magicVariant,normalizeObservation,
+      recognitionProfile:{version:'1',coverage:'inactive',state:'planned',reason:'not_calibrated'},metadataSchema:schema,
+      searchDescriptors:[{key:'name',kind:'text',values:[]},{key:'collector_number',kind:'text',values:[]},{key:'set',kind:'text',values:[]},{key:'language',kind:'select',values:Object.keys(magicLanguageAliases)},{key:'rarity',kind:'select',values:['common','uncommon','rare','mythic','special','bonus'].map(x=>'magic:'+x)},{key:'variant',kind:'select',values:[...C.variantVocabulary('magic').finish,...C.variantVocabulary('magic').treatment]}],presentation:{label:'Magic: The Gathering',icon_path:null,badge:'neutral'}});
+  }
+  return C.freeze({pokemon:make('pokemon',pokemonIds,normalizePokemonCode),one_piece:make('one_piece',onePieceIds,normalizeOnePieceCode),magic:makeMagic()});
 });

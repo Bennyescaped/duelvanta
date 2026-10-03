@@ -2,16 +2,16 @@
  * Existing release/account/processing gates and DB privileges remain authoritative. */
 (function(root,factory){
   'use strict';
-  if(typeof module==='object'&&module.exports)module.exports=factory(require('./tcg-v1-registry.js'),require('./tcg-v1-catalog-providers.js'));
-  else root.DV_TCG_V1_CONSUMERS=factory(root.DV_TCG_V1_REGISTRY,root.DV_TCG_V1_PROVIDERS);
-})(globalThis,function(registry,providers){
+  if(typeof module==='object'&&module.exports)module.exports=factory(require('./tcg-v1-registry.js'),require('./tcg-v1-catalog-providers.js'),require('./tcg-v1-contracts.js'));
+  else root.DV_TCG_V1_CONSUMERS=factory(root.DV_TCG_V1_REGISTRY,root.DV_TCG_V1_PROVIDERS,root.DV_TCG_V1_CONTRACTS);
+})(globalThis,function(registry,providers,C){
   'use strict';
-  if(!registry||!providers)throw new Error('TCG foundation required');
+  if(!registry||!providers||!C)throw new Error('TCG foundation required');
   const scopes={collection:'legacy_items',scanner:'raw_review',marketplace:'legacy_snapshots',catalog:'legacy_lookup'};
   const eligible=(entry,scope)=>entry.status==='available'&&entry.capabilities[scope]?.status==='ready'&&entry.capabilities[scope].profiles.includes(scopes[scope]);
   function games(scope,gates){return registry.entries.filter(entry=>eligible(entry,scope)&&(!gates||registry.isEnabled(entry.game_key,scope,gates)))}
   function requireGame(key,scope){const entry=registry.get(key);if(!eligible(entry,scope))throw new Error('TCG scope unavailable');return entry}
-  function adapter(key,scope='scanner'){requireGame(key,scope);return registry.adapter(key)}
+  function adapter(key,scope='scanner'){requireGame(key,scope);const a=registry.adapter(key);if(scope==='scanner')C.requireActiveRecognitionProfile(a.recognitionProfile);return a}
   const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   // The short legacy label is presentation compatibility, never a game definition.
   const label=key=>registry.get(key).presentation.label.replace(/ Card Game$/,'');

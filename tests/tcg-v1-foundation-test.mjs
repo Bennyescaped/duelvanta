@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {createRequire} from 'node:module';
+import './tcg-i3-magic-foundation-test.mjs';
 const require=createRequire(import.meta.url);
 const C=require('../tcg-v1-contracts.js'),G=require('../tcg-v1-game-adapters.js'),P=require('../tcg-v1-catalog-providers.js'),R=require('../tcg-v1-registry.js');
 const fixture=JSON.parse(fs.readFileSync(new URL('./fixtures/tcg-v1/compatibility.json',import.meta.url)));
@@ -24,7 +25,7 @@ const emptyVariant={variant:'',rarity:'',name:'',set:''};
 test('registry exactly two available games, each unique; reservations are dormant',()=>{
   assert.deepEqual(R.entries.filter(x=>x.status==='available').map(x=>x.game_key),['pokemon','one_piece']);
   assert.equal(new Set(R.entries.map(x=>x.game_key)).size,5);
-  for(const key of ['magic','yugioh','naruto']){const d=R.get(key);assert.equal(d.status,'planned');assert.equal(d.adapter_id,null);assert.deepEqual(d.providers,[]);for(const cap of C.capabilityKeys){assert.equal(d.capabilities[cap].status,'unsupported');assert.equal(R.isEnabled(key,cap,{release:true,environment:true,platform:true,account:true}),false)}assert.throws(()=>R.adapter(key));}
+  for(const key of ['magic','yugioh','naruto']){const d=R.get(key);assert.equal(d.status,'planned');assert.equal(d.adapter_id,key==='magic'?'magic_paper_v1':null);assert.deepEqual(d.providers,[]);for(const cap of C.capabilityKeys){assert.equal(d.capabilities[cap].status,'unsupported');assert.equal(R.isEnabled(key,cap,{release:true,environment:true,platform:true,account:true}),false)}if(key==='magic')assert.equal(R.adapter(key).adapter_id,'magic_paper_v1');else assert.throws(()=>R.adapter(key));}
 });
 for(const [name,mutate] of [
   ['duplicate key',d=>d.push(d[0])],['unknown status',d=>d[0].status='live'],['unknown capability',d=>d[0].capabilities.extra={status:'ready',profiles:[]}],['missing capability',d=>delete d[0].capabilities.battle],['unknown capability status',d=>d[0].capabilities.catalog.status='enabled'],['unknown profile',d=>d[0].capabilities.catalog.profiles=['everything']],['invalid language alias',d=>d[0].supported_languages.catalog[0].locale='EN'],['duplicate language',d=>d[0].supported_languages.catalog.push(d[0].supported_languages.catalog[0])],['free language scope',d=>d[0].supported_languages.all=[]],['invalid variant axis',d=>d[0].variant_capabilities.rarity={status:'ready',codes:[]}],['invalid variant code',d=>d[0].variant_capabilities.finish.codes=['rainbow_mythic']],['missing adapter',d=>d[0].adapter_id=null],['unknown provider type',d=>d[0].providers[0].type='recognition'],['wrong provider binding',d=>d[0].providers[0].game_key='one_piece'],['HTML display',d=>d[0].display_name='<img>'],['unsafe icon',d=>d[0].presentation.icon_path='../x.svg'],['URL icon',d=>d[0].presentation.icon_path='https://x/x.svg'],['unsafe label',d=>d[0].presentation.label='<script>'],['free style',d=>d[0].presentation.style='url(x)'],['missing language',d=>delete d[0].supported_languages.catalog],['planned ready',d=>d[2].capabilities.collection={status:'ready',profiles:['legacy_items']}],['planned language',d=>d[2].supported_languages.manual=[{language:'EN',locale:'en'}]],['unregistered provider',d=>d[0].providers[0].provider_key='unregistered'],['core field in descriptor',d=>d[0].user_id='x']
