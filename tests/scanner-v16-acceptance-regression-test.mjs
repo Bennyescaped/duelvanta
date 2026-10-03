@@ -88,6 +88,15 @@ console.log('PASS: 074/084 numeric set resolution, explicit TCG core bridge, fai
 // Third iPhone failure: correlated duplicate text is not independent evidence.
 assert.equal(core.votePasses(['074/081 074/081 074/081','074/084','074/084'],'pokemon')[0].code,'074/084');
 assert.equal(core.votePasses(['074/081 074/081'],'pokemon')[0].passes.length,1);
+// Real Tesseract returns trailing/newline/tab layout whitespace, unlike the
+// original single-line OCR stubs. Preserve legacy parsing and independent votes.
+for(const [game,raw,code] of [['pokemon','TRAINER\n074/084\n','074/084'],['pokemon','074\r\n/\t084\f','074/084'],['one_piece','Luffy\nOP05-119\n','OP05-119'],['one_piece','OP05\t-\n119\v','OP05-119']]){
+  const texts=[raw,raw],before=[...texts],vote=core.votePasses(texts,game)[0];
+  assert.equal(vote.code,code);assert.deepEqual(vote.passes,[0,1]);assert.deepEqual(texts,before);
+  assert.deepEqual(vote.code,(game==='pokemon'?tcg.pokemonIds:tcg.onePieceIds)(raw)[0].code,'OCR layout projection must retain legacy identifier parsing');
+}
+assert.throws(()=>core.votePasses(['074/084\u0000'],'pokemon'),/TCG contract: invalid text/,'non-layout control characters stay rejected');
+assert.throws(()=>core.votePasses(['074/084\n'],'unknown'),/TCG contract/,'OCR layout projection must not provide a game fallback');
 assert.equal(core.observedLanguage(['Einmal wahrend deines Zuges kannst du diese Karte anlegen.']),'DE');
 assert.equal(core.observedLanguage(['TRAINER Retourorden 074/084'] ),null,'title alone must not invent a language');
 assert.equal(core.observedLanguage(['During your turn draw a card from your deck.']),'EN');

@@ -7,6 +7,12 @@ on:
       - 'database/psttg-*'
       - 'tests/psttg-*'
       - 'scanner-v16-*.js'
+      - 'tcg-v1-*.js'
+      - 'tests/tcg-v1-*.mjs'
+      - 'tests/tcg-i2-*.mjs'
+      - 'tests/generate-tcg-i2-readiness.mjs'
+      - 'tests/helpers/tcg-i2-*'
+      - 'database/tcg-i2-*'
       - 'collect.html'
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
@@ -318,6 +324,12 @@ jobs:
         run: |
           set -o pipefail
           node tests/battle-d3-temporal-evidence-test.mjs | tee test-results/battle-d3-temporal-native.log
+      - name: I2 authored readiness and isolated native PostgreSQL17 matrix
+        run: |
+          set -o pipefail
+          node tests/generate-tcg-i2-readiness.mjs --check | tee test-results/tcg-i2-readiness.log
+          node tests/tcg-i2-schema-inventory.mjs | tee test-results/tcg-i2-inventory.log
+          node tests/tcg-i2-database-test.mjs --native | tee test-results/tcg-i2-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -325,6 +337,7 @@ jobs:
           name: account-data-export-t2-evidence
           path: |
             test-results/account-data-export-*
+            test-results/tcg-i2-*
             test-results/account-processing-markers-*
             test-results/account-closure-privacy-*
             test-results/scanner-processing-hold-*
@@ -508,6 +521,8 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -547,12 +562,24 @@ jobs:
           node --check control-center-permissions.js
           node --check control-center-safety.js
           node --check control-center-auth-preflight.js
+      - name: TCG V1 foundation (local synthetic contracts, no provider calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
+        run: node --test tests/tcg-v1-foundation-test.mjs
+      - name: I2 frozen-base consumer and writer parity (synthetic only)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
+        run: node --test tests/tcg-i2-consumers-test.mjs
       - name: Scanner V16 contract
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/scanner-v16-contract-test.mjs
           node tests/scanner-v16-binder-layout-test.mjs
           node tests/scanner-v16-entry-test.mjs
       - name: Gemini private pilot (no provider calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check api/scanner-v16-gemini.js
           node --check scanner-v16-ai-pilot.js
@@ -562,6 +589,8 @@ jobs:
           node --check api/scanner-v16-openai.js
           node tests/scanner-v16-openai-test.mjs
       - name: Ximilar integration and durable quota boundary (no paid calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check api/scanner-v16-recognize.js
           node --check scanner-v16-provider.js
@@ -570,24 +599,44 @@ jobs:
           node tests/scanner-v16-provider-test.mjs
           node tests/scanner-v16-recognize-server-test.mjs
       - name: Verified artwork reference cache
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-tcg-test.mjs
       - name: Evidence quality gates
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-quality-test.mjs
       - name: Explainable confidence UI
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-explain-test.mjs
       - name: Resilience and capture guidance
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-resilience-test.mjs
       - name: Guided benchmark session
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-benchmark-session-test.mjs
       - name: Web camera readiness
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-camera-test.mjs
       - name: Native iOS photo capture
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-native-camera-test.mjs
       - name: Mobile photo pipeline and state recovery
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-mobile-runtime-test.mjs
       - name: Direct mobile route and benchmark integration
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-mobile-route-test.mjs
       - name: Install Chromium browser test runtime
         id: browser_runtime
@@ -597,14 +646,22 @@ jobs:
           ln -s .github/ci/node_modules node_modules
           .github/ci/node_modules/.bin/playwright install chromium
       - name: C withdrawal Chromium Auth and MFA contract
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/account-deletion-withdrawal-chromium-test.mjs
       - name: Battle and profile database access boundaries
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/auth-boundary-database-test.mjs
       - name: Step 9A MFA browser and Edge service boundary
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/security-mfa-browser-test.mjs
           node tests/security-live-acceptance-test.mjs
       - name: Trade contracts and mobile order flow
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check trade-marketplace-ux.js
           node --check trade-checkout.js
@@ -674,24 +731,36 @@ jobs:
           node tests/trade-legal-withdrawal-browser-test.mjs
           node tests/market-notice-action-browser-test.mjs
       - name: Second mobile acceptance regressions
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: COLLECT empty states and price completeness
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/collect-ux-test.mjs
+          node tests/tcg-i2-collect-dom-test.mjs
           node tests/collect-ux-browser-test.mjs
           node tests/collect-mobile-ui-test.mjs
           node tests/collect-binder-delete-database-test.mjs
           node tests/collect-binder-delete-browser-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E
         env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
           V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
         run: node tests/scanner-v16-browser-e2e.mjs
       - name: Real complex-card reference recognition and recovery
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         if: always() && steps.browser_runtime.outcome == 'success' && github.event_name == 'push'
         run: node tests/scanner-v16-real-card-matrix.mjs
       - name: Read-only live catalog availability
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         if: github.event_name == 'push'
         run: node tests/scanner-v16-catalog-live-smoke.mjs
       - name: Browser evidence

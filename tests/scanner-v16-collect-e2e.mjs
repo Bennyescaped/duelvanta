@@ -7,6 +7,8 @@ import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const catalogFixtureUrl='https://fixture.invalid/onepiece-op05-119.svg';
+const catalogFixture=await readFile(resolve(root,'tests/fixtures/onepiece-op05-119.svg'));
 const server=createServer(async(req,res)=>{
   try{
     const path=resolve(root,'.'+new URL(req.url,'http://localhost').pathname);
@@ -51,7 +53,8 @@ await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',route=>r
 await page.route('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',route=>route.fulfill({contentType:'text/javascript',body:'window.Tesseract={recognize:async()=>{throw new Error("Unexpected OCR during OpenAI integration test")}}'}));
 await page.route('https://fonts.googleapis.com/**',route=>route.fulfill({contentType:'text/css',body:''}));
 await page.route(base+'/api/compliance-message-dispatch?runtime_config=1',route=>route.fulfill({contentType:'text/javascript',body:'window.DV_SUPABASE=Object.freeze({url:"https://xhmjxrcskfhbovhitdej.supabase.co",key:"sb_publishable_test_only",environment:"preview"});'}));
-await page.route('https://optcgapi.com/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(route.request().url().includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Integration fixture',rarity:'SEC',card_image:base+'/tests/fixtures/onepiece-op05-119.svg'}]:[])}));
+await page.route(catalogFixtureUrl,route=>route.fulfill({status:200,contentType:'image/svg+xml',headers:{'Access-Control-Allow-Origin':'*'},body:catalogFixture}));
+await page.route('https://optcgapi.com/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(route.request().url().includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Integration fixture',rarity:'SEC',card_image:catalogFixtureUrl}]:[])}));
 await page.route('https://api.tcgdex.net/**',route=>route.fulfill({contentType:'application/json',body:'[]'}));
 await page.route('https://api.frankfurter.dev/**',route=>route.fulfill({contentType:'application/json',body:'{"rate":0.85}'}));
 await page.route(base+'/api/scanner-v16-recognize',route=>{

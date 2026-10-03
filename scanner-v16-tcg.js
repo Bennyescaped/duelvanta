@@ -38,21 +38,19 @@
   }
   function normalizePokemonCode(code){const m=String(code||'').match(/(\d{1,3})\s*\/\s*(\d{2,3})/);return m?`${Number(m[1])}/${Number(m[2])}`:String(code||'').trim().toUpperCase()}
   function normalizeOnePieceCode(code){const hits=onePieceIds(String(code||''));return hits[0]?.code||String(code||'').replace(/\s/g,'').toUpperCase()}
-  function candidateCode(c,tcg){return tcg==='one_piece'?normalizeOnePieceCode(c?.number||c?.card_number||''):normalizePokemonCode(c?.number||c?.card_number||'')}
-  function idCode(id,tcg){return tcg==='one_piece'?normalizeOnePieceCode(id?.code||''):normalizePokemonCode(id?.code||`${id?.local||''}/${id?.den||''}`)}
+  function candidateCode(c,tcg){return root.DV_TCG_V1_CONSUMERS.code(c?.number||c?.card_number||'',tcg)}
+  function idCode(id,tcg){return root.DV_TCG_V1_CONSUMERS.code(id?.code||`${id?.local||''}/${id?.den||''}`,tcg)}
 
   function scoreCandidate(c,{tcg,id,qualityScore=0,visualScore=0,visualReliable=true}={}){
+    const profile=root.DV_TCG_V1_CONSUMERS.adapter(tcg).recognitionProfile.ranking;
     let score=Number(c?.confidence||c?.catalogConfidence||0),reasons=[];
-    const exact=candidateCode(c,tcg)===idCode(id,tcg);if(exact){score+=tcg==='one_piece'?16:11;reasons.push('exact_id')}
+    const exact=candidateCode(c,tcg)===idCode(id,tcg);if(exact){score+=profile.exact_bonus;reasons.push('exact_id')}
     const visual=Number(visualScore||0);
     if(visualReliable&&visual>0){
-      if(tcg==='one_piece'){
-        if(visual>=84){score+=22;reasons.push('art_strong')}else if(visual>=74){score+=15;reasons.push('art_good')}else if(visual>=64){score+=8;reasons.push('art_match')}else if(visual<48){score-=8;reasons.push('art_weak')}
-      }else{
-        if(visual>=82){score+=15;reasons.push('art_strong')}else if(visual>=70){score+=9;reasons.push('art_good')}else if(visual>=60){score+=4;reasons.push('art_match')}
-      }
+      const index=profile.visual_bands.findIndex(([threshold])=>visual>=threshold);
+      if(index>=0){const bonus=profile.visual_bands[index][1];score+=bonus;if(bonus)reasons.push(bonus<0?'art_weak':['art_strong','art_good','art_match'][index])}
     }
-    if(Number(qualityScore)>=70)score+=3;else if(Number(qualityScore)<40)score-=5;
+    if(Number(qualityScore)>=70)score+=profile.quality_bonus;else if(Number(qualityScore)<40)score+=profile.quality_penalty;
     return{score:clamp(Math.round(score),0,125),reasons,exact};
   }
   function rankCandidates(candidates,ctx={}){

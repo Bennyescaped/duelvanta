@@ -2,10 +2,7 @@
   'use strict';
   const root=globalThis;
   function parse(code,tcg){
-    const api=root.DV_SCAN_V16_TCG,text=String(code||'').trim().toUpperCase();
-    if(tcg==='pokemon'&&!/^\d{1,3}\s*\/\s*\d{2,3}$/.test(text))return null;
-    if(tcg==='one_piece'&&!/^(?:(?:OP|ST|EB|PRB)\s*\d{1,2}\s*-\s*\d{2,3}|P\s*-\s*\d{2,3})$/.test(text))return null;
-    return(tcg==='pokemon'?api.pokemonIds(text):tcg==='one_piece'?api.onePieceIds(text):[])[0]||null;
+    return root.DV_TCG_V1_CONSUMERS.parse(code,tcg,'manual').candidates[0]||null;
   }
   const folded=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   function nameConflict(row,card){
