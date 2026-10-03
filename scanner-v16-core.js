@@ -58,7 +58,9 @@
   function onePieceIds(text){if(window.DV_SCAN_V16_TCG?.onePieceIds)return window.DV_SCAN_V16_TCG.onePieceIds(text);const s=String(text||'').normalize('NFKC').toUpperCase().replace(/[—–−]/g,'-'),out=[];for(const m of s.matchAll(/\b(OP|ST|EB|PRB)\s*[- ]?\s*(\d{1,2})\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`${m[1]}${m[2].padStart(2,'0')}-${m[3].padStart(3,'0')}`});for(const m of s.matchAll(/\bP\s*[- ]\s*(\d{2,3})\b/g))out.push({code:`P-${m[1].padStart(3,'0')}`});return out}
   async function ocr(c,psm='6'){try{if(window.DV_SCAN_V16_OCR)return await window.DV_SCAN_V16_OCR.read(c,psm);const r=await Tesseract.recognize(c,'eng',{tessedit_pageseg_mode:psm,preserve_interword_spaces:'1'});return String(r?.data?.text||'')}catch{return''}}
   function votePasses(texts,tcg){
-    const parse=text=>window.DV_TCG_V1_CONSUMERS.parse(text,tcg).candidates,key=id=>window.DV_SCAN_V16_TCG.idCode(id,tcg),votes=new Map();
+    // OCR emits layout whitespace; pass a single-line projection to the strict
+    // adapter contract. Keep original texts for independent votes/language evidence.
+    const parse=text=>window.DV_TCG_V1_CONSUMERS.parse(text.replace(/[\t\n\v\f\r]/g,' '),tcg).candidates,key=id=>window.DV_SCAN_V16_TCG.idCode(id,tcg),votes=new Map();
     // One vote per independent crop. Never count joined text as a new pass.
     texts.forEach((text,pass)=>{for(const [code,id] of new Map(parse(text).map(id=>[key(id),id]))){const v=votes.get(code)||{...id,passes:[]};v.passes.push(pass);votes.set(code,v)}});
     return [...votes.values()].sort((a,b)=>b.passes.length-a.passes.length);
