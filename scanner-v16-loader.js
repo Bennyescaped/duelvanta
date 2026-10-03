@@ -1,10 +1,9 @@
-
-    'tcg-v1-contracts.js','tcg-v1-game-adapters.js','tcg-v1-catalog-providers.js','tcg-v1-registry.js','tcg-v1-consumers.js',
 (()=>{
   'use strict';
   if(window.DV_SCAN_V16_REDIRECT||window.__DV_V16_LOADING)return;window.__DV_V16_LOADING=true;
   const VERSION='16.26.0';
   const modules=[
+    'tcg-v1-contracts.js','tcg-v1-game-adapters.js','tcg-v1-catalog-providers.js','tcg-v1-registry.js','tcg-v1-consumers.js',
     'scanner-v16-tcg.js?v=16.24.0','scanner-v16-references.js?v=16.24.0','scanner-v16-catalog.js?v=16.24.0','scanner-v16-recovery.js?v=16.24.0','scanner-v16-live.js?v=16.24.0','scanner-v16-ocr.js?v=16.24.0','scanner-v16-provider.js?v=16.24.0','scanner-v16-core.js?v=16.24.0','scanner-v16-quality.js?v=16.24.0','scanner-v16-geometry.js?v=16.24.0','scanner-v16-vision.js?v=16.24.0','scanner-v16-resilience.js?v=16.24.0','scanner-v16-binder.js?v=16.24.0','scanner-v16-market.js?v=16.24.0','scanner-v16-slab.js?v=16.24.0','scanner-v16-benchmark.js?v=16.24.0','scanner-v16-runtime.js?v=16.24.0','scanner-v16-camera.js?v=16.24.0','scanner-v16-native-camera.js?v=16.24.0','scanner-v16-ui.js?v=16.26.0','scanner-v16-explain.js?v=16.24.0','scanner-v16-guidance.js?v=16.24.0','scanner-v16-overlay.js?v=16.24.0','scanner-v16-freeform-ui.js?v=16.24.0','scanner-v16-benchmark-session.js?v=16.24.0'
   ];
   const add=src=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.async=false;script.onload=resolve;script.onerror=()=>reject(new Error(`V16 Modul konnte nicht geladen werden: ${src}`));document.body.appendChild(script)});
