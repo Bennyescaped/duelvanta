@@ -45,18 +45,20 @@ export function selectReference(e,records){
  selected.sort((a,b)=>a.printing_context.id<b.printing_context.id?-1:a.printing_context.id>b.printing_context.id?1:0);
  return {reference_kind:kind,reference_printing:appearance(selected[0])};
 }
-export function prepareRecords({sets,cards,source_path='api/cards/search',retrieved_at,migrations=[]}){
+export function prepareRecords({sets,cards,source_path='api/cards/search',retrieved_at,migrations=[],set_source_paths=null,reference_records=null}){
  utc(retrieved_at);if(typeof source_path!=='string'||!source_path.length||source_path.length>500)fail('source_path');
  if(!Array.isArray(sets)||!Array.isArray(cards)||!Array.isArray(migrations))fail('records_shape');if(migrations.length)fail('provider_migration_review_required');if(!cards.length)fail('empty_snapshot');
  const setIndex=new Map(),index=new Map(),duplicates=[],excluded=[],accepted=[];
- for(const input of sets){const ev=prepareProviderEvidence(input),r=ev.raw_record;const t=P.scryfall.translate(r,{game_key:'magic',locale:null,collector:{text:'',source:'manual'},source_path:'api/sets/'+r.id,retrieved_at});if(t.status!=='candidates')fail('set_scope');
+ const setPath=id=>set_source_paths===null?'api/sets/'+id:set_source_paths[id];
+ if(set_source_paths!==null&&(typeof set_source_paths!=='object'||Array.isArray(set_source_paths)))fail('set_provenance');
+ for(const input of sets){const ev=prepareProviderEvidence(input),r=ev.raw_record;const t=P.scryfall.translate(r,{game_key:'magic',locale:null,collector:{text:'',source:'manual'},source_path:setPath(r.id),retrieved_at});if(t.status!=='candidates')fail('set_scope');
   for(const k of ['set_type','parent_set_code','released_at'])if(Object.hasOwn(r,k)&&r[k]!==null){if(typeof r[k]!=='string'||r[k].length>(k==='set_type'?32:500))fail('set_metadata');if(k==='set_type'&&!/^[a-z0-9_]+$/.test(r[k]))fail('set_metadata');if(k==='released_at'&&(!/^\d{4}-\d\d-\d\d$/.test(r[k])||new Date(r[k]).toISOString().slice(0,10)!==r[k]))fail('set_date');}
   if(setIndex.has(r.id)){if(setIndex.get(r.id).ev.record_version!==ev.record_version)fail('catalog_identity_conflict');duplicates.push({kind:'set',external_id:r.id});}else setIndex.set(r.id,{r,ev,record:t.records[0]});
  }
  for(const input of cards){const ev=prepareProviderEvidence(input),r=ev.raw_record;uuid(r.id);
   if(index.has(r.id)){if(index.get(r.id)!==ev.record_version)fail('catalog_identity_conflict');duplicates.push({kind:'card',external_id:r.id});continue;}index.set(r.id,ev.record_version);
   if(!Object.hasOwn(languageMap,r.lang)||!Object.hasOwn(faceCounts,r.layout)||r.digital===true||r.oversized===true||Array.isArray(r.games)&&!r.games.includes('paper')){excluded.push({external_id:r.id,reason:'outside_scope'});continue;}
-  const [language_code,locale]=languageMap[r.lang],context={game_key:'magic',locale,collector:{text:r.collector_number,source:'manual'},source_path:'api/cards/'+r.id,retrieved_at};
+  const [language_code,locale]=languageMap[r.lang],context={game_key:'magic',locale,collector:{text:r.collector_number,source:'manual'},source_path:source_path.startsWith('https://')?source_path:'api/cards/'+r.id,retrieved_at};
   const t=P.scryfall.translate(r,context);if(t.status!=='candidates')fail('card_validation');const record=t.records.find(x=>x.ref.entity_kind==='card');if(!record||record.source.record_version!==ev.record_version)fail('record_version_mismatch');
   if((r.card_faces??[]).length!==faceCounts[r.layout]||!r.finishes.length||record.normalized.rarity.status!=='valid')fail('card_scope');
   const s=setIndex.get(r.set_id);if(!s||r.set!==s.r.code||r.set_name!==s.r.name)fail('catalog_set_conflict');
@@ -64,14 +66,23 @@ export function prepareRecords({sets,cards,source_path='api/cards/search',retrie
  }
  if(!accepted.length)fail('empty_snapshot');
  const used=new Set(accepted.map(x=>x.r.set_id)),stage_sets=[],stage_cards=[],stage_variants=[],stage_records=[];
- for(const id of [...used].sort()){const {r,ev}=setIndex.get(id);stage_sets.push({external_id:id,name:r.name,record_version:ev.record_version});stage_records.push({entity_kind:'set',external_id:id,locale:null,...ev,source_path:'api/sets/'+id,retrieved_at});}
+ // External preparation may supply a bounded set of already selected reference
+ // records from the SAME acquisition. Validate them by the ordinary path first.
+ // They are reference evidence only; they are not added to this chunk's stages.
+ const external=[];
+ if(reference_records!==null){
+  if(!Array.isArray(reference_records))fail('reference_records');
+  for(const raw of reference_records){const st=prepareRecords({sets,cards:[raw],source_path,retrieved_at,set_source_paths,migrations});if(st.stage_cards.length!==1)fail('reference_unavailable');external.push({r:raw,e:variantProjection(raw),ev:prepareProviderEvidence(raw)});}
+ }
+ const references=reference_records===null?accepted:[...accepted,...external];
+ for(const id of [...used].sort()){const {r,ev}=setIndex.get(id);stage_sets.push({external_id:id,name:r.name,record_version:ev.record_version});stage_records.push({entity_kind:'set',external_id:id,locale:null,...ev,source_path:setPath(id),retrieved_at});}
  for(const x of accepted.sort((a,b)=>a.r.id<b.r.id?-1:1)){
   const {r,ev,record,language_code,locale,e}=x;
   stage_cards.push({external_id:r.id,set_external_id:r.set_id,provider_lang:r.lang,language_code,locale,collector_number:r.collector_number,name:record.normalized.name,rarity:record.normalized.rarity.code,record_version:ev.record_version});
   stage_records.push({entity_kind:'card',external_id:r.id,locale,...ev,source_path,retrieved_at});
-  const ref=selectReference(e,accepted.map(y=>y.e));if(!ref)continue;
+  const ref=selectReference(e,references.map(y=>y.e));if(!ref)continue;
   for(const finish of r.finishes){const v=C.magicVariantEvidence({...e,chosen_finish:finish,...ref});const result=G.magic.normalizeVariant(vi,v);if(result.status!=='valid')continue;
-   P.scryfall.translate(r,{...x.context,variant_evidence:v});const reference=accepted.find(y=>y.r.id===v.reference_printing.printing_context.id);if(!reference)fail('reference_unavailable');
+   P.scryfall.translate(r,{...x.context,variant_evidence:v});const reference=references.find(y=>y.r.id===v.reference_printing.printing_context.id);if(!reference)fail('reference_unavailable');
    stage_variants.push({card_external_id:r.id,locale,finish:result.finish,artwork:result.artwork,treatment:result.treatment,edition:null,validated_evidence:v,evidence_sha256:sha256(Buffer.from(canonicalJSON(v,16384),'utf8')),reference_external_id:reference.r.id,reference_record_version:reference.ev.record_version});
   }
  }

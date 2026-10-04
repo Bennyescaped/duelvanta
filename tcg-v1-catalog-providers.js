@@ -126,6 +126,9 @@
   }
   function magicRoute(ctx,raw){
     const stem=raw.object==='set'?'api/sets':'api/cards';
+    // SOURCE provenance is candidate-only; this pure translator never fetches.
+    if(raw.object==='card'&&/^https:\/\/data\.scryfall\.io\/all-cards\/all-cards-\d{14}\.jsonl\.gz$/.test(ctx.source_path))return'candidate';
+    if(raw.object==='set'&&/^https:\/\/api\.scryfall\.com\/sets(?:\/[a-zA-Z0-9_-]+)*$/.test(ctx.source_path))return'candidate';
     if(ctx.source_path===stem||raw.object==='card'&&ctx.source_path===stem+'/search')return'candidate';
     if(ctx.source_path===stem+'/'+raw.id||raw.object==='set'&&ctx.source_path===stem+'/'+encodeURIComponent(raw.code))return'exact';
     if(raw.object==='card'&&ctx.source_path===stem+'/'+encodeURIComponent(raw.set)+'/'+encodeURIComponent(raw.collector_number)+'/'+raw.lang)return'exact';
