@@ -1,0 +1,1682 @@
+{
+  "contract": "TCG-I3-M4-synthetic-fixtures",
+  "version": "1",
+  "synthetic": true,
+  "matrix": {
+    "contract": "TCG-I3-M3-test-specification",
+    "version": "1",
+    "executed_in_M3": 0,
+    "cases": [
+      {
+        "id": "S01",
+        "group": "SEED / IDENTITY",
+        "name": "Magic false-seed",
+        "expected": "Game magic/registry_version1 und alle drei DBflags false; Registry planned",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S02",
+        "group": "SEED / IDENTITY",
+        "name": "Scryfall seed",
+        "expected": "Genau provider scryfall/display_name Scryfall",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S03",
+        "group": "SEED / IDENTITY",
+        "name": "Binding FK order",
+        "expected": "Magic/Scryfall existieren vor Binding(magic,scryfall,1); falsche Reihenfolge reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S04",
+        "group": "SEED / IDENTITY",
+        "name": "Eight existing Languages",
+        "expected": "EN DE FR IT ES JP KR CN mit exakten Locales reuse, keine neue Doppelzeile",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S05",
+        "group": "SEED / IDENTITY",
+        "name": "Seed rerun",
+        "expected": "Identische Installation no-op; gleiche Seeds/opaque IDs",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S06",
+        "group": "SEED / IDENTITY",
+        "name": "Conflicting provider/version",
+        "expected": "Abweichende Seeddefinition oder Fremdgamebinding reject statt überschreiben",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S07",
+        "group": "SEED / IDENTITY",
+        "name": "Language conflict",
+        "expected": "Locale-/Codekonflikt reject; pt/ru/zht/OTHER nicht initial canonical",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S08",
+        "group": "SEED / IDENTITY",
+        "name": "Set identity",
+        "expected": "Neue opaque UUID über exakten set-ProviderRef; Setcode/Name nie PK",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S09",
+        "group": "SEED / IDENTITY",
+        "name": "Printing identity",
+        "expected": "Neue opaque UUID über Card-ProviderRef; Oracle/Name/Collector nie PK",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S10",
+        "group": "SEED / IDENTITY",
+        "name": "Null-neutral ref uniqueness",
+        "expected": "NULLS NOT DISTINCT schließt NULLduplikate, Sprache/Kind/Finish getrennt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S11",
+        "group": "SEED / IDENTITY",
+        "name": "Crossgame target",
+        "expected": "Set/Card/Variant/Ref-Game-FK reject; neue ID niemals externer UUID gleichsetzen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "S12",
+        "group": "SEED / IDENTITY",
+        "name": "Immutable identity projection",
+        "expected": "Gleiche Ref andere Language/Set/Collector/Target -> ganzer Publishkonflikt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E01",
+        "group": "EVIDENCE / VERSION",
+        "name": "Canonical object keys",
+        "expected": "UTF16-sortierte Objektschlüssel, JSONstringescape, SHA gegen pure M2recordversion identisch",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E02",
+        "group": "EVIDENCE / VERSION",
+        "name": "Array order",
+        "expected": "Reihenfolge inklusive null erhalten; andere Reihenfolge anderer Digest",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E03",
+        "group": "EVIDENCE / VERSION",
+        "name": "Scalar semantics",
+        "expected": "Bool/null/finite IEEE754/negativNull nach spezifiziertem JSON.stringify",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E04",
+        "group": "EVIDENCE / VERSION",
+        "name": "UTF8",
+        "expected": "Kein BOM/Schlussnewline; NFC nicht auf Record angewendet; Byteshash korrekt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E05",
+        "group": "EVIDENCE / VERSION",
+        "name": "Duplicate JSON keys",
+        "expected": "Parser reject vor JSON.parse-last-wins",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E06",
+        "group": "EVIDENCE / VERSION",
+        "name": "Unsafe keys/prototypes",
+        "expected": "__proto__/prototype/constructor verschachtelt reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E07",
+        "group": "EVIDENCE / VERSION",
+        "name": "Accessors/functions/undefined",
+        "expected": "Kein Accessoraufruf, kein Funktions-/undefined-Feld akzeptiert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E08",
+        "group": "EVIDENCE / VERSION",
+        "name": "Sparse/extra arrays",
+        "expected": "Sparse Arrays und Zusatzproperties reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E09",
+        "group": "EVIDENCE / VERSION",
+        "name": "Depth/array/record bounds",
+        "expected": "Tiefe20/Array1000/Record1MiB akzeptierte Grenze; Überschreitung reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E10",
+        "group": "EVIDENCE / VERSION",
+        "name": "JSONB unicode boundary",
+        "expected": "U+0000/unpaired surrogate für Persistenz reject; bestehende M2-Serializerfälle unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E11",
+        "group": "EVIDENCE / VERSION",
+        "name": "Unsafe integer",
+        "expected": "Große unsichere Numberinteger reject statt ID-/Raw-Rundung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E12",
+        "group": "EVIDENCE / VERSION",
+        "name": "Raw JSONB/byte mismatch",
+        "expected": "Bytehash oder geparste Rawsemantik mismatch -> Publishrollback",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E13",
+        "group": "EVIDENCE / VERSION",
+        "name": "Record version format",
+        "expected": "sha256:lower64hex exakt; erfundenes Datum oder falscher Prefix reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E14",
+        "group": "EVIDENCE / VERSION",
+        "name": "Duplicate record",
+        "expected": "Gleicher Ref+Digest Evidence reuse; keine neue Rawzeile",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E15",
+        "group": "EVIDENCE / VERSION",
+        "name": "Changed record",
+        "expected": "Neue Evidence append; bisherige Zeile/Target unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E16",
+        "group": "EVIDENCE / VERSION",
+        "name": "Supersession",
+        "expected": "Vorgänger gleicher Ref, keine fremde/zyklische/self Supersession",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E17",
+        "group": "EVIDENCE / VERSION",
+        "name": "Evidence immutability",
+        "expected": "UPDATE/DELETE/TRUNCATE nicht über Caller; owner-Geschäftspfad lehnt Mutation ab",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E18",
+        "group": "EVIDENCE / VERSION",
+        "name": "Detached evidence",
+        "expected": "Calleränderung beeinflusst validierte Raw-/Variant-/Referencekopie nicht",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E19",
+        "group": "EVIDENCE / VERSION",
+        "name": "Reference derivation",
+        "expected": "Gebundene ReferenceEvidence ID/Digest/Rawprojektion vollständig konsistent",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E20",
+        "group": "EVIDENCE / VERSION",
+        "name": "Closed derivation",
+        "expected": "Nur MagicVariantEvidence/1, keine freie Metadata-/JSON-string-Map",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E21",
+        "group": "EVIDENCE / VERSION",
+        "name": "Derivation limits",
+        "expected": "16KiB/geschlossene Arrays/Keys/Versionen exakt; Überschreitung reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E22",
+        "group": "EVIDENCE / VERSION",
+        "name": "Retrieval provenance",
+        "expected": "Identischer Digest, neuer Snapshot: alte first-retrieval bleibt; neue Membershipzeit/pfad vorhanden",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E23",
+        "group": "EVIDENCE / VERSION",
+        "name": "No owner evidence",
+        "expected": "Kein User-/Collection-/Listing-/Order-FK/Ownershipfeld; kein Erasurecatalogdelete",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "E24",
+        "group": "EVIDENCE / VERSION",
+        "name": "Forbidden evidence rights",
+        "expected": "PUBLIC/anon/authenticated/service_role keine Tabellen-/Spalten-/Sequencerechte; owner-only Helper denied; einzige authenticated-Boolean-Policyhelperausnahme separat prüfen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C01",
+        "group": "CANONICAL CATALOG",
+        "name": "Set card variant relation",
+        "expected": "Set -> Printing -> optionale Variante mit passenden Game/Language-FKs",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C02",
+        "group": "CANONICAL CATALOG",
+        "name": "Collector TEXT",
+        "expected": "001/1★/1s/313z/Sonderliterale bytegetreu, keine numerische Normalisierung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C03",
+        "group": "CANONICAL CATALOG",
+        "name": "Multilingual printing",
+        "expected": "Acht exakte Providerlang-Mappings; eigene Printingrefs, kein Oraclemerge",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C04",
+        "group": "CANONICAL CATALOG",
+        "name": "Printed names",
+        "expected": "Fremdsprachiger Root-/Facedruckname belegt; fehlt er -> keine canonical Aufnahme",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C05",
+        "group": "CANONICAL CATALOG",
+        "name": "Nonfoil",
+        "expected": "Expliziter belegter nonfoil erzeugt valid Variant bei komplettem Profil/Artworkbeleg",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C06",
+        "group": "CANONICAL CATALOG",
+        "name": "Foil",
+        "expected": "Expliziter belegter foil analog getrennte Variante",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C07",
+        "group": "CANONICAL CATALOG",
+        "name": "Etched",
+        "expected": "Expliziter belegter etched analog; frameflag allein kein Finish",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C08",
+        "group": "CANONICAL CATALOG",
+        "name": "Availability not selection",
+        "expected": "Verfügbarkeit auch Singleton setzt keine physische chosen_finish im Formular",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C09",
+        "group": "CANONICAL CATALOG",
+        "name": "Normal profile",
+        "expected": "Vollständiger M1R1normal+Artworkreferenz; kein Namingbeweis",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C10",
+        "group": "CANONICAL CATALOG",
+        "name": "Borderless profile",
+        "expected": "Exakte Borderlessflags und bestätigter Artbeleg",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C11",
+        "group": "CANONICAL CATALOG",
+        "name": "Extended profile",
+        "expected": "Exaktes extendedart ohne komplexe Kombination",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C12",
+        "group": "CANONICAL CATALOG",
+        "name": "Showcase profile",
+        "expected": "Exaktes showcase ohne unbekannte Promoflags",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C13",
+        "group": "CANONICAL CATALOG",
+        "name": "Retro profile",
+        "expected": "Nur vollständiges earlier_modern_standard/reprint/Date-/Oracle-/Language-/Layout-/Artprofil",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C14",
+        "group": "CANONICAL CATALOG",
+        "name": "Prerelease profile",
+        "expected": "Nur prerelease+datestamped und gewähltes foil",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C15",
+        "group": "CANONICAL CATALOG",
+        "name": "Ambiguous treatment",
+        "expected": "Unbekannte oder kombinierte Flagfamilie: Printing ja, Variant/Variantref nein",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C16",
+        "group": "CANONICAL CATALOG",
+        "name": "Artwork comparisons",
+        "expected": "Normal/alternate_art ausschließlich geordnete vollständige Illustrationbelege",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C17",
+        "group": "CANONICAL CATALOG",
+        "name": "Conflicting art references",
+        "expected": "Semantisch ungleiche eligible Referenzen unknown; kein first-result-wins",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C18",
+        "group": "CANONICAL CATALOG",
+        "name": "Six layouts",
+        "expected": "normal Root und split/flip/adventure/transform/modal_dfc ein physisches Printing",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C19",
+        "group": "CANONICAL CATALOG",
+        "name": "Flip variant boundary",
+        "expected": "Flipprinting zulässig; ohne M2artworkfacecount keine valid Gesamtvariante",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C20",
+        "group": "CANONICAL CATALOG",
+        "name": "Facecount/root identity",
+        "expected": "Mehrfaceschape genau2, normal keine Faceobjekte; Rootcollector nie Face-ID",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C21",
+        "group": "CANONICAL CATALOG",
+        "name": "Excluded special layouts",
+        "expected": "Meld/reversible/token/emblem/DFtoken/art_series/planar/scheme/vanguard/host/augment ausgeschlossen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C22",
+        "group": "CANONICAL CATALOG",
+        "name": "Unknown layouts",
+        "expected": "Auch weitere ungeprüfte Saga/Battle/prepare/front_card etc. kein normalfallback",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C23",
+        "group": "CANONICAL CATALOG",
+        "name": "Digital oversized",
+        "expected": "digital=true/oversized=true/paper fehlt -> nicht canonical",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C24",
+        "group": "CANONICAL CATALOG",
+        "name": "Promo supplemental sets",
+        "expected": "PaperCommander/Bonus/UB/SecretLairkarten nach Recordscope; kein Sealedprodukt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C25",
+        "group": "CANONICAL CATALOG",
+        "name": "Rarity axes",
+        "expected": "magic:Rarity von Finish/Treatment getrennt; unknown rarity reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C26",
+        "group": "CANONICAL CATALOG",
+        "name": "Serialized copy",
+        "expected": "Globale Printingflags Raw, individuelle Serial niemals Card/Ref-ID",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C27",
+        "group": "CANONICAL CATALOG",
+        "name": "Variant target conflict",
+        "expected": "Bestehende Variantref andere Achsen -> conflict, kein überschreibendes Update",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "C28",
+        "group": "CANONICAL CATALOG",
+        "name": "Unknown after prior valid",
+        "expected": "Historische Variante/Links bleiben; neue active Membership für unbestätigte Variante entfällt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I01",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "All_cards manifest",
+        "expected": "Genau all_cards UUID/updated_at/jsonl_download_uri/compressed_size; keine Arrayannahme",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I02",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Origin/path binding",
+        "expected": "Nur erlaubte HTTPSorigins/Pfade, keine Credentials/query/redirectausweitung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I03",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Snapshot bytehashes",
+        "expected": "Compressed/GzipCRC/JSONL/Setresponse/Manifest/Scopehashes vollständig",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I04",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Decompression bounds",
+        "expected": "1GiB compressed/16GiB decompressed/5Mlines/1MiBline Grenzen; Überschreitung reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I05",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Malformed JSONL",
+        "expected": "Malformed in-scope Zeile/duplicate key/truncation -> ganzer Reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I06",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Same snapshot rerun",
+        "expected": "Identisches Unique-Tupel no-op, generation und IDs unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I07",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Older snapshot",
+        "expected": "bulk_updated_at älter reject trotz späterem retrieved_at",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I08",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Equal time different bytes",
+        "expected": "Identische Providerzeit mit anderem Archiv/Setsha -> conflict",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I09",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Partial failure rollback",
+        "expected": "Fehler nach beliebigem Staging/DBschritt: alter Catalog/Refversion/Pointer unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I10",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Concurrent publication",
+        "expected": "Zwei native PG17connections; Binding/Release locks serialisieren, keine Ref-races",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I11",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Generation change",
+        "expected": "Stale Writer revalidiert oder stoppt; kein last-writer-wins",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I12",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Duplicate card IDs",
+        "expected": "Gleiches Raw explizit duplicatebericht, widersprüchliche Raw/lang reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I13",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Missing set reference",
+        "expected": "Unvollständige Setliste/FK -> reject; kein per-card Reparaturfetch",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I14",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Missing old provider ID",
+        "expected": "Keine neue Membership/Linkadmission, historische IDs/Evidence/Links bleiben",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I15",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Migration review",
+        "expected": "Expliziter merge/delete/replaced-Beleg review_required; keine Alias-/Oracleheuristik",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I16",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Provider outage",
+        "expected": "Keine leererfolgreiche Publication; alter geprüfter Snapshot/manualsave bleibt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I17",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Network-free foundation",
+        "expected": "M4module/tests jeglicher provider-/Supabase-/OpenAIrequest -> FAIL",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I18",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Pure bulk route addition",
+        "expected": "Erst SOURCE: echte boundbulkURI als candidate; keine falsche api/cards-Provenienz und kein Transport",
+        "phase": "SOURCE_INGEST",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "I19",
+        "group": "IMPORT / SNAPSHOT / CONCURRENCY",
+        "name": "Acquisition integration",
+        "expected": "Erst SOURCE: autorisierte reale Metadata/Bulk/Setacquisition, hashes/quotes/cache/retry/retention tatsächlich belegen",
+        "phase": "SOURCE_INGEST",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D01",
+        "group": "READ / RPC / SECURITY",
+        "name": "Authenticated bounded search",
+        "expected": "Keine caller_user_id, UID/session serverseitig; eigener auth Caller bekommt nur Catalog",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D02",
+        "group": "READ / RPC / SECURITY",
+        "name": "Anon denied",
+        "expected": "PUBLIC/anon/service_role Execute denied; anonymous JWT/missing profile reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D03",
+        "group": "READ / RPC / SECURITY",
+        "name": "Direct tables denied",
+        "expected": "Alle private Tables/Columns/Views und owner-only Helpers denied; Policyhelper liefert ausschließlich auth.uid-gebundene Booleanexistenz",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D04",
+        "group": "READ / RPC / SECURITY",
+        "name": "Fixed search_path",
+        "expected": "Definer owner/config/signature/ACL gebunden, shadow objects beeinflussen Read nicht",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D05",
+        "group": "READ / RPC / SECURITY",
+        "name": "Input limits",
+        "expected": "Limit1..100, Name160, Collector128, UUID/Language/Game/Cursor strict; kein clamp",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D06",
+        "group": "READ / RPC / SECURITY",
+        "name": "Sets read",
+        "expected": "Setcode/Name/Parentbeleg nullable korrekt, keine invented Setidentity",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D07",
+        "group": "READ / RPC / SECURITY",
+        "name": "Collector exact lookup",
+        "expected": "Set+TEXTnumber+explicitlang ergibt alle Kandidaten, keine numerische/Fuzzy-IDwahl",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D08",
+        "group": "READ / RPC / SECURITY",
+        "name": "Name search",
+        "expected": "NFC+ASCIIcasefold+literalWildcardescape, Query nie Identitätsnormalisierung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D09",
+        "group": "READ / RPC / SECURITY",
+        "name": "Pagination",
+        "expected": "Snapshot/Querygebundener Keysetcursor, stabile Namesort/UUIDties, keine Dupes/Lücken im selben Snapshot",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D10",
+        "group": "READ / RPC / SECURITY",
+        "name": "Stale cursor",
+        "expected": "Pointerwechsel -> catalog_cursor_stale; keine gemischte Page",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D11",
+        "group": "READ / RPC / SECURITY",
+        "name": "Exact reference lookup",
+        "expected": "genau Canonical-ID oder RefID; Game/Locale/active Membership passen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D12",
+        "group": "READ / RPC / SECURITY",
+        "name": "Variants read",
+        "expected": "höchstens3 valid Varianten, Printing ohne Variante akzeptiert, edition null",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D13",
+        "group": "READ / RPC / SECURITY",
+        "name": "No images prices",
+        "expected": "Kein image_uri/rawprice/owner/raw in Produktoutput, DTOimage/marketwerte null",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D14",
+        "group": "READ / RPC / SECURITY",
+        "name": "Face name projection",
+        "expected": "Printedname und oracle_name explizit getrennt; kein EN-default beim Fremdprinting",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D15",
+        "group": "READ / RPC / SECURITY",
+        "name": "Planned blocked",
+        "expected": "Foundation hat sogar gesiegelte synthetische Daten; PublicRead/Release trotzdem blocked",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D16",
+        "group": "READ / RPC / SECURITY",
+        "name": "Readiness failclosed",
+        "expected": "Missing RPC/table/seed/config/readiness -> reject, kein directSELECT/Pokemonfallback",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "D17",
+        "group": "READ / RPC / SECURITY",
+        "name": "Owner publisher boundary",
+        "expected": "Private Publisher unaufrufbar für4Callerklassen; falsche Tempstruktur/owner/digest reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O01",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Manual Magic no link",
+        "expected": "Im synthetischen aktiven DBzustand kontrollierter Copy-Save-RPC ohne Link zulässig; eigene Item-ID",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O02",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Explicit language save",
+        "expected": "Fehlende/null/OTHER Sprache im Copy-RPC reject; DE nur ausdrücklich gewählt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O03",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Closed copy input",
+        "expected": "Genau17 Pflichtkeys/Version1/Typen/Grenzen; fremde user_id, Bild-/Confidence-/Canonicalkeys reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O04",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Direct insert denied",
+        "expected": "Authenticated direct MagicINSERT durch restrictive Policy denied, selbst bei aktivem Release",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O05",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Direct conversion denied",
+        "expected": "P/OP/other nach Magic per UPDATE denied; bereits eigenes Magicitem weiterhin pflegbar",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O06",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Own save update",
+        "expected": "p_item_id fremd/nicht vorhanden/falschesGame reject; eigener Folder und bestehender Magiccopyupdate valid",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O07",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Legacy language default",
+        "expected": "Globaler DEdefault und bestehende P/OP-Insert-/Update-/Binderpfade unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O08",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Policyhelper boundary",
+        "expected": "Nur own-row Boolean, nullUID/anonymous/fremdeID false; anon/service/PUBLIC denied; keine privaten Daten",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O09",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Linked printing",
+        "expected": "Expliziter Cardref -> eigene Cardzuordnung, variant_id null",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O10",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Linked variant",
+        "expected": "Explizite vollständige Variantref -> gleiche Card/Game/Language; keine AutoFinishwahl",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O11",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Crossgame link",
+        "expected": "Fremdgame Ref/Parent/Variant reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O12",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Foreign owner link",
+        "expected": "Fremder User/Parent reject und kein eigener Catalogownershipdatensatz",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O13",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Parent metadata mismatch",
+        "expected": "Manipulierter Language/Collector/Name/Set/Variantreceipt reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O14",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Inactive ref write",
+        "expected": "Historischer nicht aktueller Ref kann keinen neuen Link erzeugen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O15",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Source publication link race",
+        "expected": "Link Release FOR SHARE vs Publisher FOR UPDATE; gültig seriell oder explizit stale, kein mixedref",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O16",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Delete copy",
+        "expected": "Eigener Itemdelete cascades nur Link; Catalog/Evidence/andere User bleiben",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O17",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Identity edit",
+        "expected": "Identityedit löscht optionalen staleLink; Quantity/Condition/Purchase nicht",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O18",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Processing hold",
+        "expected": "Bestehende Hold/Profilelocks blockieren Write/unlink ohne Rechteausweitung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O19",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Binder reuse",
+        "expected": "Move/Swap/Folder/Page/F3emptyDelete weiterhin Ownitem-ID; keine neuen Binderentities",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O20",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Erasure retain catalog",
+        "expected": "Prepare löscht eigene Items/Links, behält öffentliche Canonical/Evidence ohne UserFK",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O21",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Export generic sidecar",
+        "expected": "v4-export Magicownlinks und keine fremden User/Providerraw; alte Payload/Auditparität",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O22",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Foundation write blocked",
+        "expected": "Echte Foundationcheck lehnt Magicinsert/identityupdate ab, auch direkten UserSQLversuch",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "O23",
+        "group": "COLLECT / OWNERSHIP / BINDER",
+        "name": "Sidecar save failure",
+        "expected": "Erst ACTIVATION UI: Legacyitem bleibt, Fehler sichtbar statt fake resolved/rollback",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G01",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "M4 descriptor unchanged",
+        "expected": "M2Magicplanned, alle9unsupported/empty und keine exposedLang/Variants/Provider",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G02",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "No enable by seed",
+        "expected": "False Magic/Scryfallbinding/Evidenceinstallation niemals options/gamesenabled",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G03",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Exact target descriptor",
+        "expected": "Synthetisch exakt9Capabilities/4Langscopes/4Axes/neutralpresentation/scryfall1 validieren",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G04",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Scanner locked",
+        "expected": "Inactive/planned/not_calibrated und kein scannerready/ocr/prompt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G05",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Marketplace locked",
+        "expected": "marketplaceplanned, DBmarketplace_readyfalse, marketTCGconstraint unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G06",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Price sealed battle locks",
+        "expected": "unsupported, keine neuen Profile/Bindings/Transport",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G07",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Consumer receipt default",
+        "expected": "Erst ACTIVATION: available Descriptor ohne aktuelles Receipt bleibt unsichtbar/unavailable",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G08",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Receipt scope/hash/session",
+        "expected": "Erst ACTIVATION: falscheVersion/hash/game/session/expired/stale -> failclosed",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G09",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Last atomic activation",
+        "expected": "Erst ACTIVATION: Constraint+DBflags+Release+Readiness gemeinsam commit/rollback",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G10",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Actual scoped visibility",
+        "expected": "Erst ACTIVATION: erst readyReceipt 3Scopes sichtbar; keine Scanner/Tradeoption",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G11",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "No language fallback",
+        "expected": "Erst ACTIVATION: explicitMagiclanguage/collectorlongname erhalten, OTHER/DE/ENdefaults nicht übernommen",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G12",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Suspension",
+        "expected": "Synthetisch phasecollect/state suspended: new reads/newidentitywrites gesperrt, historicalIDs/delete/nonidentitycopycare erhalten",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "G13",
+        "group": "REGISTRY / ACTIVATION",
+        "name": "Terms attribution gates",
+        "expected": "Echte ACTIVATION ohne operatorSourceReview/AttributionNachweis blockiert; imageflag bleibtfalse",
+        "phase": "ACTIVATION",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R01",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Old I2 baseline",
+        "expected": "Unveränderte I2installation alte32Fälle/rootreadiness PASS; neuerVollziel fehlt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R02",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Partial Magic install",
+        "expected": "Jede partielle Tabelle/seed/helper/bridgeinstallation incompatible, neueRPCfailclosed",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R03",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Full Foundation target",
+        "expected": "Neues authored Schema/ACL/RLS/FK/seed/bodyinventar exact, activationfalse",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R04",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "ACL drift",
+        "expected": "PUBLIC/table/column/helper/sequence execute/grant drift reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R05",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "RLS drift",
+        "expected": "DisableRLS/Policyänderung reject, kein Update der Expectation aus Istzustand",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R06",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "FK drift",
+        "expected": "Entfernte/andersgerichtete/deferred FK oder Targetscope reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R07",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Seed drift",
+        "expected": "DritterGame/provider/binding/falscheslocale/unerwartetestrueFlag reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R08",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Function drift",
+        "expected": "Body/owner/result/config/volatility/signature/rights mismatch reject; ersetzter Inventoryhelper mit Fakeinventar scheitert am direkten pg_catalog-Bootstrapcheck",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R09",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Trigger drift",
+        "expected": "Immutable/admission/I2guard disable/change reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R10",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Bridge compatibility",
+        "expected": "Alte öffentliche Signaturen/revision/compatible/Rechte erhalten; neue Zielkennung getrennt; keine Rekursion",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R11",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "No historical overwrite",
+        "expected": "I2readiness/generator/test und L1Export-/Erasurebodies unverändert",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R12",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Active Suspended finite states",
+        "expected": "Nur genau authored Phase-/State-/Constraint-/Seedkombinationen bestehen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R13",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Data integrity",
+        "expected": "Gesiegelt/Bulk-/Scope-/Digest-/Count-/Membership-/Referencebelege vollständig; FakeStateallein false",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "R14",
+        "group": "READINESS / PROTECTED CONTRACTS",
+        "name": "Offline upgrade rehearsal",
+        "expected": "Empty/syntheticexisting nach L1/I2delta, geschütztealteFKs/ProductiontradeLocks erhalten",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X01",
+        "group": "EXISTING REGRESSIONS",
+        "name": "Pokemon",
+        "expected": "Vollständige Descriptor-/Adapter-/Variant-/Provider-/DTO-/Activeprofileparität",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X02",
+        "group": "EXISTING REGRESSIONS",
+        "name": "One Piece",
+        "expected": "Vollständige historische Parität ohne semantische Abschwächung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X03",
+        "group": "EXISTING REGRESSIONS",
+        "name": "M2 Foundation",
+        "expected": "Bestehender Foundationentry237 Fälle einschließlichV44/R18/G14, echte Ergebnisse separat zählen",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X04",
+        "group": "EXISTING REGRESSIONS",
+        "name": "I2 consumers",
+        "expected": "Bestehende19 unverändert ausgeführt",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X05",
+        "group": "EXISTING REGRESSIONS",
+        "name": "I2 PG17",
+        "expected": "Bestehende32 nativeFälle separateBaseline; PGlite zählt nicht alsPG17",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X06",
+        "group": "EXISTING REGRESSIONS",
+        "name": "Account Export Erasure",
+        "expected": "BestehendePrivacy/L1/T2/C/Holdregressionen plus oben neue genericMagiclinks",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X07",
+        "group": "EXISTING REGRESSIONS",
+        "name": "Collect Binder",
+        "expected": "BestehendeF3/Slot/RLS/Ownershipregression; erst ACTIVATION neueBrowsercases",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X08",
+        "group": "EXISTING REGRESSIONS",
+        "name": "Trade unchanged",
+        "expected": "UnveränderteTrade-Dateien/constraint; gewählteMagiccopy in realemPublishhandler reject",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      },
+      {
+        "id": "X09",
+        "group": "EXISTING REGRESSIONS",
+        "name": "No network dependencies",
+        "expected": "Keine Dependency-/Workflow-/transport-/Credential-/Accountmutation als Nebenwirkung",
+        "phase": "M4_SYNTHETIC_OFFLINE",
+        "status": "SPECIFIED_NOT_RUN"
+      }
+    ],
+    "counts": {
+      "S": 12,
+      "E": 24,
+      "C": 28,
+      "I": 19,
+      "D": 17,
+      "O": 23,
+      "G": 13,
+      "R": 14,
+      "X": 9
+    },
+    "phase_counts": {
+      "M4_SYNTHETIC_OFFLINE": 150,
+      "SOURCE_INGEST": 2,
+      "ACTIVATION": 7
+    },
+    "total": 159
+  },
+  "scope": {
+    "activation_contract": "magic-collect-catalog-v1",
+    "artwork": [
+      "normal",
+      "alternate_art"
+    ],
+    "card_import": "all_cards/gzip_jsonl",
+    "collector_text_max": 128,
+    "contract": "MagicCatalogScope",
+    "digital": false,
+    "edition": null,
+    "face_counts": {
+      "adventure": 2,
+      "flip": 2,
+      "modal_dfc": 2,
+      "normal": 0,
+      "split": 2,
+      "transform": 2
+    },
+    "finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "game_key": "magic",
+    "image_output": false,
+    "languages": [
+      {
+        "language": "EN",
+        "locale": "en",
+        "provider": "en"
+      },
+      {
+        "language": "DE",
+        "locale": "de",
+        "provider": "de"
+      },
+      {
+        "language": "FR",
+        "locale": "fr",
+        "provider": "fr"
+      },
+      {
+        "language": "IT",
+        "locale": "it",
+        "provider": "it"
+      },
+      {
+        "language": "ES",
+        "locale": "es",
+        "provider": "es"
+      },
+      {
+        "language": "JP",
+        "locale": "ja",
+        "provider": "ja"
+      },
+      {
+        "language": "KR",
+        "locale": "ko",
+        "provider": "ko"
+      },
+      {
+        "language": "CN",
+        "locale": "zh-cn",
+        "provider": "zhs"
+      }
+    ],
+    "layouts": [
+      "normal",
+      "split",
+      "flip",
+      "adventure",
+      "transform",
+      "modal_dfc"
+    ],
+    "oversized": false,
+    "paper_only": true,
+    "price_output": false,
+    "provider_key": "scryfall",
+    "provider_version": "1",
+    "rarities": [
+      "common",
+      "uncommon",
+      "rare",
+      "mythic",
+      "special",
+      "bonus"
+    ],
+    "raw_canonical_max_bytes": 1048576,
+    "record_canonicalization": "ProviderCanonicalJSON/1",
+    "reference_policy": "magic_reference_selection_v1",
+    "set_import": "api/sets/list",
+    "treatments": [
+      "normal",
+      "borderless",
+      "extended_art",
+      "showcase",
+      "retro_frame",
+      "prerelease_stamp"
+    ],
+    "variant_evidence": "MagicVariantEvidence/1",
+    "variant_vocabulary_version": "1",
+    "version": "1"
+  },
+  "activation_descriptor": {
+    "adapter_id": "magic_paper_v1",
+    "adapter_version": "1",
+    "capabilities": {
+      "battle": {
+        "profiles": [],
+        "status": "unsupported"
+      },
+      "binder": {
+        "profiles": [
+          "legacy_slots"
+        ],
+        "status": "ready"
+      },
+      "catalog": {
+        "profiles": [
+          "legacy_lookup"
+        ],
+        "status": "ready"
+      },
+      "collection": {
+        "profiles": [
+          "legacy_items"
+        ],
+        "status": "ready"
+      },
+      "grading": {
+        "profiles": [],
+        "status": "unsupported"
+      },
+      "marketplace": {
+        "profiles": [],
+        "status": "planned"
+      },
+      "pricing": {
+        "profiles": [],
+        "status": "unsupported"
+      },
+      "scanner": {
+        "profiles": [],
+        "status": "planned"
+      },
+      "sealed": {
+        "profiles": [],
+        "status": "unsupported"
+      }
+    },
+    "display_name": "Magic: The Gathering",
+    "game_key": "magic",
+    "presentation": {
+      "badge": "neutral",
+      "icon_path": null,
+      "label": "Magic: The Gathering"
+    },
+    "providers": [
+      {
+        "game_key": "magic",
+        "priority": 0,
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "type": "catalog"
+      }
+    ],
+    "status": "available",
+    "supported_languages": {
+      "catalog": [
+        {
+          "language": "EN",
+          "locale": "en"
+        },
+        {
+          "language": "DE",
+          "locale": "de"
+        },
+        {
+          "language": "FR",
+          "locale": "fr"
+        },
+        {
+          "language": "IT",
+          "locale": "it"
+        },
+        {
+          "language": "ES",
+          "locale": "es"
+        },
+        {
+          "language": "JP",
+          "locale": "ja"
+        },
+        {
+          "language": "KR",
+          "locale": "ko"
+        },
+        {
+          "language": "CN",
+          "locale": "zh-cn"
+        }
+      ],
+      "manual": [
+        {
+          "language": "EN",
+          "locale": "en"
+        },
+        {
+          "language": "DE",
+          "locale": "de"
+        },
+        {
+          "language": "FR",
+          "locale": "fr"
+        },
+        {
+          "language": "IT",
+          "locale": "it"
+        },
+        {
+          "language": "ES",
+          "locale": "es"
+        },
+        {
+          "language": "JP",
+          "locale": "ja"
+        },
+        {
+          "language": "KR",
+          "locale": "ko"
+        },
+        {
+          "language": "CN",
+          "locale": "zh-cn"
+        }
+      ],
+      "pricing": [],
+      "scanner": []
+    },
+    "variant_capabilities": {
+      "artwork": {
+        "codes": [
+          "normal",
+          "alternate_art"
+        ],
+        "status": "ready"
+      },
+      "edition": {
+        "codes": [],
+        "status": "unsupported"
+      },
+      "finish": {
+        "codes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "status": "ready"
+      },
+      "treatment": {
+        "codes": [
+          "normal",
+          "borderless",
+          "extended_art",
+          "showcase",
+          "retro_frame",
+          "prerelease_stamp"
+        ],
+        "status": "ready"
+      }
+    }
+  },
+  "set": {
+    "object": "set",
+    "id": "30000000-0000-4000-8000-000000000002",
+    "code": "zzm",
+    "name": "Synthetic Set",
+    "digital": false,
+    "parent_set_code": "zzp"
+  },
+  "card": {
+    "object": "card",
+    "id": "30000000-0000-4000-8000-000000000006",
+    "oracle_id": "30000000-0000-4000-8000-000000000003",
+    "set_id": "30000000-0000-4000-8000-000000000002",
+    "set": "zzm",
+    "set_name": "Synthetic Set",
+    "name": "Synthetic Printing",
+    "lang": "en",
+    "layout": "normal",
+    "collector_number": "0001s★",
+    "released_at": "2025-01-01",
+    "variation": false,
+    "reprint": false,
+    "digital": false,
+    "oversized": false,
+    "games": [
+      "paper"
+    ],
+    "rarity": "mythic",
+    "finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "frame": "2015",
+    "border_color": "black",
+    "full_art": false,
+    "frame_effects": [],
+    "promo_types": [],
+    "illustration_id": "30000000-0000-4000-8000-000000000004",
+    "image_status": "highres_scan",
+    "image_uris": {
+      "normal": "https://example.invalid/magic-front.png"
+    },
+    "prices": {
+      "usd": "999.99",
+      "eur": "888.88"
+    },
+    "unconsumed": {
+      "label": "raw only"
+    }
+  },
+  "evidence": {
+    "contract": "MagicVariantEvidence",
+    "version": "1",
+    "game_key": "magic",
+    "provider_key": "scryfall",
+    "provider_version": "1",
+    "printing_context": {
+      "id": "30000000-0000-4000-8000-000000000006",
+      "set_id": "30000000-0000-4000-8000-000000000002",
+      "oracle_id": "30000000-0000-4000-8000-000000000003",
+      "lang": "en",
+      "layout": "normal",
+      "collector_number": "0001s★",
+      "released_at": "2025-01-01",
+      "variation": false,
+      "reprint": false
+    },
+    "chosen_finish": "foil",
+    "available_finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "frame": "2015",
+    "border_color": "black",
+    "full_art": false,
+    "frame_effects": [],
+    "promo_types": [],
+    "illustration_ids": [
+      "30000000-0000-4000-8000-000000000004"
+    ],
+    "variation_of": null,
+    "reference_kind": "same_set_standard",
+    "reference_printing": {
+      "printing_context": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "set_id": "30000000-0000-4000-8000-000000000002",
+        "oracle_id": "30000000-0000-4000-8000-000000000003",
+        "lang": "en",
+        "layout": "normal",
+        "collector_number": "0001",
+        "released_at": "2020-01-01",
+        "variation": false,
+        "reprint": false
+      },
+      "frame": "2015",
+      "border_color": "black",
+      "full_art": false,
+      "frame_effects": [],
+      "promo_types": [],
+      "illustration_ids": [
+        "30000000-0000-4000-8000-000000000004"
+      ],
+      "variation_of": null
+    }
+  }
+}
