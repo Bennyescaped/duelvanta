@@ -11,7 +11,7 @@ export const languages=Object.freeze(Object.fromEntries(Object.entries(languageM
 const faceCounts={normal:0,split:2,flip:2,adventure:2,transform:2,modal_dfc:2};
 const fail=x=>{throw new TypeError('TCG persistence: '+x);},nullField=(r,k)=>Object.hasOwn(r,k)?r[k]:null;
 const uuid=v=>{if(typeof v!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v))fail('uuid');};
-const utc=v=>{if(typeof v!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(v)||!Number.isFinite(Date.parse(v)))fail('utc_time');};
+const utc=v=>{if(typeof v!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?(?:Z|\+00:00)$/.test(v)||!Number.isFinite(Date.parse(v)))fail('utc_time');};
 const freeze=v=>{if(v&&typeof v==='object'){for(const x of Object.values(v))freeze(x);Object.freeze(v);}return v;};
 export function validateManifest(input){
  const m=detachedFrozen(input,65536);if(m.object!=='bulk_data'||m.type!=='all_cards')fail('bulk_manifest');uuid(m.id);utc(m.updated_at);

@@ -25,6 +25,13 @@ add('I18','Pure exact bulk source URL is candidate, genuine provenance, no trans
 });
 add('M5_01','Exactly one all_cards metadata record',()=>{
  const manifest={...fixture.manifest,compressed_size:23};assert.deepEqual(selectManifest(Buffer.from(JSON.stringify({object:'list',has_more:false,data:[{type:'oracle_cards'},manifest]}))),manifest);
+ const select=m=>selectManifest(Buffer.from(JSON.stringify({object:'list',has_more:false,data:[m]})));
+ const timestamp='2026-10-03T09:18:18.757',utcManifest={...manifest,updated_at:timestamp+'+00:00'};
+ assert.equal(select({...manifest,updated_at:timestamp+'Z'}).updated_at,timestamp+'Z');
+ const accepted=select(utcManifest);assert.deepEqual(accepted,utcManifest);assert.equal(accepted.updated_at,timestamp+'+00:00');
+ assert.equal(sha256(Buffer.from(canonicalJSON(accepted,65536),'utf8')),sha256(Buffer.from(canonicalJSON(utcManifest,65536),'utf8')));
+ for(const zone of ['+01:00','-01:00','-00:00',''])assert.throws(()=>select({...manifest,updated_at:timestamp+zone}),/utc_time/);
+ for(const updated_at of ['2026-10-03 09:18:18.757Z','2026-10-03T09:18:18.7570Z','2026-10-03T09:18Z','not-a-dateZ'])assert.throws(()=>select({...manifest,updated_at}),/utc_time/);
  for(const data of [[],[manifest,manifest]])assert.throws(()=>selectManifest(Buffer.from(JSON.stringify({object:'list',has_more:false,data}))),/one_all_cards/);
  assert.throws(()=>selectManifest(Buffer.from(JSON.stringify({object:'list',has_more:true,data:[manifest]}))),/manifest_list/);
 });
