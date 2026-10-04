@@ -847,3 +847,86 @@ jobs:
           name: tcg-i3-m4-native-pg17-evidence
           path: test-results/tcg-i3-m4/
           if-no-files-found: error
+  tcg_i3_magic_source_ingest:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+      TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-local
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: One-time exact M5 candidate parent gate
+        id: source_gate
+        run: |
+          set -euo pipefail
+          parent="$(git rev-parse HEAD^)"
+          if [ "$parent" = '69f63d6a9f28906dd3e8de75be826466072103d3' ] && [ "$GITHUB_RUN_ATTEMPT" = '1' ]; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Real source acquisition disabled: parent or attempt is not the one-time authorized binding.'
+          fi
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        with:
+          node-version: '22'
+      - name: Install existing pinned test dependencies
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+      - name: Prove disposable PostgreSQL 17 and postgres owner before source
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          mkdir -p test-results/tcg-i3-m5-real "$TCG_M5_EVIDENCE_DIR"
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 <<'SQL' | tee test-results/tcg-i3-m5-real/pg17-service-version.log
+          DO $$ BEGIN
+            ASSERT current_user = 'postgres';
+            ASSERT current_setting('server_version_num')::integer / 10000 = 17;
+          END $$;
+          SELECT current_user, current_setting('server_version_num') AS server_version_num, version();
+          SQL
+      - name: Deterministic readiness and 57 offline source checks
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          node tests/generate-tcg-i3-magic-readiness.mjs --check
+          node tests/tcg-i3-magic-source-ingest-test.mjs 2>&1 | tee "$TCG_M5_EVIDENCE_DIR/m5-local.log"
+          node --input-type=module -e "import {readFile} from 'node:fs/promises'; import assert from 'node:assert/strict'; const x=JSON.parse(await readFile(process.env.TCG_M5_EVIDENCE_DIR+'/m5-local-ledger.json')); assert.deepEqual(x.counts,{PASS:57,FAIL:0}); assert.equal(x.forbidden_external_io_attempts,0);"
+      - name: Exactly one real Scryfall acquisition and disposable PG17 publication
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        env:
+          DUELVANTA_M5_REAL_SOURCE_ACCEPTANCE: '1'
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = '69f63d6a9f28906dd3e8de75be826466072103d3'
+          node tests/tcg-i3-magic-source-live-acceptance.mjs --real 2>&1 | tee test-results/tcg-i3-m5-real/source-job.log
+      - name: Compact source acceptance evidence only; never raw provider files
+        if: always() && github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-real-source-pg17-evidence
+          path: |
+            test-results/tcg-i3-m5-local/
+            test-results/tcg-i3-m5-real/
+          if-no-files-found: error
