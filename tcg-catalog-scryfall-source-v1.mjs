@@ -6,6 +6,7 @@ import {resolve,join,dirname,parse as parsePath} from 'node:path';
 import {Readable,Transform} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import {createGunzip} from 'node:zlib';
+import {performance} from 'node:perf_hooks';
 import {parseProviderJSON,canonicalJSON,sha256} from './tcg-catalog-evidence-v1.mjs';
 import {validateManifest} from './tcg-catalog-persistence-v1.mjs';
 export const LIMITS=Object.freeze({compressed:1073741824,decompressed:17179869184,lines:5000000,line:1048576,sets:67108864,manifest:65536});
@@ -113,10 +114,18 @@ async function streamBulk(response,dir,manifest,max){
  let record_count=0;for await(const record of jsonlRecords(jsonl,{limits:max})){void record;record_count++;}
  return {compressed_size:compressed,decompressed_size:decompressed,compressed_sha256:ch.digest('hex'),jsonl_sha256:jh.digest('hex'),record_count,gzip_file:gzip,jsonl_file:jsonl};
 }
-export function createScryfallSource({transport=(url,options)=>globalThis.fetch(url,options),clock=()=>Date.now(),sleep=ms=>new Promise(r=>setTimeout(r,ms)),userAgent='DUELVANTA/TCG-I3-Source-v1 (operator-controlled catalog acquisition)',limits={}}={}){
- const max=boundedLimits(limits);if(typeof transport!=='function'||typeof clock!=='function'||typeof sleep!=='function'||typeof userAgent!=='string'||!/^DUELVANTA\/[\x20-\x7e]{8,200}$/.test(userAgent))fail('source_configuration');
- let lastAPI=-Infinity;
- async function request(url,kind,requests){validateSourceURL(url,kind);if(kind!=='bulk'){const delay=Math.max(0,lastAPI+1000-clock());if(delay)await sleep(delay);if(clock()<lastAPI+1000)fail('clock_rate');lastAPI=clock();}
+export function createScryfallSource({transport=(url,options)=>globalThis.fetch(url,options),clock,rateClock,sleep=ms=>new Promise(r=>setTimeout(r,ms)),userAgent='DUELVANTA/TCG-I3-Source-v1 (operator-controlled catalog acquisition)',limits={}}={}){
+ const injectedClock=clock;clock=clock===undefined?()=>Date.now():clock;
+ // Explicit legacy clock injection remains deterministic unless rateClock is supplied.
+ rateClock=rateClock===undefined?(injectedClock===undefined?()=>performance.now():clock):rateClock;
+ const max=boundedLimits(limits);if(typeof transport!=='function'||typeof clock!=='function'||typeof rateClock!=='function'||typeof sleep!=='function'||typeof userAgent!=='string'||!/^DUELVANTA\/[\x20-\x7e]{8,200}$/.test(userAgent))fail('source_configuration');
+ let lastRate=null,nextAPI=null;
+ const rateTime=()=>{const now=rateClock();if(!Number.isFinite(now)||lastRate!==null&&now<lastRate)fail('clock_rate');lastRate=now;return now;};
+ async function request(url,kind,requests){validateSourceURL(url,kind);if(kind!=='bulk'){
+   let now=rateTime();
+   while(nextAPI!==null&&now<nextAPI){const before=now;await sleep(nextAPI-now);now=rateTime();if(now<=before)fail('clock_rate');}
+   nextAPI=now+1000;if(!Number.isFinite(nextAPI))fail('clock_rate');
+  }
   const started_at=utc(clock);let response;try{response=await transport(url,{method:'GET',redirect:'manual',credentials:'omit',headers:{'User-Agent':userAgent,Accept:kind==='bulk'?'application/x-gzip':'application/json'},signal:AbortSignal.timeout(120000)});}catch{throw new Retryable();}
   requests.push({url,started_at,received_at:utc(clock),status:response.status});
   if(response.status!==200||response.redirected||response.url&&response.url!==url){if(typeof response.body?.cancel==='function')await response.body.cancel();else response.body?.destroy?.();}

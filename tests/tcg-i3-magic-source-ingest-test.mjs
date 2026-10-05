@@ -95,9 +95,34 @@ add('M5_19','Max three whole-acquisition network attempts, no fourth retry',asyn
  const fx=await rejected(/acquisition_attempts_exhausted/,{schedule:[{status:429},{status:429},{status:429}]});assert.equal(fx.calls.length,3);assert.deepEqual(fx.delays,[30000,30000,30000]);
  await rejected(/acquisition_attempts_exhausted/,{schedule:[{error:true},{error:true},{error:true}]});
 });
-add('M5_20','Identifying headers, credentials omitted, API rate <=1/s',()=>acquired(async({fx})=>{
- const calls=fx.calls.filter(c=>c.url.startsWith('https://api.scryfall.com'));for(let i=1;i<calls.length;i++)assert.ok(calls[i].at-calls[i-1].at>=1000);for(const c of fx.calls){assert.match(c.options.headers['User-Agent'],/^DUELVANTA\//);assert.ok(c.options.headers.Accept);assert.equal(c.options.credentials,'omit');assert.equal(c.options.redirect,'manual');}
-}));
+add('M5_20','Identifying headers, credentials omitted, API rate <=1/s and robust rate clock',async()=>{
+ const evidence=[];
+ await acquired(async({fx})=>{
+  const calls=fx.calls.filter(c=>c.url.startsWith('https://api.scryfall.com'));for(let i=1;i<calls.length;i++)assert.ok(calls[i].at-calls[i-1].at>=1000);for(const c of fx.calls){assert.match(c.options.headers['User-Agent'],/^DUELVANTA\//);assert.ok(c.options.headers.Accept);assert.equal(c.options.credentials,'omit');assert.equal(c.options.redirect,'manual');}
+  evidence.push({scenario:'NORMAL_LEGACY_CLOCK_INJECTION',api_starts:calls.map(c=>c.at),delays:fx.delays,status:'PASS'});
+ });
+ for(const scenario of ['EARLY_WAKEUP','WALLCLOCK_BACKWARD','MONOTONIC_BACKWARD','FROZEN_RATE_CLOCK','NONFINITE_RATE_CLOCK'])await sandbox(async tempDir=>{
+  const fx=sourceFixture(),api_starts=[],delays=[];let monotonic=0;
+  const transport=async(url,options)=>{if(url.startsWith('https://api.scryfall.com'))api_starts.push({rate:monotonic,wall:fx.clock()});const response=await fx.transport(url,options);
+   if(api_starts.length===1){if(scenario==='WALLCLOCK_BACKWARD')fx.advance(-3600000);if(scenario==='MONOTONIC_BACKWARD')monotonic=-1;}
+   return response;
+  };
+  const sleep=async ms=>{assert.ok(ms>0);delays.push(ms);const progress=scenario==='FROZEN_RATE_CLOCK'?0:scenario==='EARLY_WAKEUP'&&delays.length===1?ms-7:ms;await fx.sleep(ms);monotonic+=progress;};
+  const worker=createScryfallSource({...fx,transport,sleep,rateClock:()=>scenario==='NONFINITE_RATE_CLOCK'?NaN:monotonic});
+  if(['MONOTONIC_BACKWARD','FROZEN_RATE_CLOCK','NONFINITE_RATE_CLOCK'].includes(scenario)){
+   await assert.rejects(worker.acquire({tempDir}),/^TypeError: TCG source: clock_rate$/);assert.equal(api_starts.length,scenario==='NONFINITE_RATE_CLOCK'?0:1);assert.equal(fx.calls.length,api_starts.length);
+   assert.deepEqual(delays,scenario==='FROZEN_RATE_CLOCK'?[1000]:[]);
+  }else{
+   const a=await worker.acquire({tempDir});try{
+    assert.equal(api_starts.length,3);for(let i=1;i<api_starts.length;i++)assert.ok(api_starts[i].rate-api_starts[i-1].rate>=1000);
+    assert.deepEqual(delays,scenario==='EARLY_WAKEUP'?[1000,7,1000]:[1000,1000]);
+    if(scenario==='WALLCLOCK_BACKWARD'){assert.ok(api_starts[1].wall<api_starts[0].wall);assert.equal(a.envelope.requests[0].started_at,new Date(api_starts[0].wall).toISOString());assert.equal(a.envelope.requests[1].started_at,new Date(api_starts[1].wall).toISOString());}
+   }finally{await a.finish({published:false});}
+  }
+  evidence.push({scenario,api_starts,delays,status:'PASS'});
+ });
+ if(process.env.TCG_M5_EVIDENCE_DIR){await mkdir(process.env.TCG_M5_EVIDENCE_DIR,{recursive:true});await writeFile(join(process.env.TCG_M5_EVIDENCE_DIR,'M5_20-regressions.json'),JSON.stringify(evidence,null,2)+'\n');}
+});
 add('M5_21','Download cleanup older7d, keep exactly7d, durable digest receipt retained',()=>sandbox(async tempDir=>{
  const fx=sourceFixture(),w=source(fx),a=await w.acquire({tempDir});await a.finish({published:true,snapshot_id:fixture.snapshot_id});fx.advance(RETENTION);assert.deepEqual(await cleanupTemporary(tempDir,{clock:fx.clock}),[]);fx.advance(1);assert.equal((await cleanupTemporary(tempDir,{clock:fx.clock})).length,1);assert.ok(await stat(join(tempDir,'dv-scryfall-source-v1','last-success.json')));
 }));
@@ -119,9 +144,34 @@ add('M5_26','Malformed in-scope record, set contradiction and missing printed na
 add('M5_27','Actual second-page set provenance and bulk provenance preserved',()=>acquired(async({acq})=>{
  const p=await prepare(acq),r=await rows(p.files.records);assert.equal(r.find(x=>x.entity_kind==='set').source_path,fixture.pages[1].url);assert.equal(r.find(x=>x.entity_kind==='card').source_path,context.source_path);
 },{cards:[card({set_id:JSON.parse(fixture.pages[1].raw).data[0].id,set:'zzn',set_name:'Second Synthetic Set'})]}));
-add('M5_28','No image downloads, prices projections, card/search/named/random/collection requests',()=>acquired(async({fx,acq})=>{
- const p=await prepare(acq);assert.ok(fx.calls.every(c=>c.url===context.source_path||c.url==='https://api.scryfall.com/bulk-data'||fixture.pages.some(p=>p.url===c.url)));const projection=await rows(p.files.cards);assert.ok(!('image' in projection[0])&&!('prices' in projection[0]));assert.ok((await rows(p.files.records)).find(r=>r.entity_kind==='card').raw_record.prices);
-}));
+add('M5_28','No image downloads/prices/extra requests; placeholder and root-null image projection',async()=>{
+ await acquired(async({fx,acq})=>{
+  const p=await prepare(acq);assert.ok(fx.calls.every(c=>c.url===context.source_path||c.url==='https://api.scryfall.com/bulk-data'||fixture.pages.some(p=>p.url===c.url)));const projection=await rows(p.files.cards);assert.ok(!('image' in projection[0])&&!('prices' in projection[0]));assert.ok((await rows(p.files.records)).find(r=>r.entity_kind==='card').raw_record.prices);
+ });
+ const root='https://example.invalid/root.png',front='https://example.invalid/front.png',evidence=[];
+ const transform=extra=>card({layout:'transform',card_faces:[{name:'Synthetic Front',image_status:'highres_scan',image_uris:{normal:front}},{name:'Synthetic Back'}],...extra});
+ const cases=[
+  ['A_PLACEHOLDER_WITH_ROOT',card({image_status:'placeholder',image_uris:{normal:root}}),null],
+  ['B_ROOT_MISSING_WITH_FRONT',transform({image_status:'missing',image_uris:{normal:root}}),null],
+  ['C_ROOT_PLACEHOLDER_WITH_FRONT',transform({image_status:'placeholder',image_uris:{normal:root}}),null],
+  ['D_ALLOWED_FRONT_FALLBACK',transform({image_status:'highres_scan'}),front],
+  ['D_ABSENT_ROOT_STATUS_FALLBACK',transform(),front],
+  ['E_HIGHRES_ROOT_UNCHANGED',card({image_status:'highres_scan',image_uris:{normal:root}}),root]
+ ];
+ for(const [scenario,raw,expected] of cases){
+  if(scenario.startsWith('D_')){delete raw.image_uris;if(scenario==='D_ABSENT_ROOT_STATUS_FALLBACK')delete raw.image_status;}
+  const before=clone(raw),result=P.scryfall.translate(raw,context);assert.equal(result.status,'candidates');assert.deepEqual(raw,before);assert.deepEqual(result.original,before);
+  for(const record of result.records){assert.deepEqual(record.raw,before);assert.equal(record.legacy.image,expected);assert.equal(record.normalized.image,expected);assert.equal(record.source.record_version,'sha256:'+sha256(Buffer.from(canonicalJSON(before))));}
+  evidence.push({scenario,status:result.status,legacy_image:result.records[0].legacy.image,normalized_image:result.records[0].normalized.image,raw_unchanged:true,record_version:result.records[0].source.record_version});
+ }
+ assert.throws(()=>P.scryfall.translate(card({image_status:'future_image_status',image_uris:{normal:root}}),context),/^TypeError: TCG contract: unsupported value future_image_status$/);
+ evidence.push({scenario:'F_UNKNOWN_STATUS_REJECT',status:'PASS'});
+ // Null projection still validates every supplied consumed root/face URL.
+ for(const image_status of ['missing','placeholder'])for(const raw of [card({image_status,image_uris:{normal:root,art_crop:'http://example.invalid/unsafe.png'}}),transform({image_status,card_faces:[{name:'Synthetic Front',image_uris:{normal:'http://example.invalid/unsafe.png'}},{name:'Synthetic Back'}]})])assert.throws(()=>P.scryfall.translate(raw,context),/unsafe image/);
+ await acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.accepted_cards,1);assert.deepEqual((await rows(p.files.records)).find(r=>r.entity_kind==='card').raw_record,card({image_status:'placeholder',image_uris:{normal:root}}));},{cards:[card({image_status:'placeholder',image_uris:{normal:root}})]});
+ evidence.push({scenario:'PLACEHOLDER_PREPARE_AND_URL_VALIDATION',status:'PASS'});
+ if(process.env.TCG_M5_EVIDENCE_DIR){await mkdir(process.env.TCG_M5_EVIDENCE_DIR,{recursive:true});await writeFile(join(process.env.TCG_M5_EVIDENCE_DIR,'M5_28-regressions.json'),JSON.stringify(evidence,null,2)+'\n');}
+});
 add('M5_29','Five exact stage shapes, fixed order, owner preflight then one transaction/publisher',()=>acquired(async({acq})=>{
  const p=await prepare(acq),db=recordingDB();const result=await publishPrepared(db,p);assert.equal(result.expected_generation,'7');assert.equal(result.snapshot_id,fixture.snapshot_id);assert.equal(db.calls[1].sql,'begin');assert.equal(db.calls.at(-1).sql,'commit');assert.equal(db.calls.filter(c=>c.sql==='begin').length,1);assert.equal(db.calls.filter(c=>c.sql.includes('select dv_collect_private.tcg_publish_catalog_snapshot_v1')).length,1);
  const names=db.calls.filter(c=>c.sql.startsWith('insert')).map(c=>c.sql.match(/stage_(\w+)/)[1]);assert.deepEqual([...new Set(names)],['header','sets','cards','variants','records']);assert.equal((STAGE_SQL.match(/create temporary table/g)||[]).length,5);assert.equal((STAGE_SQL.match(/on commit drop/g)||[]).length,5);

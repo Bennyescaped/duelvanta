@@ -106,11 +106,11 @@
     return'sha256:'+h.map(n=>n.toString(16).padStart(8,'0')).join('');
   }
   function magicImageFields(raw){
-    if(Object.hasOwn(raw,'image_status'))C.choice(raw.image_status,['missing','lowres','highres_scan']);
+    if(Object.hasOwn(raw,'image_status'))C.choice(raw.image_status,['missing','placeholder','lowres','highres_scan']);
     if(!Object.hasOwn(raw,'image_uris'))return null;
     const images=raw.image_uris;if(!images||typeof images!=='object'||Array.isArray(images))C.fail('scryfall images');C.shape(images,Reflect.ownKeys(images));
     for(const k of ['small','normal','large','png','art_crop','border_crop'])if(Object.hasOwn(images,k)){C.text(images[k]);if(!/^https:\/\/[^\s<>]+$/.test(images[k]))C.fail('unsafe image')}
-    if(raw.image_status==='missing')return null;
+    if(raw.image_status==='missing'||raw.image_status==='placeholder')return null;
     return images.normal||images.large||images.png||null;
   }
   function magicFaces(raw){
@@ -147,7 +147,7 @@
       return result('candidates',[C.providerRecord({ref:ref('set',null),source,raw,normalized:{name:raw.name,language:null},legacy:{catalogId:raw.id,tcg:'magic',name:raw.name,code:raw.code}},binding)]);
     }
     for(const key of ['set','set_name','lang','layout','collector_number','rarity'])C.text(raw[key]);
-    magicBool(raw.oversized);C.unique(C.list(raw.games,x=>C.text(x)));const faces=magicFaces(raw),projection=magicProjection(raw,faces),image=magicImageFields(raw)||((faces[0]&&magicImageFields(faces[0]))||null);
+    magicBool(raw.oversized);C.unique(C.list(raw.games,x=>C.text(x)));const faces=magicFaces(raw),projection=magicProjection(raw,faces),rootImage=magicImageFields(raw),image=raw.image_status==='missing'||raw.image_status==='placeholder'?null:rootImage||((faces[0]&&magicImageFields(faces[0]))||null);
     if(Object.hasOwn(raw,'printed_name'))C.text(raw.printed_name);
     let evidence;
     if(Object.hasOwn(ctx,'variant_evidence')){
