@@ -5,12 +5,14 @@ import {createReadStream} from 'node:fs';
 import {mkdir,readFile,writeFile,appendFile,open,stat,realpath} from 'node:fs/promises';
 import {join,dirname} from 'node:path';
 import {createInterface} from 'node:readline';
+import {createRequire} from 'node:module';
 import {canonicalJSON,parseProviderJSON,prepareProviderEvidence,sha256} from './tcg-catalog-evidence-v1.mjs';
 import {prepareRecords,variantProjection,selectReference,validateManifest,scope_sha256,languages} from './tcg-catalog-persistence-v1.mjs';
 import {jsonlRecords,setsPageFraming,validateSourceURL,parseSetsPage,LIMITS,SETS_FRAMING,DAY} from './tcg-catalog-scryfall-source-v1.mjs';
 const fail=code=>{throw new TypeError('TCG ingest: '+code);};
 const uuid=id=>{if(typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id))fail('uuid');return id;};
 const layouts=['normal','split','flip','adventure','transform','modal_dfc'];
+const require=createRequire(import.meta.url),C=require('./tcg-v1-contracts.js'),G=require('./tcg-v1-game-adapters.js'),P=require('./tcg-v1-catalog-providers.js');
 // Observers cannot change ingest outcomes, including by throwing/rejecting.
 function diagnostic(callback,checkpoint,phase,fields={}){
  if(!callback)return;
@@ -36,9 +38,26 @@ async function hashFile(path,max){const h=createHash('sha256');let n=0;for await
 async function* lines(path){const input=createReadStream(path);const reader=createInterface({input,crlfDelay:Infinity});try{for await(const line of reader){if(line)yield line;}}finally{reader.close();input.destroy();}}
 async function writeJSON(path,value){await writeFile(path,JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});}
 async function indexPath(root,kind,id){uuid(id);const dir=join(root,kind,id.slice(0,2));await mkdir(dir,{recursive:true,mode:0o700});return join(dir,id+'.json');}
-function exclusion(r){
+function exclusion(r,context,set){
  if(typeof r.digital!=='boolean'||typeof r.oversized!=='boolean'||typeof r.lang!=='string'||typeof r.layout!=='string'||!Array.isArray(r.games)||r.games.some(x=>typeof x!=='string'))fail('card_scope_shape');
- if(r.digital)return 'digital';if(r.oversized)return 'oversized';if(!r.games.includes('paper'))return 'not_paper';if(!Object.hasOwn(languages,r.lang))return 'language';if(!layouts.includes(r.layout))return 'layout';return null;
+ if(r.digital)return 'digital';if(r.oversized)return 'oversized';if(!r.games.includes('paper'))return 'not_paper';if(!Object.hasOwn(languages,r.lang))return 'language';if(!layouts.includes(r.layout))return 'layout';
+ if(r.lang==='en'||Object.hasOwn(r,'printed_name'))return null;
+ // Only absent evidence is unresolved. Invalid supplied text/face shapes and
+ // other collector statuses must reach the unchanged fail-closed preparation.
+ const collector=G.magic.parseCollectorEvidence({text:r.collector_number,source:'manual'});
+ if(collector.status!=='valid'||collector.comparison_code!==r.collector_number)return null;
+ const faces=Object.hasOwn(r,'card_faces')?r.card_faces:[];
+ if(!Array.isArray(faces)||faces.length>2)return null;
+ let missing=faces.length===0;
+ for(const face of faces){
+  if(!face||typeof face!=='object'||Array.isArray(face)||![null,Object.prototype].includes(Object.getPrototypeOf(face)))return null;
+  try{C.text(face.name);if(Object.hasOwn(face,'printed_name'))C.text(face.printed_name);else missing=true;}catch{return null;}
+ }
+ if(!missing)return null;
+ // Pure contract validation still rejects malformed consumed root/face fields.
+ const translated=P.scryfall.translate(r,{game_key:'magic',locale:languages[r.lang][1],collector:{text:r.collector_number,source:'manual'},...context});
+ if(!set||r.set!==set.code||r.set_name!==set.name||!r.finishes.length||G.magic.normalizeRarity(r.rarity).status!=='valid')return null;
+ return translated.status==='unknown'?'unresolved_missing_printed_name':null;
 }
 // Streaming fold reproduces M4 selectReference over all eligible SAME-snapshot
 // records without collecting an Oracle group (or the bulk dump) in memory.
@@ -87,7 +106,7 @@ export async function prepareAcquisition(envelope,{snapshot_id=randomUUID(),migr
    try{const ev=prepareProviderEvidence(raw);uuid(raw.id);const path=await indexPath(root,'seen',raw.id);
    let duplicate=false;try{const previous=JSON.parse(await readFile(path,'utf8'));if(previous.record_version!==ev.record_version||previous.lang!==raw.lang)fail('catalog_identity_conflict');duplicate=true;}catch(err){if(err.code!=='ENOENT')throw err;}
    if(duplicate){counts.duplicates++;await appendFile(report,JSON.stringify({kind:'duplicate_equal_digest',external_id:raw.id,record_version:ev.record_version})+'\n');continue;}
-   await writeJSON(path,{record_version:ev.record_version,lang:raw.lang});counts.record_count++;const reason=exclusion(raw);
+   await writeJSON(path,{record_version:ev.record_version,lang:raw.lang});counts.record_count++;const reason=exclusion(ev.raw_record,{source_path:envelope.bulk_url,retrieved_at:envelope.completed_at},sets.get(raw.set_id));
    if(reason){counts.excluded++;counts.excluded_by_reason[reason]=(counts.excluded_by_reason[reason]??0)+1;await appendFile(report,JSON.stringify({kind:'excluded',external_id:raw.id,reason})+'\n');continue;}
    const set=sets.get(raw.set_id);if(!set)fail('missing_set');const prepared=prepareRecords({sets:[set],cards:[raw],source_path:envelope.bulk_url,set_source_paths:setPaths,retrieved_at:envelope.completed_at});if(prepared.stage_cards.length!==1)fail('card_validation');
    await writeJSON(await indexPath(root,'cards',raw.id),raw);await appendFile(ids,raw.id+'\n');if(raw.oracle_id)await appendFile(await indexPath(root,'groups',raw.oracle_id),raw.id+'\n',{mode:0o600});used.add(raw.set_id);counts.accepted_cards++;

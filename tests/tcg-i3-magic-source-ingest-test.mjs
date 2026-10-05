@@ -135,11 +135,76 @@ add('M5_23','Conflicting duplicate raw or language rejects entire preparation',a
 add('M5_24','Missing set fails closed with no per-card repair or DB write',()=>acquired(async({acq,fx})=>{
  await assert.rejects(prepare(acq),/missing_set/);assert.equal(fx.calls.length,4);
 },{cards:[card({set_id:uuid(99)})]}));
-add('M5_25','Explicit exclusion counts for languages layouts digital oversized paper',()=>acquired(async({acq})=>{
- const p=await prepare(acq);assert.equal(p.counts.accepted_cards,1);assert.equal(p.counts.excluded,6);assert.deepEqual(p.counts.excluded_by_reason,{language:2,layout:1,digital:1,oversized:1,not_paper:1});assert.equal((await rows(p.findings_file)).length,6);
-},{cards:[card(),card({id:uuid(10),lang:'pt'}),card({id:uuid(11),lang:'zht'}),card({id:uuid(12),layout:'battle'}),card({id:uuid(13),digital:true}),card({id:uuid(14),oversized:true}),card({id:uuid(15),games:['arena']} )]}));
-add('M5_26','Malformed in-scope record, set contradiction and missing printed name reject',async()=>{
- for(const extra of [{digital:'false'},{rarity:'foil'},{set:'wrong'},{lang:'de'},{games:null}])await acquired(async({acq})=>assert.rejects(prepare(acq)),{cards:[card(extra)]});
+add('M5_25','Explicit scope and unresolved missing printed-name exclusions; complete faces and EN admitted',async()=>{
+ const unresolved=card({id:uuid(16),lang:'zhs',collector_number:'243'}),evidence=[];
+ assert.ok(!Object.hasOwn(unresolved,'printed_name')&&!Object.hasOwn(unresolved,'card_faces'));
+ const translated=P.scryfall.translate(unresolved,{...context,locale:'zh-cn',collector:{text:'243',source:'manual'}});
+ assert.equal(translated.status,'unknown');assert.equal(translated.records.length,0);
+ // Persistence remains fail-closed; only the worker admission policy changes.
+ assert.throws(()=>prepareRecords({sets:[fixture.set],cards:[unresolved],source_path:context.source_path,retrieved_at:fixture.clock}),/TCG persistence: card_validation/);
+ await acquired(async({acq})=>{
+  const p=await prepare(acq),findings=await rows(p.findings_file),cards=await rows(p.files.cards),records=await rows(p.files.records);
+  assert.equal(p.counts.record_count,8);assert.equal(p.counts.accepted_cards,1);assert.equal(p.counts.excluded,7);
+  assert.deepEqual(p.counts.excluded_by_reason,{language:2,layout:1,digital:1,oversized:1,not_paper:1,unresolved_missing_printed_name:1});assert.equal(findings.length,7);
+  assert.deepEqual(findings.find(f=>f.external_id===unresolved.id),{kind:'excluded',external_id:unresolved.id,reason:'unresolved_missing_printed_name'});
+  assert.deepEqual(cards.map(c=>c.external_id),[fixture.card.id]);assert.ok(!records.some(r=>r.external_id===unresolved.id));
+  assert.ok(!(await rows(p.files.variants)).some(v=>v.card_external_id===unresolved.id));assert.equal(p.counts.accepted_sets,1);
+  evidence.push({scenario:'SYNTHETIC_RECORD16_SHAPE',translator_status:translated.status,translator_records:0,persistence_before:'card_validation',worker_after:'PASS',counts:p.counts,finding:findings.find(f=>f.external_id===unresolved.id),stage_card:false,stage_variant:false,stage_record:false});
+ },{cards:[card(),card({id:uuid(10),lang:'pt'}),card({id:uuid(11),lang:'zht'}),card({id:uuid(12),layout:'battle'}),card({id:uuid(13),digital:true}),card({id:uuid(14),oversized:true}),card({id:uuid(15),games:['arena']}),unresolved]});
+ const complete=[{name:'Synthetic Front',printed_name:'Gedruckte Vorderseite'},{name:'Synthetic Back',printed_name:'Gedruckte Rückseite'}];
+ for(const [scenario,extra,excluded] of [
+  ['COMPLETE_TRANSFORM',{lang:'de',layout:'transform',card_faces:complete},false],
+  ['COMPLETE_MODAL_DFC',{lang:'de',layout:'modal_dfc',card_faces:complete},false],
+  ['INCOMPLETE_FACES',{lang:'de',layout:'transform',card_faces:[complete[0],{name:'Synthetic Back'}]},true],
+  ['EMPTY_FACES',{lang:'zhs',card_faces:[]},true],
+  ['EN_ROOT_NAME',{lang:'en'},false],
+  ['VALID_ROOT_PRINTED_NAME',{lang:'de',printed_name:'Gedruckter Name'},false]
+ ])await acquired(async({acq})=>{
+  const p=await prepare(acq),finding=(await rows(p.findings_file)).find(f=>f.external_id===uuid(17)),staged=(await rows(p.files.cards)).some(c=>c.external_id===uuid(17));
+  assert.equal(p.counts.excluded,excluded?1:0);assert.equal(p.counts.accepted_cards,excluded?1:2);assert.equal(staged,!excluded);
+  if(excluded)assert.deepEqual(finding,{kind:'excluded',external_id:uuid(17),reason:'unresolved_missing_printed_name'});else assert.equal(finding,undefined);
+  evidence.push({scenario,status:'PASS',excluded,stage_card:staged,finding:finding??null});
+ },{cards:[card(),card({id:uuid(17),...extra})]});
+ // An excluded printing must not make its otherwise unused set enter staging.
+ const second=JSON.parse(fixture.pages[1].raw).data[0];
+ await acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.accepted_sets,1);assert.ok(!(await rows(p.files.sets)).some(s=>s.external_id===second.id));evidence.push({scenario:'UNRESOLVED_SET_NOT_USED',status:'PASS',accepted_sets:1});},{cards:[card(),{...unresolved,set_id:second.id,set:second.code,set_name:second.name}]});
+ if(process.env.TCG_M5_EVIDENCE_DIR){await mkdir(process.env.TCG_M5_EVIDENCE_DIR,{recursive:true});await writeFile(join(process.env.TCG_M5_EVIDENCE_DIR,'M5_25-regressions.json'),JSON.stringify(evidence,null,2)+'\n');}
+});
+add('M5_26','Malformed evidence, set conflicts and other non-candidates remain snapshotfatal',async()=>{
+ const evidence=[];
+ for(const [scenario,extra,pattern] of [
+  ['DIGITAL_WRONG_TYPE',{digital:'false'},/card_scope_shape/],
+  ['GAMES_NULL',{games:null},/card_scope_shape/],
+  ['SET_CONFLICT',{set:'wrong'},/catalog_set_conflict/],
+  ['UNKNOWN_RARITY',{rarity:'foil'},/card_scope/],
+  ['UNRESOLVED_SET_CONFLICT',{lang:'zhs',set:'wrong'},/card_validation/],
+  ['UNRESOLVED_UNKNOWN_RARITY',{lang:'zhs',rarity:'foil'},/card_validation/],
+  ['UNRESOLVED_EMPTY_FINISHES',{lang:'zhs',finishes:[]},/card_validation/],
+  ['UNRESOLVED_ROOT_NAME_MALFORMED',{lang:'zhs',name:null},/TCG contract: invalid text/],
+  ...[null,'',42,'bad\u0001text','x'.repeat(501)].map((printed_name,i)=>['ROOT_PRINTED_INVALID_'+i,{lang:'de',printed_name},/TCG contract: invalid text/]),
+  ['FACE_PRINTED_NULL',{lang:'de',layout:'transform',card_faces:[{name:'Synthetic Front',printed_name:null},{name:'Synthetic Back'}]},/TCG contract: invalid text/],
+  ['FACE_PRINTED_EMPTY',{lang:'de',layout:'transform',card_faces:[{name:'Synthetic Front',printed_name:''},{name:'Synthetic Back'}]},/TCG contract: invalid text/],
+  ['FACES_NOT_ARRAY',{lang:'de',card_faces:{}},/TCG contract:/],
+  ['FACE_NOT_OBJECT',{lang:'de',card_faces:[null]},/Reflect\.ownKeys called on non-object/],
+  ['FACE_NAME_MALFORMED',{lang:'de',card_faces:[{name:null}]},/TCG contract: invalid text/],
+  ['FACE_IMAGE_MALFORMED',{lang:'de',card_faces:[{name:'Synthetic Front',image_uris:{normal:'http://example.invalid/unsafe.png'}}]},/unsafe image/],
+  ['AMBIGUOUS',{collector_number:'243 244'},/card_validation/],
+  ['NO_MATCH',{collector_number:' 243'},/card_validation/],
+  ['LONG_COLLECTOR_CONTRACT',{collector_number:'x'.repeat(129)},/TCG contract: invalid text/],
+  ['UNRESOLVED_AMBIGUOUS',{lang:'zhs',collector_number:'243 244'},/card_validation/],
+  ['UNRESOLVED_NO_MATCH',{lang:'zhs',collector_number:' 243'},/card_validation/],
+  ['UNRESOLVED_LONG_COLLECTOR_CONTRACT',{lang:'zhs',collector_number:'x'.repeat(129)},/TCG contract: invalid text/]
+ ])await acquired(async({acq})=>{
+  let message;await assert.rejects(prepare(acq),error=>{message=error.message;assert.match(message,pattern,scenario);return true;});
+  let translator_status=null;if(/AMBIGUOUS|NO_MATCH/.test(scenario)){
+   const raw=card(extra);translator_status=P.scryfall.translate(raw,{...context,locale:raw.lang==='zhs'?'zh-cn':'en',collector:{text:raw.collector_number,source:'manual'}}).status;
+   assert.equal(translator_status,scenario.includes('AMBIGUOUS')?'ambiguous':scenario.includes('NO_MATCH')?'no_match':'unknown');
+  }
+  const collector_parser_status=scenario.includes('LONG_COLLECTOR')?require('../tcg-v1-game-adapters.js').magic.parseCollectorEvidence({text:extra.collector_number,source:'manual'}).status:null;
+  if(collector_parser_status!==null)assert.equal(collector_parser_status,'unknown');
+  evidence.push({scenario,status:'PASS',result:'REJECT',error:message,translator_status,collector_parser_status});
+ },{cards:[card(extra)]});
+ if(process.env.TCG_M5_EVIDENCE_DIR){await mkdir(process.env.TCG_M5_EVIDENCE_DIR,{recursive:true});await writeFile(join(process.env.TCG_M5_EVIDENCE_DIR,'M5_26-regressions.json'),JSON.stringify(evidence,null,2)+'\n');}
 });
 add('M5_27','Actual second-page set provenance and bulk provenance preserved',()=>acquired(async({acq})=>{
  const p=await prepare(acq),r=await rows(p.files.records);assert.equal(r.find(x=>x.entity_kind==='set').source_path,fixture.pages[1].url);assert.equal(r.find(x=>x.entity_kind==='card').source_path,context.source_path);
