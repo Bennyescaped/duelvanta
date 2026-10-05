@@ -4,7 +4,8 @@
 // is not a simulated DB. The source realm alone performs the authorized fetch.
 import {Worker,isMainThread,parentPort,workerData} from 'node:worker_threads';
 import {mkdir,mkdtemp,readFile,writeFile,readdir,realpath,rm,lstat} from 'node:fs/promises';
-import {resolve,join,relative,isAbsolute} from 'node:path';
+import {appendFileSync} from 'node:fs';
+import {resolve,join,relative,isAbsolute,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createScryfallSource} from '../tcg-catalog-scryfall-source-v1.mjs';
 import {runRealSourceAcceptance} from '../tcg-catalog-ingest-worker-v1.mjs';
@@ -12,10 +13,36 @@ import {runRealSourceAcceptance} from '../tcg-catalog-ingest-worker-v1.mjs';
 const self=fileURLToPath(import.meta.url);
 const now=()=>new Date().toISOString();
 const check=(value,code)=>{if(!value)throw new Error('M5 acceptance: '+code);};
-const safeError=error=>({
- code:/^[A-Z0-9_]{1,40}$/.test(error?.code??'')?error.code:null,
- contract_error:/^(?:TCG (?:source|ingest|persistence|evidence)|M5 acceptance): [a-z0-9_]+$/.test(error?.message??'')?error.message:'M5 acceptance: integration_or_database_failure'
-});
+const repoRoot=resolve(dirname(self),'..');
+const families=new Set(['TCG source','TCG ingest','TCG persistence','TCG evidence','TCG contract','M5 acceptance']);
+const safeLocation=value=>typeof value==='string'&&/^[a-zA-Z0-9_./-]+:[1-9][0-9]*:[1-9][0-9]*$/.test(value)&&!isAbsolute(value)&&!value.split(':')[0].split('/').some(part=>part==='..'||part==='node_modules')?value:null;
+export function safeError(error,context={}){
+ // Rollback wrappers preserve the first failure, never secondary messages.
+ if(error instanceof AggregateError&&error.errors?.length)error=error.errors[0];
+ const out={name:/^(?:Error|TypeError|RangeError|SyntaxError|ReferenceError|EvalError|URIError|AggregateError|DatabaseError|error|AbortError|TimeoutError)$/.test(error?.name??'')?error.name:'Error'};
+ const contract=typeof error?.message==='string'?error.message.match(/^(TCG (?:source|ingest|persistence|evidence|contract)|M5 acceptance): ([\s\S]*)$/):null;
+ if(contract){out.contract_family=contract[1];if(/^[a-z0-9_]+$/.test(contract[2]))out.contract_code=contract[2];}
+ else if(families.has(error?.contract_family)&&/^[a-z0-9_]+$/.test(error?.contract_code??'')){out.contract_family=error.contract_family;out.contract_code=error.contract_code;}
+ if(/^[A-Z0-9]{5}$/.test(error?.code??''))out.code=error.code;
+ if(safeLocation(error?.stack_location))out.stack_location=error.stack_location;
+ else if(typeof error?.stack==='string')for(const line of error.stack.split('\n').slice(1)){
+  const match=line.match(/(?:file:\/\/)?(\/[^()\r\n]+):([1-9][0-9]*):([1-9][0-9]*)\)?$/);if(!match)continue;
+  const path=relative(repoRoot,match[1]),location=path+':'+match[2]+':'+match[3];if(safeLocation(location)){out.stack_location=location;break;}
+ }
+ const severity=error?.severity??error?.pg_severity;
+ if(['ERROR','FATAL','PANIC','WARNING','NOTICE','DEBUG','INFO','LOG'].includes(severity))out.pg_severity=severity;
+ for(const key of ['schema','table','constraint','routine']){const value=error?.[key]??error?.['pg_'+key];if(typeof value==='string'&&/^[a-zA-Z_][a-zA-Z0-9_]{0,62}$/.test(value))out['pg_'+key]=value;}
+ for(const key of ['phase','last_checkpoint'])if(typeof context[key]==='string'&&/^[a-z0-9_]+$/.test(context[key]))out[key]=context[key];
+ if(Number.isSafeInteger(context.processed_count)&&context.processed_count>=0)out.processed_count=context.processed_count;
+ if(typeof context.last_external_id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(context.last_external_id))out.last_external_id=context.last_external_id;
+ return out;
+}
+// The same whitelist is applied on both sides of the thread boundary.
+export const diagnosticBridgeError=envelope=>Object.assign(new Error(),{stack:''},safeError(envelope));
+export function diagnosticFailure(error,context){
+ const {name,code,phase,...rest}=safeError(error,context);
+ return {exact_phase:phase??'unknown',error_name:name,...(code?{error_code:code}:{}),...rest};
+}
 async function json(path,value){await writeFile(path,JSON.stringify(value,null,2)+'\n',{mode:0o600});}
 
 async function databaseWorker(){
@@ -55,13 +82,13 @@ async function nativeDatabase(){
  // Attach a rejection handler immediately; main still awaits the same promise.
  exited.catch(()=>{});
  const ready=new Promise((resolveReady,rejectReady)=>{
-  worker.on('error',()=>{const e=Error('M5 acceptance: db_worker_error');rejectReady(e);for(const p of pending.values())p.reject(e);pending.clear();});
+  worker.on('error',error=>{const e=diagnosticBridgeError(error);rejectReady(e);for(const p of pending.values())p.reject(e);pending.clear();});
   worker.on('exit',()=>{for(const p of pending.values())p.reject(Error('M5 acceptance: db_worker_exit'));pending.clear();});
   worker.on('message',message=>{
    if(message.ready)return resolveReady(message);
-   if(message.fatal){const e=Object.assign(Error(message.fatal.contract_error),message.fatal);rejectReady(e);return;}
+   if(message.fatal){rejectReady(diagnosticBridgeError(message.fatal));return;}
    const task=pending.get(message.id);if(!task)return;pending.delete(message.id);
-   if(message.error)task.reject(Object.assign(Error(message.error.contract_error),message.error));else task.resolve(message.value);
+   if(message.error)task.reject(diagnosticBridgeError(message.error));else task.resolve(message.value);
   });
  });
  const rpc=message=>new Promise((resolveCall,rejectCall)=>{const id=++serial;pending.set(id,{resolve:resolveCall,reject:rejectCall});worker.postMessage({...message,id});});
@@ -165,6 +192,14 @@ export async function main(){
   real_source_acceptance:false,i18_status:'NOT_RUN',i19_status:'REAL_SOURCE_NOT_RUN',
   SOURCE_TERMS_REVIEW:'OPEN',ATTRIBUTION_READY:'OPEN',IMAGE_USE_REVIEW:'OPEN',magic_status:'planned/unavailable',production_activation:false,production_staging_mutation:false,merge:false};
  const requests=[];let db,tempDir,envelope,result,proof,firstFailure=null,phase='disposable_database_setup';
+ const diagnosticState={last_checkpoint:null,processed_count:null,last_external_id:null};let checkpointCount=0;
+ await writeFile(join(evidence,'diagnostic-checkpoints.jsonl'),'',{mode:0o600});
+ const onDiagnostic=event=>{
+  appendFileSync(join(evidence,'diagnostic-checkpoints.jsonl'),JSON.stringify(event)+'\n',{mode:0o600});checkpointCount++;
+  // Failure cleanup completes after the failing operation; retain its phase.
+  if(event.checkpoint!=='finish_complete'){phase=event.phase;diagnosticState.last_checkpoint=event.checkpoint;}
+  if(Number.isSafeInteger(event.processed_count)){diagnosticState.processed_count=event.processed_count;diagnosticState.last_external_id=event.last_external_id;}
+ };
  try{
   db=await nativeDatabase();
   const version=(await db.client.query("select current_user owner,current_setting('server_version_num') server_version_num,version() version,pg_backend_pid() backend_pid,current_database() database")).rows[0];
@@ -189,13 +224,14 @@ export async function main(){
   phase='real_source_acquisition_and_publication';ledger.operator_invocations++;
   await json(join(evidence,'m5-real-source-ledger.json'),ledger);
   // Exactly ONE operator-level call. Frozen worker owns its internal retries.
-  result=await runRealSourceAcceptance({source,tempDir,client:db.client});
+  result=await runRealSourceAcceptance({source,tempDir,client:db.client,onDiagnostic});
   phase='post_publication_verification';proof=await verifyPublication(db.client,result,envelope,before);
   await json(join(evidence,'snapshot-result.json'),{snapshot_id:result.snapshot_id,reused:result.reused,expected_generation:result.expected_generation,counts:result.counts,...proof});
   await json(join(evidence,'release-foundation-proof.json'),{before,after:proof.release});
   ledger.i19_status='PASS';ledger.real_source_acceptance=true;
  }catch(error){
-  firstFailure={phase,...safeError(error)};
+  firstFailure=safeError(error,{phase,...diagnosticState});
+  await json(join(evidence,'diagnostic-failure.json'),diagnosticFailure(error,{phase,...diagnosticState}));
   ledger.i19_status=requests.length?'FAIL':'REAL_SOURCE_NOT_RUN';ledger.failure=firstFailure;
   if(db){try{await json(join(evidence,'release-foundation-proof.json'),{after_failure:await foundationProof(db.client)});}catch(proofError){ledger.failure_proof_error=safeError(proofError);}}
  }finally{
@@ -206,9 +242,9 @@ export async function main(){
    if(!proof)await json(join(evidence,'snapshot-result.json'),{published:!!result,snapshot_id:result?.snapshot_id??null,verified:false,failure:firstFailure});
    if(tempDir){check(relative(runnerRoot,tempDir).startsWith('duelvanta-m5-real-')&&!isAbsolute(relative(runnerRoot,tempDir)),'cleanup_scope');await rm(tempDir,{recursive:true});
     try{await lstat(tempDir);throw Error('M5 acceptance: cleanup_incomplete');}catch(error){if(error.code!=='ENOENT')throw error;}cleanup.raw_temp_removed=true;}
-  }catch(error){ledger.cleanup_error=safeError(error);firstFailure??=ledger.cleanup_error;}
+  }catch(error){ledger.cleanup_error=safeError(error,{phase:'raw_cleanup',...diagnosticState});firstFailure??=ledger.cleanup_error;}
   try{if(db){const nativeCleanup=await db.close();check(nativeCleanup.database_dropped&&nativeCleanup.forbidden_io_attempts.length===0,'native_database_cleanup');cleanup.disposable_database_dropped=true;cleanup.native_io=nativeCleanup;}}
-  catch(error){ledger.database_cleanup_error=safeError(error);firstFailure??=ledger.database_cleanup_error;}
+  catch(error){ledger.database_cleanup_error=safeError(error,{phase:'database_cleanup',...diagnosticState});firstFailure??=ledger.database_cleanup_error;}
   await json(join(evidence,'cleanup-proof.json'),cleanup);
   ledger.request_count=requests.length;ledger.completed_at=now();ledger.cleanup=cleanup;
   ledger.source_cases=[{id:'I18',status:ledger.i18_status},{id:'I19',status:ledger.i19_status}];
@@ -217,6 +253,10 @@ export async function main(){
   ledger.activation_cases_pass=ledger.activation.filter(c=>c.status==='PASS').length;
   ledger.status=firstFailure?(requests.length?'STOP_REAL_SOURCE_ACCEPTANCE_FAILURE':'STOP_P1_INTEGRATION_FAILURE'):'M5_P1_PASS_REAL_SOURCE_PG17_ACCEPTED';
   if(firstFailure){ledger.real_source_acceptance=false;process.exitCode=1;}
+  // Diagnostics supplement the original acceptance ledger; no activation.
+  await json(join(evidence,'diagnostic-failure.json'),firstFailure?diagnosticFailure(firstFailure,{phase:firstFailure.phase,...diagnosticState}):null);
+  const rootCauseCaptured=!!firstFailure&&!!(firstFailure.contract_code||firstFailure.code||firstFailure.stack_location);
+  await json(join(evidence,'diagnostic-summary.json'),{status:firstFailure?(rootCauseCaptured?'M5_P1_R2_ROOT_CAUSE_CAPTURED':'STOP_DIAGNOSTIC_EVIDENCE_INSUFFICIENT'):'M5_P1_R2_DIAGNOSTIC_RUN_SUCCESS',root_cause_captured:rootCauseCaptured,checkpoint_count:checkpointCount,operator_invocations:ledger.operator_invocations,request_count:requests.length,failure:firstFailure,magic_status:ledger.magic_status,SOURCE_TERMS_REVIEW:'OPEN',ATTRIBUTION_READY:'OPEN',IMAGE_USE_REVIEW:'OPEN'});
   await json(join(evidence,'m5-real-source-ledger.json'),ledger);
   console.log(JSON.stringify(ledger));
  }
