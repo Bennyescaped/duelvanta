@@ -879,7 +879,7 @@ jobs:
         run: |
           set -euo pipefail
           parent="$(git rev-parse HEAD^)"
-          if [ "$parent" = '2c390a68d345921b21634e9011d8fd62635a2ae1' ] && [ "$GITHUB_RUN_ATTEMPT" = '1' ]; then
+          if [ "$parent" = '869414266a7266c990c9b45891d34106009dea17' ] && [ "$GITHUB_RUN_ATTEMPT" = '1' ]; then
             echo 'run=true' >> "$GITHUB_OUTPUT"
           else
             echo 'run=false' >> "$GITHUB_OUTPUT"
@@ -919,7 +919,7 @@ jobs:
           DUELVANTA_M5_REAL_SOURCE_ACCEPTANCE: '1'
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = '2c390a68d345921b21634e9011d8fd62635a2ae1'
+          test "$(git rev-parse HEAD^)" = '869414266a7266c990c9b45891d34106009dea17'
           node tests/tcg-i3-magic-source-live-acceptance.mjs --real 2>&1 | tee test-results/tcg-i3-m5-real/source-job.log
       - name: Compact source acceptance evidence only; never raw provider files
         if: always() && github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
