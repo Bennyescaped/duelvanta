@@ -575,6 +575,61 @@ jobs:
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node --test tests/tcg-i2-consumers-test.mjs
+      - name: M5 R4 proven-defect offline regression (no provider calls)
+        env:
+          TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r4
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_M5_EVIDENCE_DIR"
+          node --check tcg-v1-catalog-providers.js
+          node --check tcg-catalog-scryfall-source-v1.mjs
+          node --check tests/tcg-i3-magic-source-ingest-test.mjs
+          node tests/tcg-i3-magic-source-ingest-test.mjs 2>&1 | tee "$TCG_M5_EVIDENCE_DIR/r4-offline.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const dir=process.env.TCG_M5_EVIDENCE_DIR;
+          const read=name=>readFile(dir+'/'+name,'utf8').then(JSON.parse);
+          const ledger=await read('m5-local-ledger.json');
+          assert.deepEqual(ledger.counts,{PASS:57,FAIL:0});
+          assert.equal(ledger.cases.length,57);
+          assert.equal(new Set(ledger.cases.map(x=>x.id)).size,57);
+          assert.ok(ledger.cases.every(x=>x.status==='PASS'));
+          assert.equal(ledger.forbidden_external_io_attempts,0);
+          assert.equal(ledger.real_source_acquisition,false);
+          assert.equal(ledger.native_acceptance,false);
+          assert.equal(ledger.source_cases.find(x=>x.id==='I18')?.status,'PASS');
+          const i19=ledger.source_cases.find(x=>x.id==='I19');
+          assert.equal(i19?.status,'REAL_SOURCE_NOT_RUN');
+          assert.equal(i19.executed,false);
+          for(const id of ['M5_01','M5_18','M5_20','M5_28','M5_56'])assert.equal(ledger.cases.find(x=>x.id===id)?.status,'PASS',id);
+          const clocks=await read('M5_20-regressions.json');
+          for(const name of ['NORMAL_LEGACY_CLOCK_INJECTION','EARLY_WAKEUP','WALLCLOCK_BACKWARD','MONOTONIC_BACKWARD','FROZEN_RATE_CLOCK','NONFINITE_RATE_CLOCK'])assert.equal(clocks.find(x=>x.scenario===name)?.status,'PASS',name);
+          const early=clocks.find(x=>x.scenario==='EARLY_WAKEUP');
+          assert.deepEqual(early.delays,[1000,7,1000]);
+          assert.equal(early.api_starts.length,3);
+          for(const name of ['NORMAL_LEGACY_CLOCK_INJECTION','EARLY_WAKEUP','WALLCLOCK_BACKWARD']){
+           const starts=clocks.find(x=>x.scenario===name).api_starts.map(x=>typeof x==='number'?x:x.rate);
+           assert.equal(starts.length,3);
+           for(let i=1;i<starts.length;i++)assert.ok(starts[i]-starts[i-1]>=1000,name);
+          }
+          const images=await read('M5_28-regressions.json');
+          for(const name of ['A_PLACEHOLDER_WITH_ROOT','B_ROOT_MISSING_WITH_FRONT','C_ROOT_PLACEHOLDER_WITH_FRONT']){
+           const x=images.find(x=>x.scenario===name);assert.ok(x,name);assert.equal(x.status,'candidates');assert.equal(x.legacy_image,null);assert.equal(x.normalized_image,null);assert.equal(x.raw_unchanged,true);
+          }
+          for(const [name,url] of [['D_ALLOWED_FRONT_FALLBACK','https://example.invalid/front.png'],['E_HIGHRES_ROOT_UNCHANGED','https://example.invalid/root.png']]){
+           const x=images.find(x=>x.scenario===name);assert.ok(x,name);assert.equal(x.status,'candidates');assert.equal(x.legacy_image,url);assert.equal(x.normalized_image,url);assert.equal(x.raw_unchanged,true);
+          }
+          for(const name of ['F_UNKNOWN_STATUS_REJECT','PLACEHOLDER_PREPARE_AND_URL_VALIDATION'])assert.equal(images.find(x=>x.scenario===name)?.status,'PASS',name);
+          console.log(JSON.stringify({source:'57/57 PASS',I18:'PASS',I19:'REAL_SOURCE_NOT_RUN',executed:false,forbidden_external_io_attempts:0,M5_20:'PASS',M5_28:'PASS',M5_18:'PASS',M5_56:'PASS',M5_01:'PASS'}));
+          JS
+      - name: M5 R4 synthetic offline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-r4-offline-evidence
+          path: test-results/tcg-i3-m5-r4/
+          if-no-files-found: error
       - name: Scanner V16 contract
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
