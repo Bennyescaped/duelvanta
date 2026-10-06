@@ -7,7 +7,7 @@ import {gzipSync} from 'node:zlib';
 import {execFileSync} from 'node:child_process';
 import {fixture,clone,card,uuid,sandbox,sourceFixture,recordingDB,forbidExternalIO} from './helpers/tcg-i3-magic-source-fixture.mjs';
 import {createScryfallSource,validateSourceURL,selectManifest,setsPageFraming,cleanupTemporary,jsonlRecords,parseSetsPage,LIMITS,DAY,RETENTION,boundedLimits} from '../tcg-catalog-scryfall-source-v1.mjs';
-import {prepareAcquisition,publishPrepared,ingestAcquisition,runRealSourceAcceptance,STAGE_SQL} from '../tcg-catalog-ingest-worker-v1.mjs';
+import {prepareAcquisition,publishPrepared,ingestAcquisition,runRealSourceAcceptance,STAGE_SQL,exclusion} from '../tcg-catalog-ingest-worker-v1.mjs';
 import {prepareRecords,prepareSyntheticSnapshot} from '../tcg-catalog-persistence-v1.mjs';
 import {canonicalJSON,sha256} from '../tcg-catalog-evidence-v1.mjs';
 const require=createRequire(import.meta.url),P=require('../tcg-v1-catalog-providers.js'),R=require('../tcg-v1-registry.js');
@@ -336,7 +336,67 @@ add('M5_56','Third 429 completes minimum cooldown before STOP, including next op
  const fx=sourceFixture({schedule:[{status:429},{status:429},{status:429}]}),worker=source(fx);await assert.rejects(worker.acquire({tempDir}),/attempts_exhausted/);const last=fx.calls.at(-1).at;
  assert.ok(fx.clock()-last>=30000);const a=await worker.acquire({tempDir});assert.ok(fx.calls[3].at-last>=30000);await a.finish({published:false});
 }));
-const ledger={contract:'TCG-I3-M5-local-source-ledger',version:'1',engine:'injected-local-transport/recording-DB-sequence',real_source_acquisition:false,native_acceptance:false,cases:[],source_cases:[],activation:fixture.later.activation.map(id=>({id,status:'SPECIFIED_NOT_RUN'}))};
+
+// P4: synthetic subcases inside existing SOURCE IDs; no historical raw equality.
+const faceScopeReason='unresolved_face_count_outside_initial_scope',policySubcases=[];
+const manyFaces=(count=3,extra={})=>card({id:uuid(70),layout:'split',card_faces:Array.from({length:count},(_,i)=>({name:'Synthetic face '+i})),...extra});
+const extendPolicy=(id,run)=>{const t=tests.find(t=>t.id===id),original=t.run;t.run=async()=>{await original();await run();};};
+async function policyCase(id,run){try{const evidence=await run();policySubcases.push({id,synthetic:true,status:'PASS',...evidence});}catch(e){policySubcases.push({id,synthetic:true,status:'FAIL'});throw e;}}
+extendPolicy('M5_25',async()=>{
+ for(const layout of ['split','flip','adventure','transform','modal_dfc'])for(const n of [3,4,5])await policyCase('P4_SOURCE_'+layout+'_'+n,()=>acquired(async({acq})=>{
+  const p=await prepare(acq),findings=await rows(p.findings_file);assert.equal(p.counts.record_count,3);assert.equal(p.counts.accepted_cards,2);assert.equal(p.counts.excluded,1);assert.deepEqual(p.counts.excluded_by_reason,{[faceScopeReason]:1});
+  assert.ok(findings.some(f=>f.kind==='excluded'&&f.external_id===uuid(70)&&f.reason===faceScopeReason));
+  for(const kind of ['cards','variants','records'])assert.ok(!(await rows(p.files[kind])).some(r=>r.external_id===uuid(70)||r.card_external_id===uuid(70)||r.reference_external_id===uuid(70)));
+  assert.throws(()=>P.scryfall.translate(manyFaces(n,{layout}),context),/scryfall face count/);
+  return {counts:p.counts,reason:faceScopeReason,no_excluded_stage_or_reference:true,direct_translator:'scryfall_face_count'};
+ },{cards:[card(),manyFaces(n,{layout}),card({id:uuid(71),oracle_id:uuid(171)})]}));
+ for(const [extra,reason] of [[{digital:true},'digital'],[{oversized:true},'oversized'],[{games:['arena']},'not_paper'],[{lang:'zht'},'language'],[{layout:'meld'},'layout']])await policyCase('P4_SCOPE_PRECEDENCE_'+reason,()=>acquired(async({acq})=>{const p=await prepare(acq);assert.deepEqual(p.counts.excluded_by_reason,{[reason]:1});return {reason};},{cards:[card(),manyFaces(3,{...extra,card_faces:[null,null,null]})]}));
+ const second=JSON.parse(fixture.pages[1].raw).data[0];
+ await policyCase('P4_NO_USED_SET',()=>acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.accepted_sets,1);assert.ok(!(await rows(p.files.sets)).some(r=>r.external_id===second.id));return {accepted_sets:1};},{cards:[card(),manyFaces(3,{set_id:second.id,set:second.code,set_name:second.name})]}));
+ for(const lang of ['en','de'])await policyCase('P4_OPTIONAL_PRINTED_'+lang,()=>acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.excluded_by_reason[faceScopeReason],1);return {missing_optional_printed_name_allowed:true};},{cards:[card(),manyFaces(3,{lang})]}));
+ await policyCase('P4_NULLABLE_OPTIONAL_FIELDS',()=>acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.excluded,1);},{cards:[card(),manyFaces(3,{oracle_id:null,illustration_id:null,variation_of:null,released_at:null,variation:null,reprint:null,frame:null,border_color:null,full_art:null})]}));
+});
+const malformedFaceCases=[
+ ...[null,42,'','bad\u0001name'].map((name,i)=>['FACE_NAME_'+i,{card_faces:[{name},{name:'b'},{name:'c'}]}]),
+ ['ROOT_NAME',{name:null}],['ROOT_PRINTED',{printed_name:null}],['FACE_PRINTED',{card_faces:[{name:'a',printed_name:''},{name:'b'},{name:'c'}]}],
+ ['FACE_NULL',{card_faces:[null,{name:'b'},{name:'c'}]}],['FACE_ARRAY',{card_faces:[[],{name:'b'},{name:'c'}]}],
+ ['ROOT_UUID',{id:'bad'}],['SET_UUID',{set_id:'bad'}],['ORACLE_UUID',{oracle_id:'bad'}],['ILLUSTRATION_UUID',{illustration_id:'bad'}],['VARIATION_UUID',{variation_of:'bad'}],
+ ['FACE_UUID',{card_faces:[{name:'a',oracle_id:'bad'},{name:'b'},{name:'c'}]}],
+ ['ROOT_IMAGE',{image_uris:{normal:'http://example.invalid/a'}}],['FACE_IMAGE',{card_faces:[{name:'a',image_uris:[]},{name:'b'},{name:'c'}]}],['IMAGE_STATUS',{image_status:'bad'}],
+ ['COLLECTOR_AMBIGUOUS',{collector_number:'243 244'}],['COLLECTOR_NO_MATCH',{collector_number:' 243'}],['COLLECTOR_LONG',{collector_number:'x'.repeat(129)}],
+ ['MISSING_SET',{set_id:uuid(777)}],['SET_CONFLICT',{set:'wrong'}],['SET_NAME_CONFLICT',{set_name:'wrong'}],
+ ['RARITY',{rarity:'invalid'}],['FINISH_EMPTY',{finishes:[]}],['FINISH_DUPLICATE',{finishes:['foil','foil']}],['FINISH_CODE',{finishes:['bad']}],['FINISH_NULL',{finishes:null}],
+ ['DIGITAL_TYPE',{digital:'false'}],['OVERSIZED_TYPE',{oversized:0}],['GAMES_DUPLICATE',{games:['paper','paper']}],
+ ['DATE_INVALID',{released_at:'2025-02-29'}],['DATE_TYPE',{released_at:1}],['VARIATION_TYPE',{variation:1}],['REPRINT_TYPE',{reprint:'false'}],['FULL_ART_TYPE',{full_art:0}],
+ ['FRAME_CODE',{frame:'BAD'}],['BORDER_CODE',{border_color:'x'.repeat(33)}],['FRAME_EFFECTS_NULL',{frame_effects:null}],['PROMO_DUPLICATE',{promo_types:['promo','promo']}],['PROMO_LIMIT',{promo_types:Array.from({length:33},(_,i)=>'p'+i)}]
+];
+extendPolicy('M5_26',async()=>{
+ for(const [name,extra] of malformedFaceCases)await policyCase('P4_SOURCE_REJECT_'+name,()=>acquired(async({acq})=>{
+  const events=[];await assert.rejects(prepareAcquisition(acq.envelope,{onDiagnostic:e=>events.push(e)}));const d=events.find(e=>e.checkpoint==='prepare_diagnostic').diagnostic;assert.equal(d.counts.excluded,0);return {rejected:true,diagnostic:d};
+ },{cards:[manyFaces(3,extra)]}));
+ for(const shape of ['sparse','extra','accessor','symbol','too_many'])await policyCase('P4_ARRAY_'+shape,async()=>{
+  const raw=manyFaces();let accessed=false;if(shape==='sparse')delete raw.card_faces[1];if(shape==='extra')raw.card_faces.extra=1;if(shape==='symbol')raw.card_faces[Symbol('synthetic')]=1;if(shape==='accessor')Object.defineProperty(raw.card_faces,1,{get(){accessed=true;return {name:'bad'};}});if(shape==='too_many')raw.card_faces=Array.from({length:1001},()=>({name:'a'}));
+  assert.throws(()=>P.scryfallCardStructure(raw));assert.throws(()=>exclusion(raw,context,fixture.set));assert.equal(accessed,false);return {rejected:true,accessor_not_invoked:true};
+ });
+ for(const [name,extra] of [['NAME',{name:null}],['DIGITAL',{digital:true}],['METADATA',{set_type:1}],['DATE',{released_at:'2025-02-29'}]])await policyCase('P4_SET_REJECT_'+name,()=>acquired(async({acq})=>{await assert.rejects(prepare(acq));return {rejected:true};},{cards:[manyFaces()],pages:[{url:fixture.pages[0].url,raw:JSON.stringify({object:'list',has_more:false,data:[{...fixture.set,...extra}]})}]}));
+ for(const extra of [{layout:'normal'},{layout:'split',card_faces:[]},{layout:'split',card_faces:[{name:'one'}]},{layout:'split',card_faces:undefined}])await policyCase('P4_NO_NEW_SHORT_OR_NORMAL_'+policySubcases.length,()=>acquired(async({acq})=>{await assert.rejects(prepare(acq));},{cards:[manyFaces(3,extra)]}));
+ await policyCase('P4_LATE_REJECT_FAIL_CLOSED',()=>acquired(async({acq})=>{const events=[];await assert.rejects(prepareAcquisition(acq.envelope,{onDiagnostic:e=>events.push(e)}),/invalid text/);const d=events.find(e=>e.checkpoint==='prepare_diagnostic').diagnostic;assert.equal(d.processed_count,4);assert.equal(d.counts.accepted_cards,2);assert.equal(d.counts.excluded,1);return {diagnostic:d};},{cards:[card(),manyFaces(),card({id:uuid(71)}),card({id:uuid(72),name:null}),card({id:uuid(73)})]}));
+});
+extendPolicy('M5_23',async()=>{
+ await policyCase('P4_DUPLICATE_EXCLUDED',()=>acquired(async({acq})=>{const p=await prepare(acq);assert.equal(p.counts.duplicates,1);assert.equal(p.counts.record_count,2);assert.equal(p.counts.excluded,1);return {counts:p.counts};},{cards:[card(),manyFaces(),manyFaces()]}));
+ await policyCase('P4_CONFLICT_EXCLUDED',()=>acquired(async({acq})=>{await assert.rejects(prepare(acq),/identity_conflict/);},{cards:[card(),manyFaces(),manyFaces(3,{name:'Different Synthetic'})]}));
+ await policyCase('P4_EXCLUDED_ONLY_NO_IMPORT',()=>acquired(async({acq})=>{await assert.rejects(prepare(acq),/record_count/);},{cards:[manyFaces()]}));
+});
+extendPolicy('M5_43',async()=>{
+ for(const layout of ['normal','split','flip','adventure','transform','modal_dfc'])await policyCase('P4_CONTROL_'+layout,async()=>{
+  const raw=layout==='normal'?card():card({layout,card_faces:[{name:'Synthetic front',illustration_id:uuid(80)},{name:'Synthetic back',illustration_id:uuid(81)}]});
+  const before=JSON.stringify(raw),direct=P.scryfall.translate(raw,context);assert.equal(direct.status,'candidates');assert.equal(exclusion(raw,context,fixture.set),null);assert.equal(JSON.stringify(raw),before);
+  let baseline;await acquired(async({acq})=>{const p=await prepare(acq);baseline=await Promise.all(['sets','cards','variants','records'].map(k=>rows(p.files[k])));},{cards:[raw]});
+  await acquired(async({acq})=>{const p=await prepare(acq);assert.equal(JSON.stringify(await Promise.all(['sets','cards','variants','records'].map(k=>rows(p.files[k])))),JSON.stringify(baseline));},{cards:[manyFaces(),raw]});return {projection_bytes_unchanged:true,excluded_not_staged:true};
+ });
+});
+
+const ledger={policy_subcases:policySubcases,contract:'TCG-I3-M5-local-source-ledger',version:'1',engine:'injected-local-transport/recording-DB-sequence',real_source_acquisition:false,native_acceptance:false,cases:[],source_cases:[],activation:fixture.later.activation.map(id=>({id,status:'SPECIFIED_NOT_RUN'}))};
 try{
  for(const c of tests){try{await c.run();ledger.cases.push({id:c.id,name:c.name,status:'PASS'});console.log('PASS '+c.id+' '+c.name);}catch(e){ledger.cases.push({id:c.id,name:c.name,status:'FAIL',error:e.message,stack:e.stack});console.error('FAIL '+c.id+' '+e.stack);}}
  ledger.forbidden_external_io_attempts=io.attempts();ledger.counts={PASS:ledger.cases.filter(c=>c.status==='PASS').length,FAIL:ledger.cases.filter(c=>c.status==='FAIL').length};ledger.source_cases=[{id:'I18',status:ledger.cases.find(c=>c.id==='I18').status},{id:'I19',status:'REAL_SOURCE_NOT_RUN',harness:'runRealSourceAcceptance',executed:false}];

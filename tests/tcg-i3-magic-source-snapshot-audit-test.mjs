@@ -144,7 +144,52 @@ add('AUDIT31','Missing proof sticky write failure and unsuccessful cleanup canno
   assert.equal(code,1);assert.equal(ledger.real_source_acceptance,false);assert.equal(ledger.product_operation.status,'PASS');assert.equal(ledger.required_evidence_complete,mode==='cleanup');assert.equal(emitted.length,1);reports.push({synthetic_write_or_cleanup_failure:mode,ledger,code});
  }
 });
-const io=forbidExternalIO(),ledger={contract:'TCG-I3-M5-P1-R5-R1-AUDIT-tests',synthetic:true,cases:[],provider_requests:0,live_invocations:0,database_publications:0};
+
+// P4 subcases retain every AUDIT01–31 assertion. Fixtures are synthetic only.
+const faceScopeReason='unresolved_face_count_outside_initial_scope',policySubcases=[];
+const manyFaces=(count=3,extra={})=>card({id:uuid(70),layout:'split',card_faces:Array.from({length:count},(_,i)=>({name:'Synthetic face '+i})),...extra});
+const extendPolicy=(id,run)=>{const t=tests.find(t=>t.id===id),original=t.run;t.run=async()=>{await original();await run();};};
+async function policyCase(id,run){try{const evidence=await run();policySubcases.push({id,synthetic:true,status:'PASS',...evidence});}catch(e){policySubcases.push({id,synthetic:true,status:'FAIL',error:safeError(e)});throw e;}}
+extendPolicy('AUDIT01',async()=>{
+ for(const layout of ['split','flip','adventure','transform','modal_dfc'])for(const n of [3,4,5])await policyCase('P4_AUDIT_'+layout+'_'+n,()=>snapshot(async e=>{
+  const r=await audit(e),p=await prepareAcquisition(e);assert.equal(r.audit_complete,true);assert.equal(r.snapshot_compatible,true);assert.equal(r.first_pass.eof,true);assert.equal(r.first_pass.records_observed,3);assert.equal(r.first_pass.candidates,2);assert.equal(r.first_pass.excluded,1);assert.equal(r.first_pass.record_errors,0);assert.deepEqual(r.first_pass.excluded_by_reason,{[faceScopeReason]:1});assert.deepEqual(r.first_pass.excluded_by_reason,p.counts.excluded_by_reason);assert.equal(r.first_pass.candidates,p.counts.accepted_cards);assert.equal(r.second_pass.records_examined,2);assert.equal(r.second_pass.variants,p.counts.accepted_variants);assert.equal(r.input_bindings.unchanged,true);assert.equal(r.cleanup.audit_index_removed,true);
+  return {first_pass:r.first_pass,second_pass:r.second_pass,import_counts:p.counts};
+ },{cards:[card(),manyFaces(n,{layout}),card({id:uuid(71),oracle_id:uuid(171)})]}));
+});
+const malformedFaceCases=[
+ ...[null,42,'','bad\u0001name'].map((name,i)=>['FACE_NAME_'+i,{card_faces:[{name},{name:'b'},{name:'c'}]}]),
+ ['ROOT_NAME',{name:null}],['ROOT_PRINTED',{printed_name:null}],['FACE_PRINTED',{card_faces:[{name:'a',printed_name:''},{name:'b'},{name:'c'}]}],
+ ['FACE_NULL',{card_faces:[null,{name:'b'},{name:'c'}]}],['FACE_ARRAY',{card_faces:[[],{name:'b'},{name:'c'}]}],
+ ['ROOT_UUID',{id:'bad'}],['SET_UUID',{set_id:'bad'}],['ORACLE_UUID',{oracle_id:'bad'}],['ILLUSTRATION_UUID',{illustration_id:'bad'}],['VARIATION_UUID',{variation_of:'bad'}],
+ ['FACE_UUID',{card_faces:[{name:'a',oracle_id:'bad'},{name:'b'},{name:'c'}]}],
+ ['ROOT_IMAGE',{image_uris:{normal:'http://example.invalid/a'}}],['FACE_IMAGE',{card_faces:[{name:'a',image_uris:[]},{name:'b'},{name:'c'}]}],['IMAGE_STATUS',{image_status:'bad'}],
+ ['COLLECTOR_AMBIGUOUS',{collector_number:'243 244'}],['COLLECTOR_NO_MATCH',{collector_number:' 243'}],['COLLECTOR_LONG',{collector_number:'x'.repeat(129)}],
+ ['MISSING_SET',{set_id:uuid(777)}],['SET_CONFLICT',{set:'wrong'}],['SET_NAME_CONFLICT',{set_name:'wrong'}],
+ ['RARITY',{rarity:'invalid'}],['FINISH_EMPTY',{finishes:[]}],['FINISH_DUPLICATE',{finishes:['foil','foil']}],['FINISH_CODE',{finishes:['bad']}],['FINISH_NULL',{finishes:null}],
+ ['DIGITAL_TYPE',{digital:'false'}],['OVERSIZED_TYPE',{oversized:0}],['GAMES_DUPLICATE',{games:['paper','paper']}],
+ ['DATE_INVALID',{released_at:'2025-02-29'}],['DATE_TYPE',{released_at:1}],['VARIATION_TYPE',{variation:1}],['REPRINT_TYPE',{reprint:'false'}],['FULL_ART_TYPE',{full_art:0}],
+ ['FRAME_CODE',{frame:'BAD'}],['BORDER_CODE',{border_color:'x'.repeat(33)}],['FRAME_EFFECTS_NULL',{frame_effects:null}],['PROMO_DUPLICATE',{promo_types:['promo','promo']}],['PROMO_LIMIT',{promo_types:Array.from({length:33},(_,i)=>'p'+i)}]
+];
+extendPolicy('AUDIT02',async()=>{
+ for(const [name,extra] of malformedFaceCases)await policyCase('P4_AUDIT_REJECT_'+name,()=>snapshot(async e=>{
+  const r=await audit(e);assert.equal(r.audit_complete,true);assert.equal(r.first_pass.eof,true);assert.equal(r.first_pass.candidates,2);assert.equal(r.first_pass.excluded,0);assert.equal(r.first_pass.record_errors,1);assert.equal(r.snapshot_compatible,false);assert.equal(r.first_pass.records_observed,3);return {first_pass:r.first_pass,error_classes:r.error_classes};
+ },{cards:[card(),manyFaces(3,extra),card({id:uuid(71)})]}));
+ await policyCase('P4_MIXED_CONTINUE_AND_FAIL_CLOSED',()=>snapshot(async e=>{
+  const r=await audit(e);assert.equal(r.audit_complete,true);assert.equal(r.first_pass.records_observed,7);assert.equal(r.first_pass.candidates,2);assert.equal(r.first_pass.excluded,1);assert.equal(r.first_pass.record_errors,4);assert.equal(r.snapshot_compatible,false);assert.equal(r.coverage.all_predicates_per_record,false);
+  const events=[];await assert.rejects(prepareAcquisition(e,{onDiagnostic:d=>events.push(d)}),/invalid text/);const d=events.find(x=>x.checkpoint==='prepare_diagnostic').diagnostic;assert.equal(d.processed_count,4);assert.equal(d.counts.excluded,1);return {first_pass:r.first_pass,first_import_reject:d};
+ },{cards:[card(),manyFaces(),card({id:uuid(71)}),card({id:uuid(72),name:null}),manyFaces(4,{id:uuid(73),printed_name:null}),card({id:uuid(74),rarity:'invalid'}),card({id:uuid(75),digital:'false'})]}));
+});
+extendPolicy('AUDIT05',async()=>{
+ await policyCase('P4_EXCLUDED_DUPLICATE_AND_CONFLICT',()=>snapshot(async e=>{const r=await audit(e);assert.equal(r.audit_complete,true);assert.equal(r.first_pass.identical_duplicates,1);assert.equal(r.first_pass.identity_conflicts,1);assert.equal(r.first_pass.excluded,1);assert.equal(r.first_pass.candidates,1);assert.equal(r.first_pass.records_observed,4);assert.equal(r.snapshot_compatible,false);await assert.rejects(prepareAcquisition(e),/identity_conflict/);return {first_pass:r.first_pass};},{cards:[card(),manyFaces(),manyFaces(),manyFaces(3,{name:'Different Synthetic'})]}));
+});
+extendPolicy('AUDIT07',async()=>{
+ const variant=card({id:uuid(71),layout:'split',variation:true,variation_of:uuid(70),frame_effects:['showcase'],card_faces:[{name:'a',illustration_id:uuid(9)},{name:'b',illustration_id:uuid(10)}]});
+ await policyCase('P4_NO_EXCLUDED_REFERENCE',()=>snapshot(async e=>{const r=await audit(e),p=await prepareAcquisition(e);assert.equal(r.first_pass.excluded,1);assert.equal(r.second_pass.without_reference,1);assert.equal(r.second_pass.variants,0);assert.equal(p.counts.accepted_variants,0);assert.equal(r.second_pass.records_examined,1);assert.ok(!(await readFile(p.files.records,'utf8')).includes(uuid(70)+'","locale"'));return {second_pass:r.second_pass,coverage:r.coverage};},{cards:[manyFaces(),variant]}));
+ await policyCase('P4_REJECTED_DEPENDENCY_STILL_LIMITED',()=>snapshot(async e=>{const r=await audit(e);assert.equal(r.first_pass.record_errors,1);assert.equal(r.first_pass.excluded,1);assert.equal(r.second_pass.uncheckable_dependencies,1);assert.equal(r.coverage.reference_coverage,'LIMITED_REJECTED_DEPENDENCIES');assert.equal(r.snapshot_compatible,false);return {second_pass:r.second_pass,coverage:r.coverage};},{cards:[manyFaces(),card({id:uuid(72),name:null,layout:'split'}),variant]}));
+});
+extendPolicy('AUDIT20',()=>policyCase('P4_EXCLUDED_ONLY_NOT_COMPATIBLE',()=>snapshot(async e=>{const r=await audit(e);assert.equal(r.audit_complete,true);assert.equal(r.first_pass.eof,true);assert.equal(r.first_pass.excluded,1);assert.equal(r.first_pass.candidates,0);assert.equal(r.snapshot_compatible,false);await assert.rejects(prepareAcquisition(e),/record_count/);return {first_pass:r.first_pass,second_pass:r.second_pass};},{cards:[manyFaces()]})));
+
+const io=forbidExternalIO(),ledger={policy_subcases:policySubcases,contract:'TCG-I3-M5-P1-R5-R1-AUDIT-tests',synthetic:true,cases:[],provider_requests:0,live_invocations:0,database_publications:0};
 try{
  for(const t of tests){try{await t.run();ledger.cases.push({id:t.id,name:t.name,status:'PASS'});console.log('PASS '+t.id+' '+t.name);}catch(e){ledger.cases.push({id:t.id,name:t.name,status:'FAIL',error:safeError(e)});console.error('FAIL '+t.id+' '+e.stack);}}
  ledger.forbidden_external_io_attempts=io.attempts();ledger.counts={PASS:ledger.cases.filter(x=>x.status==='PASS').length,FAIL:ledger.cases.filter(x=>x.status==='FAIL').length};assert.equal(JSON.stringify(reports).includes(sentinel),false);ledger.export_redaction_pass=true;

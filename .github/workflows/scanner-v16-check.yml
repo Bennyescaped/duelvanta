@@ -915,6 +915,9 @@ jobs:
           assert.deepEqual(ledger.counts,{PASS:31,FAIL:0});
           assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:31},(_,i)=>'AUDIT'+String(i+1).padStart(2,'0')));
           assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          assert.equal(ledger.policy_subcases.length,62);
+          assert.equal(new Set(ledger.policy_subcases.map(c=>c.id)).size,62);
+          assert.ok(ledger.policy_subcases.every(c=>c.status==='PASS'));
           for(const key of ['provider_requests','live_invocations','database_publications','forbidden_external_io_attempts'])assert.equal(ledger[key],0);
           assert.ok(Array.isArray(JSON.parse(await readFile(process.env.TCG_AUDIT_EVIDENCE_DIR+'/synthetic-audit-reports.json'))));
           JS
@@ -934,6 +937,46 @@ jobs:
           assert.deepEqual(ledger.counts,{PASS:58,NATIVE_NOT_RUN:92,SPECIFIED_NOT_RUN:9});
           assert.equal(ledger.cases.length,159);
           JS
+      - name: P4 synthetic WRAP20 and 45 existing subcases acceptance
+        if: github.event_name == 'pull_request'
+        env:
+          TCG_WRAPPER_EVIDENCE_DIR: test-results/tcg-i3-m5-p4-wrapper
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_WRAPPER_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_WRAPPER_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-source-snapshot-audit-real-test.mjs 2>&1 | tee "$TCG_WRAPPER_EVIDENCE_DIR/tests.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_WRAPPER_EVIDENCE_DIR+'/wrapper-test-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
+          assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(ledger[key],0);
+          assert.deepEqual(ledger.subcase_counts,{PASS:45,FAIL:0});
+          assert.equal(ledger.subcases.length,45);
+          assert.equal(new Set(ledger.subcases.map(c=>c.id)).size,45);
+          assert.ok(ledger.subcases.every(c=>c.status==='PASS'));
+          JS
+      - name: P4 synthetic RECORD20 acceptance
+        if: github.event_name == 'pull_request'
+        env:
+          TCG_RECORD_EVIDENCE_DIR: test-results/tcg-i3-m5-p4-record
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_RECORD_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_RECORD_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-single-record-diagnostic-test.mjs 2>&1 | tee "$TCG_RECORD_EVIDENCE_DIR/tests.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_RECORD_EVIDENCE_DIR+'/record-test-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'RECORD'+String(i+1).padStart(2,'0')));
+          assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(ledger[key],0);
+          JS
       - name: R5-R1 offline evidence
         if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
@@ -942,6 +985,8 @@ jobs:
           path: |
             test-results/tcg-i3-m5-r5-r1-audit/
             test-results/tcg-i3-m4-nonnative/
+            test-results/tcg-i3-m5-p4-wrapper/
+            test-results/tcg-i3-m5-p4-record/
           if-no-files-found: error
       - name: M4 native PostgreSQL 17 evidence
         if: always()

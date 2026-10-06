@@ -42,6 +42,19 @@ export async function indexPath(root,kind,id){uuid(id);const dir=join(root,kind,
 export function exclusion(r,context,set){
  if(typeof r.digital!=='boolean'||typeof r.oversized!=='boolean'||typeof r.lang!=='string'||typeof r.layout!=='string'||!Array.isArray(r.games)||r.games.some(x=>typeof x!=='string'))fail('card_scope_shape');
  if(r.digital)return 'digital';if(r.oversized)return 'oversized';if(!r.games.includes('paper'))return 'not_paper';if(!Object.hasOwn(languages,r.lang))return 'language';if(!layouts.includes(r.layout))return 'layout';
+ // Initial face scope is unresolved, not malformed or canonical-valid. General
+ // exclusions keep precedence; identity/digest conflicts have already been checked.
+ if(r.object==='card'&&r.layout!=='normal'&&Object.hasOwn(r,'card_faces')&&Array.isArray(r.card_faces)&&r.card_faces.length>2){
+  P.scryfallCardStructure(r);
+  const collector=G.magic.parseCollectorEvidence({text:r.collector_number,source:'manual'});
+  if(collector.status!=='valid'||collector.comparison_code!==r.collector_number||!r.finishes.length||G.magic.normalizeRarity(r.rarity).status!=='valid')fail('card_validation');
+  if(!set)fail('missing_set');
+  if(r.set_id!==set.id||r.set!==set.code||r.set_name!==set.name)fail('catalog_set_conflict');
+  const translated=P.scryfall.translate(prepareProviderEvidence(set).raw_record,{game_key:'magic',locale:null,collector:{text:'',source:'manual'},source_path:'api/sets/'+set.id,retrieved_at:context.retrieved_at});
+  if(translated.status!=='candidates')fail('set_scope');
+  for(const k of ['set_type','parent_set_code','released_at'])if(Object.hasOwn(set,k)&&set[k]!==null){if(typeof set[k]!=='string'||set[k].length>(k==='set_type'?32:500))fail('set_metadata');if(k==='set_type'&&!/^[a-z0-9_]+$/.test(set[k]))fail('set_metadata');if(k==='released_at'&&(!/^\d{4}-\d\d-\d\d$/.test(set[k])||new Date(set[k]).toISOString().slice(0,10)!==set[k]))fail('set_date');}
+  return 'unresolved_face_count_outside_initial_scope';
+ }
  if(r.lang==='en'||Object.hasOwn(r,'printed_name'))return null;
  // Only absent evidence is unresolved. Invalid supplied text/face shapes and
  // other collector statuses must reach the unchanged fail-closed preparation.

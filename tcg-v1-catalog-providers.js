@@ -113,10 +113,38 @@
     if(raw.image_status==='missing'||raw.image_status==='placeholder')return null;
     return images.normal||images.large||images.png||null;
   }
-  function magicFaces(raw){
+  function magicFaceStructure(raw){
     if(!Object.hasOwn(raw,'card_faces'))return[];
     C.list(raw.card_faces,f=>{C.shape(f,Reflect.ownKeys(f));C.text(f.name);if(Object.hasOwn(f,'printed_name'))C.text(f.printed_name);for(const k of ['illustration_id','oracle_id'])if(Object.hasOwn(f,k)&&f[k]!==null)magicUuid(f[k]);magicImageFields(f)});
-    if(raw.card_faces.length>2)C.fail('scryfall face count');return raw.card_faces;
+    return raw.card_faces;
+  }
+  function magicFaces(raw){
+    const faces=magicFaceStructure(raw);if(faces.length>2)C.fail('scryfall face count');return faces;
+  }
+  function magicCardFields(raw){
+    for(const key of ['set','set_name','lang','layout','collector_number','rarity'])C.text(raw[key]);
+    magicBool(raw.oversized);C.unique(C.list(raw.games,x=>C.text(x)));
+  }
+  // Structural evidence only. No truncated faces, variant DTO or candidates.
+  // The ordinary translator retains its independent, unchanged face-count gate.
+  function scryfallCardStructure(payload){
+    const raw=magicJson(payload);C.shape(raw,Reflect.ownKeys(raw));C.choice(raw.object,['card']);
+    magicUuid(raw.id);magicUuid(raw.set_id);C.text(raw.name);magicBool(raw.digital);magicCardFields(raw);
+    magicFaceStructure(raw);magicImageFields(raw);if(Object.hasOwn(raw,'printed_name'))C.text(raw.printed_name);
+    for(const k of ['oracle_id','illustration_id','variation_of'])if(Object.hasOwn(raw,k)&&raw[k]!==null)magicUuid(raw[k]);
+    C.text(raw.collector_number,{max:128});
+    const code=(v,max=32)=>{C.text(v,{max});if(!/^[a-z0-9_]+$/.test(v))C.fail('evidence provider code');};
+    code(raw.lang,16);code(raw.layout);
+    for(const k of ['variation','reprint','full_art'])if(Object.hasOwn(raw,k)&&raw[k]!==null)magicBool(raw[k]);
+    for(const k of ['frame','border_color'])if(Object.hasOwn(raw,k)&&raw[k]!==null)code(raw[k]);
+    for(const k of ['frame_effects','promo_types'])if(Object.hasOwn(raw,k)){C.unique(C.list(raw[k],v=>code(v)));if(raw[k].length>32)C.fail('evidence array');}
+    C.unique(C.list(raw.finishes,v=>C.choice(v,C.variantVocabularies.magic.finish)));if(raw.finishes.length>3)C.fail('evidence array');
+    if(Object.hasOwn(raw,'released_at')&&raw.released_at!==null){
+      const v=raw.released_at;if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))C.fail('evidence date');
+      const y=Number(v.slice(0,4)),m=Number(v.slice(5,7)),d=Number(v.slice(8,10));
+      const days=[31,y%4===0&&(y%100!==0||y%400===0)?29:28,31,30,31,30,31,31,30,31,30,31];
+      if(m<1||m>12||d<1||d>days[m-1])C.fail('evidence date');
+    }
   }
   function magicProjection(raw,faces){
     const pc={id:raw.id,set_id:raw.set_id,oracle_id:missingNull(raw,'oracle_id'),lang:raw.lang,layout:raw.layout,collector_number:raw.collector_number,released_at:missingNull(raw,'released_at'),variation:missingNull(raw,'variation'),reprint:missingNull(raw,'reprint')};
@@ -146,8 +174,7 @@
       if(raw.digital)return result('unsupported');if(magicRoute(ctx,raw)==='no_match')return result('no_match');
       return result('candidates',[C.providerRecord({ref:ref('set',null),source,raw,normalized:{name:raw.name,language:null},legacy:{catalogId:raw.id,tcg:'magic',name:raw.name,code:raw.code}},binding)]);
     }
-    for(const key of ['set','set_name','lang','layout','collector_number','rarity'])C.text(raw[key]);
-    magicBool(raw.oversized);C.unique(C.list(raw.games,x=>C.text(x)));const faces=magicFaces(raw),projection=magicProjection(raw,faces),rootImage=magicImageFields(raw),image=raw.image_status==='missing'||raw.image_status==='placeholder'?null:rootImage||((faces[0]&&magicImageFields(faces[0]))||null);
+    magicCardFields(raw);const faces=magicFaces(raw),projection=magicProjection(raw,faces),rootImage=magicImageFields(raw),image=raw.image_status==='missing'||raw.image_status==='placeholder'?null:rootImage||((faces[0]&&magicImageFields(faces[0]))||null);
     if(Object.hasOwn(raw,'printed_name'))C.text(raw.printed_name);
     let evidence;
     if(Object.hasOwn(ctx,'variant_evidence')){
@@ -170,5 +197,6 @@
     if(variant.status==='valid')records.push(C.providerRecord({ref:ref('variant',language.locale,'finish:'+variant.finish),source,raw,normalized,legacy},binding));
     return result('candidates',records);
   }
-  return C.freeze({tcgdex:C.catalogProviderAdapter({provider_key:'tcgdex',provider_version:'1',game_key:'pokemon',operations,translate:tcgdexTranslate}),optcg:C.catalogProviderAdapter({provider_key:'optcg',provider_version:'1',game_key:'one_piece',operations,translate:optcgTranslate}),scryfall:C.catalogProviderAdapter({provider_key:'scryfall',provider_version:'1',game_key:'magic',operations:{search:'record_translation_only',getSet:'record_translation_only',getCard:'record_translation_only',listVariants:'record_translation_only'},translate:scryfallTranslate})});
+  const providers={tcgdex:C.catalogProviderAdapter({provider_key:'tcgdex',provider_version:'1',game_key:'pokemon',operations,translate:tcgdexTranslate}),optcg:C.catalogProviderAdapter({provider_key:'optcg',provider_version:'1',game_key:'one_piece',operations,translate:optcgTranslate}),scryfall:C.catalogProviderAdapter({provider_key:'scryfall',provider_version:'1',game_key:'magic',operations:{search:'record_translation_only',getSet:'record_translation_only',getCard:'record_translation_only',listVariants:'record_translation_only'},translate:scryfallTranslate})};
+  Object.defineProperty(providers,'scryfallCardStructure',{value:scryfallCardStructure});return C.freeze(providers);
 });
