@@ -9,8 +9,9 @@ import {createRequire} from 'node:module';
 import {canonicalJSON,parseProviderJSON,prepareProviderEvidence,sha256} from './tcg-catalog-evidence-v1.mjs';
 import {prepareRecords,variantProjection,selectReference,validateManifest,scope_sha256,languages} from './tcg-catalog-persistence-v1.mjs';
 import {jsonlRecords,setsPageFraming,validateSourceURL,parseSetsPage,LIMITS,SETS_FRAMING,DAY} from './tcg-catalog-scryfall-source-v1.mjs';
+import {safeError,captureDiagnostic} from './tcg-catalog-diagnostics-v1.mjs';
 const fail=code=>{throw new TypeError('TCG ingest: '+code);};
-const uuid=id=>{if(typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id))fail('uuid');return id;};
+export const uuid=id=>{if(typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id))fail('uuid');return id;};
 const layouts=['normal','split','flip','adventure','transform','modal_dfc'];
 const require=createRequire(import.meta.url),C=require('./tcg-v1-contracts.js'),G=require('./tcg-v1-game-adapters.js'),P=require('./tcg-v1-catalog-providers.js');
 // Observers cannot change ingest outcomes, including by throwing/rejecting.
@@ -34,11 +35,11 @@ const shapes=Object.freeze({
 });
 const inserts=Object.freeze(Object.fromEntries(Object.entries(shapes).map(([k,cols])=>[k,'insert into pg_temp.tcg_catalog_stage_'+k+'('+cols.join(',')+') values('+cols.map((_,i)=>'$'+(i+1)).join(',')+')'])));
 async function insert(client,kind,row){const cols=shapes[kind];if(!cols||Object.keys(row).length!==cols.length||cols.some(k=>!Object.hasOwn(row,k)))fail('stage_projection');return client.query(inserts[kind],cols.map(k=>k==='canonical_utf8'?Buffer.from(row[k],'utf8'):row[k]!==null&&typeof row[k]==='object'?JSON.stringify(row[k]):row[k]));}
-async function hashFile(path,max){const h=createHash('sha256');let n=0;for await(const b of createReadStream(path)){n+=b.length;if(n>max)fail('file_size');h.update(b);}return {bytes:n,sha256:h.digest('hex')};}
-async function* lines(path){const input=createReadStream(path);const reader=createInterface({input,crlfDelay:Infinity});try{for await(const line of reader){if(line)yield line;}}finally{reader.close();input.destroy();}}
+export async function hashFile(path,max){const h=createHash('sha256');let n=0;for await(const b of createReadStream(path)){n+=b.length;if(n>max)fail('file_size');h.update(b);}return {bytes:n,sha256:h.digest('hex')};}
+export async function* lines(path){const input=createReadStream(path);const reader=createInterface({input,crlfDelay:Infinity});try{for await(const line of reader){if(line)yield line;}}finally{reader.close();input.destroy();}}
 async function writeJSON(path,value){await writeFile(path,JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});}
-async function indexPath(root,kind,id){uuid(id);const dir=join(root,kind,id.slice(0,2));await mkdir(dir,{recursive:true,mode:0o700});return join(dir,id+'.json');}
-function exclusion(r,context,set){
+export async function indexPath(root,kind,id){uuid(id);const dir=join(root,kind,id.slice(0,2));await mkdir(dir,{recursive:true,mode:0o700});return join(dir,id+'.json');}
+export function exclusion(r,context,set){
  if(typeof r.digital!=='boolean'||typeof r.oversized!=='boolean'||typeof r.lang!=='string'||typeof r.layout!=='string'||!Array.isArray(r.games)||r.games.some(x=>typeof x!=='string'))fail('card_scope_shape');
  if(r.digital)return 'digital';if(r.oversized)return 'oversized';if(!r.games.includes('paper'))return 'not_paper';if(!Object.hasOwn(languages,r.lang))return 'language';if(!layouts.includes(r.layout))return 'layout';
  if(r.lang==='en'||Object.hasOwn(r,'printed_name'))return null;
@@ -61,7 +62,7 @@ function exclusion(r,context,set){
 }
 // Streaming fold reproduces M4 selectReference over all eligible SAME-snapshot
 // records without collecting an Oracle group (or the bulk dump) in memory.
-async function referenceRaw(root,raw){
+export async function referenceRaw(root,raw){
  const e=variantProjection(raw),own=selectReference(e,[e]);if(own&&own.reference_printing.printing_context.id===raw.id)return raw;
  if(!raw.oracle_id)return null;const path=await indexPath(root,'groups',raw.oracle_id);try{await stat(path);}catch(err){if(err.code==='ENOENT')return null;throw err;}
  let selected=null,vector=null,date=null,ambiguous=false;
@@ -74,9 +75,7 @@ async function referenceRaw(root,raw){
  }
  return ambiguous?null:selected;
 }
-export async function prepareAcquisition(envelope,{snapshot_id=randomUUID(),migrations=[],onDiagnostic=null}={}){
- diagnostic(onDiagnostic,'prepare_integrity_start','prepare_integrity');
- uuid(snapshot_id);if(migrations.length)fail('provider_migration_review_required');
+export async function verifyAcquisition(envelope,{onDiagnostic=null}={}){
  if(envelope.contract!=='ScryfallAcquisitionEnvelope'||envelope.version!=='1'||envelope.origin!=='bulk_snapshot'||envelope.sets_framing!==SETS_FRAMING)fail('envelope');
  const m=validateManifest(envelope.manifest);if(validateSourceURL(envelope.bulk_url,'bulk')!==m.jsonl_download_uri||!Number.isFinite(Date.parse(envelope.completed_at)))fail('envelope_binding');
  const acquired=await realpath(dirname(envelope.jsonl_file));if(acquired!==dirname(envelope.jsonl_file)||!/^acq-[0-9a-f-]{36}$/.test(acquired.split('/').at(-1)))fail('acquisition_directory');
@@ -94,36 +93,48 @@ export async function prepareAcquisition(envelope,{snapshot_id=randomUUID(),migr
   pages.push({url:p.url,bytes});
  }
  if(!pages.length||next!==null||setsPageFraming(pages)!==envelope.sets_response_sha256)fail('sets_framing');
+ return {m,acquired,sets,setPaths};
+}
+export async function prepareAcquisition(envelope,{snapshot_id=randomUUID(),migrations=[],onDiagnostic=null}={}){
+ diagnostic(onDiagnostic,'prepare_integrity_start','prepare_integrity');
+ uuid(snapshot_id);if(migrations.length)fail('provider_migration_review_required');
+ const {m,acquired,sets,setPaths}=await verifyAcquisition(envelope,{onDiagnostic});
  const root=join(acquired,'prepared-'+snapshot_id);await mkdir(root,{mode:0o700});const ids=join(root,'accepted.ids'),records=join(root,'records.jsonl'),cards=join(root,'cards.jsonl'),variants=join(root,'variants.jsonl'),setRows=join(root,'sets.jsonl'),report=join(root,'findings.jsonl');
  for(const path of [ids,records,cards,variants,setRows,report])await writeFile(path,'',{flag:'wx',mode:0o600});
  const counts={record_count:0,accepted_cards:0,accepted_variants:0,accepted_sets:0,duplicates:0,excluded:0,excluded_by_reason:{}};const used=new Set();let observed=0;
- let diagnosticPhase='prepare_cards',lastExternalID=null;
+ let diagnosticPhase='prepare_cards',lastExternalID=null,lastRecordDigest=null,currentRecord=false;
  const progress=checkpoint=>diagnostic(onDiagnostic,checkpoint,diagnosticPhase,{processed_count:observed,accepted_count:counts.accepted_cards,excluded_count:counts.excluded,duplicate_count:counts.duplicates,last_external_id:lastExternalID});
  diagnostic(onDiagnostic,'prepare_cards_start',diagnosticPhase);
  try{
-  for await(const raw of jsonlRecords(envelope.jsonl_file)){observed++;
-   if(onDiagnostic)lastExternalID=typeof raw.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(raw.id)?raw.id:null;
-   try{const ev=prepareProviderEvidence(raw);uuid(raw.id);const path=await indexPath(root,'seen',raw.id);
+  for await(const raw of jsonlRecords(envelope.jsonl_file)){observed++;lastRecordDigest=null;currentRecord=true;
+   lastExternalID=typeof raw.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(raw.id)?raw.id:null;
+   try{const ev=prepareProviderEvidence(raw);lastRecordDigest=ev.content_sha256;uuid(raw.id);const path=await indexPath(root,'seen',raw.id);
    let duplicate=false;try{const previous=JSON.parse(await readFile(path,'utf8'));if(previous.record_version!==ev.record_version||previous.lang!==raw.lang)fail('catalog_identity_conflict');duplicate=true;}catch(err){if(err.code!=='ENOENT')throw err;}
    if(duplicate){counts.duplicates++;await appendFile(report,JSON.stringify({kind:'duplicate_equal_digest',external_id:raw.id,record_version:ev.record_version})+'\n');continue;}
    await writeJSON(path,{record_version:ev.record_version,lang:raw.lang});counts.record_count++;const reason=exclusion(ev.raw_record,{source_path:envelope.bulk_url,retrieved_at:envelope.completed_at},sets.get(raw.set_id));
    if(reason){counts.excluded++;counts.excluded_by_reason[reason]=(counts.excluded_by_reason[reason]??0)+1;await appendFile(report,JSON.stringify({kind:'excluded',external_id:raw.id,reason})+'\n');continue;}
    const set=sets.get(raw.set_id);if(!set)fail('missing_set');const prepared=prepareRecords({sets:[set],cards:[raw],source_path:envelope.bulk_url,set_source_paths:setPaths,retrieved_at:envelope.completed_at});if(prepared.stage_cards.length!==1)fail('card_validation');
    await writeJSON(await indexPath(root,'cards',raw.id),raw);await appendFile(ids,raw.id+'\n');if(raw.oracle_id)await appendFile(await indexPath(root,'groups',raw.oracle_id),raw.id+'\n',{mode:0o600});used.add(raw.set_id);counts.accepted_cards++;
-   }finally{if(onDiagnostic&&observed%10000===0)progress('prepare_progress');}
+   }catch(error){currentRecord='failed';throw error;}finally{if(currentRecord!=='failed'){currentRecord=false;lastRecordDigest=null;}if(onDiagnostic&&observed%10000===0)progress('prepare_progress');}
   }
   if(observed!==envelope.record_count||!counts.accepted_cards)fail('record_count');
   diagnosticPhase='prepare_sets_projection';diagnostic(onDiagnostic,'prepare_sets_projection_start',diagnosticPhase);
   for(const id of [...used].sort()){const r=sets.get(id),ev=prepareProviderEvidence(r);await appendFile(setRows,JSON.stringify({external_id:id,name:r.name,record_version:ev.record_version})+'\n');await appendFile(records,JSON.stringify({entity_kind:'set',external_id:id,locale:null,...ev,source_path:setPaths[id],retrieved_at:envelope.completed_at})+'\n');counts.accepted_sets++;}
   diagnosticPhase='prepare_variants';diagnostic(onDiagnostic,'prepare_variants_start',diagnosticPhase);
-  for await(const id of lines(ids)){if(onDiagnostic)lastExternalID=id;const raw=JSON.parse(await readFile(await indexPath(root,'cards',id),'utf8')),ref=await referenceRaw(root,raw),st=prepareRecords({sets:[sets.get(raw.set_id),...(ref&&ref.set_id!==raw.set_id?[sets.get(ref.set_id)]:[])],cards:[raw],source_path:envelope.bulk_url,set_source_paths:setPaths,retrieved_at:envelope.completed_at,reference_records:ref?[ref]:[]});
+  for await(const id of lines(ids)){if(onDiagnostic)lastExternalID=id;lastRecordDigest=null;const raw=JSON.parse(await readFile(await indexPath(root,'cards',id),'utf8')),ref=await referenceRaw(root,raw),st=prepareRecords({sets:[sets.get(raw.set_id),...(ref&&ref.set_id!==raw.set_id?[sets.get(ref.set_id)]:[])],cards:[raw],source_path:envelope.bulk_url,set_source_paths:setPaths,retrieved_at:envelope.completed_at,reference_records:ref?[ref]:[]});
    await appendFile(cards,JSON.stringify(st.stage_cards[0])+'\n');await appendFile(records,JSON.stringify(st.stage_records.find(r=>r.entity_kind==='card'))+'\n');for(const v of st.stage_variants){await appendFile(variants,JSON.stringify(v)+'\n');counts.accepted_variants++;}
   }
   const header={id:snapshot_id,game_key:'magic',provider_key:'scryfall',provider_version:'1',bulk_id:m.id,bulk_type:'all_cards',bulk_updated_at:m.updated_at,download_uri:m.jsonl_download_uri,format:'gzip_jsonl',compressed_size:envelope.compressed_size,compressed_sha256:envelope.compressed_sha256,jsonl_sha256:envelope.jsonl_sha256,sets_response_sha256:envelope.sets_response_sha256,manifest_sha256:envelope.manifest_sha256,raw_manifest:m,scope_contract:'magic-collect-catalog-v1',scope_sha256,retrieved_at:envelope.completed_at,record_count:counts.record_count,accepted_cards:counts.accepted_cards,accepted_variants:counts.accepted_variants,accepted_sets:counts.accepted_sets,sealed_at:null};
   diagnosticPhase='prepare_digests';diagnostic(onDiagnostic,'prepare_digests_start',diagnosticPhase);
   const files={sets:setRows,cards,variants,records};const digests={};for(const [k,file] of Object.entries(files))digests[k]=await hashFile(file,Number.MAX_SAFE_INTEGER);
   await writeJSON(join(root,'preparation-report.json'),{header,counts,digests,findings_file:report});return {header,counts,files,digests,findings_file:report};
- }catch(e){progress('prepare_failure');await writeJSON(join(root,'reject-report.json'),{code:e.message.startsWith('TCG ')?e.message:'preparation_error',counts});throw e;}
+ }catch(e){progress('prepare_failure');
+  const captured=await captureDiagnostic(e,{phase:diagnosticPhase,processed_count:observed,...(diagnosticPhase==='prepare_cards'&&currentRecord?{record_ordinal:observed,external_id:lastExternalID}:{}),last_external_id:lastExternalID,record_sha256:lastRecordDigest,counts,...Object.fromEntries(['jsonl_sha256','compressed_sha256','sets_response_sha256','manifest_sha256','manifest_raw_sha256'].map(k=>[k,envelope[k]]))},async primary=>{await writeJSON(join(root,'safe-diagnostic.json'),primary);});
+  try{Object.defineProperty(e,'diagnostic',{value:captured.primary,configurable:true});}catch{}
+  diagnostic(onDiagnostic,'prepare_diagnostic',diagnosticPhase,{diagnostic:captured.primary,diagnostic_error:captured.diagnostic_error});
+  try{await writeJSON(join(root,'reject-report.json'),{diagnostic:captured.primary,counts});}catch(reportError){diagnostic(onDiagnostic,'diagnostic_failure',diagnosticPhase,{diagnostic:safeError(reportError)});}
+  throw e;
+ }
 }
 export async function publicationPreflight(client,header,{clock=()=>Date.now()}={}){
  const {rows}=await client.query(`select current_user as owner,current_setting('server_version_num') as server_version_num,
@@ -156,12 +167,14 @@ export async function publishPrepared(client,prepared,options={}){
  }catch(e){try{await client.query('rollback');}catch(rollback){throw new AggregateError([e,rollback],'TCG ingest: rollback_failed');}throw e;}
 }
 export async function ingestAcquisition(acquisition,{client,snapshot_id=randomUUID(),migrations=[],clock=()=>Date.now(),onDiagnostic=null}={}){
- if(!client||typeof client.query!=='function'||!acquisition||typeof acquisition.finish!=='function')fail('operator_input');let done=false;
+ if(!client||typeof client.query!=='function'||!acquisition||typeof acquisition.finish!=='function')fail('operator_input');let done=false,primaryFailure=null,diagnosticPhase='prepare';
+ const observe=event=>{if(event.phase!=='finish')diagnosticPhase=event.phase;return onDiagnostic?.(event);};
  diagnostic(onDiagnostic,'acquisition_complete','prepare');
- try{diagnostic(onDiagnostic,'prepare_start','prepare');const prepared=await prepareAcquisition(acquisition.envelope,{snapshot_id,migrations,onDiagnostic});
+ try{diagnostic(onDiagnostic,'prepare_start','prepare');const prepared=await prepareAcquisition(acquisition.envelope,{snapshot_id,migrations,onDiagnostic:observe});
   if(onDiagnostic)diagnostic(onDiagnostic,'prepare_complete','publication_preflight',{counts:{...prepared.counts,excluded_by_reason:{...prepared.counts.excluded_by_reason}},digests:Object.fromEntries(Object.entries(prepared.digests).map(([k,v])=>[k,{...v}]))});
-  const result=await publishPrepared(client,prepared,{clock,onDiagnostic});done=true;await acquisition.finish({published:true,...result});diagnostic(onDiagnostic,'finish_complete','finish');return {...result,findings_file:prepared.findings_file};}
- finally{if(!done){await acquisition.finish({published:false});diagnostic(onDiagnostic,'finish_complete','finish');}}
+  const result=await publishPrepared(client,prepared,{clock,onDiagnostic:observe});done=true;await acquisition.finish({published:true,...result});diagnostic(onDiagnostic,'finish_complete','finish');return {...result,findings_file:prepared.findings_file};}
+ catch(e){primaryFailure=e;diagnostic(onDiagnostic,'operation_failure',diagnosticPhase,{diagnostic:safeError(e,{phase:diagnosticPhase})});throw e;}
+ finally{if(!done){try{await acquisition.finish({published:false});diagnostic(onDiagnostic,'finish_complete','finish');}catch(cleanupError){diagnostic(onDiagnostic,'cleanup_failure','finish',{diagnostic:safeError(cleanupError)});if(!primaryFailure)throw cleanupError;}}}
 }
 // Prepared real-source harness: caller supplies the already authorized source
 // instance, operator temp directory and owner connection. Never runs on import.
