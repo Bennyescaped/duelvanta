@@ -6,7 +6,9 @@ import {createRequire,syncBuiltinESMExports} from 'node:module';
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {freemem,totalmem} from 'node:os';
-import {createScryfallSource,validateSourceURL,LIMITS} from '../tcg-catalog-scryfall-source-v1.mjs';
+import {createScryfallSource,validateSourceURL,LIMITS,SETS_FRAMING} from '../tcg-catalog-scryfall-source-v1.mjs';
+import {validateManifest} from '../tcg-catalog-persistence-v1.mjs';
+import {canonicalJSON,sha256} from '../tcg-catalog-evidence-v1.mjs';
 import {auditSnapshot} from './tcg-i3-magic-source-snapshot-audit.mjs';
 import {safeError} from '../tcg-catalog-diagnostics-v1.mjs';
 
@@ -19,7 +21,8 @@ const fail=code=>{throw new Error('M5 acceptance: '+code);};
 const check=(ok,code)=>{if(!ok)fail(code);};
 const digest=v=>typeof v==='string'&&/^[0-9a-f]{64}$/.test(v)?v:null;
 const integer=v=>Number.isSafeInteger(v)&&v>=0?v:null;
-const timestamp=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(v)?v:null;
+// Reuse the manifest's existing UTC contract, preserving its accepted bytes.
+const timestamp=(v,m)=>validateManifest({...m,updated_at:v}).updated_at;
 const counts=(v,keys)=>Object.fromEntries(keys.map(k=>[k,integer(v?.[k])]));
 const bool=v=>v===true;
 const kinds=new Set(['record_error','identity_conflict','reference_variant_error','unused_set','global_failure']);
@@ -58,9 +61,17 @@ function safeURL(value){
 }
 export function compactEnvelope(e){
  if(!e)return null;
- return {contract:'ScryfallAcquisitionEnvelope',version:'1',origin:'bulk_snapshot',attempt:integer(e.attempt),cache_hit:bool(e.cache_hit),metadata_acquired_at:timestamp(e.metadata_acquired_at),started_at:timestamp(e.started_at),completed_at:timestamp(e.completed_at),source_time:timestamp(e.manifest?.updated_at),manifest_url:safeURL(e.manifest_url),bulk_url:safeURL(e.bulk_url),
+ const m=validateManifest(e.manifest);
+ check(e.contract==='ScryfallAcquisitionEnvelope'&&e.version==='1'&&e.origin==='bulk_snapshot','required_evidence_missing');
+ const proof={contract:e.contract,version:e.version,origin:e.origin,attempt:integer(e.attempt),cache_hit:bool(e.cache_hit),metadata_acquired_at:timestamp(e.metadata_acquired_at,m),started_at:timestamp(e.started_at,m),completed_at:timestamp(e.completed_at,m),source_time:m.updated_at,manifest_url:validateSourceURL(e.manifest_url,'manifest'),bulk_url:validateSourceURL(e.bulk_url,'bulk'),
   ...counts(e,['record_count','compressed_size','decompressed_size']),...Object.fromEntries(['compressed_sha256','jsonl_sha256','sets_response_sha256','manifest_sha256','manifest_raw_sha256'].map(k=>[k,digest(e[k])])),
-  sets_framing:e.sets_framing==='ScryfallSetsPages/1'?e.sets_framing:null,pages:(e.pages??[]).map(p=>({order:integer(p.order),url:safeURL(p.url),bytes:integer(p.bytes),raw_sha256:digest(p.raw_sha256)})),raw_files_included:false};
+  sets_framing:e.sets_framing===SETS_FRAMING?e.sets_framing:null,pages:Array.isArray(e.pages)?Array.from(e.pages,p=>({order:integer(p?.order),url:validateSourceURL(p?.url,'sets'),bytes:integer(p?.bytes),raw_sha256:digest(p?.raw_sha256)})):[],raw_files_included:false};
+ check(Date.parse(proof.metadata_acquired_at)<=Date.parse(proof.started_at)&&Date.parse(proof.started_at)<=Date.parse(proof.completed_at),'required_evidence_missing');
+ check(proof.attempt>0&&typeof e.cache_hit==='boolean'&&proof.bulk_url===m.jsonl_download_uri&&proof.compressed_size===m.compressed_size,'required_evidence_missing');
+ check(proof.record_count>0&&proof.record_count<=LIMITS.lines&&proof.decompressed_size>0&&proof.decompressed_size<=LIMITS.decompressed,'required_evidence_missing');
+ check(['compressed_sha256','jsonl_sha256','sets_response_sha256','manifest_sha256','manifest_raw_sha256'].every(k=>proof[k]!==null)&&proof.manifest_sha256===sha256(Buffer.from(canonicalJSON(m,LIMITS.manifest))),'required_evidence_missing');
+ check(proof.sets_framing!==null&&proof.pages.length>0&&proof.pages[0].url==='https://api.scryfall.com/sets'&&new Set(proof.pages.map(p=>p.url)).size===proof.pages.length&&proof.pages.every((p,i)=>p.order===i+1&&p.bytes>0&&p.raw_sha256!==null)&&proof.pages.reduce((n,p)=>n+p.bytes,0)<=LIMITS.sets,'required_evidence_missing');
+ return proof;
 }
 function classKey(key){
  const [kind,family,code,site,...extra]=key.split('|'),d=safeError({contract_family:family,contract_code:code,stack_location:site});
@@ -99,11 +110,15 @@ async function absent(path){try{await lstat(path);return false;}catch(e){if(e.co
 export async function runSnapshotAudit({authorization,outputDir,tempParent,sourceFactory=createScryfallSource,audit=auditSnapshot,writer=atomicEvidence,remove=rm,transport=(...args)=>globalThis.fetch(...args),resourceProbe=resources,preflight=null}={}){
  const ledger={contract:'TCG-I3-M5-P1-R5-R1-P2',version:'1',started_at:now(),status:'RUNNING',diagnostic_completion_pass:false,snapshot_status:'INCOMPLETE',snapshot_compatible:false,audit_complete:false,
   audit_acquisition_invocations_this_block:0,full_snapshot_audit_invocations_this_block:0,I19_operator_invocations_this_block:0,I19_operator_invocations_historical:5,audit_database_publications:0,provider_requests:0,audit_forbidden_io_attempts:0,
-  first_failure:null,diagnostic_errors:[],cleanup_errors:[],required_evidence_complete:false,magic_status:'planned/unavailable',I19:'FAIL / LIVE_REACCEPTANCE_PENDING',review_gates:'OPEN',activation:false};
+  first_failure:null,diagnostic_errors:[],cleanup_errors:[],required_evidence_complete:false,required_evidence_content_complete:false,magic_status:'planned/unavailable',I19:'FAIL / LIVE_REACCEPTANCE_PENDING',review_gates:'OPEN',activation:false};
  let output=null,ownRoot=null,ownedIdentity=null,acquisition=null,envelope=null,report=null,phase='authorization',evidenceFailed=false;
  const requests=[],written=new Set(),cleanup={finish_called:false,published:false,own_temp_created:false,own_temp_removed:false,audit_index_removed:null,foreign_resources_removed:false};
  const persist=async(name,value)=>{try{check(output!==null,'required_evidence_missing');await writer(join(output,name),value);written.add(name);return true;}catch(e){evidenceFailed=true;ledger.diagnostic_errors.push({evidence:name,error:safeError(e,{phase:'audit_output'})});return false;}};
  const must=async(name,value)=>{if(!await persist(name,value))fail('required_evidence_missing');};
+ const acquisitionProof=async()=>{
+  try{const value=compactEnvelope(envelope);check(value!==null,'required_evidence_missing');ledger.required_evidence_content_complete=true;return await persist('acquisition-digests.json',value);}
+  catch(e){evidenceFailed=true;ledger.required_evidence_content_complete=false;ledger.diagnostic_errors.push({evidence:'acquisition-digests.json',kind:'REQUIRED_CONTENT_INVALID',error:safeError(e,{phase:'audit_output'})});return false;}
+ };
  const first=e=>{ledger.first_failure??={stage:phase,error:safeError(e,{phase:phase==='audit'?'audit_cards':phase==='cleanup'?'raw_cleanup':'unknown'})};};
  try{
   ledger.binding=validateAuthorization(authorization);
@@ -130,7 +145,7 @@ export async function runSnapshotAudit({authorization,outputDir,tempParent,sourc
   const source=sourceFactory({transport:recordTransport});
   await must('invocation-proof.json',{at:now(),acquire_authorized_maximum:1,audit_invocations:0,binding:ledger.binding});
   ledger.audit_acquisition_invocations_this_block++;acquisition=await source.acquire({tempDir:ownRoot});envelope=acquisition.envelope;
-  await must('acquisition-digests.json',compactEnvelope(envelope));
+  phase='acquisition_evidence';if(!await acquisitionProof())fail('required_evidence_missing');
   await must('acquisition-attempts.json',await attemptReceipts(ownRoot));
   await must('resources-before-audit.json',await resourceProbe(temporary));
   phase='audit';const guard=lockAuditIO();
@@ -147,7 +162,7 @@ export async function runSnapshotAudit({authorization,outputDir,tempParent,sourc
   // All compact evidence is attempted before removing any owned raw input.
   if(output){
    await persist('request-ledger.json',{provider_requests:ledger.provider_requests,requests});
-   await persist('acquisition-digests.json',compactEnvelope(envelope));
+   if(envelope)await acquisitionProof();else await persist('acquisition-digests.json',null);
    try{await persist('acquisition-attempts.json',await attemptReceipts(ownRoot));}catch(e){ledger.diagnostic_errors.push({evidence:'acquisition-attempts.json',error:safeError(e)});evidenceFailed=true;}
    await persist('failure-proof.json',{first_failure:ledger.first_failure,diagnostic_errors:ledger.diagnostic_errors});
   }
@@ -160,7 +175,7 @@ export async function runSnapshotAudit({authorization,outputDir,tempParent,sourc
   if(output){await persist('cleanup-proof.json',cleanup);try{await persist('resources-after.json',await resourceProbe(tempParent));}catch(e){evidenceFailed=true;ledger.diagnostic_errors.push({evidence:'resources-after.json',error:safeError(e)});}}
  }
  const required=['start-proof.json','versions.json','resources-before.json','request-ledger.json','invocation-proof.json','acquisition-digests.json','acquisition-attempts.json','resources-before-audit.json','audit-start.json','audit-report.json','error-classes.json','reproduction.json','failure-proof.json','cleanup-proof.json','resources-after.json'];
- ledger.finished_at=now();ledger.cleanup=cleanup;ledger.required_evidence_complete=!evidenceFailed&&required.every(n=>written.has(n));
+ ledger.finished_at=now();ledger.cleanup=cleanup;ledger.required_evidence_complete=!evidenceFailed&&ledger.required_evidence_content_complete&&required.every(n=>written.has(n));
  ledger.diagnostic_completion_pass=!!report?.audit_complete&&!ledger.first_failure&&ledger.cleanup_errors.length===0&&cleanup.finish_called&&cleanup.own_temp_removed&&ledger.required_evidence_complete;
  ledger.status=ledger.diagnostic_completion_pass?'DIAGNOSTIC_COMPLETE':'DIAGNOSTIC_INCOMPLETE';
  ledger.outcome_semantics='COMPLETE_REJECTED is diagnostic completion only, never catalog acceptance or I19 PASS';
