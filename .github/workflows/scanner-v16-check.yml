@@ -584,10 +584,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
-          path: .tcg-api-c16
+          path: test-results/.tcg-api-c16
           persist-credentials: false
       - name: M5 R4 proven-defect offline regression (no provider calls)
-        working-directory: .tcg-api-c16
+        working-directory: test-results/.tcg-api-c16
         env:
           TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r4
         run: |
