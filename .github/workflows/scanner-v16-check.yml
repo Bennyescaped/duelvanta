@@ -582,6 +582,7 @@ jobs:
       - name: Bound API-C16 historical M5 contract checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
           path: .tcg-api-c16
           persist-credentials: false
@@ -893,6 +894,7 @@ jobs:
       - name: Bound API-C16 historical M4 M5 contract checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
           path: .tcg-api-c16
           persist-credentials: false
