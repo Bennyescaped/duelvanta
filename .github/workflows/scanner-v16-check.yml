@@ -954,9 +954,9 @@ jobs:
           assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
           assert.ok(ledger.cases.every(c=>c.status==='PASS'));
           for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(ledger[key],0);
-          assert.deepEqual(ledger.subcase_counts,{PASS:45,FAIL:0});
-          assert.equal(ledger.subcases.length,45);
-          assert.equal(new Set(ledger.subcases.map(c=>c.id)).size,45);
+          assert.deepEqual(ledger.subcase_counts,{PASS:47,FAIL:0});
+          assert.equal(ledger.subcases.length,47);
+          assert.equal(new Set(ledger.subcases.map(c=>c.id)).size,47);
           assert.ok(ledger.subcases.every(c=>c.status==='PASS'));
           JS
       - name: P4 synthetic RECORD20 acceptance
@@ -1081,7 +1081,15 @@ jobs:
 
   tcg_i3_magic_snapshot_audit:
     needs: [account_data_export_t2, production_upgrade_p001, collect_f3_database, quota_database, validate, tcg_i3_magic_persistence, tcg_i3_magic_source_ingest]
-    if: ${{ false }}
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'synchronize' &&
+      github.repository == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.base.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.head.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.number == 6 &&
+      github.event.pull_request.head.ref == 'tcg-registry-v1' &&
+      github.run_attempt == 1
     runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
@@ -1105,7 +1113,6 @@ jobs:
           EXPECTED_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          mkdir -p test-results/tcg-i3-m5-p2-job
           test "$GITHUB_EVENT_NAME" = pull_request
           test "$GITHUB_REPOSITORY" = Bennyescaped/duelvanta
           test "$EXPECTED_HEAD_REPOSITORY" = Bennyescaped/duelvanta
@@ -1113,16 +1120,23 @@ jobs:
           test "$EXPECTED_PR_NUMBER" = 6
           test "$GITHUB_RUN_ATTEMPT" = 1
           test "$(git rev-parse HEAD)" = "$EXPECTED_PR_HEAD"
-          test "$(git show -s --format=%P HEAD)" = 162e29641146e7420aa85791ba95d0a2f2dd0491
+          if [ "$(git show -s --format=%P HEAD)" != 2db97d986c598b36f6f3e03deb562ade07a5882c ]; then
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Snapshot audit locked: this is not the authorized parent.'
+            exit 0
+          fi
+          mkdir -p test-results/tcg-i3-m5-p2-job
           current_pr_head="$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)"
           test "$current_pr_head" = "$EXPECTED_PR_HEAD"
           echo "head=$current_pr_head" >> "$GITHUB_OUTPUT"
           node --input-type=module <<'NODE'
           import {writeFile} from 'node:fs/promises';
           const e=process.env;
-          await writeFile('test-results/tcg-i3-m5-p2-job/start-binding.json',JSON.stringify({at:new Date().toISOString(),head:e.EXPECTED_PR_HEAD,parent:'162e29641146e7420aa85791ba95d0a2f2dd0491',event:e.GITHUB_EVENT_NAME,repository:e.GITHUB_REPOSITORY,pr:6,branch:e.GITHUB_HEAD_REF,run_id:e.GITHUB_RUN_ID,run_number:e.GITHUB_RUN_NUMBER,attempt:1,node:process.version,current_pr_head_verified:true,real_acquisition_started:false},null,2)+'\n');
+          await writeFile('test-results/tcg-i3-m5-p2-job/start-binding.json',JSON.stringify({at:new Date().toISOString(),head:e.EXPECTED_PR_HEAD,parent:'2db97d986c598b36f6f3e03deb562ade07a5882c',event:e.GITHUB_EVENT_NAME,repository:e.GITHUB_REPOSITORY,pr:6,branch:e.GITHUB_HEAD_REF,run_id:e.GITHUB_RUN_ID,run_number:e.GITHUB_RUN_NUMBER,attempt:1,node:process.version,current_pr_head_verified:true,real_acquisition_started:false},null,2)+'\n');
           NODE
+          echo 'run=true' >> "$GITHUB_OUTPUT"
       - name: Synthetic acquisition audit wrapper behavior tests
+        if: steps.audit_gate.outputs.run == 'true'
         env:
           TCG_WRAPPER_EVIDENCE_DIR: test-results/tcg-i3-m5-p2-wrapper
         run: |
@@ -1130,7 +1144,20 @@ jobs:
           mkdir -p "$TCG_WRAPPER_EVIDENCE_DIR"
           trap 'code=$?; printf "%s\n" "$code" > "$TCG_WRAPPER_EVIDENCE_DIR/exit-code.txt"' EXIT
           node tests/tcg-i3-magic-source-snapshot-audit-real-test.mjs 2>&1 | tee "$TCG_WRAPPER_EVIDENCE_DIR/wrapper.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile(process.env.TCG_WRAPPER_EVIDENCE_DIR+'/wrapper-test-ledger.json'));
+          assert.deepEqual(x.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(x.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
+          assert.ok(x.cases.every(c=>c.status==='PASS'));
+          assert.equal(x.subcases.length,47);
+          assert.equal(new Set(x.subcases.map(c=>c.id)).size,47);
+          assert.ok(x.subcases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(x[key],0);
+          JS
       - name: Unchanged AUDIT31 synthetic preflight
+        if: steps.audit_gate.outputs.run == 'true'
         env:
           TCG_AUDIT_EVIDENCE_DIR: test-results/tcg-i3-m5-p2-audit31
         run: |
@@ -1138,19 +1165,34 @@ jobs:
           mkdir -p "$TCG_AUDIT_EVIDENCE_DIR"
           trap 'code=$?; printf "%s\n" "$code" > "$TCG_AUDIT_EVIDENCE_DIR/exit-code.txt"' EXIT
           node tests/tcg-i3-magic-source-snapshot-audit-test.mjs 2>&1 | tee "$TCG_AUDIT_EVIDENCE_DIR/audit31.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile(process.env.TCG_AUDIT_EVIDENCE_DIR+'/audit-test-ledger.json'));
+          assert.deepEqual(x.counts,{PASS:31,FAIL:0});
+          assert.deepEqual(x.cases.map(c=>c.id),Array.from({length:31},(_,i)=>'AUDIT'+String(i+1).padStart(2,'0')));
+          assert.ok(x.cases.every(c=>c.status==='PASS'));
+          assert.equal(x.policy_subcases.length,62);
+          assert.equal(new Set(x.policy_subcases.map(c=>c.id)).size,62);
+          assert.ok(x.policy_subcases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','forbidden_external_io_attempts'])assert.equal(x[key],0);
+          JS
       - name: One acquisition and complete diagnostic audit without publication
+        if: steps.audit_gate.outputs.run == 'true'
         env:
-          DUELVANTA_M5_SNAPSHOT_AUDIT: P2_ONE_ACQUISITION_DIAGNOSTIC_ONLY
+          DUELVANTA_M5_SNAPSHOT_AUDIT: P4_P2_ONE_ACQUISITION_DIAGNOSTIC_ONLY
           TCG_AUDIT_CURRENT_PR_HEAD: ${{ steps.audit_gate.outputs.head }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           trap 'code=$?; printf "%s\n" "$code" > test-results/tcg-i3-m5-p2-job/real-exit-code.txt' EXIT
+          test "$(git rev-parse HEAD)" = "$TCG_AUDIT_CURRENT_PR_HEAD"
+          test "$(git show -s --format=%P HEAD)" = 2db97d986c598b36f6f3e03deb562ade07a5882c
           test "$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)" = "$TCG_AUDIT_CURRENT_PR_HEAD"
           unset GH_TOKEN
           node tests/tcg-i3-magic-source-snapshot-audit-real.mjs --real-audit 2>&1 | tee test-results/tcg-i3-m5-p2-job/real-audit.log
       - name: Diagnostic outcome is not catalog or I19 acceptance
-        if: always()
+        if: always() && steps.audit_gate.outputs.run == 'true'
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -1162,7 +1204,7 @@ jobs:
           await appendFile(process.env.GITHUB_STEP_SUMMARY,text);
           NODE
       - name: Compact snapshot audit evidence only never raw acquisition files
-        if: always()
+        if: always() && steps.audit_gate.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: tcg-i3-m5-p2-full-snapshot-audit-evidence

@@ -142,6 +142,24 @@ add('WRAP19','Internal retry is one acquire, actual attempts counted and audit r
 add('WRAP20','Input immutability, EOF, complete class coverage and no I19 promotion',()=>scenario(async({args,exported})=>{
  const r=await runSnapshotAudit(args),files=await exported(),a=files['audit-report.json'];assert.equal(r.exitCode,0);assert.equal(a.input_bindings.unchanged,true);assert.deepEqual(a.input_bindings.before,a.input_bindings.after);assert.equal(a.first_pass.eof,true);assert.equal(a.first_pass.balanced,true);assert.equal(a.second_pass.complete,true);assert.equal(a.example_coverage.complete,true);assert.equal(r.ledger.I19_operator_invocations_this_block,0);assert.equal(r.ledger.I19_operator_invocations_historical,5);assert.equal(r.ledger.I19,'FAIL / LIVE_REACCEPTANCE_PENDING');assert.equal(r.ledger.magic_status,'planned/unavailable');retain(r,files);
 }));
+
+// P4-P2: exactly two synthetic integration subcases, retaining WRAP01–20.
+const p4FaceReason='unresolved_face_count_outside_initial_scope';
+const p4Fixture={cards:[card(),card({id:uuid(70),layout:'split',card_faces:[{name:'Synthetic front'},{name:'Synthetic middle'},{name:'Synthetic back'}]})]};
+for(const [wrap,id,run] of [
+ ['WRAP04','P4_EXPORT_REASON',()=>scenario(async({args,state,exported})=>{
+  const r=await runSnapshotAudit(args),files=await exported(),a=files['audit-report.json'];
+  assert.equal(r.exitCode,0);assert.equal(r.ledger.diagnostic_completion_pass,true);assert.equal(r.ledger.required_evidence_complete,true);assert.equal(r.ledger.required_evidence_content_complete,true);
+  assert.equal(a.first_pass.records_observed,2);assert.equal(a.first_pass.candidates,1);assert.equal(a.first_pass.excluded,1);assert.deepEqual(a.first_pass.excluded_by_reason,{[p4FaceReason]:1});assert.equal(a.first_pass.record_errors,0);assert.equal(a.first_pass.eof,true);assert.equal(a.first_pass.balanced,true);assert.equal(a.second_pass.complete,true);
+  assert.equal(files['acquisition-digests.json'].source_time,state.envelope.manifest.updated_at);assert.equal(validateManifest(state.envelope.manifest).updated_at,files['acquisition-digests.json'].source_time);
+  assert.equal(r.ledger.cleanup.own_temp_removed,true);assert.equal(r.ledger.cleanup.audit_index_removed,true);assert.deepEqual(state.finishes,[{published:false}]);assert.equal(state.acquires,1);assert.equal(state.audits,1);assert.equal(r.ledger.audit_database_publications,0);assert.equal(a.provider_requests,0);assert.equal(a.database_publications,0);retain(r,files);
+ },{fixture:p4Fixture})],
+ ['WRAP13','P4_UNKNOWN_REASON_REJECT',()=>scenario(async({args,state,exported})=>{
+  const audit=args.audit;args.audit=async e=>{const r=await audit(e);assert.deepEqual(r.first_pass.excluded_by_reason,{[p4FaceReason]:1});return {...r,first_pass:{...r.first_pass,excluded_by_reason:{[secret]:1}}};};
+  const r=await runSnapshotAudit(args),files=await exported();assert.equal(r.exitCode,1);assert.equal(r.ledger.diagnostic_completion_pass,false);assert.ok(r.ledger.first_failure);assert.equal(files['audit-report.json'],undefined);assert.equal(JSON.stringify(files).includes(secret),false);assert.equal(state.acquires,1);assert.equal(state.audits,1);assert.equal(r.ledger.cleanup.own_temp_removed,true);assert.equal(r.ledger.audit_database_publications,0);retain(r,files);
+ },{fixture:p4Fixture})]
+]){const t=tests.find(t=>t.id===wrap),original=t.run;t.run=async()=>{await original();await subcase(id,'SYNTHETIC_COMMON_AUDIT_EXPORT_INTEGRATION',run);};}
+
 const io=forbidExternalIO(),ledger={contract:'TCG-I3-M5-P2-WRAPPER-tests',synthetic:true,cases:[]};
 try{
  for(const t of tests){try{await t.run();ledger.cases.push({id:t.id,name:t.name,status:'PASS'});console.log('PASS '+t.id+' '+t.name);}catch(e){ledger.cases.push({id:t.id,name:t.name,status:'FAIL',error:safeError(e)});console.error('FAIL '+t.id+' '+JSON.stringify({...safeError(e),actual_count:typeof e.actual==='number'?e.actual:null,expected_count:typeof e.expected==='number'?e.expected:null}));}}

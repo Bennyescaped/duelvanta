@@ -12,8 +12,8 @@ import {canonicalJSON,sha256} from '../tcg-catalog-evidence-v1.mjs';
 import {auditSnapshot} from './tcg-i3-magic-source-snapshot-audit.mjs';
 import {safeError} from '../tcg-catalog-diagnostics-v1.mjs';
 
-export const AUTHORIZED_PARENT='162e29641146e7420aa85791ba95d0a2f2dd0491';
-export const AUTHORIZATION='P2_ONE_ACQUISITION_DIAGNOSTIC_ONLY';
+export const AUTHORIZED_PARENT='2db97d986c598b36f6f3e03deb562ade07a5882c';
+export const AUTHORIZATION='P4_P2_ONE_ACQUISITION_DIAGNOSTIC_ONLY';
 export const MIN_FREE_BYTES=12*1024**3;
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const now=()=>new Date().toISOString();
@@ -84,7 +84,7 @@ function example(x){return {class_key:classKey(x.class_key),kind:enumValue(x.kin
 export function projectAudit(r){
  const abort=r.abort?{...safeError(r.abort),failure_context:enumValue(r.abort.failure_context,['DELIVERED_RECORD','STREAM_OR_GLOBAL']),last_processed_record:r.abort.last_processed_record?safeError(r.abort.last_processed_record):null,next_record_ordinal:integer(r.abort.next_record_ordinal)}:null;
  return {contract:'TCGSourceSnapshotDiagnosticAudit',version:'1',diagnostic_only:true,status:enumValue(r.status,['COMPLETE_COMPATIBLE','COMPLETE_REJECTED','INCOMPLETE']),audit_complete:bool(r.audit_complete),snapshot_compatible:bool(r.snapshot_compatible),
-  first_pass:{...counts(r.first_pass,['records_observed','candidates','excluded','identical_duplicates','identity_conflicts','record_errors','unclassified','expected_records']),excluded_by_reason:Object.fromEntries(Object.entries(r.first_pass?.excluded_by_reason??{}).map(([k,v])=>{check(['digital','oversized','not_paper','language','layout','unresolved_missing_printed_name'].includes(k),'scope_binding');return [k,integer(v)];})),eof:bool(r.first_pass?.eof),balanced:bool(r.first_pass?.balanced)},
+  first_pass:{...counts(r.first_pass,['records_observed','candidates','excluded','identical_duplicates','identity_conflicts','record_errors','unclassified','expected_records']),excluded_by_reason:Object.fromEntries(Object.entries(r.first_pass?.excluded_by_reason??{}).map(([k,v])=>{check(['digital','oversized','not_paper','language','layout','unresolved_missing_printed_name','unresolved_face_count_outside_initial_scope'].includes(k),'scope_binding');return [k,integer(v)];})),eof:bool(r.first_pass?.eof),balanced:bool(r.first_pass?.balanced)},
   second_pass:{...counts(r.second_pass,['records_examined','validated_records','variants','reference_variant_errors','uncheckable_dependencies','without_reference']),complete:bool(r.second_pass?.complete)},
   sets:{...counts(r.sets,['used','unused','unused_translation_errors']),unused_metadata_preparation:'NOT_APPLICABLE_TO_IMPORT'},
   error_classes:Object.fromEntries(Object.entries(r.error_classes??{}).map(([k,v])=>[classKey(k),integer(v)])),examples:(r.examples??[]).map(example),representative_limit:integer(r.representative_limit),examples_omitted:integer(r.examples_omitted),
