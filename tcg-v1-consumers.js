@@ -7,10 +7,20 @@
 })(globalThis,function(registry,providers,C){
   'use strict';
   if(!registry||!providers||!C)throw new Error('TCG foundation required');
-  const scopes={collection:'legacy_items',scanner:'raw_review',marketplace:'legacy_snapshots',catalog:'legacy_lookup'};
+  const scopes={collection:'legacy_items',binder:'legacy_slots',scanner:'raw_review',marketplace:'legacy_snapshots',catalog:'legacy_lookup'};
+  let magicReceipt=null;
+  const magicVisible=()=>magicReceipt?.ready===true&&Date.now()<magicReceipt.expires;
+  async function refreshMagicReadiness(db,userId){
+    magicReceipt=null;
+    try{const {data,error}=await db.rpc('get_magic_on_demand_collection_beta_v1');
+      const checked=Date.parse(data?.checked_at);
+      if(!Number.isFinite(checked)||Math.abs(Date.now()-checked)>60000||error||data?.contract!=='magic-on-demand-collect-beta/1'||data.user_id!==userId||data.magic_on_demand_collection_beta!==true)return false;
+      magicReceipt={ready:true,expires:Date.now()+60000};return true;
+    }catch{return false;}
+  }
   const eligible=(entry,scope)=>entry.status==='available'&&entry.capabilities[scope]?.status==='ready'&&entry.capabilities[scope].profiles.includes(scopes[scope]);
-  function games(scope,gates){return registry.entries.filter(entry=>eligible(entry,scope)&&(!gates||registry.isEnabled(entry.game_key,scope,gates)))}
-  function requireGame(key,scope){const entry=registry.get(key);if(!eligible(entry,scope))throw new Error('TCG scope unavailable');return entry}
+  function games(scope,gates){return registry.entries.filter(entry=>eligible(entry,scope)&&(entry.game_key!=='magic'||magicVisible())&&(!gates||registry.isEnabled(entry.game_key,scope,gates)))}
+  function requireGame(key,scope){const entry=registry.get(key);if(!eligible(entry,scope)||key==='magic'&&!magicVisible())throw new Error('TCG scope unavailable');return entry}
   function adapter(key,scope='scanner'){requireGame(key,scope);const a=registry.adapter(key);if(scope==='scanner')C.requireActiveRecognitionProfile(a.recognitionProfile);return a}
   const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   // The short legacy label is presentation compatibility, never a game definition.
@@ -28,5 +38,5 @@
     return{legacy,catalog_link:{provider_ref_id:resolution.provider_ref_id}};
   }
   async function saveLink(db,kind,id,receipt){if(!receipt?.catalog_link)return;const rpc=kind==='collection'?'set_my_collection_catalog_link_v1':kind==='listing'?'set_my_listing_catalog_link_v1':null;if(!rpc)throw new Error('Invalid link parent');const result=await db.rpc(rpc,{p_parent_id:id,p_provider_ref_id:receipt.catalog_link.provider_ref_id});if(result.error)throw result.error}
-  return Object.freeze({version:'i2-v1',registry,games,requireGame,adapter,label,options,parse,code,binding,translate,handoff,saveLink});
+  return Object.freeze({version:'i3-m6-v1',registry,games,requireGame,adapter,label,options,parse,code,binding,translate,handoff,saveLink,refreshMagicReadiness});
 });

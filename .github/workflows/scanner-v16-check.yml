@@ -17,6 +17,10 @@ on:
       - 'tcg-catalog-*.mjs'
       - 'tests/tcg-i3-magic-*.mjs'
       - 'tests/generate-tcg-i3-magic-readiness.mjs'
+      - 'api/tcg-magic-scryfall.js'
+      - 'tcg-magic-on-demand.js'
+      - 'tests/tcg-i3-m6-*.mjs'
+      - 'tests/generate-tcg-i3-magic-on-demand-readiness.mjs'
       - 'tests/helpers/tcg-i3-magic-*'
       - 'collect.html'
       - 'collect-ux.js'
@@ -575,7 +579,14 @@ jobs:
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node --test tests/tcg-i2-consumers-test.mjs
+      - name: Bound API-C16 historical M5 contract checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
+          path: .tcg-api-c16
+          persist-credentials: false
       - name: M5 R4 proven-defect offline regression (no provider calls)
+        working-directory: .tcg-api-c16
         env:
           TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r4
         run: |
@@ -877,13 +888,26 @@ jobs:
           END $$;
           SELECT current_user, current_setting('server_version_num') AS server_version_num, version();
           SQL
+      # Historical tests assert the frozen planned descriptor. Preserve every
+      # M4/M5 assertion on its exact API-C16 source; M6 runs on the current head.
+      - name: Bound API-C16 historical M4 M5 contract checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
+          path: .tcg-api-c16
+          persist-credentials: false
+      - name: Reuse pinned dependencies for the frozen historical checkout
+        run: ln -s "$GITHUB_WORKSPACE/.github/ci/node_modules" .tcg-api-c16/node_modules
       - name: Check authored M4 readiness deterministically
+        working-directory: .tcg-api-c16
         run: node tests/generate-tcg-i3-magic-readiness.mjs --check
       - name: M4 native PG17 ACL RLS readiness and concurrency acceptance
+        working-directory: .tcg-api-c16
         run: |
           set -o pipefail
           node tests/tcg-i3-magic-database-test.mjs --native 2>&1 | tee "$TCG_M4_EVIDENCE_DIR/m4-native.log"
       - name: Record observed publication and link race evidence
+        working-directory: .tcg-api-c16
         run: |
           set -o pipefail
           node --input-type=module - --native <<'JS' 2>&1 | tee "$TCG_M4_EVIDENCE_DIR/concurrency-observed.log"
@@ -896,10 +920,64 @@ jobs:
             console.log(JSON.stringify({server_version_num: db.version, I10, O15}));
           } finally { await db.close(); }
           JS
+      - name: M6 on-demand current-head nonnative acceptance
+        env:
+          TCG_M6_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m6
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_M6_EVIDENCE_DIR"
+          cp "$TCG_M4_EVIDENCE_DIR/pg17-version.log" "$TCG_M6_EVIDENCE_DIR/pg17-version.log"
+          node --input-type=module <<'JS'
+          import {writeFile} from 'node:fs/promises';
+          import {execFileSync} from 'node:child_process';
+          const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          const parents=execFileSync('git',['show','-s','--format=%P','HEAD'],{encoding:'utf8'}).trim().split(' ');
+          const tree=execFileSync('git',['rev-parse','HEAD^{tree}'],{encoding:'utf8'}).trim();
+          await writeFile(process.env.TCG_M6_EVIDENCE_DIR+'/binding.json',JSON.stringify({head,parents,tree,run_id:process.env.GITHUB_RUN_ID,run_number:process.env.GITHUB_RUN_NUMBER,attempt:Number(process.env.GITHUB_RUN_ATTEMPT),event:process.env.GITHUB_EVENT_NAME,provider_live_requests:0,production_mutations:0,staging_mutations:0},null,2)+'\n');
+          JS
+          node tests/generate-tcg-i3-magic-on-demand-readiness.mjs --check 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/readiness.log"
+          node --test tests/tcg-i3-m6-transport-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/transport.log"
+          node --test tests/tcg-i3-m6-collect-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/collect.log"
+          node --require ./tests/helpers/tcg-i2-preload.cjs --test tests/tcg-v1-foundation-test.mjs tests/tcg-i2-consumers-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/foundation-consumers.log"
+          node --test tests/tcg-i3-magic-foundation-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/magic-foundation.log"
+          node tests/tcg-i2-collect-dom-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/legacy-collect.log"
+      - name: M6 on-demand native PG17 20 cases and two observed beta lock races
+        run: |
+          set -euo pipefail
+          node tests/tcg-i3-m6-database-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6/native.log
+      - name: Verify M6 native report and observed independent backend locks
+        run: |
+          set -euo pipefail
+          cp test-results/tcg-i3-m6-database-native.json test-results/tcg-i3-m6/native-report.json
+          node --input-type=module <<'JS' 2>&1 | tee test-results/tcg-i3-m6/report-verification.log
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile('test-results/tcg-i3-m6/native-report.json'));
+          assert.equal(x.engine,'native-PG17');assert.equal(x.postgres_major,17);
+          assert.equal(Math.floor(Number(x.version)/10000),17);
+          assert.equal(x.native_acceptance,true);assert.equal(x.passed,true);
+          assert.equal(x.cases.length,22);assert.ok(x.cases.slice(0,20).every(c=>c.status==='PASS'));
+          assert.deepEqual(x.cases.slice(20).map(c=>c.name),['NATIVE_LOCK_01','NATIVE_LOCK_02']);
+          for(const c of x.cases.slice(20)){
+            assert.equal(c.status,'PASS');assert.equal(new Set(Object.values(c.pids)).size,3);
+            assert.equal(c.observed_lock.wait_event_type,'Lock');assert.equal(c.observed_lock.state,'active');
+            assert.ok(c.observed_lock.blockers.includes(c.observed_lock.blocker_pid));
+            assert.ok(c.observed_lock.waiting_locks.length>0);assert.ok(c.observed_lock.blocker_beta_relation_locks.length>0);
+            assert.equal(c.observed_lock.pending_observed,true);assert.equal(c.released_after_commit,true);assert.equal(c.beta_after,false);
+          }
+          assert.equal(x.cases[20].new_items,1);assert.equal(x.cases[21].new_items,0);
+          assert.match(x.cases[21].error,/magic_beta_unavailable/);
+          assert.deepEqual(x.io.forbidden_external_io_attempts,[]);assert.ok(x.io.local_pg_connections>=4);
+          for(const k of ['provider_live_requests','production_mutations','staging_mutations'])assert.equal(x.io[k],0);
+          assert.equal(x.connection.host,'127.0.0.1');assert.equal(x.connection.disposable,true);
+          assert.equal(x.connection.production_staging_connection,false);assert.match(x.connection.database,/^tcg_m4_[0-9a-f]{32}$/);
+          console.log('PASS M6 native-PG17: 20 DB cases, two observed lock edges, external I/O=0');
+          JS
       - name: R5-R1 synthetic AUDIT31 acceptance
         if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
         env:
-          TCG_AUDIT_EVIDENCE_DIR: test-results/tcg-i3-m5-r5-r1-audit
+          TCG_AUDIT_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r5-r1-audit
         run: |
           set -euo pipefail
           mkdir -p "$TCG_AUDIT_EVIDENCE_DIR"
@@ -923,8 +1001,9 @@ jobs:
           JS
       - name: M4 nonnative acceptance with separate evidence
         if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
         env:
-          TCG_M4_EVIDENCE_DIR: test-results/tcg-i3-m4-nonnative
+          TCG_M4_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m4-nonnative
         run: |
           set -euo pipefail
           mkdir -p "$TCG_M4_EVIDENCE_DIR"
@@ -939,8 +1018,9 @@ jobs:
           JS
       - name: P4 synthetic WRAP20 and 45 existing subcases acceptance
         if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
         env:
-          TCG_WRAPPER_EVIDENCE_DIR: test-results/tcg-i3-m5-p4-wrapper
+          TCG_WRAPPER_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-p4-wrapper
         run: |
           set -euo pipefail
           mkdir -p "$TCG_WRAPPER_EVIDENCE_DIR"
@@ -961,8 +1041,9 @@ jobs:
           JS
       - name: P4 synthetic RECORD20 acceptance
         if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
         env:
-          TCG_RECORD_EVIDENCE_DIR: test-results/tcg-i3-m5-p4-record
+          TCG_RECORD_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-p4-record
         run: |
           set -euo pipefail
           mkdir -p "$TCG_RECORD_EVIDENCE_DIR"
@@ -994,6 +1075,15 @@ jobs:
         with:
           name: tcg-i3-m4-native-pg17-evidence
           path: test-results/tcg-i3-m4/
+          if-no-files-found: error
+      - name: M6 on-demand PostgreSQL 17 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m6-native-pg17-evidence
+          path: |
+            test-results/tcg-i3-m6/
+            test-results/tcg-i3-m6-database-native.json
           if-no-files-found: error
   tcg_i3_magic_source_ingest:
     if: github.event_name == 'pull_request'
