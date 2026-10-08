@@ -246,7 +246,12 @@ if(process.argv.includes('--verify-evidence')){
   });
   await caseRun(9,async()=>{await claim(db,A);assert.equal((await move()).moved,true);const row=await readback();assert.equal(row.binder_page,1);assert.equal(row.binder_slot,3);return {archived_operation:p.binder_move,native_item_id:id,page:row.binder_page,slot:row.binder_slot};});
   await caseRun(10,async()=>{await cutover(false);await claim(db,A);assert.equal((await readback()).id,id);await admin(db);assert.ok(await scalar(db,"select to_regclass('dv_collect_private.tcg_magic_on_demand_beta')::text v"));return {enabled:false,item_retained:true,schema_retained:true};});
-  await caseRun(11,async()=>{await claim(db,A);assert.equal((await readiness()).magic_on_demand_collection_beta,false);await denied(()=>save(p.rpc[0].args),/magic_beta_unavailable/);assert.equal(await save(p.rpc[3].args,id),id);assert.equal((await move()).moved,true);const row=await readback();for(const [key,value] of Object.entries(p.readback))if(key!=='id')assert.deepEqual(row[key],value,key);await legacy('POST_KILL_OFF');return {new_item:'BLOCKED',existing_edit:'PASS',binder_maintenance:'PASS',readiness:false,readback:row};});
+  await caseRun(11,async()=>{
+   await claim(db,A);assert.equal((await readiness()).magic_on_demand_collection_beta,false);await denied(()=>save(p.rpc[0].args),/magic_beta_unavailable/);assert.equal(await save(p.rpc[3].args,id),id);
+   assert.deepEqual(await move(),{moved:false,reason:'same_slot'});
+   const maintenanceMove=await scalar(db,'select public.dv_collect_move_card($1,$2,1::integer,2::smallint) v',[id,p.binder_move.p_folder_id]);assert.equal(maintenanceMove.moved,true);assert.equal((await readback()).binder_slot,2);
+   assert.equal((await move()).moved,true);const row=await readback();for(const [key,value] of Object.entries(p.readback))if(key!=='id')assert.deepEqual(row[key],value,key);await legacy('POST_KILL_OFF');return {new_item:'BLOCKED',existing_edit:'PASS',binder_maintenance:'PASS',same_slot_noop:'PASS',maintenance_move:maintenanceMove,restored_archived_slot:3,readiness:false,readback:row};
+  });
   const drift=async(sql,field)=>{
    await expected(false);await db.exec('begin');let r,error;
    try{await db.exec(sql);r=await precheck();assert.equal(r[field],false);assert.equal(r.ready,false);await db.exec('savepoint activation_denied');try{await assert.rejects(()=>db.exec(ACTIVATE_SQL),e=>{error={message:e.message,code:e.code,detail:e.detail};return /p4_activation_precheck_failed/.test(e.message);});}finally{await db.exec('rollback to savepoint activation_denied');await db.exec('release savepoint activation_denied');}assert.equal(await betaState(),false);}
