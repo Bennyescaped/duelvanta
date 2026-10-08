@@ -37,7 +37,7 @@ try{
  for(const key of ['card_id','catalog_card_id','provider_ref_id','image_url'])if(Object.hasOwn(report.insert_readback,key))assert.equal(report.insert_readback[key],null);
  check('no automatic price canonical identity provider link image or catalog snapshot');
  await claim(db,B);assert.equal(Number(await scalar(db,'select count(*) v from public.collection_items where id=$1',[id])),0);
- await denied(()=>replaySave(p.rpc[1].args,id),/tcg_parent_not_owned/);
+ await denied(()=>replaySave(p.rpc[1].args,id),/collection_folder_not_owned/);
  assert.equal((await db.query('update public.collection_items set quantity=9 where id=$1 returning id',[id])).rows.length,0);
  assert.equal((await db.query('delete from public.collection_items where id=$1 returning id',[id])).rows.length,0);
  const move=(args,itemId)=>scalar(db,'select public.dv_collect_move_card($1,$2,$3::integer,$4::smallint) v',[itemId,args.p_folder_id,args.p_page,args.p_slot]);
