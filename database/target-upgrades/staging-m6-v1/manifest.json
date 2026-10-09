@@ -1,0 +1,767 @@
+{
+  "target_environment": "preview_staging",
+  "target_project_ref": "xhmjxrcskfhbovhitdej",
+  "target_contract": "duelvanta-staging-m6-v1",
+  "source_head": "fe808692aa2679f971b94b9b7b552d511f652291",
+  "package_mode": "NOT_AUTO_APPLY",
+  "production_project_ref": "enifiaqsnqtbzylnfrpi",
+  "production_apply_forbidden": true,
+  "beta_activation_included": false,
+  "marketplace_magic": "closed",
+  "tracking_mode": "target_bound_supabase_migration",
+  "real_apply_authorized": false,
+  "beta_activation_authorized": false,
+  "migration_versions_assigned": false,
+  "supabase_history_writes": 0,
+  "baseline": {
+    "contract": "P5-R1 staging legacy reconstructed by accepted P6-R3 native fixture",
+    "staging_registered_migrations": 53,
+    "production_registered_migrations": 72,
+    "shared_versions": 0,
+    "last_staging_version": "20260924113153",
+    "last_staging_name": "security_readiness_v1",
+    "history_rows_reconstructed": false,
+    "prerequisite_track": "tests/tcg-i3-m6-p6-staging-native-test.mjs",
+    "runtime_bridge": false,
+    "p5_r1_target_baseline_sha256": "f37a0507af592aa7b67ebdfc88fe3098aa93bfbb42276432516ac6d000c62bbe",
+    "p5_r1_migrations_sha256": "0597e7ccf2b40154987aaf4c75f69d5a00cd051063d6f69d5b52a2cfeca6e4cc",
+    "p6_r5_r1_manifest_sha256": "16f6abf1c5948b57b52ff439463e51e0918204ba9b8900abd73f2b646b3d1401",
+    "p6_r5_r1_complete_ci_evidence_sha256": "2149399abb08980d7ea67104f5f3a64db902b9339549fff205e714d88f96118d",
+    "accepted_head": "fe808692aa2679f971b94b9b7b552d511f652291",
+    "accepted_runs": [
+      {
+        "run_id": 37943257336,
+        "number": 826,
+        "conclusion": "success"
+      },
+      {
+        "run_id": 37944955150,
+        "number": 827,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "tracking_contract": {
+    "new_apply_requires_explicit_authorization": true,
+    "fresh_readonly_preflight_before_first_write": true,
+    "verify_connection_project_ref": true,
+    "after_each_success": "list_migrations read-only; bind actual registered version and exact name to query_sha256 evidence before next unit",
+    "unknown_commit_outcome": "STOP; reconcile actual registered history read-only; never blind reapply",
+    "resume": "Only an exact, unique, hash-bound ordered completed prefix may be skipped; continue remaining units in order",
+    "version_assignment": "null until an explicitly authorized real apply returns actual Supabase history",
+    "history_repair_included": false,
+    "local_ledger_only": true
+  },
+  "files": {
+    "precheck.sql": {
+      "sha256": "411d7342ac502ef046226ae515d9d11284a0946e60c6249fb447a7224cd082dd",
+      "bytes": 3417
+    },
+    "postcheck.sql": {
+      "sha256": "ab8e5edac5f78d56deced5aecf57da3f4d7cdd36a87be4c474f2d0dbed106047",
+      "bytes": 5912
+    },
+    "README.md": {
+      "sha256": "ed28e52cf35637f314a6b411338af7ff904d9c7775d3ae61b4fa4efc3e9cec47",
+      "bytes": 6240
+    },
+    "production-hold.json": {
+      "sha256": "45ba89bf712ba3ae155cebfaa29787fcc1687ac877de9a8df35b3ac6fb13a686",
+      "bytes": 225
+    }
+  },
+  "units": [
+    {
+      "order": 1,
+      "migration_name": "dv_staging_m6_01_account_data_export_collect_battle",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_01_account_data_export_collect_battle.sql",
+      "source_paths": [
+        "database/account-data-export-collect-battle-v1.sql"
+      ],
+      "source_sha256": [
+        "df462b2a124611439ffc559797578e2356d3df94dac7ff1f2b353f0e644797e3"
+      ],
+      "query_sha256": "df462b2a124611439ffc559797578e2356d3df94dac7ff1f2b353f0e644797e3",
+      "query_bytes": 12222,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 7,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 0,
+        "previous_migration_name": null,
+        "production_trade_lock": "ABSENT",
+        "gate": "PRECHECK_PASS"
+      },
+      "expected_postcondition": {
+        "completed_units": 1,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 2,
+      "migration_name": "dv_staging_m6_02_account_processing_markers",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_02_account_processing_markers.sql",
+      "source_paths": [
+        "database/account-processing-markers-v1.sql"
+      ],
+      "source_sha256": [
+        "076f2cff65745f25257b6eac124a556fcece3cc390dcb4d928c5438d4366cf2f"
+      ],
+      "query_sha256": "076f2cff65745f25257b6eac124a556fcece3cc390dcb4d928c5438d4366cf2f",
+      "query_bytes": 2569,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 7,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 1,
+        "previous_migration_name": "dv_staging_m6_01_account_data_export_collect_battle",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 2,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 3,
+      "migration_name": "dv_staging_m6_03_account_closure_privacy",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_03_account_closure_privacy.sql",
+      "source_paths": [
+        "database/account-closure-privacy-v1.sql"
+      ],
+      "source_sha256": [
+        "021af6ac04bddc5476daf0d2c79f094fdef658cc4d71134dbabaa850f394fc78"
+      ],
+      "query_sha256": "021af6ac04bddc5476daf0d2c79f094fdef658cc4d71134dbabaa850f394fc78",
+      "query_bytes": 1061,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 6,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 2,
+        "previous_migration_name": "dv_staging_m6_02_account_processing_markers",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 3,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 4,
+      "migration_name": "dv_staging_m6_04_scanner_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_04_scanner_processing_hold.sql",
+      "source_paths": [
+        "database/scanner-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "1a0363c4dda8b3170a71e7b890d81a6e8acc1b6f58bcc9053e7c5733d3c65cc8"
+      ],
+      "query_sha256": "1a0363c4dda8b3170a71e7b890d81a6e8acc1b6f58bcc9053e7c5733d3c65cc8",
+      "query_bytes": 5896,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 4,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 3,
+        "previous_migration_name": "dv_staging_m6_03_account_closure_privacy",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 4,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 5,
+      "migration_name": "dv_staging_m6_05_battle_player_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_05_battle_player_processing_hold.sql",
+      "source_paths": [
+        "database/battle-player-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "9b8a0a961072a84b76fea4c1b237584ecdf35e8f10cc96364f18735a44c6d293"
+      ],
+      "query_sha256": "9b8a0a961072a84b76fea4c1b237584ecdf35e8f10cc96364f18735a44c6d293",
+      "query_bytes": 7425,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 6,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 4,
+        "previous_migration_name": "dv_staging_m6_04_scanner_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 5,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 6,
+      "migration_name": "dv_staging_m6_06_battle_signal_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_06_battle_signal_processing_hold.sql",
+      "source_paths": [
+        "database/battle-signal-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "e0e1fdeb3b7f592a026a6b02883eea145ed52d188ad8b1a2cc9cccc7bc8b0007"
+      ],
+      "query_sha256": "e0e1fdeb3b7f592a026a6b02883eea145ed52d188ad8b1a2cc9cccc7bc8b0007",
+      "query_bytes": 1186,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 6,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 5,
+        "previous_migration_name": "dv_staging_m6_05_battle_player_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 6,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 7,
+      "migration_name": "dv_staging_m6_07_battle_spectator_withdrawal",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_07_battle_spectator_withdrawal.sql",
+      "source_paths": [
+        "database/battle-spectator-withdrawal-v1.sql"
+      ],
+      "source_sha256": [
+        "6800a21fab229c240de7371527285ce865786ce90459fb87a0294cb45bbeaed1"
+      ],
+      "query_sha256": "6800a21fab229c240de7371527285ce865786ce90459fb87a0294cb45bbeaed1",
+      "query_bytes": 6066,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 5,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 6,
+        "previous_migration_name": "dv_staging_m6_06_battle_signal_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 7,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 8,
+      "migration_name": "dv_staging_m6_08_battle_spectator_epoch_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_08_battle_spectator_epoch_processing_hold.sql",
+      "source_paths": [
+        "database/battle-spectator-epoch-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "894a807750b48ee5a969f2f157869fbaf4dd7cf6cf9f1c0b91b3c8f0f50c7c11"
+      ],
+      "query_sha256": "894a807750b48ee5a969f2f157869fbaf4dd7cf6cf9f1c0b91b3c8f0f50c7c11",
+      "query_bytes": 5612,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 10,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 7,
+        "previous_migration_name": "dv_staging_m6_07_battle_spectator_withdrawal",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 8,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 9,
+      "migration_name": "dv_staging_m6_09_staff_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_09_staff_processing_hold.sql",
+      "source_paths": [
+        "database/staff-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "d447651070bd2b876df188c66209fbc8c9950471ca6feb3bdd1b198b87361592"
+      ],
+      "query_sha256": "d447651070bd2b876df188c66209fbc8c9950471ca6feb3bdd1b198b87361592",
+      "query_bytes": 6138,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 3,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 8,
+        "previous_migration_name": "dv_staging_m6_08_battle_spectator_epoch_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 9,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 10,
+      "migration_name": "dv_staging_m6_10_publication_processing_hold",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_10_publication_processing_hold.sql",
+      "source_paths": [
+        "database/publication-processing-hold-v1.sql"
+      ],
+      "source_sha256": [
+        "0af9e2da31ec92668f3e4d47119e9c438fc2cf22f9a807bc6f334662acfb9da7"
+      ],
+      "query_sha256": "0af9e2da31ec92668f3e4d47119e9c438fc2cf22f9a807bc6f334662acfb9da7",
+      "query_bytes": 13252,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 27,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 9,
+        "previous_migration_name": "dv_staging_m6_09_staff_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 10,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 11,
+      "migration_name": "dv_staging_m6_11_battle_safety_sanctions",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_11_battle_safety_sanctions.sql",
+      "source_paths": [
+        "database/battle-safety-sanctions-v1.sql"
+      ],
+      "source_sha256": [
+        "4eafc71c7552ecbde7a230ad0fbf958db1cc7d31220869146bb951c75db10513"
+      ],
+      "query_sha256": "4eafc71c7552ecbde7a230ad0fbf958db1cc7d31220869146bb951c75db10513",
+      "query_bytes": 12619,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 30,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 10,
+        "previous_migration_name": "dv_staging_m6_10_publication_processing_hold",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 11,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 12,
+      "migration_name": "dv_staging_m6_12_account_deletion_withdrawal",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_12_account_deletion_withdrawal.sql",
+      "source_paths": [
+        "database/account-deletion-withdrawal-v1.sql"
+      ],
+      "source_sha256": [
+        "a353b2ae96d4756a6362451dc4ed6e1d7d1f585951ccb907d6ecc4eb50a89351"
+      ],
+      "query_sha256": "a353b2ae96d4756a6362451dc4ed6e1d7d1f585951ccb907d6ecc4eb50a89351",
+      "query_bytes": 17268,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 30,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 11,
+        "previous_migration_name": "dv_staging_m6_11_battle_safety_sanctions",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 12,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 13,
+      "migration_name": "dv_staging_m6_13_account_erasure_l1",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_13_account_erasure_l1.sql",
+      "source_paths": [
+        "database/account-erasure-l1-v1.sql"
+      ],
+      "source_sha256": [
+        "980e52c2776ac18b1c202e89ab710ee4cee83dee4887e3c3b670a9b07ce41d32"
+      ],
+      "query_sha256": "980e52c2776ac18b1c202e89ab710ee4cee83dee4887e3c3b670a9b07ce41d32",
+      "query_bytes": 7107,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 10,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 12,
+        "previous_migration_name": "dv_staging_m6_12_account_deletion_withdrawal",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 13,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "LEGACY",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 14,
+      "migration_name": "dv_staging_m6_14_tcg_i2_canonical_integration",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_14_tcg_i2_canonical_integration.sql",
+      "source_paths": [
+        "database/tcg-i2-canonical-integration-v1.sql"
+      ],
+      "source_sha256": [
+        "7d663bbdd9a092f9cff948dc447388140375ec06b66b44e0677861ebf9c72df9"
+      ],
+      "query_sha256": "7d663bbdd9a092f9cff948dc447388140375ec06b66b44e0677861ebf9c72df9",
+      "query_bytes": 18328,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 49,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 13,
+        "previous_migration_name": "dv_staging_m6_13_account_erasure_l1",
+        "production_trade_lock": "ABSENT",
+        "gate": "P6_R3_I2_PROTECTED_FUNCTION_HASHES"
+      },
+      "expected_postcondition": {
+        "completed_units": 14,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "I2",
+        "readiness": "LEGACY_PROFILE_MAY_BE_TRANSIENTLY_INCOMPATIBLE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 15,
+      "migration_name": "dv_staging_m6_15_tcg_i2_readiness_staging",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_15_tcg_i2_readiness_staging.sql",
+      "source_paths": [
+        "database/tcg-i2-readiness-staging-v1.sql"
+      ],
+      "source_sha256": [
+        "f27fb2c7d3b4dbb25de6e91506786f9fd9c9e6a9c785ceedb524451cd4df1f84"
+      ],
+      "query_sha256": "f27fb2c7d3b4dbb25de6e91506786f9fd9c9e6a9c785ceedb524451cd4df1f84",
+      "query_bytes": 122874,
+      "transaction_contract": {
+        "mode": "COMPLETE_SOURCE_TRANSACTION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 8,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 14,
+        "previous_migration_name": "dv_staging_m6_14_tcg_i2_canonical_integration",
+        "production_trade_lock": "ABSENT",
+        "gate": "SOURCE_DEFINED_PREREQUISITES"
+      },
+      "expected_postcondition": {
+        "completed_units": 15,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "I2",
+        "readiness": "TRUE_TRUE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven"
+    },
+    {
+      "order": 16,
+      "migration_name": "dv_staging_m6_16_tcg_i3_magic_persistence",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_16_tcg_i3_magic_persistence.sql",
+      "source_paths": [
+        "database/tcg-i3-magic-persistence-v1.sql",
+        "database/tcg-i3-magic-readiness-staging-v1.sql"
+      ],
+      "source_sha256": [
+        "29fcc3ff647a39ac3884dae9397ba4e3b20bf5de038e6e1a4159200f006e3d09",
+        "e6b04e4e6ecdbf6c92d5a28020e813bbbd6e70fe82bc221c90a6127a65328886"
+      ],
+      "query_sha256": "6b1ca3751509041e37a930a7fa42ff28d962bb4a95cdec1ab43f64b1febe50e8",
+      "query_bytes": 1229658,
+      "transaction_contract": {
+        "mode": "ATOMIC_SPLIT_SOURCE_CONCATENATION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 44,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 15,
+        "previous_migration_name": "dv_staging_m6_15_tcg_i2_readiness_staging",
+        "production_trade_lock": "ABSENT",
+        "gate": "STAGING_READINESS_TRUE_TRUE"
+      },
+      "expected_postcondition": {
+        "completed_units": 16,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "M4_FOUNDATION_PERSISTENCE",
+        "readiness": "TRUE_TRUE",
+        "beta": "ABSENT"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven",
+      "delta_sha256": "29fcc3ff647a39ac3884dae9397ba4e3b20bf5de038e6e1a4159200f006e3d09",
+      "readiness_sha256": "e6b04e4e6ecdbf6c92d5a28020e813bbbd6e70fe82bc221c90a6127a65328886",
+      "combined_sha256": "6b1ca3751509041e37a930a7fa42ff28d962bb4a95cdec1ab43f64b1febe50e8",
+      "combined_bytes": 1229658
+    },
+    {
+      "order": 17,
+      "migration_name": "dv_staging_m6_17_tcg_i3_magic_on_demand",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6_17_tcg_i3_magic_on_demand.sql",
+      "source_paths": [
+        "database/tcg-i3-magic-on-demand-v1.sql",
+        "database/tcg-i3-magic-on-demand-readiness-staging-v1.sql"
+      ],
+      "source_sha256": [
+        "b13bfde57c7647e2fd1471886ef870a65e5b6bf9608c0c4da869133f2f1303af",
+        "65c5556e57dc66737086179cf76dcc01a3a50e9abd4eb53d57a80b110c502ab0"
+      ],
+      "query_sha256": "6e6cd3d7b3e314ce811670d718081be89861fd048c20500bfd635f6b49aa2595",
+      "query_bytes": 419901,
+      "transaction_contract": {
+        "mode": "ATOMIC_SPLIT_SOURCE_CONCATENATION",
+        "begin_count": 1,
+        "commit_count": 1,
+        "statement_count": 22,
+        "concatenation_separator_bytes": 0,
+        "outer_transaction_forbidden": true
+      },
+      "expected_precondition": {
+        "completed_units": 16,
+        "previous_migration_name": "dv_staging_m6_16_tcg_i3_magic_persistence",
+        "production_trade_lock": "ABSENT",
+        "gate": "STAGING_READINESS_TRUE_TRUE"
+      },
+      "expected_postcondition": {
+        "completed_units": 17,
+        "production_trade_lock": "ABSENT",
+        "read_only_checkpoint_required": true,
+        "tcg_phase": "M6_OFF",
+        "readiness": "TRUE_TRUE",
+        "beta": "EXACTLY_ONE_ROW_OFF"
+      },
+      "real_apply_authorized": false,
+      "applied": false,
+      "supabase_history_version": null,
+      "reapply_safe": "not_proven",
+      "delta_sha256": "b13bfde57c7647e2fd1471886ef870a65e5b6bf9608c0c4da869133f2f1303af",
+      "readiness_sha256": "65c5556e57dc66737086179cf76dcc01a3a50e9abd4eb53d57a80b110c502ab0",
+      "combined_sha256": "6e6cd3d7b3e314ce811670d718081be89861fd048c20500bfd635f6b49aa2595",
+      "combined_bytes": 419901
+    }
+  ]
+}
