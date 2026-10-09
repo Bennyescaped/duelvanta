@@ -151,4 +151,6 @@ async function main(){
  }catch(e){if(current)current.status='FAIL';report.error={message:e.message,code:e.code,stack:e.stack};console.error(e);process.exitCode=1;}
  finally{if(db)try{await db.close();}catch(e){report.cleanup_error=e.message;report.passed=false;report.native_acceptance=false;process.exitCode=1;}const io=globalThis[Symbol.for('DUELVANTA_M4_FORBIDDEN_IO')];report.io.forbidden_external_io_attempts=io.attempts.slice();report.io.local_pg_connections=io.local_pg_connections;if(io.attempts.length){report.passed=false;report.native_acceptance=false;process.exitCode=1;}await mkdir(OUT,{recursive:true});await writeFile(OUT+'/native-report.json',JSON.stringify(report,null,2)+'\n');}
 }
+// Test-only forensic reuse: immutable baseline/closure functions, no acceptance bypass.
+export {target,baseline,upgrade,closure,precondition,ready,lock,absent};
 if(process.argv[1]?.endsWith('tcg-i3-m6-p6-production-native-test.mjs'))await main();
