@@ -11,6 +11,10 @@ import {baselineChecks,snapshotOriginal,foreignKeys,beforeUpgradeAbort,finalChec
 import {verifySources as verifyR3Sources} from './tcg-i3-m6-p6-staging-native-test.mjs';
 export const OUT='test-results/tcg-i3-m6-p6-r4';
 export const HASHES = {
+  "database/tcg-i2-readiness-production72-v1.sql": "0a7857a3e07ca42cbb3b3b9910e41cd0aa5944386d28ad0cdd766cf533f7d45e",
+  "database/tcg-i3-magic-readiness-production72-v1.sql": "64556eddac3152c10c52b3e8d52e7e3b5ece5fa469a4719f6e3a404bdb5fac58",
+  "database/tcg-i3-magic-on-demand-readiness-production72-v1.sql": "a7d00ff81bbbbb144374e9b0e8d19a6e9e6ede7423d4397c02fdb48b3731bdd9",
+
   "database/market-seller-compliance-v1.sql": "c946ec8fa0a16dcc5187b509052d626d8077f264180d1dbb786e25f56a2d1358",
   "database/production-upgrade/notice-action-source-61404cf.sql": "e0d23a82cd6eafb5ae0b093f5cd5c6e6803990cc80043e5244ad5ca4216f9db5",
   "database/market-checkout-compliance-v1.sql": "9e99eb0764a7dea7c6827907022fbf63613abbc62ace1b6efcef7e0b7d673d13",
@@ -62,7 +66,7 @@ export const HASHES = {
 export const NAMES=['P6R4_01 PRODUCTION_72_BASELINE','P6R4_02 U001_U060_PRODUCTION_UPGRADE','P6R4_03 PRODUCTION_PREREQUISITE_CLOSURE','P6R4_04 I2_PROTECTED_PRECONDITION','P6R4_05 I2_PRODUCTION','P6R4_06 M4_PRODUCTION','P6R4_07 M6_PRODUCTION_OFF','P6R4_08 M4_ATOMIC_ROLLBACK','P6R4_09 M6_ATOMIC_ROLLBACK','P6R4_10 DUAL_BASELINE_CONVERGENCE'];
 export const CLOSURE=['market-production-trade-lock','account-data-export-collect-battle','account-processing-markers','account-closure-privacy','scanner-processing-hold','battle-player-processing-hold','battle-signal-processing-hold','battle-spectator-withdrawal','battle-spectator-epoch-processing-hold','staff-processing-hold','publication-processing-hold','battle-safety-sanctions','account-deletion-withdrawal','account-erasure-l1'].map((p,i)=>['database/'+p+'-v1.sql','database/'+(i===1?'account-data-export-trade-lock':p)+'-readiness-v1.sql']);
 const delta=['database/tcg-i2-canonical-integration-v1.sql','database/tcg-i3-magic-persistence-v1.sql','database/tcg-i3-magic-on-demand-v1.sql'];
-const readiness=['database/tcg-i2-readiness-v1.sql','database/tcg-i3-magic-readiness-v1.sql','database/tcg-i3-magic-on-demand-readiness-v1.sql'];
+const readiness=["database/tcg-i2-readiness-production72-v1.sql","database/tcg-i3-magic-readiness-production72-v1.sql","database/tcg-i3-magic-on-demand-readiness-production72-v1.sql"];
 export const sha=b=>createHash('sha256').update(b).digest('hex');
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 const json=async p=>JSON.parse(await readFile(p,'utf8'));
