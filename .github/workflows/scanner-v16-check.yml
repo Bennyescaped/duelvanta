@@ -1002,6 +1002,13 @@ jobs:
           node tests/tcg-i3-m6-p6-staging-native-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p6-r3/native.log
       - name: P6-R3 native evidence verification
         run: node tests/tcg-i3-m6-p6-native-evidence-test.mjs
+      - name: P6-R4 Production legacy baseline native closure
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p6-r4
+          node tests/tcg-i3-m6-p6-production-native-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p6-r4/native.log
+      - name: P6-R4 dual-baseline evidence verification
+        run: node tests/tcg-i3-m6-p6-dual-baseline-evidence-test.mjs
       - name: R5-R1 synthetic AUDIT31 acceptance
         if: github.event_name == 'pull_request'
         working-directory: .tcg-api-c16
@@ -1116,6 +1123,7 @@ jobs:
             test-results/tcg-i3-m6-p3/
             test-results/tcg-i3-m6-p4/**
             test-results/tcg-i3-m6-p6-r3/**
+            test-results/tcg-i3-m6-p6-r4/**
           if-no-files-found: error
   tcg_i3_magic_source_ingest:
     if: github.event_name == 'pull_request'
