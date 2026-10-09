@@ -7,6 +7,22 @@ on:
       - 'database/psttg-*'
       - 'tests/psttg-*'
       - 'scanner-v16-*.js'
+      - 'tcg-v1-*.js'
+      - 'tests/tcg-v1-*.mjs'
+      - 'tests/tcg-i2-*.mjs'
+      - 'tests/generate-tcg-i2-readiness.mjs'
+      - 'tests/helpers/tcg-i2-*'
+      - 'database/tcg-i2-*'
+      - 'database/tcg-i3-magic-*'
+      - 'tcg-catalog-*.mjs'
+      - 'tests/tcg-i3-magic-*.mjs'
+      - 'tests/generate-tcg-i3-magic-readiness.mjs'
+      - 'api/tcg-magic-scryfall.js'
+      - 'tcg-magic-on-demand.js'
+      - 'tests/tcg-i3-m6-*.mjs'
+      - 'tests/fixtures/tcg-i3-magic/m6-p2-r1-live-response.json'
+      - 'tests/generate-tcg-i3-magic-on-demand-readiness.mjs'
+      - 'tests/helpers/tcg-i3-magic-*'
       - 'collect.html'
       - 'collect-ux.js'
       - 'tests/collect-ux-*.mjs'
@@ -318,6 +334,12 @@ jobs:
         run: |
           set -o pipefail
           node tests/battle-d3-temporal-evidence-test.mjs | tee test-results/battle-d3-temporal-native.log
+      - name: I2 authored readiness and isolated native PostgreSQL17 matrix
+        run: |
+          set -o pipefail
+          node tests/generate-tcg-i2-readiness.mjs --check | tee test-results/tcg-i2-readiness.log
+          node tests/tcg-i2-schema-inventory.mjs | tee test-results/tcg-i2-inventory.log
+          node tests/tcg-i2-database-test.mjs --native | tee test-results/tcg-i2-native.log
       - name: Synthetic T2 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -325,6 +347,7 @@ jobs:
           name: account-data-export-t2-evidence
           path: |
             test-results/account-data-export-*
+            test-results/tcg-i2-*
             test-results/account-processing-markers-*
             test-results/account-closure-privacy-*
             test-results/scanner-processing-hold-*
@@ -508,6 +531,8 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -547,12 +572,87 @@ jobs:
           node --check control-center-permissions.js
           node --check control-center-safety.js
           node --check control-center-auth-preflight.js
+      - name: TCG V1 foundation (local synthetic contracts, no provider calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
+        run: node --test tests/tcg-v1-foundation-test.mjs
+      - name: I2 frozen-base consumer and writer parity (synthetic only)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
+        run: node --test tests/tcg-i2-consumers-test.mjs
+      - name: Bound API-C16 historical M5 contract checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
+          path: test-results/.tcg-api-c16
+          persist-credentials: false
+      - name: M5 R4 proven-defect offline regression (no provider calls)
+        working-directory: test-results/.tcg-api-c16
+        env:
+          TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r4
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_M5_EVIDENCE_DIR"
+          node --check tcg-v1-catalog-providers.js
+          node --check tcg-catalog-scryfall-source-v1.mjs
+          node --check tests/tcg-i3-magic-source-ingest-test.mjs
+          node tests/tcg-i3-magic-source-ingest-test.mjs 2>&1 | tee "$TCG_M5_EVIDENCE_DIR/r4-offline.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const dir=process.env.TCG_M5_EVIDENCE_DIR;
+          const read=name=>readFile(dir+'/'+name,'utf8').then(JSON.parse);
+          const ledger=await read('m5-local-ledger.json');
+          assert.deepEqual(ledger.counts,{PASS:57,FAIL:0});
+          assert.equal(ledger.cases.length,57);
+          assert.equal(new Set(ledger.cases.map(x=>x.id)).size,57);
+          assert.ok(ledger.cases.every(x=>x.status==='PASS'));
+          assert.equal(ledger.forbidden_external_io_attempts,0);
+          assert.equal(ledger.real_source_acquisition,false);
+          assert.equal(ledger.native_acceptance,false);
+          assert.equal(ledger.source_cases.find(x=>x.id==='I18')?.status,'PASS');
+          const i19=ledger.source_cases.find(x=>x.id==='I19');
+          assert.equal(i19?.status,'REAL_SOURCE_NOT_RUN');
+          assert.equal(i19.executed,false);
+          for(const id of ['M5_01','M5_18','M5_20','M5_28','M5_56'])assert.equal(ledger.cases.find(x=>x.id===id)?.status,'PASS',id);
+          const clocks=await read('M5_20-regressions.json');
+          for(const name of ['NORMAL_LEGACY_CLOCK_INJECTION','EARLY_WAKEUP','WALLCLOCK_BACKWARD','MONOTONIC_BACKWARD','FROZEN_RATE_CLOCK','NONFINITE_RATE_CLOCK'])assert.equal(clocks.find(x=>x.scenario===name)?.status,'PASS',name);
+          const early=clocks.find(x=>x.scenario==='EARLY_WAKEUP');
+          assert.deepEqual(early.delays,[1000,7,1000]);
+          assert.equal(early.api_starts.length,3);
+          for(const name of ['NORMAL_LEGACY_CLOCK_INJECTION','EARLY_WAKEUP','WALLCLOCK_BACKWARD']){
+           const starts=clocks.find(x=>x.scenario===name).api_starts.map(x=>typeof x==='number'?x:x.rate);
+           assert.equal(starts.length,3);
+           for(let i=1;i<starts.length;i++)assert.ok(starts[i]-starts[i-1]>=1000,name);
+          }
+          const images=await read('M5_28-regressions.json');
+          for(const name of ['A_PLACEHOLDER_WITH_ROOT','B_ROOT_MISSING_WITH_FRONT','C_ROOT_PLACEHOLDER_WITH_FRONT']){
+           const x=images.find(x=>x.scenario===name);assert.ok(x,name);assert.equal(x.status,'candidates');assert.equal(x.legacy_image,null);assert.equal(x.normalized_image,null);assert.equal(x.raw_unchanged,true);
+          }
+          for(const [name,url] of [['D_ALLOWED_FRONT_FALLBACK','https://example.invalid/front.png'],['E_HIGHRES_ROOT_UNCHANGED','https://example.invalid/root.png']]){
+           const x=images.find(x=>x.scenario===name);assert.ok(x,name);assert.equal(x.status,'candidates');assert.equal(x.legacy_image,url);assert.equal(x.normalized_image,url);assert.equal(x.raw_unchanged,true);
+          }
+          for(const name of ['F_UNKNOWN_STATUS_REJECT','PLACEHOLDER_PREPARE_AND_URL_VALIDATION'])assert.equal(images.find(x=>x.scenario===name)?.status,'PASS',name);
+          console.log(JSON.stringify({source:'57/57 PASS',I18:'PASS',I19:'REAL_SOURCE_NOT_RUN',executed:false,forbidden_external_io_attempts:0,M5_20:'PASS',M5_28:'PASS',M5_18:'PASS',M5_56:'PASS',M5_01:'PASS'}));
+          JS
+      - name: M5 R4 synthetic offline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-r4-offline-evidence
+          path: test-results/tcg-i3-m5-r4/
+          if-no-files-found: error
       - name: Scanner V16 contract
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/scanner-v16-contract-test.mjs
           node tests/scanner-v16-binder-layout-test.mjs
           node tests/scanner-v16-entry-test.mjs
       - name: Gemini private pilot (no provider calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check api/scanner-v16-gemini.js
           node --check scanner-v16-ai-pilot.js
@@ -562,6 +662,8 @@ jobs:
           node --check api/scanner-v16-openai.js
           node tests/scanner-v16-openai-test.mjs
       - name: Ximilar integration and durable quota boundary (no paid calls)
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check api/scanner-v16-recognize.js
           node --check scanner-v16-provider.js
@@ -570,24 +672,44 @@ jobs:
           node tests/scanner-v16-provider-test.mjs
           node tests/scanner-v16-recognize-server-test.mjs
       - name: Verified artwork reference cache
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-references-test.mjs
       - name: Pokemon and One Piece recognition
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-tcg-test.mjs
       - name: Evidence quality gates
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-quality-test.mjs
       - name: Explainable confidence UI
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-explain-test.mjs
       - name: Resilience and capture guidance
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-resilience-test.mjs
       - name: Guided benchmark session
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-benchmark-session-test.mjs
       - name: Web camera readiness
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-camera-test.mjs
       - name: Native iOS photo capture
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-native-camera-test.mjs
       - name: Mobile photo pipeline and state recovery
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-mobile-runtime-test.mjs
       - name: Direct mobile route and benchmark integration
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-mobile-route-test.mjs
       - name: Install Chromium browser test runtime
         id: browser_runtime
@@ -597,14 +719,22 @@ jobs:
           ln -s .github/ci/node_modules node_modules
           .github/ci/node_modules/.bin/playwright install chromium
       - name: C withdrawal Chromium Auth and MFA contract
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/account-deletion-withdrawal-chromium-test.mjs
       - name: Battle and profile database access boundaries
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/auth-boundary-database-test.mjs
       - name: Step 9A MFA browser and Edge service boundary
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/security-mfa-browser-test.mjs
           node tests/security-live-acceptance-test.mjs
       - name: Trade contracts and mobile order flow
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node --check trade-marketplace-ux.js
           node --check trade-checkout.js
@@ -674,24 +804,36 @@ jobs:
           node tests/trade-legal-withdrawal-browser-test.mjs
           node tests/market-notice-action-browser-test.mjs
       - name: Second mobile acceptance regressions
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-acceptance-regression-test.mjs
       - name: COLLECT empty states and price completeness
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: |
           node tests/collect-ux-test.mjs
+          node tests/tcg-i2-collect-dom-test.mjs
           node tests/collect-ux-browser-test.mjs
           node tests/collect-mobile-ui-test.mjs
           node tests/collect-binder-delete-database-test.mjs
           node tests/collect-binder-delete-browser-test.mjs
       - name: Integrated COLLECT scanner and binder E2E
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         run: node tests/scanner-v16-collect-e2e.mjs
       - name: Mobile browser upload E2E
         env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
           V16_LIVE_CATALOG: ${{ github.event_name == 'push' && '1' || '0' }}
         run: node tests/scanner-v16-browser-e2e.mjs
       - name: Real complex-card reference recognition and recovery
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         if: always() && steps.browser_runtime.outcome == 'success' && github.event_name == 'push'
         run: node tests/scanner-v16-real-card-matrix.mjs
       - name: Read-only live catalog availability
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/tests/helpers/tcg-i2-preload.cjs
         if: github.event_name == 'push'
         run: node tests/scanner-v16-catalog-live-smoke.mjs
       - name: Browser evidence
@@ -701,3 +843,646 @@ jobs:
           name: v16-mobile-recognition
           path: test-results/
           if-no-files-found: ignore
+  tcg_i3_magic_persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+      TCG_M4_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m4
+      npm_config_update_notifier: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing pinned test dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+          # Historical native suites use sibling disposable source copies.
+          ln -s "$GITHUB_WORKSPACE/.github/ci/node_modules" "$(dirname "$GITHUB_WORKSPACE")/node_modules"
+      - name: Prove PostgreSQL 17 and postgres owner
+        run: |
+          mkdir -p "$TCG_M4_EVIDENCE_DIR"
+          set -o pipefail
+          psql -v ON_ERROR_STOP=1 <<'SQL' | tee "$TCG_M4_EVIDENCE_DIR/pg17-version.log"
+          DO $$ BEGIN
+            ASSERT current_user = 'postgres';
+            ASSERT current_setting('server_version_num')::integer / 10000 = 17;
+          END $$;
+          SELECT current_user, current_setting('server_version_num') AS server_version_num, version();
+          SQL
+      # Historical tests assert the frozen planned descriptor. Preserve every
+      # M4/M5 assertion on its exact API-C16 source; M6 runs on the current head.
+      - name: Bound API-C16 historical M4 M5 contract checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: 556cedc9e839106290ffa9f62c2255415a4fc92d
+          path: .tcg-api-c16
+          persist-credentials: false
+      - name: Reuse pinned dependencies for the frozen historical checkout
+        run: ln -s "$GITHUB_WORKSPACE/.github/ci/node_modules" .tcg-api-c16/node_modules
+      - name: Check authored M4 readiness deterministically
+        working-directory: .tcg-api-c16
+        run: node tests/generate-tcg-i3-magic-readiness.mjs --check
+      - name: M4 native PG17 ACL RLS readiness and concurrency acceptance
+        working-directory: .tcg-api-c16
+        run: |
+          set -o pipefail
+          node tests/tcg-i3-magic-database-test.mjs --native 2>&1 | tee "$TCG_M4_EVIDENCE_DIR/m4-native.log"
+      - name: Record observed publication and link race evidence
+        working-directory: .tcg-api-c16
+        run: |
+          set -o pipefail
+          node --input-type=module - --native <<'JS' 2>&1 | tee "$TCG_M4_EVIDENCE_DIR/concurrency-observed.log"
+          import {database} from './tests/helpers/tcg-i3-magic-fixture.mjs';
+          import {nativePublicationRace} from './tests/tcg-i3-magic-readpath-test.mjs';
+          const db = await database(true);
+          try {
+            const I10 = await nativePublicationRace(db);
+            const O15 = await nativePublicationRace(db, {link: true});
+            console.log(JSON.stringify({server_version_num: db.version, I10, O15}));
+          } finally { await db.close(); }
+          JS
+      - name: M6 on-demand current-head nonnative acceptance
+        env:
+          TCG_M6_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m6
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_M6_EVIDENCE_DIR"
+          cp "$TCG_M4_EVIDENCE_DIR/pg17-version.log" "$TCG_M6_EVIDENCE_DIR/pg17-version.log"
+          node --input-type=module <<'JS'
+          import {writeFile} from 'node:fs/promises';
+          import {execFileSync} from 'node:child_process';
+          const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          const parents=execFileSync('git',['show','-s','--format=%P','HEAD'],{encoding:'utf8'}).trim().split(' ');
+          const tree=execFileSync('git',['rev-parse','HEAD^{tree}'],{encoding:'utf8'}).trim();
+          await writeFile(process.env.TCG_M6_EVIDENCE_DIR+'/binding.json',JSON.stringify({head,parents,tree,run_id:process.env.GITHUB_RUN_ID,run_number:process.env.GITHUB_RUN_NUMBER,attempt:Number(process.env.GITHUB_RUN_ATTEMPT),event:process.env.GITHUB_EVENT_NAME,provider_live_requests:0,production_mutations:0,staging_mutations:0},null,2)+'\n');
+          JS
+          node tests/generate-tcg-i3-magic-on-demand-readiness.mjs --check 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/readiness.log"
+          node --test tests/tcg-i3-m6-transport-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/transport.log"
+          node --test tests/tcg-i3-m6-collect-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/collect.log"
+          node --require ./tests/helpers/tcg-i2-preload.cjs --test tests/tcg-v1-foundation-test.mjs tests/tcg-i2-consumers-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/foundation-consumers.log"
+          node --test tests/tcg-i3-magic-foundation-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/magic-foundation.log"
+          node tests/tcg-i2-collect-dom-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/legacy-collect.log"
+      - name: M6 on-demand native PG17 20 cases and two observed beta lock races
+        run: |
+          set -euo pipefail
+          node tests/tcg-i3-m6-database-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6/native.log
+      - name: Verify M6 native report and observed independent backend locks
+        run: |
+          set -euo pipefail
+          cp test-results/tcg-i3-m6-database-native.json test-results/tcg-i3-m6/native-report.json
+          node --input-type=module <<'JS' 2>&1 | tee test-results/tcg-i3-m6/report-verification.log
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile('test-results/tcg-i3-m6/native-report.json'));
+          assert.equal(x.engine,'native-PG17');assert.equal(x.postgres_major,17);
+          assert.equal(Math.floor(Number(x.version)/10000),17);
+          assert.equal(x.native_acceptance,true);assert.equal(x.passed,true);
+          assert.equal(x.cases.length,22);assert.ok(x.cases.slice(0,20).every(c=>c.status==='PASS'));
+          assert.deepEqual(x.cases.slice(20).map(c=>c.name),['NATIVE_LOCK_01','NATIVE_LOCK_02']);
+          for(const c of x.cases.slice(20)){
+            assert.equal(c.status,'PASS');assert.equal(new Set(Object.values(c.pids)).size,3);
+            assert.equal(c.observed_lock.wait_event_type,'Lock');assert.equal(c.observed_lock.state,'active');
+            assert.ok(c.observed_lock.blockers.includes(c.observed_lock.blocker_pid));
+            assert.ok(c.observed_lock.waiting_locks.length>0);assert.ok(c.observed_lock.blocker_beta_relation_locks.length>0);
+            assert.equal(c.observed_lock.pending_observed,true);assert.equal(c.released_after_commit,true);assert.equal(c.beta_after,false);
+          }
+          assert.equal(x.cases[20].new_items,1);assert.equal(x.cases[21].new_items,0);
+          assert.match(x.cases[21].error,/magic_beta_unavailable/);
+          assert.deepEqual(x.io.forbidden_external_io_attempts,[]);assert.ok(x.io.local_pg_connections>=4);
+          for(const k of ['provider_live_requests','production_mutations','staging_mutations'])assert.equal(x.io[k],0);
+          assert.equal(x.connection.host,'127.0.0.1');assert.equal(x.connection.disposable,true);
+          assert.equal(x.connection.production_staging_connection,false);assert.match(x.connection.database,/^tcg_m4_[0-9a-f]{32}$/);
+          console.log('PASS M6 native-PG17: 20 DB cases, two observed lock edges, external I/O=0');
+          JS
+      - name: P3 Browser vertical acceptance with exact response replay
+        run: |
+          set -euo pipefail
+          .github/ci/node_modules/.bin/playwright install --with-deps chromium
+          mkdir -p test-results/tcg-i3-m6-p3
+          node tests/tcg-i3-m6-vertical-browser-test.mjs 2>&1 | tee test-results/tcg-i3-m6-p3/browser.log
+      - name: P3 Native PG17 archived browser payload replay
+        run: |
+          set -euo pipefail
+          node tests/tcg-i3-m6-p3-native-replay-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p3/native.log
+      - name: P3 Evidence verification
+        run: node tests/tcg-i3-m6-p3-evidence-test.mjs
+      - name: P4 disposable PG17 activation and kill-switch rehearsal
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p4
+          node tests/tcg-i3-m6-p4-activation-rehearsal-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p4/native.log
+      - name: P4 evidence verification
+        run: node tests/tcg-i3-m6-p4-activation-rehearsal-test.mjs --verify-evidence
+      - name: P6-R3 Staging native PG17 readiness acceptance
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p6-r3
+          node tests/tcg-i3-m6-p6-staging-native-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p6-r3/native.log
+      - name: P6-R3 native evidence verification
+        run: node tests/tcg-i3-m6-p6-native-evidence-test.mjs
+      - name: P6-R4 Production legacy baseline native closure
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p6-r4
+          node tests/tcg-i3-m6-p6-production-native-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p6-r4/native.log
+      - name: P6-R4 dual-baseline evidence verification
+        run: node tests/tcg-i3-m6-p6-dual-baseline-evidence-test.mjs
+      - name: P6-R5 Production I2 Legal exact diagnostic
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p6-r5
+          node tests/tcg-i3-m6-p6-production-i2-legal-diagnostic.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p6-r5/diagnostic.log
+      - name: P6-R5-R1 confirmed diagnostic and double native Production72 authoring
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p6-r5-r1
+          node tests/generate-tcg-production72-readiness.mjs --native --check 2>&1 | tee test-results/tcg-i3-m6-p6-r5-r1/generator.log
+      - name: P7 Staging migration package native replay
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p7
+          node tests/tcg-i3-m6-p7-staging-migration-package-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p7/native.log
+      - name: P7 migration package evidence verification
+        run: node tests/tcg-i3-m6-p7-evidence-test.mjs
+      - name: R5-R1 synthetic AUDIT31 acceptance
+        if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
+        env:
+          TCG_AUDIT_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-r5-r1-audit
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_AUDIT_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_AUDIT_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node --version | tee "$TCG_AUDIT_EVIDENCE_DIR/node-version.txt"
+          npm --version | tee "$TCG_AUDIT_EVIDENCE_DIR/npm-version.txt"
+          node -p "require('./node_modules/@electric-sql/pglite/package.json').version" | tee "$TCG_AUDIT_EVIDENCE_DIR/pglite-version.txt"
+          node tests/tcg-i3-magic-source-snapshot-audit-test.mjs 2>&1 | tee "$TCG_AUDIT_EVIDENCE_DIR/audit.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_AUDIT_EVIDENCE_DIR+'/audit-test-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:31,FAIL:0});
+          assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:31},(_,i)=>'AUDIT'+String(i+1).padStart(2,'0')));
+          assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          assert.equal(ledger.policy_subcases.length,62);
+          assert.equal(new Set(ledger.policy_subcases.map(c=>c.id)).size,62);
+          assert.ok(ledger.policy_subcases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','live_invocations','database_publications','forbidden_external_io_attempts'])assert.equal(ledger[key],0);
+          assert.ok(Array.isArray(JSON.parse(await readFile(process.env.TCG_AUDIT_EVIDENCE_DIR+'/synthetic-audit-reports.json'))));
+          JS
+      - name: M4 nonnative acceptance with separate evidence
+        if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
+        env:
+          TCG_M4_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m4-nonnative
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_M4_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_M4_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-database-test.mjs 2>&1 | tee "$TCG_M4_EVIDENCE_DIR/m4-nonnative.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_M4_EVIDENCE_DIR+'/m4-159-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:58,NATIVE_NOT_RUN:92,SPECIFIED_NOT_RUN:9});
+          assert.equal(ledger.cases.length,159);
+          JS
+      - name: P4 synthetic WRAP20 and 45 existing subcases acceptance
+        if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
+        env:
+          TCG_WRAPPER_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-p4-wrapper
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_WRAPPER_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_WRAPPER_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-source-snapshot-audit-real-test.mjs 2>&1 | tee "$TCG_WRAPPER_EVIDENCE_DIR/tests.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_WRAPPER_EVIDENCE_DIR+'/wrapper-test-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
+          assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(ledger[key],0);
+          assert.deepEqual(ledger.subcase_counts,{PASS:47,FAIL:0});
+          assert.equal(ledger.subcases.length,47);
+          assert.equal(new Set(ledger.subcases.map(c=>c.id)).size,47);
+          assert.ok(ledger.subcases.every(c=>c.status==='PASS'));
+          JS
+      - name: P4 synthetic RECORD20 acceptance
+        if: github.event_name == 'pull_request'
+        working-directory: .tcg-api-c16
+        env:
+          TCG_RECORD_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-p4-record
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_RECORD_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_RECORD_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-single-record-diagnostic-test.mjs 2>&1 | tee "$TCG_RECORD_EVIDENCE_DIR/tests.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const ledger=JSON.parse(await readFile(process.env.TCG_RECORD_EVIDENCE_DIR+'/record-test-ledger.json'));
+          assert.deepEqual(ledger.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(ledger.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'RECORD'+String(i+1).padStart(2,'0')));
+          assert.ok(ledger.cases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(ledger[key],0);
+          JS
+      - name: R5-R1 offline evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-r5-r1-offline-evidence
+          path: |
+            test-results/tcg-i3-m5-r5-r1-audit/
+            test-results/tcg-i3-m4-nonnative/
+            test-results/tcg-i3-m5-p4-wrapper/
+            test-results/tcg-i3-m5-p4-record/
+          if-no-files-found: error
+      - name: M4 native PostgreSQL 17 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m4-native-pg17-evidence
+          path: test-results/tcg-i3-m4/
+          if-no-files-found: error
+      - name: M6 on-demand PostgreSQL 17 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m6-native-pg17-evidence
+          path: |
+            test-results/tcg-i3-m6/
+            test-results/tcg-i3-m6-database-native.json
+            test-results/tcg-i3-m6-p3/
+            test-results/tcg-i3-m6-p4/**
+            test-results/tcg-i3-m6-p6-r3/**
+            test-results/tcg-i3-m6-p6-r4/**
+            test-results/tcg-i3-m6-p6-r5/**
+            test-results/tcg-i3-m6-p6-r5-r1/**
+            test-results/tcg-i3-m6-p7/**
+          if-no-files-found: error
+  tcg_i3_magic_source_ingest:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: isolated-ci-only
+      PGDATABASE: postgres
+      TCG_M5_EVIDENCE_DIR: ${{ github.workspace }}/test-results/tcg-i3-m5-local
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: One-time exact M5 candidate parent gate
+        id: source_gate
+        run: |
+          set -euo pipefail
+          parent="$(git rev-parse HEAD^)"
+          if [ "$parent" = '80133a03eae70264f3e2d14a15d450fabb38041f' ] && [ "$GITHUB_RUN_ATTEMPT" = '1' ]; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Real source acquisition disabled: parent or attempt is not the one-time authorized binding.'
+          fi
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        with:
+          node-version: '22'
+      - name: Install existing pinned test dependencies
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --prefix .github/ci
+          ln -s .github/ci/node_modules node_modules
+      - name: Prove disposable PostgreSQL 17 and postgres owner before source
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          mkdir -p test-results/tcg-i3-m5-real "$TCG_M5_EVIDENCE_DIR"
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 <<'SQL' | tee test-results/tcg-i3-m5-real/pg17-service-version.log
+          DO $$ BEGIN
+            ASSERT current_user = 'postgres';
+            ASSERT current_setting('server_version_num')::integer / 10000 = 17;
+          END $$;
+          SELECT current_user, current_setting('server_version_num') AS server_version_num, version();
+          SQL
+      - name: Deterministic readiness and 57 offline source checks
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          node tests/generate-tcg-i3-magic-readiness.mjs --check
+          node tests/tcg-i3-magic-source-ingest-test.mjs 2>&1 | tee "$TCG_M5_EVIDENCE_DIR/m5-local.log"
+          node --input-type=module -e "import {readFile} from 'node:fs/promises'; import assert from 'node:assert/strict'; const x=JSON.parse(await readFile(process.env.TCG_M5_EVIDENCE_DIR+'/m5-local-ledger.json')); assert.deepEqual(x.counts,{PASS:57,FAIL:0}); assert.equal(x.forbidden_external_io_attempts,0);"
+      - name: Exactly one real Scryfall acquisition and disposable PG17 publication
+        if: github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        env:
+          DUELVANTA_M5_REAL_SOURCE_ACCEPTANCE: '1'
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = '80133a03eae70264f3e2d14a15d450fabb38041f'
+          node tests/tcg-i3-magic-source-live-acceptance.mjs --real 2>&1 | tee test-results/tcg-i3-m5-real/source-job.log
+      - name: Compact source acceptance evidence only; never raw provider files
+        if: always() && github.event_name == 'pull_request' && steps.source_gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-real-source-pg17-evidence
+          path: |
+            test-results/tcg-i3-m5-local/
+            test-results/tcg-i3-m5-real/
+          if-no-files-found: error
+
+  tcg_i3_magic_snapshot_audit:
+    needs: [account_data_export_t2, production_upgrade_p001, collect_f3_database, quota_database, validate, tcg_i3_magic_persistence, tcg_i3_magic_source_ingest]
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'synchronize' &&
+      github.repository == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.base.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.head.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.number == 6 &&
+      github.event.pull_request.head.ref == 'tcg-registry-v1' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Bind exact one-time PR head parent and execution context
+        id: audit_gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          EXPECTED_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          EXPECTED_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = pull_request
+          test "$GITHUB_REPOSITORY" = Bennyescaped/duelvanta
+          test "$EXPECTED_HEAD_REPOSITORY" = Bennyescaped/duelvanta
+          test "$GITHUB_HEAD_REF" = tcg-registry-v1
+          test "$EXPECTED_PR_NUMBER" = 6
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$EXPECTED_PR_HEAD"
+          if [ "$(git show -s --format=%P HEAD)" != 2db97d986c598b36f6f3e03deb562ade07a5882c ]; then
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Snapshot audit locked: this is not the authorized parent.'
+            exit 0
+          fi
+          mkdir -p test-results/tcg-i3-m5-p2-job
+          current_pr_head="$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)"
+          test "$current_pr_head" = "$EXPECTED_PR_HEAD"
+          echo "head=$current_pr_head" >> "$GITHUB_OUTPUT"
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          const e=process.env;
+          await writeFile('test-results/tcg-i3-m5-p2-job/start-binding.json',JSON.stringify({at:new Date().toISOString(),head:e.EXPECTED_PR_HEAD,parent:'2db97d986c598b36f6f3e03deb562ade07a5882c',event:e.GITHUB_EVENT_NAME,repository:e.GITHUB_REPOSITORY,pr:6,branch:e.GITHUB_HEAD_REF,run_id:e.GITHUB_RUN_ID,run_number:e.GITHUB_RUN_NUMBER,attempt:1,node:process.version,current_pr_head_verified:true,real_acquisition_started:false},null,2)+'\n');
+          NODE
+          echo 'run=true' >> "$GITHUB_OUTPUT"
+      - name: Synthetic acquisition audit wrapper behavior tests
+        if: steps.audit_gate.outputs.run == 'true'
+        env:
+          TCG_WRAPPER_EVIDENCE_DIR: test-results/tcg-i3-m5-p2-wrapper
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_WRAPPER_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_WRAPPER_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-source-snapshot-audit-real-test.mjs 2>&1 | tee "$TCG_WRAPPER_EVIDENCE_DIR/wrapper.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile(process.env.TCG_WRAPPER_EVIDENCE_DIR+'/wrapper-test-ledger.json'));
+          assert.deepEqual(x.counts,{PASS:20,FAIL:0});
+          assert.deepEqual(x.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
+          assert.ok(x.cases.every(c=>c.status==='PASS'));
+          assert.equal(x.subcases.length,47);
+          assert.equal(new Set(x.subcases.map(c=>c.id)).size,47);
+          assert.ok(x.subcases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','unexpected_external_io_attempts'])assert.equal(x[key],0);
+          JS
+      - name: Unchanged AUDIT31 synthetic preflight
+        if: steps.audit_gate.outputs.run == 'true'
+        env:
+          TCG_AUDIT_EVIDENCE_DIR: test-results/tcg-i3-m5-p2-audit31
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_AUDIT_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > "$TCG_AUDIT_EVIDENCE_DIR/exit-code.txt"' EXIT
+          node tests/tcg-i3-magic-source-snapshot-audit-test.mjs 2>&1 | tee "$TCG_AUDIT_EVIDENCE_DIR/audit31.log"
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const x=JSON.parse(await readFile(process.env.TCG_AUDIT_EVIDENCE_DIR+'/audit-test-ledger.json'));
+          assert.deepEqual(x.counts,{PASS:31,FAIL:0});
+          assert.deepEqual(x.cases.map(c=>c.id),Array.from({length:31},(_,i)=>'AUDIT'+String(i+1).padStart(2,'0')));
+          assert.ok(x.cases.every(c=>c.status==='PASS'));
+          assert.equal(x.policy_subcases.length,62);
+          assert.equal(new Set(x.policy_subcases.map(c=>c.id)).size,62);
+          assert.ok(x.policy_subcases.every(c=>c.status==='PASS'));
+          for(const key of ['provider_requests','database_publications','forbidden_external_io_attempts'])assert.equal(x[key],0);
+          JS
+      - name: One acquisition and complete diagnostic audit without publication
+        if: steps.audit_gate.outputs.run == 'true'
+        env:
+          DUELVANTA_M5_SNAPSHOT_AUDIT: P4_P2_ONE_ACQUISITION_DIAGNOSTIC_ONLY
+          TCG_AUDIT_CURRENT_PR_HEAD: ${{ steps.audit_gate.outputs.head }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          trap 'code=$?; printf "%s\n" "$code" > test-results/tcg-i3-m5-p2-job/real-exit-code.txt' EXIT
+          test "$(git rev-parse HEAD)" = "$TCG_AUDIT_CURRENT_PR_HEAD"
+          test "$(git show -s --format=%P HEAD)" = 2db97d986c598b36f6f3e03deb562ade07a5882c
+          test "$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)" = "$TCG_AUDIT_CURRENT_PR_HEAD"
+          unset GH_TOKEN
+          node tests/tcg-i3-magic-source-snapshot-audit-real.mjs --real-audit 2>&1 | tee test-results/tcg-i3-m5-p2-job/real-audit.log
+      - name: Diagnostic outcome is not catalog or I19 acceptance
+        if: always() && steps.audit_gate.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {readFile,appendFile} from 'node:fs/promises';
+          let x;
+          try { x=JSON.parse(await readFile('test-results/tcg-i3-m5-p2-real/runner-ledger.json','utf8')); }
+          catch { x={status:'NO_FINAL_LEDGER',diagnostic_completion_pass:false,snapshot_status:'INCOMPLETE'}; }
+          const text=['### P2 diagnostic-only acquisition and audit',`Diagnostic completion: ${x.diagnostic_completion_pass===true}`,`Snapshot: ${x.snapshot_status}; compatible: ${x.snapshot_compatible===true}`,`Provider requests: ${x.provider_requests??'NOT_RECORDED'}`,`Acquisitions: ${x.audit_acquisition_invocations_this_block??'NOT_RECORDED'}; audits: ${x.full_snapshot_audit_invocations_this_block??'NOT_RECORDED'}`,'COMPLETE_REJECTED is diagnostic completion, not catalog PASS.','I19 remains FAIL / LIVE_REACCEPTANCE_PENDING. No database publication or activation.'].join('\n\n')+'\n';
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,text);
+          NODE
+      - name: Compact snapshot audit evidence only never raw acquisition files
+        if: always() && steps.audit_gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-p2-full-snapshot-audit-evidence
+          path: |
+            test-results/tcg-i3-m5-p2-job/
+            test-results/tcg-i3-m5-p2-wrapper/
+            test-results/tcg-i3-m5-p2-audit31/
+            test-results/tcg-i3-m5-p2-real/
+          if-no-files-found: error
+
+  tcg_i3_magic_single_record_diagnostic:
+    needs: [account_data_export_t2, production_upgrade_p001, collect_f3_database, quota_database, validate, tcg_i3_magic_persistence, tcg_i3_magic_source_ingest]
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'synchronize' &&
+      github.repository == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.base.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.head.repo.full_name == 'Bennyescaped/duelvanta' &&
+      github.event.pull_request.number == 6 &&
+      github.event.pull_request.head.ref == 'tcg-registry-v1' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Bind one-time diagnostic parent and fresh PR head
+        id: record_gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m5-p3-p1-job
+          if [ "$(git show -s --format=%P HEAD)" != d5d8624c216544f97ffe54639e2fff43ab9317d8 ]; then
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Single-record request locked: this is not the authorized parent.'
+            exit 0
+          fi
+          test "$(git rev-parse HEAD)" = "$EXPECTED_PR_HEAD"
+          current_pr_head="$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)"
+          test "$current_pr_head" = "$EXPECTED_PR_HEAD"
+          export TCG_DIAGNOSTIC_CURRENT_PR_HEAD="$current_pr_head"
+          node --input-type=module <<'NODE'
+          import {readFile,writeFile} from 'node:fs/promises';
+          import {execFileSync} from 'node:child_process';
+          import {authorize,AUTH} from './tests/tcg-i3-magic-single-record-diagnostic.mjs';
+          const e=process.env,p=JSON.parse(await readFile(e.GITHUB_EVENT_PATH));
+          const binding=authorize({authorization:AUTH,real_diagnostic:true,actions:e.GITHUB_ACTIONS==='true',event:e.GITHUB_EVENT_NAME,action:p.action,repository:e.GITHUB_REPOSITORY,base_repository:p.pull_request.base.repo.full_name,head_repository:p.pull_request.head.repo.full_name,pr:p.number,branch:p.pull_request.head.ref,attempt:Number(e.GITHUB_RUN_ATTEMPT),run_id:e.GITHUB_RUN_ID,run_number:e.GITHUB_RUN_NUMBER,head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),event_head:p.pull_request.head.sha,current_pr_head:e.TCG_DIAGNOSTIC_CURRENT_PR_HEAD,parents:execFileSync('git',['show','-s','--format=%P','HEAD'],{encoding:'utf8'}).trim().split(' ')});
+          await writeFile('test-results/tcg-i3-m5-p3-p1-job/start-binding.json',JSON.stringify({at:new Date().toISOString(),binding,node:process.version,provider_started:false},null,2)+'\n',{flag:'wx'});
+          NODE
+          echo 'run=true' >> "$GITHUB_OUTPUT"
+          echo "head=$current_pr_head" >> "$GITHUB_OUTPUT"
+      - name: Synthetic single-record behavior and exact P3 WRAP20 preflight
+        if: steps.record_gate.outputs.run == 'true'
+        env:
+          TCG_RECORD_EVIDENCE_DIR: test-results/tcg-i3-m5-p3-p1-tests
+          TCG_WRAPPER_EVIDENCE_DIR: test-results/tcg-i3-m5-p3-p1-wrapper
+        run: |
+          set -euo pipefail
+          mkdir -p "$TCG_RECORD_EVIDENCE_DIR" "$TCG_WRAPPER_EVIDENCE_DIR"
+          trap 'code=$?; printf "%s\n" "$code" > test-results/tcg-i3-m5-p3-p1-job/preflight-exit-code.txt' EXIT
+          node tests/tcg-i3-magic-single-record-diagnostic-test.mjs 2>&1 | tee "$TCG_RECORD_EVIDENCE_DIR/record-tests.log"
+          node tests/tcg-i3-magic-source-snapshot-audit-real-test.mjs 2>&1 | tee "$TCG_WRAPPER_EVIDENCE_DIR/wrapper.log"
+          node --input-type=module <<'NODE'
+          import {readFile,writeFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const r=JSON.parse(await readFile(process.env.TCG_RECORD_EVIDENCE_DIR+'/record-test-ledger.json'));
+          const w=JSON.parse(await readFile(process.env.TCG_WRAPPER_EVIDENCE_DIR+'/wrapper-test-ledger.json'));
+          assert.deepEqual(r.counts,{PASS:20,FAIL:0});assert.deepEqual(r.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'RECORD'+String(i+1).padStart(2,'0')));
+          assert.deepEqual(w.counts,{PASS:20,FAIL:0});assert.deepEqual(w.subcase_counts,{PASS:45,FAIL:0});assert.deepEqual(w.cases.map(c=>c.id),Array.from({length:20},(_,i)=>'WRAP'+String(i+1).padStart(2,'0')));
+          for(const x of [r,w]){assert.equal(x.provider_requests,0);assert.equal(x.database_publications,0);assert.equal(x.unexpected_external_io_attempts,0);}
+          await writeFile('test-results/tcg-i3-m5-p3-p1-job/preflight-proof.json',JSON.stringify({at:new Date().toISOString(),RECORD:r.counts,WRAP:w.counts,WRAP_subcases:w.subcase_counts,provider_requests:0},null,2)+'\n',{flag:'wx'});
+          NODE
+      - name: Exactly one hosted card GET and offline diagnosis
+        if: steps.record_gate.outputs.run == 'true'
+        env:
+          DUELVANTA_SINGLE_RECORD_DIAGNOSTIC: P3_P1_ONE_HOSTED_CARD_DIAGNOSTIC
+          TCG_DIAGNOSTIC_CURRENT_PR_HEAD: ${{ steps.record_gate.outputs.head }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          trap 'code=$?; printf "%s\n" "$code" > test-results/tcg-i3-m5-p3-p1-job/diagnostic-exit-code.txt' EXIT
+          test "$(gh api repos/Bennyescaped/duelvanta/pulls/6 --jq .head.sha)" = "$TCG_DIAGNOSTIC_CURRENT_PR_HEAD"
+          test -s test-results/tcg-i3-m5-p3-p1-job/preflight-proof.json
+          unset GH_TOKEN GITHUB_TOKEN
+          node tests/tcg-i3-magic-single-record-diagnostic.mjs --real-diagnostic 2>&1 | tee test-results/tcg-i3-m5-p3-p1-job/diagnostic.log
+      - name: Single-record outcome and historical boundaries
+        if: always() && steps.record_gate.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {readFile,appendFile} from 'node:fs/promises';
+          let l;try{l=JSON.parse(await readFile('test-results/tcg-i3-m5-p3-p1-record/runner-ledger.json'));}catch{l={status:'NO_FINAL_LEDGER',diagnostic_completion_pass:false};}
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,['### P3-P1 one-record diagnosis',`Completion: ${l.diagnostic_completion_pass===true}; status: ${l.status}`,`Request creation attempts: ${l.request?.request_creation_attempts??'UNKNOWN'}; HTTP response observed: ${l.request?.response_observed===true}`,`Complete response: ${l.request?.response_complete===true}; bytes: ${l.request?.response_bytes??'UNKNOWN'}`,'A face-count contract reject is diagnostic evidence, not catalog admission.','Old fullscan disabled; I19 remains FAIL / LIVE_REACCEPTANCE_PENDING; no database publication.'].join('\n\n')+'\n');
+          NODE
+      - name: Compact single-record diagnostic evidence only
+        if: always() && steps.record_gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg-i3-m5-p3-p1-single-record-evidence
+          path: |
+            test-results/tcg-i3-m5-p3-p1-job/start-binding.json
+            test-results/tcg-i3-m5-p3-p1-job/preflight-proof.json
+            test-results/tcg-i3-m5-p3-p1-job/preflight-exit-code.txt
+            test-results/tcg-i3-m5-p3-p1-job/diagnostic-exit-code.txt
+            test-results/tcg-i3-m5-p3-p1-job/diagnostic.log
+            test-results/tcg-i3-m5-p3-p1-tests/record-tests.log
+            test-results/tcg-i3-m5-p3-p1-tests/record-test-ledger.json
+            test-results/tcg-i3-m5-p3-p1-tests/synthetic-record-reports.json
+            test-results/tcg-i3-m5-p3-p1-wrapper/wrapper.log
+            test-results/tcg-i3-m5-p3-p1-wrapper/wrapper-test-ledger.json
+            test-results/tcg-i3-m5-p3-p1-wrapper/synthetic-wrapper-reports.json
+            test-results/tcg-i3-m5-p3-p1-record/start-proof.json
+            test-results/tcg-i3-m5-p3-p1-record/versions.json
+            test-results/tcg-i3-m5-p3-p1-record/request-journal.json
+            test-results/tcg-i3-m5-p3-p1-record/record-diagnosis.json
+            test-results/tcg-i3-m5-p3-p1-record/failure-proof.json
+            test-results/tcg-i3-m5-p3-p1-record/cleanup-proof.json
+            test-results/tcg-i3-m5-p3-p1-record/runner-ledger.json
+          if-no-files-found: error
+

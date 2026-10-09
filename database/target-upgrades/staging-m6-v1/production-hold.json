@@ -1,0 +1,6 @@
+{
+  "production_package_created": false,
+  "production_real_apply_authorized": false,
+  "reason": "U001_U060_CANDIDATE_NOT_AUTHORIZED_FOR_PRODUCTION",
+  "production_requires_separate_tracking_and_apply_authorization": true
+}

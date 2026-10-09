@@ -37,12 +37,7 @@
           briefs=rows(found).filter(card=>numeric(card.localId)===local);
         }
         const details=await mapLimit([...new Map(briefs.map(card=>[card.id,card])).values()],card=>json(`${base}/cards/${encodeURIComponent(card.id)}`,diagnostic));
-        return details.filter(card=>card&&numeric(card.localId)===local&&[card.set?.cardCount?.official,card.set?.cardCount?.total].some(n=>numeric(n)===den)).map(card=>({
-          catalogId:card.id,tcg:'pokemon',name:card.name,set:card.set?.name||'',number:`${card.localId}/${id.den||den}`,
-          language:lang==='ja'?'JP':lang==='ko'?'KR':lang.toUpperCase(),sourceLang:lang,variant:card.rarity||'',
-          image:card.image?`${card.image}/high.webp`:null,catalogConfidence:88,confidence:88,catalogVerified:true,
-          marketEur:null,priceSource:null
-        }));
+        return details.filter(card=>card&&numeric(card.localId)===local&&[card.set?.cardCount?.official,card.set?.cardCount?.total].some(n=>numeric(n)===den)).flatMap(card=>root.DV_TCG_V1_CONSUMERS.translate(card,diagnostic.tcg,{locale:lang,collector:{text:id.code||`${id.local}/${id.den}`,source:'ocr'},source_path:'cards',retrieved_at:null}).records.map(record=>({...record.legacy})));
       });return packs.flat();
     }
     async function onePiece(id,diagnostic){
@@ -50,17 +45,15 @@
       const paths=code.startsWith('P-')?['promos']:code.startsWith('ST')?['decks','sets','promos']:['sets','decks','promos'],all=[];
       for(const path of paths){
         const data=await json(`https://optcgapi.com/api/${path}/card/${encodeURIComponent(code)}/`,diagnostic);
-        const candidates=(Array.isArray(data)?data:data?[data]:[]).filter(card=>root.DV_SCAN_V16_TCG.normalizeOnePieceCode(card.card_set_id||card.card_id||card.card_number||'')===code).map(card=>({
-          catalogId:card.card_image_id||card.card_set_id||card.card_id,tcg:'one_piece',name:card.card_name||card.name,
-          set:card.set_name||'',number:code,language:'EN',rarity:card.rarity||card.card_rarity||'',variant:/winner/i.test(card.card_name||'')?'Tournament / Winner':/finalist/i.test(card.card_name||'')?'Tournament / Finalist':/participant/i.test(card.card_name||'')?'Tournament / Participant':/manga/i.test(card.card_name||'')?'Manga':/alternate art|parallel/i.test(card.card_name||'')?'Parallel / Alt Art':/wanted poster/i.test(card.card_name||'')?'Wanted Poster':/\(SP\)/i.test(card.card_name||'')?'Special':/reprint/i.test(card.card_name||'')?'Reprint':card.rarity||card.card_rarity||'',
-          image:card.card_image||card.image||null,catalogConfidence:88,confidence:88,catalogVerified:true,marketEur:null,marketUsd:Number.isFinite(Number(card.market_price??card.marketPrice??card.price))?Number(card.market_price??card.marketPrice??card.price):null,priceSource:null
-        }));all.push(...candidates);
+        const candidates=(Array.isArray(data)?data:data?[data]:[]).flatMap(card=>root.DV_TCG_V1_CONSUMERS.translate(card,diagnostic.tcg,{locale:'en',collector:{text:code,source:'ocr'},source_path:path,retrieved_at:null}).records.map(record=>({...record.legacy})));all.push(...candidates);
       }return [...new Map(all.map(card=>[[card.catalogId,card.image,card.name].join('|'),card])).values()];
     }
     async function lookup(id,{tcg}={}){
-      if(!['pokemon','one_piece'].includes(tcg))throw new Error('Katalogsuche benötigt einen expliziten TCG-Modus.');
-      const info={tcg,identifier:id.code,errors:[],strategy:tcg==='pokemon'?'denominator_sets_exact_local':'exact_one_piece_code'};
-      let result=tcg==='pokemon'?await pokemon(id,info):await onePiece(id,info);
+      let provider;try{provider=root.DV_TCG_V1_CONSUMERS.binding(tcg)}catch{throw new Error('Katalogsuche benötigt einen expliziten TCG-Modus.')}
+      const transports={tcgdex:{lookup:pokemon,strategy:'denominator_sets_exact_local'},optcg:{lookup:onePiece,strategy:'exact_one_piece_code'}},transport=transports[provider.provider_key];
+      if(!transport)throw new Error('Catalog transport unavailable');
+      const info={tcg,identifier:id.code,errors:[],strategy:transport.strategy};
+      let result=await transport.lookup(id,info);
       const references=root.DV_SCAN_V16_REFERENCES;
       if(references){await references.ready;result=references.resolveCandidates(result,tcg)}
       result.lookupInfo={...info,candidates:result.length,localReferenceImages:result.filter(card=>card.referenceImageSource).length};return result;
