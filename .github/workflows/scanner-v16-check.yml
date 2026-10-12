@@ -1031,6 +1031,11 @@ jobs:
           set -euo pipefail
           mkdir -p test-results/tcg-i3-m6-p9-r2
           node tests/generate-tcg-staging68-readiness.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p9-r2/native.log
+      - name: P9-R5 Staging70 native generation and reconciliation replay
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-p9-r5
+          node tests/generate-tcg-staging70-readiness.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p9-r5/native.log
       - name: R5-R1 synthetic AUDIT31 acceptance
         if: github.event_name == 'pull_request'
         working-directory: .tcg-api-c16
@@ -1150,6 +1155,7 @@ jobs:
             test-results/tcg-i3-m6-p6-r5-r1/**
             test-results/tcg-i3-m6-p7/**
             test-results/tcg-i3-m6-p9-r2/**
+            test-results/tcg-i3-m6-p9-r5/**
           if-no-files-found: error
   tcg_i3_magic_source_ingest:
     if: github.event_name == 'pull_request'
