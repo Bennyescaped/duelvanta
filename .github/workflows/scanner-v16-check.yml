@@ -21,6 +21,8 @@ on:
       - 'tcg-magic-on-demand.js'
       - 'tests/tcg-i3-m6-*.mjs'
       - 'tests/r9/**'
+      - 'tests/r11/**'
+      - 'database/target-upgrades/staging-m6-r4-v1/**'
       - 'database/local-candidates/magic-collect-admission-r9/**'
       - 'tests/fixtures/tcg-i3-magic/m6-p2-r1-live-response.json'
       - 'tests/generate-tcg-i3-magic-on-demand-readiness.mjs'
@@ -1085,6 +1087,11 @@ jobs:
           await writeFile(dir+'acceptance.json',JSON.stringify({passed:true,binding,frozen_files:15,postgres_major:17,admission_groups:10,races:6,native_baseline:22,native_candidate:22,provider_negative:20,provider_explicit_mock_positive:1,provider_live_requests:0,collect_transport:59,chromium:24},null,2)+'\n');
           console.log('PASS R9 frozen15 PG17 admission10 races6 native22+22 provider20+mock1 COLLECT59 Chromium24 externalIO0');
           JS
+      - name: R11 Staging72 R4 native package acceptance (no real apply)
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-r11
+          node tests/r11/package-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r11/native.log
       - name: R5-R1 synthetic AUDIT31 acceptance
         if: github.event_name == 'pull_request'
         working-directory: .tcg-api-c16
@@ -1207,6 +1214,7 @@ jobs:
             test-results/tcg-i3-m6-p9-r5/**
             test-results/tcg-i3-m6-r9/**
             test-results/tcg-i3-m6-r9-regression-native.json
+            test-results/tcg-i3-m6-r11/**
           if-no-files-found: error
   tcg_i3_magic_source_ingest:
     if: github.event_name == 'pull_request'

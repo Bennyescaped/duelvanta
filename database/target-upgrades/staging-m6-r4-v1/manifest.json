@@ -1,0 +1,358 @@
+{
+  "contract": "staging-m6-r4/1",
+  "package_mode": "NOT_AUTO_APPLY",
+  "real_apply_authorized": false,
+  "target_project_ref": "xhmjxrcskfhbovhitdej",
+  "source_head": "a99ae1e1e9750a108e7fa2520692b9cd06658beb",
+  "source_tree": "6b676769587b4f89e7638a6a006bc4e678228f81",
+  "accepted_ci": {
+    "run_number": 835,
+    "run_id": 38547472142,
+    "status": "SUCCESS"
+  },
+  "postgres_major": 17,
+  "required_history_count": 72,
+  "expected_history_count": 73,
+  "required_history": [
+    {
+      "version": "20260913141026",
+      "name": "create_private_market_listing_images_bucket"
+    },
+    {
+      "version": "20260914092948",
+      "name": "pgcrypto_digest_schema_hardening_v1"
+    },
+    {
+      "version": "20260914093254",
+      "name": "market_stripe_payment_result_columns_v1"
+    },
+    {
+      "version": "20260914102659",
+      "name": "trade_actions_column_aliases_v1"
+    },
+    {
+      "version": "20260915064648",
+      "name": "market_stripe_event_ordering_hardening_v1"
+    },
+    {
+      "version": "20260915080258",
+      "name": "market_stripe_refund_evidence_hardening_v1"
+    },
+    {
+      "version": "20260915082005",
+      "name": "market_stripe_refund_evidence_immutability_fix_v1"
+    },
+    {
+      "version": "20260916073251",
+      "name": "b07_tracking_delivery_window_v1"
+    },
+    {
+      "version": "20260916081359",
+      "name": "b07_l07_01_release1_shipping_close_v1"
+    },
+    {
+      "version": "20260916081618",
+      "name": "b07_l07_01_release1_shipping_close_v1_hardening"
+    },
+    {
+      "version": "20260916082424",
+      "name": "b07_l07_01_shipping_deadline_hardening_v1"
+    },
+    {
+      "version": "20260916110622",
+      "name": "b07_c2c_eligibility_dependency_v1"
+    },
+    {
+      "version": "20260916110653",
+      "name": "b07_l07_01_c2c_swap_v1_schema"
+    },
+    {
+      "version": "20260916110745",
+      "name": "b07_l07_01_c2c_swap_v1_binding"
+    },
+    {
+      "version": "20260916110933",
+      "name": "b07_l07_01_c2c_swap_v1_fulfillment_shipping"
+    },
+    {
+      "version": "20260916110944",
+      "name": "b07_l07_01_c2c_swap_v1_fulfillment_receive"
+    },
+    {
+      "version": "20260916111050",
+      "name": "b07_l07_01_c2c_swap_v1_problems"
+    },
+    {
+      "version": "20260916111119",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_schema"
+    },
+    {
+      "version": "20260916111135",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_revision"
+    },
+    {
+      "version": "20260916111144",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_proposals"
+    },
+    {
+      "version": "20260916111204",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_binding"
+    },
+    {
+      "version": "20260916111218",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_code"
+    },
+    {
+      "version": "20260916112219",
+      "name": "b07_l07_01_c2c_swap_v1_completion_compat"
+    },
+    {
+      "version": "20260916112232",
+      "name": "b07_l07_01_c2c_swap_v1_pickup_completion_compat"
+    },
+    {
+      "version": "20260916180544",
+      "name": "b07_l07_01_pickup_messages_v1"
+    },
+    {
+      "version": "20260916181124",
+      "name": "b07_l07_01_pickup_messages_v1_list"
+    },
+    {
+      "version": "20260917094814",
+      "name": "b07_l07_01_order_pickup_handover_staging_repair_v1"
+    },
+    {
+      "version": "20260917101616",
+      "name": "account_data_rights_pickup_messages_hardening_v1"
+    },
+    {
+      "version": "20260917111158",
+      "name": "b07_trade_only_no_money_v1"
+    },
+    {
+      "version": "20260917111935",
+      "name": "b07_sealed_sale_only_v1"
+    },
+    {
+      "version": "20260917132229",
+      "name": "trade_notifications_v2"
+    },
+    {
+      "version": "20260917132525",
+      "name": "trade_notifications_v2_kind_expansion"
+    },
+    {
+      "version": "20260917132613",
+      "name": "trade_notifications_v2_cutover"
+    },
+    {
+      "version": "20260917180908",
+      "name": "b07_sale_only_release_v1"
+    },
+    {
+      "version": "20260917180910",
+      "name": "b07_sale_only_notifications_v1"
+    },
+    {
+      "version": "20260917180911",
+      "name": "b07_sale_only_public_listings_v1"
+    },
+    {
+      "version": "20260917185128",
+      "name": "b07_offer_reservation_v1_staging"
+    },
+    {
+      "version": "20260917185406",
+      "name": "b07_offer_reservation_sale_only_reads"
+    },
+    {
+      "version": "20260917201448",
+      "name": "b07_shipping_receipt_completion_realign_v1"
+    },
+    {
+      "version": "20260918103806",
+      "name": "battle_beta_account_status_v1"
+    },
+    {
+      "version": "20260918131743",
+      "name": "battle_dispute_resolution_v1"
+    },
+    {
+      "version": "20260918135427",
+      "name": "battle_judge_desk_v1"
+    },
+    {
+      "version": "20260918150007",
+      "name": "battle_spectator_foundation_v1"
+    },
+    {
+      "version": "20260918210927",
+      "name": "battle_spectator_media_v1"
+    },
+    {
+      "version": "20260918213553",
+      "name": "battle_spectator_media_publisher_admission_v1"
+    },
+    {
+      "version": "20260919103559",
+      "name": "battle_spectator_media_pg_net_v1"
+    },
+    {
+      "version": "20260919104947",
+      "name": "battle_spectator_media_vault_scheduler_v1"
+    },
+    {
+      "version": "20260919132152",
+      "name": "battle_spectator_media_reconciler_v1"
+    },
+    {
+      "version": "20260921151654",
+      "name": "collect_empty_binder_delete"
+    },
+    {
+      "version": "20260923081953",
+      "name": "trade_legal_contract_model_v1"
+    },
+    {
+      "version": "20260924113112",
+      "name": "auth_privileged_step_up_v1"
+    },
+    {
+      "version": "20260924113132",
+      "name": "security_privilege_mfa_hardening_v1"
+    },
+    {
+      "version": "20260924113153",
+      "name": "security_readiness_v1"
+    },
+    {
+      "version": "20261011174228",
+      "name": "dv_staging_m6_01_account_data_export_collect_battle"
+    },
+    {
+      "version": "20261012103450",
+      "name": "dv_staging_m6_02_account_processing_markers"
+    },
+    {
+      "version": "20261012103529",
+      "name": "dv_staging_m6_03_account_closure_privacy"
+    },
+    {
+      "version": "20261012103551",
+      "name": "dv_staging_m6_04_scanner_processing_hold"
+    },
+    {
+      "version": "20261012103611",
+      "name": "dv_staging_m6_05_battle_player_processing_hold"
+    },
+    {
+      "version": "20261012103805",
+      "name": "dv_staging_m6_06_battle_signal_processing_hold"
+    },
+    {
+      "version": "20261012103831",
+      "name": "dv_staging_m6_07_battle_spectator_withdrawal"
+    },
+    {
+      "version": "20261012103909",
+      "name": "dv_staging_m6_08_battle_spectator_epoch_processing_hold"
+    },
+    {
+      "version": "20261012103928",
+      "name": "dv_staging_m6_09_staff_processing_hold"
+    },
+    {
+      "version": "20261012103959",
+      "name": "dv_staging_m6_10_publication_processing_hold"
+    },
+    {
+      "version": "20261012104040",
+      "name": "dv_staging_m6_11_battle_safety_sanctions"
+    },
+    {
+      "version": "20261012104114",
+      "name": "dv_staging_m6_12_account_deletion_withdrawal"
+    },
+    {
+      "version": "20261012104147",
+      "name": "dv_staging_m6_13_account_erasure_l1"
+    },
+    {
+      "version": "20261012104219",
+      "name": "dv_staging_m6_14_tcg_i2_canonical_integration"
+    },
+    {
+      "version": "20261012104249",
+      "name": "dv_staging_m6_15_tcg_i2_readiness_staging"
+    },
+    {
+      "version": "20261012145314",
+      "name": "dv_staging_m6r2_01_i2_readiness_reconcile"
+    },
+    {
+      "version": "20261012145433",
+      "name": "dv_staging_m6r2_02_tcg_i3_magic_persistence"
+    },
+    {
+      "version": "20261013113151",
+      "name": "dv_staging_m6r3_01_m4_readiness_reconcile"
+    },
+    {
+      "version": "20261013113259",
+      "name": "dv_staging_m6r3_02_tcg_i3_magic_on_demand"
+    }
+  ],
+  "history_identity_sha256": "6da9042d614b028fadd0d657750b708cc5fdeaa805e026a6a2ebac7cf611138a",
+  "baseline": {
+    "magic_beta_enabled": false,
+    "admission_absent": true,
+    "audit_absent": true,
+    "r3_applied": true
+  },
+  "units": [
+    {
+      "order": 1,
+      "name": "dv_staging_m6r4_01_magic_collect_admission",
+      "version": null,
+      "query_path": "migration-units/dv_staging_m6r4_01_magic_collect_admission.sql",
+      "query_sha256": "b0dc4073eceae3727b07c67890dc98e5f431ebba8146d9fbff0a4285e897c88b",
+      "query_bytes": 429197,
+      "source_path": "database/local-candidates/magic-collect-admission-r9/candidate.sql"
+    }
+  ],
+  "execution_order": [
+    "verify_target_and_hashes",
+    "precheck.sql",
+    "migration-units/dv_staging_m6r4_01_magic_collect_admission.sql",
+    "register_exactly_one_separately_authorized_version",
+    "postcheck.sql"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2008,
+      "sha256": "1a514383b06274080da4bb59b26a0af2b39d5cf6641d7d67c826aadf2a1594e7"
+    },
+    {
+      "path": "precheck.sql",
+      "bytes": 12218,
+      "sha256": "f8ebfd2b63310fbeb266f1db9ef0f7567513a71e3b9d31bea9f1b102bb7619fd"
+    },
+    {
+      "path": "postcheck.sql",
+      "bytes": 390672,
+      "sha256": "bee03c72d7cf20a60c623be17609ff6f69b1fcb31b4c4eddbac507044c21c542"
+    },
+    {
+      "path": "supersession.json",
+      "bytes": 420,
+      "sha256": "800e02a29eda3022e3bc9e30df8d2a59b5f5f58224d702335e3faa3e9a6b6bcc"
+    },
+    {
+      "path": "migration-units/dv_staging_m6r4_01_magic_collect_admission.sql",
+      "bytes": 429197,
+      "sha256": "b0dc4073eceae3727b07c67890dc98e5f431ebba8146d9fbff0a4285e897c88b"
+    }
+  ]
+}
