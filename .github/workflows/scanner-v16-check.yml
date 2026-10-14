@@ -20,6 +20,8 @@ on:
       - 'api/tcg-magic-scryfall.js'
       - 'tcg-magic-on-demand.js'
       - 'tests/tcg-i3-m6-*.mjs'
+      - 'tests/r9/**'
+      - 'database/local-candidates/magic-collect-admission-r9/**'
       - 'tests/fixtures/tcg-i3-magic/m6-p2-r1-live-response.json'
       - 'tests/generate-tcg-i3-magic-on-demand-readiness.mjs'
       - 'tests/helpers/tcg-i3-magic-*'
@@ -879,6 +881,22 @@ jobs:
           ln -s .github/ci/node_modules node_modules
           # Historical native suites use sibling disposable source copies.
           ln -s "$GITHUB_WORKSPACE/.github/ci/node_modules" "$(dirname "$GITHUB_WORKSPACE")/node_modules"
+      - name: R9 frozen candidate bindings and isolated connection gate
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/tcg-i3-m6-r9
+          node --input-type=module <<'JS' 2>&1 | tee test-results/tcg-i3-m6-r9/frozen-before.log
+          import assert from 'node:assert/strict';
+          import {readFile,writeFile} from 'node:fs/promises';
+          import {createHash} from 'node:crypto';
+          assert.equal(process.env.PGHOST,'127.0.0.1');
+          assert.equal(process.env.PGDATABASE,'postgres');
+          for(const key of ['DATABASE_URL','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','SUPABASE_PUBLISHABLE_KEY'])assert.ok(!process.env[key],key+' forbidden in isolated CI');
+          const frozen=[{"path":"api/tcg-magic-scryfall.js","bytes":8083,"sha256":"a9639d0dd45317ab3f2cef8e744b4ecdb67c5455c40fb5de7cad5d732f0bb6d5","git_blob_sha":"0cf1bcdd3abf0856ae9a6c469dea696eb0320567"},{"path":"collect.html","bytes":65582,"sha256":"8f5542584c53f1e702cc03d3374b3ff31ead53acff4a806f829c343581f91b05","git_blob_sha":"3a0e2280a3b7298623a5e3f09ea7faf6f06f403b"},{"path":"database/local-candidates/magic-collect-admission-r9/README.txt","bytes":4311,"sha256":"c1148ea0d238747e88aa46f81cd475e3169a8ee1b04c3f66bc51e15a86573688","git_blob_sha":"18b03e0216471ffd2a004005da8750441e940fca"},{"path":"database/local-candidates/magic-collect-admission-r9/admission.sql","bytes":15685,"sha256":"03e0b48f195723ae482d3fe86061a336a1412f67e2406e8b37424ff9d4a91abb","git_blob_sha":"db4789ea248359af0464a01408a8f337d3cb1097"},{"path":"database/local-candidates/magic-collect-admission-r9/candidate.sql","bytes":429197,"sha256":"b0dc4073eceae3727b07c67890dc98e5f431ebba8146d9fbff0a4285e897c88b","git_blob_sha":"af6526474e6072709d9c5e6c6b09c92891f1eaa3"},{"path":"database/local-candidates/magic-collect-admission-r9/inventories.json","bytes":1031895,"sha256":"ab316ed7aa3ce66d3f5ce924141080077f8f6c02abc8e3ba9d1aeea343145f7b","git_blob_sha":"f8f37facf79ca184f8124ae858bc9d89ad6aa0c9"},{"path":"database/local-candidates/magic-collect-admission-r9/inventory-helper.sql","bytes":28240,"sha256":"1d479246b7c07780060f47c8b20178807e2813d96ccb1e498b400f57314b8e66","git_blob_sha":"68634f248e461afd02e95e802964ad09c2a4f9bb"},{"path":"tests/r9/author.mjs","bytes":5175,"sha256":"b6ae82eb50299f89bd9829b3082f9cde4ffb71b7b6f5364da4066f03690d1059","git_blob_sha":"01653b988593630c8edfee18ba084ee83a36c7fe"},{"path":"tests/r9/catalog.mjs","bytes":3754,"sha256":"3a64b801865c033a59f89ca2fa134119496687b14edf9414fe1bfb1fa363465c","git_blob_sha":"c0fe452f51e6ec96f13b838cd1b3a30ba183248b"},{"path":"tests/r9/native.mjs","bytes":14900,"sha256":"5f3cc5f9908ffe0648efa7b810dfe234378957e5b434ea4345613726bc4814c3","git_blob_sha":"b9108c65135ee5f64337559d52ca519f175876b6"},{"path":"tests/r9/provider-test.cjs","bytes":3635,"sha256":"e024d8cb3ebded249491a0911a765498c97aeaedcfeedf7cb83393beb53a1959","git_blob_sha":"2f9e04375d54dd8b938dacae520e5e82ba221b24"},{"path":"tests/tcg-i3-m6-collect-test.mjs","bytes":10852,"sha256":"6fcc1000d8772e9ee62ee7bd01b13c5b78eed52afd083f8f1589bc062ada180c","git_blob_sha":"984355dd2000ff6b00a1cb824a4a8f095db7049f"},{"path":"tests/tcg-i3-m6-r9-regression-test.mjs","bytes":20618,"sha256":"65c713f8217abec91040187a908731cc0187fac7968f6d7a41849040e91090bd","git_blob_sha":"980c4a69a2456cf958613e0c6a6732662ac31696"},{"path":"tests/tcg-i3-m6-transport-test.mjs","bytes":9402,"sha256":"ce0459e4429ac4b25aff37e1ad8c106bfe217f488af99adbb4c0f127ca2b4025","git_blob_sha":"129ce2dcc4e65bd7c4ad0dc0de93f13011e57308"},{"path":"tests/tcg-i3-m6-vertical-browser-test.mjs","bytes":14881,"sha256":"7595d9f1f97e228531bb5c0558952202acfff0682c1e506cbeecfd3211e406d4","git_blob_sha":"f62d6875f33415a34474795aa9d1f2ab1511bab4"}];
+          for(const f of frozen){const b=await readFile(f.path);assert.equal(b.length,f.bytes,f.path);assert.equal(createHash('sha256').update(b).digest('hex'),f.sha256,f.path);assert.equal(createHash('sha1').update(Buffer.concat([Buffer.from('blob '+b.length+'\0'),b])).digest('hex'),f.git_blob_sha,f.path);}
+          await writeFile('test-results/tcg-i3-m6-r9/frozen-manifest.json',JSON.stringify(frozen,null,2)+'\n');
+          console.log('PASS frozen R9 candidate: 15/15 byte, SHA256 and Git-blob bindings');
+          JS
       - name: Prove PostgreSQL 17 and postgres owner
         run: |
           mkdir -p "$TCG_M4_EVIDENCE_DIR"
@@ -1036,6 +1054,37 @@ jobs:
           set -euo pipefail
           mkdir -p test-results/tcg-i3-m6-p9-r5
           node tests/generate-tcg-staging70-readiness.mjs --native 2>&1 | tee test-results/tcg-i3-m6-p9-r5/native.log
+      - name: R9 native admission catalog provider and candidate regression
+        run: |
+          set -euo pipefail
+          node tests/r9/author.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r9/author.log
+          node tests/r9/native.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r9/admission-native.log
+          node tests/r9/catalog.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r9/catalog.log
+          node tests/r9/provider-test.cjs 2>&1 | tee test-results/tcg-i3-m6-r9/provider.log
+          node tests/tcg-i3-m6-r9-regression-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r9/candidate-native22.log
+      - name: R9 native and browser evidence acceptance
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS' 2>&1 | tee test-results/tcg-i3-m6-r9/acceptance.log
+          import assert from 'node:assert/strict';
+          import {readFile,writeFile} from 'node:fs/promises';
+          import {createHash} from 'node:crypto';
+          const dir='test-results/tcg-i3-m6-r9/',json=async p=>JSON.parse(await readFile(p,'utf8'));
+          const frozen=await json(dir+'frozen-manifest.json');assert.equal(frozen.length,15);
+          for(const f of frozen){const b=await readFile(f.path);assert.equal(b.length,f.bytes,f.path);assert.equal(createHash('sha256').update(b).digest('hex'),f.sha256,f.path);}
+          const author=await json(dir+'author.json');assert.equal(author.passed,true);assert.equal(author.independent_reconstruction_byte_identical,true);assert.equal(Math.floor(Number(author.version)/10000),17);assert.equal(author.bytes,429197);assert.equal(author.sha256,'b0dc4073eceae3727b07c67890dc98e5f431ebba8146d9fbff0a4285e897c88b');
+          const a=await json(dir+'admission-native.json');assert.equal(a.passed,true);assert.equal(Math.floor(Number(a.version)/10000),17);assert.equal(a.cases.length,10);assert.ok(a.cases.every(c=>c.status==='PASS'));assert.equal(a.races.length,6);assert.equal(new Set(a.races.map(r=>[r.kind,r.first,r.identity].join('/'))).size,6);
+          for(const r of a.races){assert.equal(new Set(r.pids).size,3);assert.equal(r.observed_lock.wait_event_type,'Lock');assert.ok(r.observed_lock.blockers.length>0);assert.equal(r.no_unauthorized_commit,true);}
+          assert.deepEqual(a.io.attempts,[]);assert.ok(a.io.local_pg_connections>=14);assert.equal(a.final_roots.security.compatible,true);assert.equal(a.final_roots.legal.compatible,true);
+          for(const file of ['test-results/tcg-i3-m6-database-native.json','test-results/tcg-i3-m6-r9-regression-native.json']){const x=await json(file);assert.equal(x.passed,true);assert.equal(x.native_acceptance,true);assert.equal(x.postgres_major,17);assert.equal(x.cases.length,22);assert.ok(x.cases.every(c=>c.status==='PASS'));assert.deepEqual(x.io.forbidden_external_io_attempts,[]);assert.equal(x.connection.host,'127.0.0.1');assert.equal(x.connection.disposable,true);assert.equal(x.connection.production_staging_connection,false);for(const k of ['provider_live_requests','production_mutations','staging_mutations'])assert.equal(x.io[k],0);}
+          const p=await json(dir+'provider-mocks.json');assert.equal(p.passed,true);assert.equal(p.provider_live_requests,0);assert.equal(p.cases.length,21);for(const c of p.cases.slice(0,20)){assert.equal(c.status,'PASS');assert.equal(c.transport_calls,0);}assert.equal(p.cases[20].scenario,'explicit_mock_positive');assert.equal(p.cases[20].mock_transport_calls,1);assert.equal(p.cases[20].provider_live_requests,0);
+          let count=0;for(const name of ['collect','transport']){const t=await readFile('test-results/tcg-i3-m6/'+name+'.log','utf8');const passed=Number(t.match(/^# pass (\d+)$/m)?.[1]);const tests=Number(t.match(/^# tests (\d+)$/m)?.[1]);assert.equal(passed,tests);assert.match(t,/^# fail 0$/m);assert.match(t,/^# skipped 0$/m);count+=passed;}assert.equal(count,59);
+          const b=await json('test-results/tcg-i3-m6-p3/browser-report.json');assert.equal(b.passed,true);assert.equal(b.cases.length,24);assert.ok(b.cases.every(c=>c.status==='PASS'));assert.deepEqual(b.forbidden_external_io_attempts,[]);assert.equal(b.new_provider_live_requests,0);assert.equal(b.production_mutations,0);assert.equal(b.staging_mutations,0);
+          const catalog=await json(dir+'catalog-acl-rls.json');assert.equal(catalog.members,0);assert.equal(catalog.beta[0].enabled,false);assert.deepEqual(catalog.trade_lock_before,catalog.trade_lock_after);
+          const binding=await json('test-results/tcg-i3-m6/binding.json');
+          await writeFile(dir+'acceptance.json',JSON.stringify({passed:true,binding,frozen_files:15,postgres_major:17,admission_groups:10,races:6,native_baseline:22,native_candidate:22,provider_negative:20,provider_explicit_mock_positive:1,provider_live_requests:0,collect_transport:59,chromium:24},null,2)+'\n');
+          console.log('PASS R9 frozen15 PG17 admission10 races6 native22+22 provider20+mock1 COLLECT59 Chromium24 externalIO0');
+          JS
       - name: R5-R1 synthetic AUDIT31 acceptance
         if: github.event_name == 'pull_request'
         working-directory: .tcg-api-c16
@@ -1156,6 +1205,8 @@ jobs:
             test-results/tcg-i3-m6-p7/**
             test-results/tcg-i3-m6-p9-r2/**
             test-results/tcg-i3-m6-p9-r5/**
+            test-results/tcg-i3-m6-r9/**
+            test-results/tcg-i3-m6-r9-regression-native.json
           if-no-files-found: error
   tcg_i3_magic_source_ingest:
     if: github.event_name == 'pull_request'

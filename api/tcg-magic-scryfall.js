@@ -32,12 +32,54 @@ function queryInput(req){
   if(url.pathname!=='/api/tcg-magic-scryfall'||[...url.searchParams.keys()].some(k=>!allowed.includes(k))||allowed.some(k=>url.searchParams.getAll(k).length!==1))throw new TypeError('magic_query');
   return Object.fromEntries(allowed.map(k=>[k,url.searchParams.get(k)]));
 }
-function createHandler({transport=createTransport(),now=Date.now}={}){
+// Caller authentication uses Supabase Auth's verified /user result and a caller-
+// scoped RPC with the identical bearer. No service role and no user_metadata.
+const CONTRACT='magic-on-demand-collect-beta/1';
+function bearer(req){
+ const value=req.headers?.authorization;
+ if(typeof value!=='string'||value.length>8192||!/^Bearer [A-Za-z0-9_.-]+$/.test(value))return null;
+ return value.slice(7);
+}
+function createAuthorizer({url,publishableKey,fetch:authFetch=(...args)=>globalThis.fetch(...args),now=Date.now}={}){
+ return async token=>{
+  let origin;try{origin=new URL(url);}catch{return null;}
+  if(origin.protocol!=='https:'||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash
+    ||typeof publishableKey!=='string'||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(publishableKey))return null;
+  const headers={apikey:publishableKey,Authorization:'Bearer '+token,Accept:'application/json'};
+  const request=async(path,options={})=>{
+   const r=await authFetch(origin.origin+path,{...options,headers:{...headers,...options.headers},redirect:'error',signal:AbortSignal.timeout(5000)});
+   if(r.status!==200||r.redirected)throw Error('authorization_unavailable');
+   return r.json();
+  };
+  try{
+   const user=await request('/auth/v1/user');
+   if(!user||typeof user.id!=='string'||!user.email_confirmed_at||user.is_anonymous===true)return null;
+   const receipt=await request('/rest/v1/rpc/get_magic_on_demand_collection_beta_v1',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+   if(receipt?.contract!==CONTRACT||receipt.user_id!==user.id||receipt.magic_on_demand_collection_beta!==true
+     ||!Number.isFinite(Date.parse(receipt.checked_at))||Math.abs(now()-Date.parse(receipt.checked_at))>10000)return null;
+   return {userId:user.id};
+  }catch{return null;}
+ };
+}
+const defaultAuthorize=token=>createAuthorizer({url:process.env.SUPABASE_URL,publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY})(token);
+// No R9 environment variable, cookie or request header can enable live transport.
+// Future release requires a separately reviewed live gate and atomic shared budgets.
+function createHandler(options={}){return gatedHandler(options,false);}
+function createMockHandler(options){
+ if(typeof options?.transport!=='function'||typeof options?.authorize!=='function')throw new TypeError('explicit_mock_dependencies_required');
+ return gatedHandler(options,true);
+}
+
+function gatedHandler({transport=createTransport(),now=Date.now,authorize=defaultAuthorize}={},mockOnly=false){
   let nextAllowed=0;
   return async(req,res)=>{
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
     if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({status:'error',error:'method_not_allowed'});}
     let input;try{input=queryInput(req);printingInput(input);}catch{return res.status(400).json({status:'error',error:'invalid_printing_query'});}
+    const token=bearer(req);if(!token)return res.status(401).json({status:'error',error:'access_unavailable'});
+    let identity;try{identity=await authorize(token);}catch{return res.status(403).json({status:'error',error:'access_unavailable'});}
+    if(!identity?.userId)return res.status(403).json({status:'error',error:'access_unavailable'});
+    if(!mockOnly)return res.status(503).json({status:'error',error:'provider_unavailable'});
     if(now()<nextAllowed){res.setHeader('Retry-After',String(Math.max(1,Math.ceil((nextAllowed-now())/1000))));return res.status(429).json({status:'error',error:'provider_rate_limited'});}
     nextAllowed=now()+100;
     try{const {raw,retrieved_at}=await transport(input);let result;try{result=translatePrinting(raw,input,retrieved_at);}catch{throw new LookupError('provider_record_invalid',502);}return res.status(200).json(result);}
@@ -47,4 +89,4 @@ function createHandler({transport=createTransport(),now=Date.now}={}){
     }
   };
 }
-module.exports=createHandler();Object.assign(module.exports,{createTransport,createHandler,queryInput,MAX_BYTES,TIMEOUT_MS,HEADERS,LookupError});
+module.exports=createHandler();Object.assign(module.exports,{createTransport,createHandler,createMockHandler,createAuthorizer,queryInput,MAX_BYTES,TIMEOUT_MS,HEADERS,LookupError});

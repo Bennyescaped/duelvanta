@@ -36,11 +36,11 @@ try{
   const errors=[],rpc=[],lookup=[];let rows=[],mode='disabled',readinessCalls=0;
   page.on('pageerror',e=>errors.push(e.message));
   page.on('websocket',s=>forbidden.push('websocket '+s.url()));
-  const readiness=()=>mode==='missing'?{data:null,error:null}:{data:{contract:'magic-on-demand-collect-beta/1',user_id:mode==='foreign'?foreign:owner,magic_on_demand_collection_beta:mode!=='disabled',checked_at:new Date(Date.now()-(mode==='expired'?120000:0)).toISOString()},error:null};
+  const readiness=()=>mode==='missing'?{data:null,error:null}:{data:{contract:'magic-on-demand-collect-beta/1',user_id:mode==='foreign'?foreign:owner,magic_on_demand_collection_beta:!['disabled','revoked','non_tester'].includes(mode),checked_at:new Date(Date.now()-(mode==='expired'?120000:0)).toISOString()},error:null};
   await page.route('**/*',async route=>{
    const request=route.request(),u=new URL(request.url());
    if(u.origin===base&&u.pathname==='/api/compliance-message-dispatch')return route.fulfill({contentType:'text/javascript',body:'window.DV_SUPABASE={url:"https://xhmjxrcskfhbovhitdej.supabase.co",key:"fixture-only",environment:"preview"}'});
-   if(u.href.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js'))return route.fulfill({contentType:'text/javascript',body:`window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'${owner}'}}}}),onAuthStateChange:()=>({})},rpc:(name,args)=>fetch('/fixture-rpc',{method:'POST',body:JSON.stringify({name,args})}).then(r=>r.json()),from:table=>{const filters={};let columns=null,single=false;const q={select:value=>{columns=value;return q},eq:(k,v)=>{filters[k]=v;return q},order:()=>q,single:()=>{single=true;return q},then:(a,b)=>fetch('/fixture-table',{method:'POST',body:JSON.stringify({table,columns,single,filters})}).then(r=>r.json()).then(a,b)};return q},storage:{from:()=>({createSignedUrl:async()=>{throw Error('Unexpected image access')}})}})}`});
+   if(u.href.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js'))return route.fulfill({contentType:'text/javascript',body:`window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{access_token:'SYNTHETIC-R9-TOKEN',user:{id:'${owner}'}}}}),onAuthStateChange:()=>({})},rpc:(name,args)=>fetch('/fixture-rpc',{method:'POST',body:JSON.stringify({name,args})}).then(r=>r.json()),from:table=>{const filters={};let columns=null,single=false;const q={select:value=>{columns=value;return q},eq:(k,v)=>{filters[k]=v;return q},order:()=>q,single:()=>{single=true;return q},then:(a,b)=>fetch('/fixture-table',{method:'POST',body:JSON.stringify({table,columns,single,filters})}).then(r=>r.json()).then(a,b)};return q},storage:{from:()=>({createSignedUrl:async()=>{throw Error('Unexpected image access')}})}})}`});
    if(u.origin===base&&u.pathname==='/fixture-rpc'){
     const body=request.postDataJSON();
     if(body.name==='get_magic_on_demand_collection_beta_v1'){readinessCalls++;return route.fulfill({json:readiness()});}
@@ -73,7 +73,7 @@ try{
     return route.fulfill({json:{data,count:data.length,error:null}});
    }
    if(u.origin===base&&u.pathname==='/api/tcg-magic-scryfall'){
-    assert.equal(request.method(),'GET');assert.equal(u.search,'?set_code=m21&collector_number=1&language=EN');
+    assert.equal(request.headers()['authorization'],'Bearer SYNTHETIC-R9-TOKEN');assert.equal(request.method(),'GET');assert.equal(u.search,'?set_code=m21&collector_number=1&language=EN');
     lookup.push({method:request.method(),path:u.pathname+u.search,response_sha256:fixtureSha});
     return route.fulfill({contentType:'application/json',headers:{'Cache-Control':'no-store'},body:response});
    }
@@ -90,7 +90,7 @@ try{
    await page.waitForFunction(folder=>collectionState()==='ready'&&window.DV_SCAN_V16_BINDER?.interactive===true&&activeFolder===folder,folder);
    await page.locator(`[data-folder="${folder}"]`).click();
   };
-  for(const invalid of ['disabled','missing','expired','foreign']){
+  for(const invalid of ['disabled','missing','expired','foreign','revoked','non_tester']){
    mode=invalid;await page.goto(base+'/collect.html?binder='+folder);await ready();
    await page.click('#addCard');await page.locator('#cardDialog[open]').waitFor();
    await page.waitForFunction(()=>!DV_TCG_V1_CONSUMERS.games('collection').some(g=>g.game_key==='magic'));

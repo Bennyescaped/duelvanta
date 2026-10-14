@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
-const require=createRequire(import.meta.url),API=require('../api/tcg-magic-scryfall.js'),M=require('../tcg-magic-on-demand.js'),P=require('../tcg-v1-catalog-providers.js');
+const require=createRequire(import.meta.url),actual=require('../api/tcg-magic-scryfall.js'),M=require('../tcg-magic-on-demand.js'),P=require('../tcg-v1-catalog-providers.js');
+// Only fixture wiring changes; all original transport assertions follow unchanged.
+const API={...actual,createHandler:options=>{const h=actual.createMockHandler({...options,authorize:async()=>({userId:'synthetic'})});return (req,res)=>h({...req,headers:{authorization:'Bearer synthetic-token'}},res);}};
 globalThis.fetch=()=>{throw Error('PROVIDER_LIVE_REQUEST_FORBIDDEN');};
 const fixture=JSON.parse(readFileSync(new URL('./fixtures/tcg-i3-magic/contract-v1.json',import.meta.url))),raw=()=>structuredClone(fixture.raw);
 const input={set_code:fixture.raw.set,collector_number:fixture.raw.collector_number,language:'EN'},time='2026-10-07T12:00:00.000Z';

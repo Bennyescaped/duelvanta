@@ -7,7 +7,27 @@ const payloadBytes=await readFile(out+'/browser-payload.json'),p=JSON.parse(payl
 const fixture=await readFile('tests/fixtures/tcg-i3-magic/m6-p2-r1-live-response.json');
 assert.equal(browser.passed,true);assert.equal(browser.payload.sha256,sha(payloadBytes));assert.equal(browser.payload.save_keys,17);
 assert.equal(p.fixture_sha256,sha(fixture));assert.equal(p.fixture_sha256,'960df122f5c68b0a63284c75dd8e20efce8aa4bd9f208d10ac6ac2d7c734a5aa');
-assert.equal(browser.cases.length,20);for(const width of [390,1363]){const cases=browser.cases.filter(c=>c.name.startsWith(width+': '));assert.equal(cases.length,10);assert.ok(cases.every(c=>c.status==='PASS'));}
+const expectedBrowserCases = [
+  "disabled readiness closes new Magic",
+  "missing readiness closes new Magic",
+  "expired readiness closes new Magic",
+  "foreign readiness closes new Magic",
+  "revoked readiness closes new Magic",
+  "non_tester readiness closes new Magic",
+  "explicit printing lookup replays exact live response into form",
+  "manual Legacy RPC save displayed in COLLECT and own binder",
+  "reloaded item edited through same Legacy RPC",
+  "actual binder move RPC survives reload at page 1 slot 3",
+  "existing own Magic item maintained through Legacy RPC with beta OFF",
+  "beta OFF, scanner marketplace pricing sealed grading battle closed"
+];
+assert.equal(browser.cases.length,24);
+for(const width of [390,1363]){
+ const cases=browser.cases.filter(c=>c.name.startsWith(width+': '));
+ assert.equal(cases.length,12);
+ assert.deepEqual(cases.map(c=>c.name).sort(),expectedBrowserCases.map(name=>`${width}: ${name}`).sort());
+ assert.ok(cases.every(c=>c.status==='PASS'));
+}
 assert.deepEqual(browser.forbidden_external_io_attempts,[]);
 for(const counter of ['new_provider_live_requests','production_mutations','staging_mutations'])assert.equal(browser[counter],0);
 const screenshotHashes={};for(const name of ['form-390.png','binder-390.png','form-1363.png','binder-1363.png']){const bytes=await readFile(out+'/'+name);assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');assert.ok(bytes.length>1000);screenshotHashes[name]=sha(bytes);}
