@@ -1,5 +1,6 @@
 'use strict';
 const {printingInput,translatePrinting}=require('../tcg-magic-on-demand.js');
+const {randomUUID}=require('node:crypto');
 const MAX_BYTES=1048576,TIMEOUT_MS=8000;
 const HEADERS=Object.freeze({Accept:'application/json','User-Agent':'DUELVANTA/TCG-I3-Source-v1 (operator-controlled catalog acquisition)'});
 class LookupError extends Error{constructor(code,status,retryAfter=null){super(code);this.status=status;this.retryAfter=retryAfter;}}
@@ -62,15 +63,34 @@ function createAuthorizer({url,publishableKey,fetch:authFetch=(...args)=>globalT
  };
 }
 const defaultAuthorize=token=>createAuthorizer({url:process.env.SUPABASE_URL,publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY})(token);
-// No R9 environment variable, cookie or request header can enable live transport.
-// Future release requires a separately reviewed live gate and atomic shared budgets.
+const TRANSPORT_CONTRACT='magic-collect-transport/1';
+function createBudgetReserver({url,publishableKey,fetch:budgetFetch=(...args)=>globalThis.fetch(...args)}={}){
+ return async(token,id)=>{
+  let origin;try{origin=new URL(url);}catch{return null;}
+  if(origin.protocol!=='https:'||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash
+   ||typeof publishableKey!=='string'||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(publishableKey))return null;
+  try{const r=await budgetFetch(origin.origin+'/rest/v1/rpc/reserve_my_magic_transport_v1',{
+   method:'POST',redirect:'error',signal:AbortSignal.timeout(5000),
+   headers:{apikey:publishableKey,Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},
+   body:JSON.stringify({p_request_id:id})});
+   return r.status===200&&!r.redirected?await r.json():null;
+  }catch{return null;}
+ };
+}
+const defaultReserve=(token,id)=>createBudgetReserver({url:process.env.SUPABASE_URL,publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY})(token,id);
+// Explicit server approval AND private DB gate AND atomic reservation; default OFF.
 function createHandler(options={}){return gatedHandler(options,false);}
 function createMockHandler(options){
  if(typeof options?.transport!=='function'||typeof options?.authorize!=='function')throw new TypeError('explicit_mock_dependencies_required');
  return gatedHandler(options,true);
 }
 
-function gatedHandler({transport=createTransport(),now=Date.now,authorize=defaultAuthorize}={},mockOnly=false){
+function createOperationalMockHandler(options){
+ if(typeof options?.transport!=='function'||typeof options?.authorize!=='function'||typeof options?.reserve!=='function')throw new TypeError('explicit_mock_dependencies_required');
+ return gatedHandler({...options,liveApproved:()=>options.serverApproved===true},false);
+}
+function gatedHandler({transport=createTransport(),now=Date.now,authorize=defaultAuthorize,reserve=defaultReserve,
+ liveApproved=()=>process.env.DUELVANTA_MAGIC_PROVIDER_LIVE_APPROVAL===TRANSPORT_CONTRACT}={},mockOnly=false){
   let nextAllowed=0;
   return async(req,res)=>{
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
@@ -79,7 +99,15 @@ function gatedHandler({transport=createTransport(),now=Date.now,authorize=defaul
     const token=bearer(req);if(!token)return res.status(401).json({status:'error',error:'access_unavailable'});
     let identity;try{identity=await authorize(token);}catch{return res.status(403).json({status:'error',error:'access_unavailable'});}
     if(!identity?.userId)return res.status(403).json({status:'error',error:'access_unavailable'});
-    if(!mockOnly)return res.status(503).json({status:'error',error:'provider_unavailable'});
+    if(!mockOnly){
+      let approved=false;try{approved=liveApproved()===true;}catch{}
+      if(!approved)return res.status(503).json({status:'error',error:'provider_unavailable'});
+      const id=randomUUID();let receipt;try{receipt=await reserve(token,id);}catch{}
+      if(receipt?.contract!==TRANSPORT_CONTRACT||receipt.reserved!==true||receipt.request_id!==id
+       ||receipt.user_id!==identity.userId||!Number.isFinite(Date.parse(receipt.reserved_at))
+       ||Math.abs(now()-Date.parse(receipt.reserved_at))>5000)
+       return res.status(503).json({status:'error',error:'provider_unavailable'});
+    }
     if(now()<nextAllowed){res.setHeader('Retry-After',String(Math.max(1,Math.ceil((nextAllowed-now())/1000))));return res.status(429).json({status:'error',error:'provider_rate_limited'});}
     nextAllowed=now()+100;
     try{const {raw,retrieved_at}=await transport(input);let result;try{result=translatePrinting(raw,input,retrieved_at);}catch{throw new LookupError('provider_record_invalid',502);}return res.status(200).json(result);}
@@ -89,4 +117,4 @@ function gatedHandler({transport=createTransport(),now=Date.now,authorize=defaul
     }
   };
 }
-module.exports=createHandler();Object.assign(module.exports,{createTransport,createHandler,createMockHandler,createAuthorizer,queryInput,MAX_BYTES,TIMEOUT_MS,HEADERS,LookupError});
+module.exports=createHandler();Object.assign(module.exports,{createTransport,createHandler,createMockHandler,createOperationalMockHandler,createAuthorizer,createBudgetReserver,queryInput,MAX_BYTES,TIMEOUT_MS,HEADERS,LookupError});
