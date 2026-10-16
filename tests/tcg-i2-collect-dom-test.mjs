@@ -12,8 +12,11 @@ async function run(source,tcg,editing=false){const {window,document}=parseHTML(s
  $('cardDialog').close=()=>{};const q={eq(){return q},select(){return q},single:async()=>({data:{id:'stable-item-id'},error:null}),then(fn){return Promise.resolve({error:null}).then(fn)}};
  const c=vm.createContext({document,$,tcgConsumer,currentUser:{id:'own-user'},items:editing?[{id:'stable-item-id',tcg}]:[],editingId:editing?'stable-item-id':null,pendingScanBlob:null,pendingScanFolder:null,db:{from:()=>({insert(payload){written=payload;return q},update(payload){written=payload;return q}})},loadItems:async()=>{loads++}});
  vm.runInContext(source.match(/function val\(id\)[\s\S]*?(?=function openNew|function openEdit)/)?.[0]||"function val(id){return $(id).value.trim()||null}function numOrNull(id){return $(id).value===''?null:Number($(id).value)}",c);
+ // The extracted handler uses its source-bound single-flight state in R22.
+ const saveState=source.match(/let cardSaveBusy=false;/)?.[0];if(saveState)vm.runInContext(saveState,c);
  vm.runInContext(source.match(/\$\('cardForm'\)\.onsubmit=[\s\S]*?(?=;\$\('logout'\))/)[0],c);await $('cardForm').onsubmit({preventDefault(){}});return{written:written?JSON.parse(JSON.stringify(written)):null,loads,message:$('formMsg').textContent};}
 for(const game of tcgConsumer.games('collection')){assert.deepEqual(await run(current,game.game_key),await run(old,game.game_key));assert.deepEqual(await run(current,game.game_key,true),await run(old,game.game_key,true));}
 assert.deepEqual(await run(current,'other',true),await run(old,'other',true));assert.equal((await run(current,'other')).written,null);
 for(const game of ['magic','yugioh','naruto','unknown'])assert.equal((await run(current,game)).written,null);
 console.log('PASS 10 COLLECT DOM writer fixtures: P/OP insert/edit, legacy other edit, planned/unknown fail-closed; identical payloads and IDs');
+
