@@ -85,3 +85,35 @@ test('edit camera preserves consciously selected existing id, no duplicate',asyn
  a.$('rows').onclick({target:{dataset:{edit:cardId}}});await a.$('magicCameraEdit').onclick();a.$('magicCameraSet').value='ECL';a.$('magicCameraNumber').value='0373';a.$('magicCameraLanguage').value='EN';await a.$('magicCameraConfirm').onclick();await a.submit();
  assert.equal(a.rows.length,1);assert.equal(a.calls.find(x=>x.name==='save_my_tcg_collection_item_v1').args.p_item_id,cardId);assert.equal(a.rows[0].image_path,'own/photo.jpg');
 });
+
+// R22-R1: real operator excerpt plus explicitly labelled full screenshot transcription.
+const ocrFixture=name=>readFileSync(new URL('./fixtures/tcg-i3-magic/r22-r1/'+name,import.meta.url),'utf8');
+test('R22-R1 operator OCR excerpt preserves raw text and resolves ECL 0373 EN',()=>{
+ const raw=ocrFixture('operator-excerpt.txt');
+ assert.deepEqual(C.parse(raw),{raw,set_code:'ECL',collector_number:'0373',language:'EN',ambiguous:false});
+});
+for(const [footer,set,num,rarity] of [
+ ['ECL *EN','ECL','0373','R'],['ECL * EN','ECL','0373','R'],['ECL*EN','ECL','0373','R'],['ECL EN','ECL','0373','R'],
+ ['DSK •EN','DSK','0344','M'],['DSK • EN','DSK','0344','M'],['DSK·EN','DSK','0344','M'],['DSK .EN','DSK','0344','M']
+])test('R22-R1 noisy multiline footer '+footer,()=>{
+ const raw=`» A – y Li\nZz 1/4 ¢\n${rarity} ${num}\n${footer} » Victor ADAME MINGULZ MEE\n© 2026 Wizards of the Coast\n`;
+ assert.deepEqual(C.parse(raw),{raw,set_code:set,collector_number:num,language:'EN',ambiguous:false});
+});
+test('R22-R1 complete screenshot transcription retains conflicting standalone number',()=>{
+ const raw=ocrFixture('screenshot-transcription.txt'),x=C.parse(raw);
+ assert.equal(x.raw,raw);assert.equal(x.set_code,'ECL');assert.equal(x.language,'EN');
+ assert.equal(x.collector_number,'');assert.equal(x.ambiguous,true);
+});
+for(const footer of ['ECLEN','DSKEN','ECL*ENGLISH','ECL_EN','ECL/EN'])test('R22-R1 rejects glued or invalid footer '+footer,()=>{
+ const x=C.parse('R 0373\n'+footer);assert.equal(x.set_code,'');assert.equal(x.language,'');assert.equal(x.ambiguous,true);
+});
+for(const [raw,key] of [
+ ['R 0373\nECL*EN\nDSK •EN','set_code'],
+ ['R 0373\nECL*EN\nECL *DE','language'],
+ ['R 0373\nM 0344\nECL*EN','collector_number']
+])test('R22-R1 conflicting '+key+' stays ambiguous',()=>{
+ const x=C.parse(raw);assert.equal(x[key],'');assert.equal(x.ambiguous,true);assert.equal(x.raw,raw);
+});
+test('R22-R1 repeated same footer is not a conflict and alphanumeric zeroes survive',()=>{
+ const x=C.parse('M 0344A\nDSK•EN\nDSK • EN');assert.equal(x.collector_number,'0344A');assert.equal(x.ambiguous,false);
+});

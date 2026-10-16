@@ -11,7 +11,7 @@
   raw=String(raw||'').slice(0,12000);
   const lines=raw.toUpperCase().split(/\r?\n/).map(s=>s.trim()),sets=new Set(),numbers=new Set(),langs=new Set();
   for(const line of lines){
-   for(const m of line.matchAll(/\b([A-Z0-9]{2,8})\s*[•·*|.\-]?\s+(EN|DE|FR|IT|ES|JP|KR|CN)\b/g)){sets.add(m[1]);langs.add(m[2]);}
+   for(const m of line.matchAll(/\b([A-Z0-9]{2,8})(?:\s*[•·*|.\-]\s*|\s+)(EN|DE|FR|IT|ES|JP|KR|CN)\b/g)){sets.add(m[1]);langs.add(m[2]);}
    if(!/[©®]|COPYRIGHT|WIZARDS|20\d\d\s+/.test(line)){
     const m=line.match(/^(?:[CMRU]\s+)?(\d{1,6}[A-Z]?)(?:\s*\/\s*\d+)?(?:\s+[CMRU])?\s*$/);
     if(m)numbers.add(m[1]);
