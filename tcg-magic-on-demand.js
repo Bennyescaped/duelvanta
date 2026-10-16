@@ -2,9 +2,9 @@
  * normalization. Provider UUIDs never become DUELVANTA canonical IDs. */
 (function(root,factory){
   'use strict';
-  if(typeof module==='object'&&module.exports)module.exports=factory(require('./tcg-v1-catalog-providers.js'),require('./tcg-v1-game-adapters.js'));
-  else root.DV_MAGIC_ON_DEMAND=factory(root.DV_TCG_V1_PROVIDERS,root.DV_TCG_V1_GAMES);
-})(globalThis,function(P,G){
+  if(typeof module==='object'&&module.exports)module.exports=factory(require('./tcg-v1-catalog-providers.js'),require('./tcg-v1-game-adapters.js'),require('./tcg-magic-images.js'));
+  else root.DV_MAGIC_ON_DEMAND=factory(root.DV_TCG_V1_PROVIDERS,root.DV_TCG_V1_GAMES,root.DV_MAGIC_IMAGES);
+})(globalThis,function(P,G,I){
   'use strict';
   const languages=Object.freeze({EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',JP:'ja',KR:'ko',CN:'zhs'});
   // Confirmed printed-number aliases only (R20). Never strip zeroes globally:
@@ -35,8 +35,8 @@
     const cards=result.records.filter(record=>record.ref.entity_kind==='card');
     if(cards.length!==1)return Object.freeze({status:'ambiguous',candidate:null});
     const r=cards[0],l=r.legacy;
-    // No raw/image/price export; no invented VariantEvidence or canonical link.
-    return Object.freeze({status:'candidates',candidate:Object.freeze({tcg:l.tcg,name:l.name,set:l.set,number:l.number,language:l.language,rarity:l.rarity,variant:l.variant,provider_ref:r.ref,source:r.source})});
+    // Only a validated full image bound to this printing; no raw/price export.
+    return Object.freeze({status:'candidates',candidate:Object.freeze({tcg:l.tcg,name:l.name,set:l.set,number:l.number,language:l.language,rarity:l.rarity,variant:l.variant,provider_ref:r.ref,source:r.source,...(I.reference(l.image,r.ref.external_id)?{image_url:I.reference(l.image,r.ref.external_id)}:{})})});
   }
   return Object.freeze({languages,printingInput,translatePrinting});
 });

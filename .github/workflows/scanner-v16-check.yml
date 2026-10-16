@@ -19,6 +19,7 @@ on:
       - 'tests/generate-tcg-i3-magic-readiness.mjs'
       - 'api/tcg-magic-scryfall.js'
       - 'tcg-magic-on-demand.js'
+      - 'tcg-magic-images.js'
       - 'tests/tcg-i3-m6-*.mjs'
       - 'tests/r9/**'
       - 'tests/r11/**'
@@ -964,6 +965,7 @@ jobs:
           node tests/generate-tcg-i3-magic-on-demand-readiness.mjs --check 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/readiness.log"
           node --test tests/tcg-i3-m6-transport-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/transport.log"
           node --test tests/tcg-i3-m6-r20-printing-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/r20-printing.log"
+          node --test tests/tcg-i3-m6-r21-images-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/r21-images.log"
           node --test tests/tcg-i3-m6-collect-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/collect.log"
           node --require ./tests/helpers/tcg-i2-preload.cjs --test tests/tcg-v1-foundation-test.mjs tests/tcg-i2-consumers-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/foundation-consumers.log"
           node --test tests/tcg-i3-magic-foundation-test.mjs 2>&1 | tee "$TCG_M6_EVIDENCE_DIR/magic-foundation.log"
