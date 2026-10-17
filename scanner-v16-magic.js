@@ -54,6 +54,7 @@
       <img class="dvV16Thumb" src="${esc(row.imageURL||row.photo)}" alt="Aufnahme ${index+1}, Position ${row.slot}">
       <div><div class="dvV16ResultTitle">${esc(c?.name||'Magic · Kennung prüfen')}</div>
       <div class="dvV16Meta">Aufnahme ${index+1} · ${esc(row.captureMode)} · Position ${row.slot}${row.captureMode==='binder'?' · Zielseite '+row.page:''}${row.savedId?'<br>Gespeicherte ID: '+esc(row.savedId):''}</div>
+      <div class="dvV16Meta">Bildqualität ${Math.round(row.quality?.score||0)} % · lokale V16-Prüfung</div>
       <strong class="dvV16Badge">${row.savedId?(row.placed||row.captureMode!=='binder'?'GESPEICHERT':'GESPEICHERT · PLATZ OFFEN'):row.saveAttempted?'SPEICHERSTATUS UNKLAR':row.printingConfirmed?'DRUCKVARIANTE BESTÄTIGT':'NICHT BESTÄTIGT'}</strong>
       <div class="dvV16Settings">${[['set_code','Set'],['collector_number','Originale Nummer'],['language','Sprache']].map(([key,label])=>`<div class="full"><label>${label}${key==='language'?`<select data-magic-field="${key}" ${locked?'disabled':''}><option value="">Bitte wählen</option>${languages.map(l=>`<option ${row.values[key]===l?'selected':''}>${l}</option>`).join('')}</select>`:`<input data-magic-field="${key}" value="${esc(row.values[key])}" ${locked?'disabled':''}>`}</label><label class="dvV16Check"><input type="checkbox" data-magic-check="${key}" ${row.checks[key]?'checked':''} ${locked?'disabled':''}>${label} geprüft</label></div>`).join('')}</div>
       <div class="dvV16Actions"><button type="button" class="btn secondary" data-magic-action="confirm" ${locked?'disabled':''}>KENNUNG BESTÄTIGEN</button><button type="button" class="btn secondary" data-magic-action="search" ${locked||!row.confirmed?'disabled':''}>MAGIC-KARTE SUCHEN</button></div>
@@ -103,7 +104,7 @@
   async function place(row,context){
     const {data,error}=await context.db.rpc('place_my_magic_scan_item_v1',{p_item_id:row.savedId,p_folder_id:row.savedFolder,p_page:row.savedPage,p_slot:row.slot});
     if(error||data!==true)throw Error('Karte gespeichert; Platzzuordnung offen: '+(error?.message||'keine Bestätigung'));
-    row.placed=true;row.message='Gespeichert und dem bestätigten freien Binderplatz zugeordnet.';
+    row.placed=true;row.message='Gespeichert und dem bestätigten freien Binderplatz zugeordnet.'+(row.imageWarning||'');
   }
   async function save(row,context){
     if(!canSave(row))return false;
@@ -137,7 +138,7 @@
       const result=await db.rpc('save_my_tcg_collection_item_v1',{p_item_id:previous?.id||null,p_game_key:'magic',p_item:payload});
       if(result.error||!result.data)throw Error('Speicherantwort nicht erfolgreich. Bestand vor einem neuen Versuch prüfen; dieser Kandidat wird nicht erneut importiert.');
       row.savedId=result.data;row.savedFolder=folder;row.savedPage=page;row.message='Karte gespeichert.';
-      if(row.imageBlob){try{await root.DV_MAGIC_IMAGES.attach(db,user.id,row.savedId,row.imageBlob,previous?.image_path,payload)}catch{row.message+=' Bild nicht angehängt; Karte nicht erneut importieren.';}}
+      if(row.imageBlob){try{await root.DV_MAGIC_IMAGES.attach(db,user.id,row.savedId,row.imageBlob,previous?.image_path,payload)}catch{row.imageWarning=' Bild nicht angehängt; Karte nicht erneut importieren.';row.message+=row.imageWarning;}}
       if(row.captureMode==='binder')await place(row,context);
       return true;
     }catch(e){row.message=e.message;return false;}finally{row.busy=false}

@@ -126,7 +126,9 @@ try{
  cases.push('BINDER: 9 stable slots, empty/unreadable/swapped observations, absent candidate blocks save, occupied target protected, placement-only retry never reimports');
  assert.equal(await page.locator('[data-magic-row] .dvV16Explain').count(),0);
  assert.equal(await page.evaluate(()=>{const el=document.querySelector('#dvV16Dialog .modal');return el.scrollWidth<=el.clientWidth+1}),true);
- await row(2).screenshot({path:resolve(out,'binder-position-review.png')});
+ assert.match(await row(2).textContent(),/Bildqualität \d+ %/);
+ await row(2).evaluate(el=>el.scrollIntoView({block:'start'}));
+ await page.screenshot({path:resolve(out,'binder-position-review.png')});
  await page.evaluate(()=>testMagic.quota=true);await confirm(0);const before=provider.length;await row(0).locator('[data-magic-action="search"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[0].message.includes('Tageskontingent'));assert.equal(provider.length,before+1);assert.equal(await count(),9);
  await page.evaluate(()=>testMagic.admitted=false);await row(6).locator('[data-magic-action="confirm"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[6].message.includes('nicht zugelassen'));assert.equal(provider.length,before+1);
  await page.click('#dvV16Close');await page.click('#scanCard');assert.equal(await page.locator('#dvV16Tcg option[value="magic"]').count(),0);
