@@ -1,0 +1,94 @@
+{
+  "contract": "TCG-I3-M5-synthetic-source-fixtures",
+  "version": "1",
+  "synthetic": true,
+  "clock": "2026-10-04T00:00:00.000Z",
+  "snapshot_id": "50000000-0000-4000-8000-000000000001",
+  "set": {
+    "object": "set",
+    "id": "30000000-0000-4000-8000-000000000002",
+    "code": "zzm",
+    "name": "Synthetic Set",
+    "digital": false,
+    "parent_set_code": "zzp"
+  },
+  "card": {
+    "object": "card",
+    "id": "30000000-0000-4000-8000-000000000006",
+    "oracle_id": "30000000-0000-4000-8000-000000000003",
+    "set_id": "30000000-0000-4000-8000-000000000002",
+    "set": "zzm",
+    "set_name": "Synthetic Set",
+    "name": "Synthetic Printing",
+    "lang": "en",
+    "layout": "normal",
+    "collector_number": "0001s★",
+    "released_at": "2025-01-01",
+    "variation": false,
+    "reprint": false,
+    "digital": false,
+    "oversized": false,
+    "games": [
+      "paper"
+    ],
+    "rarity": "mythic",
+    "finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "frame": "2015",
+    "border_color": "black",
+    "full_art": false,
+    "frame_effects": [],
+    "promo_types": [],
+    "illustration_id": "30000000-0000-4000-8000-000000000004",
+    "image_status": "highres_scan",
+    "image_uris": {
+      "normal": "https://example.invalid/magic-front.png"
+    },
+    "prices": {
+      "usd": "999.99",
+      "eur": "888.88"
+    },
+    "unconsumed": {
+      "label": "raw only"
+    }
+  },
+  "pages": [
+    {
+      "url": "https://api.scryfall.com/sets",
+      "raw": "{\"object\":\"list\",\"has_more\":true,\"next_page\":\"https://api.scryfall.com/sets/page2\",\"data\":[{\"object\":\"set\",\"id\":\"30000000-0000-4000-8000-000000000002\",\"code\":\"zzm\",\"name\":\"Synthetic Set\",\"digital\":false,\"parent_set_code\":\"zzp\"}]}"
+    },
+    {
+      "url": "https://api.scryfall.com/sets/page2",
+      "raw": "{\"object\":\"list\",\"has_more\":false,\"data\":[{\"object\":\"set\",\"id\":\"30000000-0000-4000-8000-000000000099\",\"code\":\"zzn\",\"name\":\"Second Synthetic Set\",\"digital\":false,\"parent_set_code\":\"zzp\"}]}"
+    }
+  ],
+  "framing": {
+    "contract": "ScryfallSetsPages/1",
+    "description": "UTF8 contract+NUL; each page uint32be ordinal, uint32be URL bytes, UTF8 URL, uint64be raw bytes, raw; uint32be final page count",
+    "expected_sha256": "91857017c358f2e64e4fe5fcbcbb93132a44afeb0462ae77c3a10d896bdc1ad9"
+  },
+  "manifest": {
+    "object": "bulk_data",
+    "id": "50000000-0000-4000-8000-000000000002",
+    "type": "all_cards",
+    "updated_at": "2026-10-03T00:00:00Z",
+    "uri": "https://api.scryfall.com/bulk-data/50000000-0000-4000-8000-000000000002",
+    "jsonl_download_uri": "https://data.scryfall.io/all-cards/all-cards-20261003000000.jsonl.gz",
+    "compressed_size": 1
+  },
+  "later": {
+    "I19": "REAL_SOURCE_NOT_RUN",
+    "activation": [
+      "O23",
+      "G07",
+      "G08",
+      "G09",
+      "G10",
+      "G11",
+      "G13"
+    ]
+  }
+}

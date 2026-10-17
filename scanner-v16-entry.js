@@ -6,7 +6,7 @@
   // Reuse COLLECT's session, collection state and selected binder.
   // The V16 pipeline needs its verified catalog and an explicit TCG context.
   window.catalogLookup=(id,context={})=>window.DV_SCAN_V16_CATALOG.lookup(id,{
-    tcg:context.tcg||(typeof selectedScanTcg==='string'?selectedScanTcg:'pokemon')
+    tcg:context.tcg??(typeof selectedScanTcg==='string'?selectedScanTcg:undefined)
   });
   const status=document.createElement('span');
   status.id='dvV16EntryStatus';

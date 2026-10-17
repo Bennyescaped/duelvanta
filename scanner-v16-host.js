@@ -9,7 +9,7 @@
     location.replace(target.href);return;
   }
   root.DV_SCAN_V16_STANDALONE=true;
-  root.selectedScanTcg=localStorage.getItem('duelvanta_scan_tcg')||'pokemon';
+  root.selectedScanTcg=localStorage.getItem('duelvanta_scan_tcg');
   root.currentUser=null;root.folders=[];root.items=[];root.activeFolder='';
   const status=message=>{const el=document.getElementById('routeStatus');if(el)el.textContent=message};
   const loadScript=src=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error(`Abhängigkeit konnte nicht geladen werden: ${src}`));document.head.appendChild(script)});
