@@ -103,13 +103,24 @@ try{
  await page.click('#dvV16Reset');const png4=await scan('multi','2x2',[textDSK,textECL,'',textDSK]);assert.equal(await count(),4);
  assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>r.observation.raw)),[textDSK,textECL,'',textDSK]);
  await writeFile(resolve(out,'synthetic-2x2.png'),Buffer.from(png4,'base64'));
+ // Exercise a multi import and an individually corrected blank region through
+ // the same real controls, while retaining its immutable empty observation.
+ await row(2).locator('[data-magic-field="set_code"]').fill('ECL');
+ await row(2).locator('[data-magic-field="collector_number"]').fill('0373');
+ await row(2).locator('[data-magic-field="language"]').selectOption('EN');
+ await resolveRow(0);await resolveRow(2);const multiBefore=await page.evaluate(()=>testMagic.rows.length);
+ await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[0].savedId&&DV_SCAN_V16.batch[2].savedId);
+ assert.equal(await page.evaluate(()=>testMagic.rows.length),multiBefore+2);
+ assert.equal(await page.evaluate(()=>DV_SCAN_V16.batch[2].observation.raw),'');
+ assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>!!r.savedId)),[true,false,true,false]);
+ cases.push('MEHRERE selection/save: only regions 1 and 3 imported, blank region individually corrected without changing raw, unselected rows retained');
  await page.click('#dvV16Reset');await scan('multi','3x2',[textDSK,textECL,'',textECL,textDSK,textECL]);assert.equal(await count(),6);
  assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>r.observation.raw)),[textDSK,textECL,'',textECL,textDSK,textECL]);
  await page.click('#dvV16Reset');const texts=[textECL,'',textDSK,'unreadable',textDSK,textECL,textDSK,textECL,textDSK];const png9=await scan('multi','3x3',texts);assert.equal(await count(),9);
  assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>r.observation.raw)),texts);await writeFile(resolve(out,'synthetic-3x3.png'),Buffer.from(png9,'base64'));
  await page.screenshot({path:resolve(out,'multi-ui.png'),fullPage:true});
  await page.click('#dvV16Reset');await scan('multi','auto',[],{blank:true});assert.equal(await count(),0);assert.match(await page.textContent('#dvV16Status'),/Weniger als zwei/);
- await scan('multi','auto',[textDSK,textECL,textDSK,textECL]);assert.ok(await count()>=2);assert.equal(provider.length,6);
+ await scan('multi','auto',[textDSK,textECL,textDSK,textECL]);assert.ok(await count()>=2);assert.equal(provider.length,8);
  await page.click('#dvV16Reset');
  cases.push('MEHRERE: real 2x2/3x2/3x3 crops + separate OCR observations, AUTO detects cards and incomplete geometry fails closed');
  await page.selectOption('#dvV16Folder',F);const binderPng=await scan('binder','3x3',texts);assert.equal(await count(),9);
