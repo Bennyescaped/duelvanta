@@ -9,7 +9,7 @@ assert.ok(!route.includes('<iframe'),'direct mobile route must not use an iframe
 assert.ok(route.includes('COLLECT & BINDER ÖFFNEN'),'standalone scanner must expose the digital collection');
 assert.ok(lab.includes("location.replace('scanner-v16.html'"),'legacy Lab URL must redirect to direct route');
 assert.ok(!lab.includes('<iframe'),'legacy Lab must not retain iframe architecture');
-assert.ok(loader.includes('scanner-v16-runtime.js?v=16.24.0'));
+assert.ok(loader.includes('scanner-v16-runtime.js?v=22.3.0'));
 assert.ok(loader.includes('scanner-v16-camera.js?v=16.24.0'));
 assert.ok(loader.includes('scanner-v16-native-camera.js?v=16.24.0'));
 assert.ok(ui.includes('id="dvV16CameraFile"'));
