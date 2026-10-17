@@ -41,6 +41,30 @@ async function app({beta=true,initial=[],uploadError=false,fetch=async()=>({ok:t
 }
 
 const C=require('../tcg-magic-camera.js');
+for(const [raw,expected] of [
+ ['M 0344','0344'],['M 0344 … 5/5','0344'],['R 0373 … 4/4','0373'],['R 0373','0373'],
+ ['C 0012 noise','0012'],['U 0013 noise','0013'],['M 0344A','0344A'],['M 0344a noise','0344a'],
+ ['0344','0344'],['0344 R','0344'],['0373 M','0373'],
+ ['5/5',''],['4/4',''],['5 / 5',''],['M 5/5',''],['M 5 / 5',''],['2024',''],['© 2024',''],
+ ['Copyright 2024',''],['{3}{U}{U}',''],['Draw 2 cards',''],['IGOR 0344 KRSTIC',''],
+ ['M 0344ABCDE noise',''],['M 0344567 noise',''],['X 0344 noise','']
+])test('R22-R2 collector boundary '+JSON.stringify(raw),()=>{
+ const x=C.parse(raw);assert.equal(x.collector_number,expected);assert.equal(x.raw,raw);
+});
+test('R22-R2 reconstructed real footer and unchanged set/language parser',()=>{
+ const raw=readFileSync(new URL('./fixtures/tcg-i3-magic/r22-r2/dsk-reconstruction.txt',import.meta.url),'utf8');
+ assert.deepEqual(C.parse(raw),{raw,set_code:'DSK',collector_number:'0344',language:'EN',ambiguous:false});
+ for(const [set,number,rarity] of [['DSK','0344','M'],['ECL','0373','R']]){
+  const raw=`${rarity} ${number} … 5/5\n${set} *EN\nArtist Example\n© 2024 Wizards of the Coast`;
+  assert.deepEqual(C.parse(raw),{raw,set_code:set,collector_number:number,language:'EN',ambiguous:false});
+ }
+});
+test('R22-R2 distinct plausible candidates remain ambiguous',()=>{
+ for(const raw of ['M 0344 noise 5/5\nR 0373 noise 4/4\nDSK *EN','M 0344 noise\n0373\nDSK *EN']){
+  const x=C.parse(raw);assert.equal(x.collector_number,'');assert.equal(x.ambiguous,true);assert.equal(x.raw,raw);
+ }
+ const x=C.parse('M 0344 noise\nM 0344 noise\nDSK *EN');assert.equal(x.collector_number,'0344');assert.equal(x.ambiguous,false);
+});
 function modules(a,text='0344 R\nDSK • EN'){
  a.c.DV_SCAN_V16_NATIVE_CAMERA={open:(input,kind)=>a.calls.push({picker:kind,id:input.id})};
  a.c.DV_SCAN_V16_RUNTIME={decodeFile:async()=>({width:1400,height:1955,close(){}})};

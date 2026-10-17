@@ -9,11 +9,16 @@
  }
  function parse(raw){
   raw=String(raw||'').slice(0,12000);
-  const lines=raw.toUpperCase().split(/\r?\n/).map(s=>s.trim()),sets=new Set(),numbers=new Set(),langs=new Set();
-  for(const line of lines){
+  const originalLines=raw.split(/\r?\n/).map(s=>s.trim()),lines=originalLines.map(s=>s.toUpperCase()),sets=new Set(),numbers=new Set(),langs=new Set();
+  for(const [index,line] of lines.entries()){
    for(const m of line.matchAll(/\b([A-Z0-9]{2,8})(?:\s*[•·*|.\-]\s*|\s+)(EN|DE|FR|IT|ES|JP|KR|CN)\b/g)){sets.add(m[1]);langs.add(m[2]);}
    if(!/[©®]|COPYRIGHT|WIZARDS|20\d\d\s+/.test(line)){
-    const m=line.match(/^(?:[CMRU]\s+)?(\d{1,6}[A-Z]?)(?:\s*\/\s*\d+)?(?:\s+[CMRU])?\s*$/);
+    // A leading rarity binds the collector token; later power/toughness is noise.
+    // Without rarity, accept only a clean token, never a fraction or bare year.
+    const observed=originalLines[index];
+    const prefixed=observed.match(/^[CMRU]\s+(\d{1,6}[A-Z]?)(?=$|\s)(?!\s*\/)/i);
+    const clean=observed.match(/^(\d{1,6}[A-Z]?)(?:\s+[CMRU])?$/i);
+    const m=prefixed||(clean&&!/^(?:19|20)\d{2}$/.test(clean[1])?clean:null);
     if(m)numbers.add(m[1]);
    }
   }
