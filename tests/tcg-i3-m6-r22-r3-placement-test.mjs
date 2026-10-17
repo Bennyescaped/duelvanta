@@ -24,9 +24,12 @@ try{
  create table public.test_gate(ready boolean);insert into public.test_gate values(true);grant select on public.test_gate to authenticated;
  create function public.get_magic_on_demand_collection_beta_v1() returns jsonb language sql as $$select jsonb_build_object('magic_on_demand_collection_beta',ready) from public.test_gate$$;
  insert into public.collection_folders values('${F}','${A}',2),('${G}','${B}',2);
- insert into public.collection_items values('${id(1)}','${A}','${F}','magic',null,null,'protected.jpg'),('${id(2)}','${A}','${F}','magic',1,2,null),('${id(3)}','${B}','${G}','magic',null,null,null),('${id(4)}','${A}','${F}','pokemon',1,4,null);`);
+ insert into public.collection_items values('${id(1)}','${A}',null,'magic',null,null,'protected.jpg'),('${id(2)}','${A}','${F}','magic',1,2,null),('${id(3)}','${B}','${G}','magic',null,null,null),('${id(4)}','${A}','${F}','pokemon',1,4,null);`);
+ await db.exec('create role service_role');
+ await db.exec(await readFile(new URL('../database/collect-scanner-v16-slots-hardening.sql',import.meta.url),'utf8'));
  await db.exec(await readFile(new URL('../database/local-candidates/magic-scanner-r22-r3/placement.sql',import.meta.url),'utf8'));
  await claim();await place(1,1,3);await place(1,1,3);
+ assert.equal((await db.query("select folder_id from public.collection_items where id=$1",[id(1)])).rows[0].folder_id,F);
  assert.equal((await db.query(`select image_path from public.collection_items where id='${id(1)}'`)).rows[0].image_path,'protected.jpg');
  await deny(()=>place(1,1,1),/already_placed/);await deny(()=>place(3,1,1,G),/binder_not_owned/);await deny(()=>place(3,1,1),/item_not_owned/);await deny(()=>place(4,1,1),/item_not_owned/);
  await deny(()=>place(1,3,1),/page_invalid/);await deny(()=>place(1,1,0),/destination_invalid/);await deny(()=>place(1,1,null),/destination_invalid/);
@@ -40,7 +43,7 @@ try{
  if(native){
   // Observe a real unique-index conflict with an independent writer: a preflight
   // SELECT alone is insufficient. No existing row is unplaced or swapped.
-  await db.exec(`reset role;insert into public.collection_items values('${id(7)}','${A}','${F}','magic',null,null,null),('${id(8)}','${A}','${F}','magic',null,null,null)`);
+  await db.exec(`reset role;insert into public.collection_items values('${id(7)}','${A}',null,'magic',null,null,null),('${id(8)}','${A}','${F}','magic',null,null,null)`);
   const writer=await db.connect(),reader=await db.connect();await claim(A,writer);await claim(A,reader);
   await writer.query('begin');await writer.query(`update public.collection_items set binder_page=2,binder_slot=9 where id='${id(8)}'`);
   const pid=(await reader.query('select pg_backend_pid() pid')).rows[0].pid;let settled=false;
@@ -48,6 +51,7 @@ try{
   let blocked=false;for(let i=0;i<50;i++){const q=await db.query('select cardinality(pg_blocking_pids($1)) n',[pid]);if(q.rows[0].n>0){blocked=true;break;}await new Promise(r=>setTimeout(r,20));}
   assert.equal(blocked,true);assert.equal(settled,false);await writer.query('commit');assert.match((await pending).error,/duplicate key/);
   assert.equal((await db.query(`select binder_slot from public.collection_items where id='${id(7)}'`)).rows[0].binder_slot,null);
+  assert.equal((await db.query("select folder_id from public.collection_items where id=$1",[id(7)])).rows[0].folder_id,null);
   cases.push('native PG17: independently observed racing writer lock; unique index rejects collision without overwriting target');
  }
  const report={candidate_only:true,staging_applied:false,engine:native?'native PostgreSQL17':'PGlite',cases};

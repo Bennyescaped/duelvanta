@@ -17,6 +17,11 @@ Verfügbarkeit der neuen Platzierung read-only. Fehlt sie, bleibt die lokale
 Warteschlange erhalten und es wird kein Eintrag angelegt. Scheitert die Platzierung
 nach einem Save, bleibt die gespeicherte ID sichtbar; nur die Platzierung kann
 bewusst erneut versucht werden. Unklare Save-Antworten sperren erneute Imports.
+Binder-Saves bleiben zunächst ohne folder_id. Erst die atomare Platzierung weist
+Zielbinder und exakten Slot gemeinsam zu. Bei einem Platzierungsfehler bleibt
+die Karte in der Master Collection; sie kann keinen impliziten Binderplatz belegen.
+Der vorhandene Ordnerwechsel-Trigger wird durch zwei Updates innerhalb derselben
+Transaktion berücksichtigt. Beide Änderungen werden bei Fehler zurückgerollt.
 
 Keine Änderungen an Admission, Holds, Quoten, Transportpolicy, RLS oder Storage.
 Der Kandidat ist SECURITY INVOKER; bestehende RLS und Trigger bleiben wirksam.

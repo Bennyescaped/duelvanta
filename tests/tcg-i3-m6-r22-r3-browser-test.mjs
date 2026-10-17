@@ -26,7 +26,7 @@ await page.route('**/*',async route=>{
  if(!t.admitted)return {error:{message:'admission expired'}};
  if(t.failSave&&t.calls.filter(c=>c.name===name).length===t.failSave)return {error:{message:'synthetic save failure'}};
  await new Promise(r=>setTimeout(r,30));const id=args.p_item_id||crypto.randomUUID(),old=t.rows.find(x=>x.id===id);if(old)Object.assign(old,args.p_item);else t.rows.push({...args.p_item,id,user_id:user.id,tcg:'magic'});return {data:id};}
- if(name==='place_my_magic_scan_item_v1'){if(t.failPlace)return {error:{message:'synthetic placement failure'}};const x=t.rows.find(x=>x.id===args.p_item_id);if(t.rows.some(r=>r.id!==x.id&&r.folder_id===args.p_folder_id&&r.binder_page===args.p_page&&r.binder_slot===args.p_slot))return {error:{message:'occupied'}};Object.assign(x,{binder_page:args.p_page,binder_slot:args.p_slot});return {data:true};}
+ if(name==='place_my_magic_scan_item_v1'){if(t.failPlace)return {error:{message:'synthetic placement failure'}};const x=t.rows.find(x=>x.id===args.p_item_id);if(t.rows.some(r=>r.id!==x.id&&r.folder_id===args.p_folder_id&&r.binder_page===args.p_page&&r.binder_slot===args.p_slot))return {error:{message:'occupied'}};Object.assign(x,{folder_id:args.p_folder_id,binder_page:args.p_page,binder_slot:args.p_slot});return {data:true};}
  return {data:null};},
  from:table=>{let op='select',payload,filters={};const q={select:()=>q,order:()=>q,limit:()=>q,eq:(k,v)=>(filters[k]=v,q),is:(k,v)=>(filters[k]=v,q),single:()=>q,update:p=>(op='update',payload=p,q),insert:p=>(op='insert',payload=p,q),then:(yes,no)=>Promise.resolve().then(()=>{
  if(op!=='select')throw Error('Forbidden direct mutation '+table);
@@ -118,7 +118,8 @@ try{
  await resolveRow(2);await page.evaluate(()=>testMagic.placementReady=false);await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[2].message.includes('noch nicht freigegeben'));
  const binderBefore=await page.evaluate(()=>testMagic.rows.length);
  await page.evaluate(()=>{testMagic.placementReady=true;testMagic.failPlace=true});await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>!!DV_SCAN_V16.batch[2].savedId);
- assert.equal(await page.evaluate(()=>testMagic.rows.length),binderBefore+1);await page.evaluate(()=>testMagic.failPlace=false);await row(2).locator('[data-magic-action="place"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[2].placed);
+ assert.equal(await page.evaluate(()=>testMagic.rows.length),binderBefore+1);assert.equal(await page.evaluate(()=>testMagic.rows.at(-1).folder_id),null);await page.evaluate(()=>testMagic.failPlace=false);await row(2).locator('[data-magic-action="place"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[2].placed);
+ assert.equal(await page.evaluate(()=>testMagic.rows.at(-1).folder_id),F);
  assert.equal(await page.evaluate(()=>testMagic.rows.at(-1).binder_slot),3);
  await resolveRow(4);await page.evaluate(F=>testMagic.rows.push({id:crypto.randomUUID(),user_id:'10000000-0000-4000-8000-000000000001',tcg:'pokemon',folder_id:F,binder_page:1,binder_slot:5}),F);await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[4].message.includes('belegt'));
  await writeFile(resolve(out,'synthetic-binder.png'),Buffer.from(binderPng,'base64'));await page.screenshot({path:resolve(out,'binder-ui.png'),fullPage:true});

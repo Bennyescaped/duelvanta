@@ -126,7 +126,9 @@
       }
       const previous=row.action==='new'?null:items.find(x=>x.id===row.action&&x.tcg==='magic'&&x.user_id===user.id);
       if(row.action!=='new'&&!previous)throw Error('Ausgewählter eigener Eintrag nicht verfügbar.');
-      const payload={folder_id:folder||null,card_name:c.name,set_name:c.set,card_number:c.number,language:c.language,variant:c.variant||null,
+      // Unplaced legacy rows are auto-filled by the binder renderer. Keep a
+      // pending binder item outside that binder until the atomic placement RPC.
+      const payload={folder_id:row.captureMode==='binder'?null:folder||null,card_name:c.name,set_name:c.set,card_number:c.number,language:c.language,variant:c.variant||null,
         condition:previous?.condition||'NM',quantity:previous?.quantity||1,grading_company:previous?.grading_company||null,grade:previous?.grade??null,cert_number:previous?.cert_number||null,
         purchase_price:previous?.purchase_price??null,purchase_date:previous?.purchase_date||null,market_price:previous?.market_price??null,currency:previous?.currency||'EUR',
         notes:(previous?.notes?previous.notes+' · ':'')+'V16 Magic '+row.id+' · '+row.confirmed.set_code+'/'+row.confirmed.collector_number+'/'+row.confirmed.language+' · Printing '+c.provider_ref.external_id,contract_version:'1'};
