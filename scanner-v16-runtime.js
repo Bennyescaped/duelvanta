@@ -64,7 +64,7 @@
           transition('preview',{source,message:'Bild übernommen · Vorbereitung läuft …'});
           await nextFrame();
           transition('analyzing',{source,message:'OCR, Katalog und Artwork werden geprüft …'});
-          const result=await withTimeout(analyze(source,options),timeoutMs,'Die Analyse hat das Zeitlimit überschritten. Bitte erneut versuchen.');
+          const result=await withTimeout(analyze(source,{...options,isCurrent:()=>id===runId&&state==='analyzing'}),options.tcg==='magic'?Math.min(330000,Number(options.analysisTimeoutMs)||timeoutMs):timeoutMs,'Die Analyse hat das Zeitlimit überschritten. Bitte erneut versuchen.');
           if(id!==runId)throw new Error('Analyse wurde verworfen.');
           transition('result',{result,message:'Analyse abgeschlossen.'});
           try{onResult(result,{runId:id,source})}catch{}

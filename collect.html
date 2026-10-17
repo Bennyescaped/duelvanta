@@ -235,18 +235,7 @@ $('cardForm').onsubmit=async e=>{e.preventDefault();if(cardSaveBusy)return;cardS
 }if(!error&&pendingScanBlob&&savedId){$('formMsg').textContent='Kartenbild wird gespeichert …';const path=`${currentUser.id}/${savedId}/${Date.now()}.jpg`;const up=await db.storage.from('collection-cards').upload(path,pendingScanBlob,{contentType:pendingScanBlob.type||'image/jpeg',upsert:false});if(up.error)error=up.error;else{const u=await db.from('collection_items').update({image_path:path,image_captured_at:new Date().toISOString()}).eq('id',savedId).eq('user_id',currentUser.id);error=u.error}}$('saveCard').disabled=false;if(error){$('formMsg').textContent='Nicht vollständig gespeichert: '+error.message;return}pendingScanBlob=null;pendingScanFolder=null;$('cardDialog').close();await loadItems()}finally{cardSaveBusy=false;$('saveCard').disabled=false;}};$('logout').onclick=async()=>{await db.auth.signOut();location.replace('login.html')};db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')location.replace('login.html')});
 // Capture image events for both the base renderer and the position-aware adapter.
 for(const eventName of ['load','error'])$('slots').addEventListener(eventName,event=>{const img=event.target;if(img.matches?.('img[data-imgpath]'))img.closest('.cardSlot')?.classList.toggle('imageReady',eventName==='load'&&img.naturalWidth>0)},true);
-if(typeof DV_MAGIC_CAMERA!=='undefined')DV_MAGIC_CAMERA.mount({
- document,anchor:$('scanCard'),editAnchor:$('magicLookup'),
- authorize:async()=>{try{await tcgConsumer.refreshMagicReadiness(db,currentUser?.id);tcgConsumer.requireGame('magic','collection');return !!currentUser?.id;}catch{return false;}},
- onConfirm:(value,{editing})=>{
-  // Raw camera bytes never enter pendingScanBlob or the Storage path.
-  pendingScanBlob=null;
-  if(!editing){pendingScanFolder=activeFolder||null;resetForm();$('tcg').value='magic';updateMagicForm(true);$('modalTitle').textContent='Neue Magic-Karte hinzufügen – neuer Eintrag';}
-  $('magicSetCode').value=value.set_code;$('magicCollector').value=value.collector_number;
-  $('magicLanguage').value=value.language;$('language').value=value.language;
-  clearMagicImage();magicLookupEpoch++;$('magicLookupStatus').textContent='Kennung bestätigt. Für den Provideraufruf jetzt ausdrücklich MAGIC-KARTE SUCHEN drücken.';
-  if(!$('cardDialog').open)$('cardDialog').showModal();
- }
-});
+// R22-R3: Magic camera/gallery now use the shared V16 surface.
+
 window.DV_COLLECT_READY=boot();
-</script><script src="scanner-v16-binder.js?v=16.24.0"></script><script src="scanner-v16-entry.js?v=16.26.0"></script></body></html>
+</script><script src="scanner-v16-binder.js?v=16.24.0"></script><script src="scanner-v16-entry.js?v=22.3.0"></script></body></html>

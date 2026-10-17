@@ -33,7 +33,7 @@
   document.addEventListener('dv:v16:ready',()=>{if(pending)void open()});
   document.addEventListener('dv:v16:error',failed);
   const script=document.createElement('script');
-  script.src='scanner-v16-loader.js?v=16.26.0';
+  script.src='scanner-v16-loader.js?v=22.3.0';
   script.onerror=()=>{window.__DV_V16_LOAD_ERROR=new Error('Scanner loader unavailable');failed()};
   document.body.appendChild(script);
   if(new URLSearchParams(location.search).get('scan')==='1'){
