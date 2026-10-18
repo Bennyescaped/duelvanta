@@ -41,6 +41,19 @@ async function app({beta=true,initial=[],uploadError=false,fetch=async()=>({ok:t
 }
 
 const C=require('../tcg-magic-camera.js');
+test('operator footer ECL *#EN: bounded OCR separator noise, original values preserved',()=>{
+ // Relevant footer excerpt transcribed from the screenshot; not a photo OCR run.
+ const raw='aw 4/4\nR 0373\nECL *#EN » Victor ADAME MINGULZ ME 2026\nWizards of the Coast';
+ assert.deepEqual(C.parse(raw),{raw,set_code:'ECL',collector_number:'0373',language:'EN',ambiguous:false});
+ for(const separator of ['*#','•#','·#','|#','.#','-#'])assert.equal(C.parse('R 0373\nECL '+separator+'EN').set_code,'ECL');
+ for(const separator of ['*##','*X#','*123#','#','*#TEXT','*#\nX']){
+  const x=C.parse('R 0373\nECL '+separator+'EN');assert.equal(x.set_code,'');assert.equal(x.language,'');assert.equal(x.ambiguous,true);
+ }
+ const conflict=C.parse('R 0373\nECL *#EN\nDSK *#DE');
+ assert.equal(conflict.set_code,'');assert.equal(conflict.language,'');assert.equal(conflict.ambiguous,true);
+ // Additional standalone numbers must still prevent a guessed collector.
+ assert.equal(C.parse('4\n'+raw).collector_number,'');
+});
 for(const [raw,expected] of [
  ['M 0344','0344'],['M 0344 … 5/5','0344'],['R 0373 … 4/4','0373'],['R 0373','0373'],
  ['C 0012 noise','0012'],['U 0013 noise','0013'],['M 0344A','0344A'],['M 0344a noise','0344a'],

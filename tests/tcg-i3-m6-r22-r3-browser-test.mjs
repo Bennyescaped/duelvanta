@@ -46,7 +46,7 @@ await page.route(base+'/api/tcg-magic-scryfall?**',async r=>{
  const set=u.searchParams.get('set_code'),number=u.searchParams.get('collector_number'),id='12345678-1234-4234-8234-123456789abc';
  return r.fulfill({contentType:'application/json',body:JSON.stringify({status:'candidates',candidate:{tcg:'magic',name:set==='DSK'?'Abhorrent Oculus':'High Perfect Morcant',set,number:number.replace(/^0+/,''),language:'EN',variant:'regular',rarity:'mythic',provider_ref:{external_id:id},image_url:`https://cards.scryfall.io/normal/front/1/2/${id}.jpg`}})});
 });
-const textDSK='M 0344 … 5/5\nDSK * EN',textECL='R 0373 … 4/4\nECL * EN';
+const textDSK='M 0344 … 5/5\nDSK * EN',textECL='R 0373 … 4/4\nECL *#EN » Victor ADAME MINGULZ ME 2026';
 const count=()=>page.locator('[data-magic-row]').count();
 const row=n=>page.locator(`[data-magic-row="${n}"]`);
 async function scan(mode,layout,texts,{blank=false}={}){
@@ -64,8 +64,9 @@ async function scan(mode,layout,texts,{blank=false}={}){
  await page.waitForFunction(()=>['result','error'].includes(DV_SCAN_V16.controller.state));
  return data;
 }
-async function confirm(n){for(const key of ['set_code','collector_number','language'])await row(n).locator(`[data-magic-check="${key}"]`).check();await row(n).locator('[data-magic-action="confirm"]').click();await page.waitForFunction(n=>!!DV_SCAN_V16.batch[n].confirmed,n);}
-async function resolveRow(n){await confirm(n);await row(n).locator('[data-magic-action="search"]').click();await page.waitForFunction(n=>!!DV_SCAN_V16.batch[n].best,n);await row(n).locator('[data-magic-action="printing"]').click();await page.waitForFunction(n=>DV_SCAN_V16.batch[n].printingConfirmed,n);await row(n).locator('[data-magic-save-action]').selectOption('new');await row(n).locator('[data-v16-check]').check();}
+async function confirm(n){await row(n).locator('[data-magic-action="confirm-search"]').click();await page.waitForFunction(n=>!DV_SCAN_V16.batch[n].busy,n);}
+async function chooseNew(n){const choice=row(n).locator('[data-magic-save-action]');if(await choice.count())await choice.selectOption('new');}
+async function resolveRow(n){await confirm(n);await page.waitForFunction(n=>!!DV_SCAN_V16.batch[n].best,n);await chooseNew(n);await row(n).locator('[data-magic-action="select"]').click();await page.waitForFunction(n=>DV_SCAN_V16.batch[n].selected,n);}
 const cases=[];
 try{
  await page.goto(base+'/collect.html');await page.waitForFunction(()=>window.__DV_V16_READY&&window.DV_COLLECT_READY);
@@ -91,12 +92,12 @@ try{
  await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>!!DV_SCAN_V16.batch[2].savedId);
  assert.equal(await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').length),savedCalls+1);
  cases.push('SERIE partial failure: saved and uncertain rows never repeated; remaining selected row saved once on explicit next action');
- await page.click('#dvV16Reset');const ownImage=await scan('single','',[textDSK]);
+ await page.click('#dvV16Reset');const ownImage=await scan('continuous','',[textDSK]);
  await page.route('https://cards.scryfall.io/**',r=>r.fulfill({contentType:'image/png',body:Buffer.from(ownImage,'base64')}));
  const existing=await page.evaluate(()=>{testMagic.rows[0].image_path='own/protected.jpg';testMagic.rows[0].quantity=7;return testMagic.rows[0].id;});
  await page.evaluate(()=>loadItems());await resolveRow(0);await row(0).locator('[data-magic-save-action]').selectOption(existing);
- await row(0).locator('[data-magic-action="image"]').click();await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].imageBlob&&!DV_SCAN_V16.batch[0].busy);
- await row(0).locator('[data-v16-check]').check();const ownBefore=await page.evaluate(()=>testMagic.rows.length);
+ await row(0).locator('[data-magic-printing] summary').click();await row(0).locator('[data-magic-action="image"]').click();await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].imageBlob&&!DV_SCAN_V16.batch[0].busy);
+ await row(0).locator('[data-magic-action="select"]').click();const ownBefore=await page.evaluate(()=>testMagic.rows.length);
  await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].savedId);
  assert.equal(await page.evaluate(()=>testMagic.rows.length),ownBefore);assert.equal(await page.evaluate(()=>testMagic.rows[0].image_path),'own/protected.jpg');assert.equal(await page.evaluate(()=>testMagic.rows[0].quantity),7);
  cases.push('Explicit own-entry update retains quantity and protected image; R21 image download is conscious and printing-bound');
@@ -138,7 +139,7 @@ try{
  assert.equal(await mutationCalls(),beforeForged);assert.equal(await page.evaluate(()=>JSON.stringify(testMagic.rows)),protectedBefore);
  assert.equal(await page.evaluate(()=>!!DV_SCAN_V16.batch[2].saveAttempted),false);
  cases.push('R22-R3-R2: binder excludes updates; forged existing target rejected before save/place RPC; placed card folder/position/image unchanged even with placement failure enabled');
- await page.evaluate(()=>testMagic.failPlace=false);await row(2).locator('[data-magic-save-action]').selectOption('new');await row(2).locator('[data-v16-check]').check();
+ await page.evaluate(()=>testMagic.failPlace=false);await row(2).locator('[data-magic-save-action]').selectOption('new');await row(2).locator('[data-magic-action="select"]').click();
  await page.evaluate(()=>testMagic.placementReady=false);await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[2].message.includes('noch nicht freigegeben'));
  const binderBefore=await page.evaluate(()=>testMagic.rows.length);
  await page.evaluate(()=>{testMagic.placementReady=true;testMagic.failPlace=true});await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>!!DV_SCAN_V16.batch[2].savedId);
@@ -153,8 +154,8 @@ try{
  assert.match(await row(2).textContent(),/Bildqualität \d+ %/);
  await row(2).evaluate(el=>el.scrollIntoView({block:'start'}));
  await page.screenshot({path:resolve(out,'binder-position-review.png')});
- await page.evaluate(()=>testMagic.quota=true);await confirm(0);const before=provider.length;await row(0).locator('[data-magic-action="search"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[0].message.includes('Tageskontingent'));assert.equal(provider.length,before+1);assert.equal(await count(),9);
- await page.evaluate(()=>testMagic.admitted=false);await row(6).locator('[data-magic-action="confirm"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[6].message.includes('nicht zugelassen'));assert.equal(provider.length,before+1);
+ await page.evaluate(()=>testMagic.quota=true);const before=provider.length;await confirm(0);await page.waitForFunction(()=>DV_SCAN_V16.batch[0].message.includes('Tageskontingent'));assert.equal(provider.length,before+1);assert.equal(await count(),9);
+ await page.evaluate(()=>testMagic.admitted=false);await confirm(6);await page.waitForFunction(()=>DV_SCAN_V16.batch[6].message.includes('nicht zugelassen'));assert.equal(provider.length,before+1);
  await page.click('#dvV16Close');await page.click('#scanCard');assert.equal(await page.locator('#dvV16Tcg option[value="magic"]').count(),0);
  cases.push('Security: admission/hold denial and expiry fail closed; quota keeps all local rows; no automatic search or retry; no generic insert or raw upload');
  // R22-R3 gallery continuation: real buttons, delayed save, no camera or
@@ -163,15 +164,17 @@ try{
  await page.click('#dvV16Close');await page.click('#scanCard');await page.selectOption('#dvV16Tcg','magic');
  await page.click('#dvV16Reset');await page.selectOption('#dvV16Folder','');
  await scan('single','',[textDSK]);
- assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/KENNUNG BESTÄTIGEN/);
- await confirm(0);assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/MAGIC-KARTE SUCHEN/);
+ assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/alle drei Angaben/);
+ assert.equal(await row(0).locator('[data-magic-check],[data-v16-check]').count(),0);
+ const beforeCombined=provider.length;await confirm(0);assert.equal(provider.length,beforeCombined+1);
+ assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/Druckvariante prüfen/);
  assert.equal(await page.locator('#dvV16SaveNext').isDisabled(),true);
- await resolveRow(0);
+ await chooseNew(0);
  await page.evaluate(()=>{testMagic.cameraStarts=0;const start=DV_SCAN_V16_CAMERA.start;DV_SCAN_V16_CAMERA.start=async(...args)=>{testMagic.cameraStarts++;return start(...args)};});
  let pickers=0;page.on('filechooser',()=>pickers++);
  const providerBeforeContinue=provider.length;
  const savesBeforeContinue=await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').length);
- await page.click('#dvV16SaveNext');await page.waitForFunction(()=>!document.getElementById('dvV16Complete').classList.contains('dvV16Hidden'));
+ await row(0).locator('[data-magic-action="save"]').click();await page.waitForFunction(()=>!document.getElementById('dvV16Complete').classList.contains('dvV16Hidden'));
  assert.equal(await page.locator('#dvV16Results').isVisible(),false);
  assert.equal(await page.locator('#dvV16Import').isVisible(),false);
  assert.match(await page.textContent('#dvV16CompleteText'),/1 Karte gespeichert/);
@@ -190,6 +193,42 @@ try{
  await resolveRow(1);await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[1].savedId&&!document.getElementById('dvV16Complete').classList.contains('dvV16Hidden'));
  await page.click('#dvV16ViewSaved');assert.equal(await page.locator('#dvV16Dialog').isVisible(),false);
  cases.push('Gallery save and save-next: clear receipt, fresh-tap gallery picker, cancellation safe, no camera launch/provider replay/duplicate save, next image and return to collection');
+ // The operator-approved single-card flow has only one explicit search and
+ // one explicit printing-confirming save. No checkbox or silent duplicate.
+ await page.click('#scanCard');await page.selectOption('#dvV16Tcg','magic');await page.click('#dvV16Reset');
+ await scan('single','',[textECL]);
+ await row(0).locator('[data-magic-field="language"]').selectOption('');
+ const beforeInvalid=provider.length;await confirm(0);
+ assert.equal(provider.length,beforeInvalid);assert.match(await row(0).textContent(),/vollständig prüfen/);
+ assert.equal(await row(0).locator('[data-magic-action="save"]').count(),0);
+ await row(0).locator('[data-magic-field="language"]').selectOption('EN');
+ await page.evaluate(()=>{const b=document.querySelector('[data-magic-action="confirm-search"]');b.click();b.click()});
+ await page.waitForFunction(()=>DV_SCAN_V16.batch[0].best&&!DV_SCAN_V16.batch[0].busy);
+ assert.equal(provider.length,beforeInvalid+1);
+ const beforeChoice=await mutationCalls();await row(0).locator('[data-magic-action="save"]').click();
+ assert.equal(await mutationCalls(),beforeChoice);assert.match(await row(0).textContent(),/Aktualisieren oder weitere Kopie auswählen/);
+ const updateId=await row(0).locator('[data-magic-save-action] option').evaluateAll(xs=>xs.find(x=>x.value&&x.value!=='new').value);
+ await row(0).locator('[data-magic-save-action]').selectOption(updateId);
+ const beforeSingleUpdate=await page.evaluate(()=>testMagic.rows.length);
+ await row(0).locator('[data-magic-action="save"]').click();await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].savedId);
+ assert.equal(await page.evaluate(()=>testMagic.rows.length),beforeSingleUpdate);
+ assert.equal(await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').at(-1).args.p_item_id),updateId);
+ await page.click('#dvV16Reset');await scan('single','',['R 0999\nECL *#EN']);await confirm(0);
+ assert.equal(await row(0).locator('[data-magic-save-action],[data-v16-check],[data-magic-check]').count(),0);
+ assert.equal(await page.locator('#dvV16Import').isVisible(),false);
+ await page.screenshot({path:resolve(out,'simplified-single-ready.png'),fullPage:true});
+ const beforeSingleNew=await mutationCalls();
+ await page.evaluate(()=>{const b=document.querySelector('[data-magic-action="save"]');b.click();b.click()});
+ await page.waitForFunction(()=>DV_SCAN_V16.batch[0].savedId&&!DV_SCAN_V16.batch[0].busy);
+ assert.equal(await mutationCalls(),beforeSingleNew+1);
+ assert.equal(await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').at(-1).args.p_item_id),null);
+ cases.push('Simplified single: missing language blocks search with visible reason; double click uses one search/save; duplicates require conscious update/copy; unique card needs no checkbox/dropdown; explicit save confirms printing');
+ await page.click('#dvV16Reset');await scan('continuous','',[textECL]);await confirm(0);await chooseNew(0);await row(0).locator('[data-magic-action="select"]').click();
+ const beforeEdit=provider.length;await row(0).locator('[data-magic-field="collector_number"]').fill('0374');
+ assert.equal(await page.evaluate(()=>!!DV_SCAN_V16.batch[0].confirmed||!!DV_SCAN_V16.batch[0].best||DV_SCAN_V16.batch[0].selected),false);
+ assert.equal(await page.locator('#dvV16Import').isVisible(),false);assert.equal(provider.length,beforeEdit);
+ assert.equal(await row(0).locator('[data-magic-action="confirm-search"]').isEnabled(),true);
+ cases.push('Editing after confirmation removes printing/selection/save eligibility without network; shared confirmation is required again');
  assert.deepEqual(errors,[]);assert.deepEqual(forbidden,[]);
  const report={synthetic:true,real_user_verification:false,cases,provider_requests:provider.length,forbidden_requests:forbidden,browser_errors:errors,hardware_camera:'OPEN',physical_multi_binder:'OPEN'};
  await writeFile(resolve(out,'browser.json'),JSON.stringify(report,null,2));console.log('PASS R22-R3 actual COLLECT/V16 four-mode synthetic browser E2E',JSON.stringify(report));

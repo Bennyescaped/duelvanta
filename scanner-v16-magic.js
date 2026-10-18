@@ -46,24 +46,35 @@
     if(row.imageURL)URL.revokeObjectURL(row.imageURL);row.imageURL='';row.message='Geänderte Kennung erneut bestätigen und bewusst suchen.';
   }
   const canSave=row=>!!(row.printingConfirmed&&row.best&&row.action&&!row.busy&&!row.savedId&&!row.saveAttempted);
+  const matchingItems=(row,items)=>items.filter(x=>x.tcg==='magic'&&row.best&&x.card_name===row.best.name&&x.card_number===row.best.number&&x.language===row.best.language);
+  function prepareSave(row,items){
+    if(row.busy||row.savedId||row.saveAttempted)return false;
+    if(!row.best||!row.confirmed){row.message='Zuerst Set, Nummer und Sprache bestätigen und die Karte suchen.';return false;}
+    if(!row.action){
+      if(matchingItems(row,items).length){row.message='Karte bereits vorhanden: Aktualisieren oder weitere Kopie auswählen.';return false;}
+      row.action='new';
+    }
+    row.printingConfirmed=true;row.status='ready';row.selected=true;
+    row.message='Karte bestätigt und zum Speichern ausgewählt.';return true;
+  }
   function html(row,index,items){
     const locked=row.busy||row.savedId||row.saveAttempted,c=row.best;
     const own=items.filter(x=>x.tcg==='magic');
     const duplicates=c?own.filter(x=>x.card_name===c.name&&x.card_number===c.number&&x.language===c.language):[];
     return `<article class="dvV16Result ${canSave(row)?'ready':'review'}" data-magic-row="${index}">
       <img class="dvV16Thumb" src="${esc(row.imageURL||row.photo)}" alt="Aufnahme ${index+1}, Position ${row.slot}">
-      <div><div class="dvV16ResultTitle">${esc(c?.name||'Magic · Kennung prüfen')}</div>
+      <div class="dvV16MagicContent"><div class="dvV16ResultTitle">${esc(c?.name||'Magic · Kennung prüfen')}</div>
       <div class="dvV16Meta">Aufnahme ${index+1} · ${esc(row.captureMode)} · Position ${row.slot}${row.captureMode==='binder'?' · Zielseite '+row.page:''}${row.savedId?'<br>Gespeicherte ID: '+esc(row.savedId):''}</div>
       <div class="dvV16Meta">Bildqualität ${Math.round(row.quality?.score||0)} % · lokale V16-Prüfung</div>
-      <strong class="dvV16Badge">${row.savedId?(row.placed||row.captureMode!=='binder'?'GESPEICHERT':'GESPEICHERT · PLATZ OFFEN'):row.saveAttempted?'SPEICHERSTATUS UNKLAR':row.printingConfirmed?'DRUCKVARIANTE BESTÄTIGT':'NICHT BESTÄTIGT'}</strong>
-      <div class="dvV16Settings">${[['set_code','Set'],['collector_number','Originale Nummer'],['language','Sprache']].map(([key,label])=>`<div class="full"><label>${label}${key==='language'?`<select data-magic-field="${key}" ${locked?'disabled':''}><option value="">Bitte wählen</option>${languages.map(l=>`<option ${row.values[key]===l?'selected':''}>${l}</option>`).join('')}</select>`:`<input data-magic-field="${key}" value="${esc(row.values[key])}" ${locked?'disabled':''}>`}</label><label class="dvV16Check"><input type="checkbox" data-magic-check="${key}" ${row.checks[key]?'checked':''} ${locked?'disabled':''}>${label} geprüft</label></div>`).join('')}</div>
-      <div class="dvV16Actions"><button type="button" class="btn secondary" data-magic-action="confirm" ${locked?'disabled':''}>KENNUNG BESTÄTIGEN</button><button type="button" class="btn secondary" data-magic-action="search" ${locked||!row.confirmed?'disabled':''}>MAGIC-KARTE SUCHEN</button></div>
-      ${c?`<div data-magic-printing><p class="dvV16Meta">${esc([c.set,c.number,c.language,c.variant,c.rarity].join(' · '))}<br>Scryfall-Printing: ${esc(c.provider_ref?.external_id)}</p><button type="button" class="btn secondary" data-magic-action="printing" ${locked?'disabled':''}>DRUCKVARIANTE BESTÄTIGEN</button><button type="button" class="btn secondary" data-magic-action="image" ${locked||row.imageBlob||!c.image_url?'disabled':''}>BILD LADEN (OPTIONAL)</button><p class="dvV16Meta">Kartendaten und optionales Kartenbild: Scryfall. Kein Rohfoto-Upload.</p></div>`:''}
+      <strong class="dvV16Badge">${row.savedId?(row.placed||row.captureMode!=='binder'?'GESPEICHERT':'GESPEICHERT · PLATZ OFFEN'):row.saveAttempted?'SPEICHERSTATUS UNKLAR':row.selected?'AUSGEWÄHLT':c?'KARTE GEFUNDEN':'ANGABEN PRÜFEN'}</strong>
+      <div class="dvV16Settings">${[['set_code','Set'],['collector_number','Originale Nummer'],['language','Sprache']].map(([key,label])=>`<div class="full"><label>${label}${key==='language'?`<select data-magic-field="${key}" ${locked?'disabled':''}><option value="">Bitte wählen</option>${languages.map(l=>`<option ${row.values[key]===l?'selected':''}>${l}</option>`).join('')}</select>`:`<input data-magic-field="${key}" value="${esc(row.values[key])}" ${locked?'disabled':''}>`}</label></div>`).join('')}</div>
+      <div class="dvV16Actions"><button type="button" class="btn" data-magic-action="confirm-search" ${c?'hidden':''} ${locked||c?'disabled':''}>ANGABEN BESTÄTIGEN & KARTE SUCHEN</button></div>
+      <p class="dvV16Meta" data-magic-next-step>${c?'Gefundene Karte und Druckvariante prüfen.': 'Set, Nummer und Sprache oben prüfen. Dieser Klick bestätigt alle drei Angaben und startet eine Suche.'}</p>
+      ${c?`<div data-magic-printing><p class="dvV16Meta">${esc([c.set,c.number,c.language,c.variant,c.rarity].filter(Boolean).join(' · '))}</p><details><summary>Kartenbild laden (optional)</summary><button type="button" class="btn secondary" data-magic-action="image" ${locked||row.imageBlob||!c.image_url?'disabled':''}>BILD LADEN</button><p class="dvV16Meta">Kartendaten und optionales Kartenbild: Scryfall. Kein Rohfoto-Upload.</p></details></div>`:''}
       ${duplicates.length?'<p class="dvV16Meta" data-magic-duplicate>Bereits in deiner Collection vorhanden. '+(row.captureMode==='binder'?'Eine zusätzliche Kopie nur bewusst anlegen.':'Bewusst den vorhandenen Eintrag oder eine zusätzliche Kopie auswählen.')+'</p>':''}
       ${row.captureMode==='binder'?'<p class="dvV16Meta">Bestehende Karte zum Aktualisieren im Einzelkartenmodus bearbeiten.</p>':''}
-      <label class="dvV16Meta">Speicherentscheidung<select class="dvV16Choice" data-magic-save-action ${locked?'disabled':''}><option value="">Bewusst auswählen</option><option value="new" ${row.action==='new'?'selected':''}>Neuen Eintrag anlegen</option>${(row.captureMode==='binder'?[]:own).map(x=>`<option value="${esc(x.id)}" ${row.action===x.id?'selected':''}>Bestehenden Eintrag aktualisieren: ${esc([x.card_name,x.set_name,x.card_number,x.language].join(' · '))}</option>`).join('')}</select></label>
-      <label class="dvV16Check"><input type="checkbox" data-v16-check="${index}" ${row.selected?'checked':''} ${canSave(row)?'':'disabled'}>Zum Speichern auswählen</label>
-      ${!locked&&!canSave(row)?`<p class="dvV16Meta" data-magic-next-step>${!row.confirmed?'Nächster Schritt: Set, Nummer und Sprache prüfen und KENNUNG BESTÄTIGEN.':!c?'Nächster Schritt: MAGIC-KARTE SUCHEN.':!row.printingConfirmed?'Nächster Schritt: DRUCKVARIANTE BESTÄTIGEN.':'Nächster Schritt: Unter Speicherentscheidung einen neuen oder bestehenden Eintrag wählen.'}</p>`:''}
+      ${c&&duplicates.length?`<label class="dvV16Meta" data-magic-choice>Diese Karte ist bereits vorhanden<select class="dvV16Choice" data-magic-save-action ${locked?'disabled':''}><option value="">Bitte auswählen</option><option value="new" ${row.action==='new'?'selected':''}>Weitere Kopie hinzufügen</option>${(row.captureMode==='binder'?[]:duplicates).map(x=>`<option value="${esc(x.id)}" ${row.action===x.id?'selected':''}>Vorhandene Karte aktualisieren: ${esc([x.card_name,x.set_name,x.card_number,x.language].join(' · '))}</option>`).join('')}</select></label>`:''}
+      ${c&&!locked?`<p class="dvV16Meta" data-magic-save-help>Mit dem folgenden Knopf bestätigst du die angezeigte Karte und Druckvariante.${duplicates.length&&!row.action?' Bitte zuerst Aktualisieren oder weitere Kopie wählen.':''}</p><button type="button" class="btn" data-magic-action="${row.captureMode==='single'?'save':'select'}">${row.captureMode==='single'?'DIESE KARTE SPEICHERN':row.selected?'AUSWAHL AUFHEBEN':'KARTE BESTÄTIGEN & AUSWÄHLEN'}</button>`:''}
       ${row.captureMode==='binder'&&!locked?'<button type="button" class="btn secondary" data-magic-action="destination">GEWÄHLTEN ZIELBINDER UND SEITE ZUORDNEN</button>':''}
       ${row.savedId&&row.captureMode==='binder'&&!row.placed?'<button type="button" class="btn secondary" data-magic-action="place">NUR PLATZZUORDNUNG ERNEUT VERSUCHEN</button>':''}
       <p class="dvV16Meta" role="status">${esc(row.message)}</p></div>
@@ -76,6 +87,16 @@
       await authorize(context);
       if(kind==='place'){await place(row,context);return;}
       if(row.savedId||row.saveAttempted)return;
+      if(kind==='confirm-search'){
+        row.confirmed=Object.freeze(root.DV_MAGIC_CAMERA.validate(row.values));
+        kind='search';
+      }
+      if(kind==='select'){
+        if(row.selected){row.selected=false;row.message='Auswahl aufgehoben.';return;}
+        // prepareSave checks busy to protect independent callers; this action
+        // already holds the row lock and performs no async work in this block.
+        row.busy=false;prepareSave(row,context.items);row.busy=true;return;
+      }
       if(kind==='destination'){
         if(!context.folder||!context.folders.some(f=>f.id===context.folder&&context.page>=1&&context.page<=f.binder_pages)||!Number.isInteger(context.page))throw Error('Zielbinder und gültige Seite wählen.');
         row.folder=context.folder;row.page=context.page;row.message='Zielbinder und Seite zugeordnet; die ursprüngliche Bildposition bleibt '+row.slot+'.';
@@ -84,7 +105,7 @@
         row.confirmed=Object.freeze(root.DV_MAGIC_CAMERA.validate(row.values));row.message='Kennung bestätigt. Jetzt MAGIC-KARTE SUCHEN antippen (eine Anfrage).';
       }else if(kind==='search'){
         if(!row.confirmed)throw Error('Kennung zuerst bestätigen.');
-        row.best=null;row.printingConfirmed=false;row.selected=false;
+        row.best=null;row.printingConfirmed=false;row.selected=false;row.action='';
         if(row.imageURL)URL.revokeObjectURL(row.imageURL);row.imageURL='';row.imageBlob=null;
         root.DV_TCG_V1_CONSUMERS.requireGame('magic','catalog');
         const {data:{session},error}=await context.db.auth.getSession();
@@ -92,7 +113,7 @@
         const response=await fetch('/api/tcg-magic-scryfall?'+new URLSearchParams(row.confirmed),{method:'GET',credentials:'same-origin',headers:{Accept:'application/json',Authorization:'Bearer '+session.access_token},signal:AbortSignal.timeout(10000)});
         const result=await response.json();await authorize(context);
         if(!response.ok||result.status!=='candidates'||!result.candidate)throw Error(response.status===429?'Tageskontingent oder Providerlimit erreicht. Lokale Ergebnisse bleiben erhalten.':'Kein eindeutiges unterstütztes Printing. Eingaben prüfen; keine automatische Wiederholung.');
-        row.best=result.candidate;row.message='Druckvariante prüfen und bestätigen. Optional das zugeordnete Kartenbild laden.';
+        row.best=result.candidate;row.message='Karte gefunden. Druckvariante prüfen und anschließend speichern oder auswählen.';
       }else if(kind==='printing'){
         if(!row.best||!row.confirmed)throw Error('Zuerst bewusst nach der bestätigten Kennung suchen.');
         row.printingConfirmed=true;row.status='ready';row.message='Druckvariante bestätigt. Speicherentscheidung und Auswahl bleiben erforderlich.';
@@ -148,5 +169,5 @@
       return true;
     }catch(e){row.message=e.message;return false;}finally{row.busy=false}
   }
-  root.DV_SCAN_V16_MAGIC=Object.freeze({authorize,analyze,html,invalidate,canSave,action,save});
+  root.DV_SCAN_V16_MAGIC=Object.freeze({authorize,analyze,html,invalidate,canSave,prepareSave,action,save});
 })();

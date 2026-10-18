@@ -11,7 +11,9 @@
   raw=String(raw||'').slice(0,12000);
   const originalLines=raw.split(/\r?\n/).map(s=>s.trim()),lines=originalLines.map(s=>s.toUpperCase()),sets=new Set(),numbers=new Set(),langs=new Set();
   for(const [index,line] of lines.entries()){
-   for(const m of line.matchAll(/\b([A-Z0-9]{2,8})(?:\s*[•·*|.\-]\s*|\s+)(EN|DE|FR|IT|ES|JP|KR|CN)\b/g)){sets.add(m[1]);langs.add(m[2]);}
+   // The printed separator may be read as *#. Only bounded punctuation is
+   // tolerated here; never skip letters, digits or an arbitrary text span.
+   for(const m of line.matchAll(/\b([A-Z0-9]{2,8})(?:\s*[•·*|.\-]#?\s*|\s+)(EN|DE|FR|IT|ES|JP|KR|CN)\b/g)){sets.add(m[1]);langs.add(m[2]);}
    if(!/[©®]|COPYRIGHT|WIZARDS|20\d\d\s+/.test(line)){
     // A leading rarity binds the collector token; later power/toughness is noise.
     // Without rarity, accept only a clean token, never a fraction or bare year.
