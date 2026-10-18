@@ -157,6 +157,39 @@ try{
  await page.evaluate(()=>testMagic.admitted=false);await row(6).locator('[data-magic-action="confirm"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[6].message.includes('nicht zugelassen'));assert.equal(provider.length,before+1);
  await page.click('#dvV16Close');await page.click('#scanCard');assert.equal(await page.locator('#dvV16Tcg option[value="magic"]').count(),0);
  cases.push('Security: admission/hold denial and expiry fail closed; quota keeps all local rows; no automatic search or retry; no generic insert or raw upload');
+ // R22-R3 gallery continuation: real buttons, delayed save, no camera or
+ // file picker from the asynchronous save callback (Safari user activation).
+ await page.evaluate(()=>{testMagic.admitted=true;testMagic.quota=false;testMagic.failSave=0;});
+ await page.click('#dvV16Close');await page.click('#scanCard');await page.selectOption('#dvV16Tcg','magic');
+ await page.click('#dvV16Reset');await page.selectOption('#dvV16Folder','');
+ await scan('single','',[textDSK]);
+ assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/KENNUNG BESTÄTIGEN/);
+ await confirm(0);assert.match(await row(0).locator('[data-magic-next-step]').textContent(),/MAGIC-KARTE SUCHEN/);
+ assert.equal(await page.locator('#dvV16SaveNext').isDisabled(),true);
+ await resolveRow(0);
+ await page.evaluate(()=>{testMagic.cameraStarts=0;const start=DV_SCAN_V16_CAMERA.start;DV_SCAN_V16_CAMERA.start=async(...args)=>{testMagic.cameraStarts++;return start(...args)};});
+ let pickers=0;page.on('filechooser',()=>pickers++);
+ const providerBeforeContinue=provider.length;
+ const savesBeforeContinue=await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').length);
+ await page.click('#dvV16SaveNext');await page.waitForFunction(()=>!document.getElementById('dvV16Complete').classList.contains('dvV16Hidden'));
+ assert.equal(await page.locator('#dvV16Results').isVisible(),false);
+ assert.equal(await page.locator('#dvV16Import').isVisible(),false);
+ assert.match(await page.textContent('#dvV16CompleteText'),/1 Karte gespeichert/);
+ assert.equal(await page.textContent('#dvV16Next'),'NÄCHSTES GALERIEFOTO');
+ assert.equal(await page.textContent('#dvV16ViewSaved'),'ZUR COLLECTION');
+ assert.equal(pickers,0);assert.equal(await page.evaluate(()=>testMagic.cameraStarts),0);
+ const chooserPromise=page.waitForEvent('filechooser');await page.click('#dvV16Next');await chooserPromise;
+ assert.equal(pickers,1);assert.equal(await page.evaluate(()=>testMagic.cameraStarts),0);
+ // Cancellation leaves the saved receipt usable; selecting a new gallery file
+ // must preserve the saved row without saving it or looking it up again.
+ assert.equal(await page.locator('#dvV16Complete').isVisible(),true);
+ await scan('continuous','',[textECL]);assert.equal(await count(),2);
+ assert.equal(await page.evaluate(()=>!!DV_SCAN_V16.batch[0].savedId),true);
+ assert.equal(provider.length,providerBeforeContinue);
+ assert.equal(await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').length),savesBeforeContinue+1);
+ await resolveRow(1);await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>DV_SCAN_V16.batch[1].savedId&&!document.getElementById('dvV16Complete').classList.contains('dvV16Hidden'));
+ await page.click('#dvV16ViewSaved');assert.equal(await page.locator('#dvV16Dialog').isVisible(),false);
+ cases.push('Gallery save and save-next: clear receipt, fresh-tap gallery picker, cancellation safe, no camera launch/provider replay/duplicate save, next image and return to collection');
  assert.deepEqual(errors,[]);assert.deepEqual(forbidden,[]);
  const report={synthetic:true,real_user_verification:false,cases,provider_requests:provider.length,forbidden_requests:forbidden,browser_errors:errors,hardware_camera:'OPEN',physical_multi_binder:'OPEN'};
  await writeFile(resolve(out,'browser.json'),JSON.stringify(report,null,2));console.log('PASS R22-R3 actual COLLECT/V16 four-mode synthetic browser E2E',JSON.stringify(report));

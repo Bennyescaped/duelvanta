@@ -14,6 +14,19 @@
   const dbNow=()=>{try{return typeof db!=='undefined'?db:root.db}catch{return root.db||null}};
   const magicContext=()=>({db:dbNow(),user:userNow(),items:itemsNow(),folders:foldersNow(),folder:$('dvV16Folder')?.value||null,page:Number($('dvV16Page')?.value||1)});
   const magic=()=>root.DV_SCAN_V16_MAGIC;
+  let magicSource='gallery';
+  const magicComplete=()=>batch.length&&batch.every(r=>r.tcg==='magic'&&r.savedId&&(r.captureMode!=='binder'||r.placed));
+  function magicReceipt(count){
+    savedRows=batch.filter(r=>r.tcg==='magic'&&r.savedId).map(r=>({card:{...r.best},photo:r.imageURL||r.photo,folder:r.savedFolder,graded:false}));
+    $('dvV16CompleteText').textContent=`${count} ${count===1?'Karte':'Karten'} gespeichert.${magicComplete()?' Was möchtest du als Nächstes tun?':' Weitere Ergebnisse sind noch offen.'}`;
+    $('dvV16Complete').classList.remove('dvV16Hidden');
+    $('dvV16Next').textContent=magicSource==='gallery'?'NÄCHSTES GALERIEFOTO':magicSource==='camera'?'NÄCHSTES iPHONE-FOTO':'NÄCHSTE KAMERA-AUFNAHME';
+    $('dvV16Next').classList.toggle('dvV16Hidden',!magicComplete());
+    $('dvV16ViewSaved').textContent='ZUR COLLECTION';
+    $('dvV16Results').classList.toggle('dvV16Hidden',!!magicComplete());
+    $('dvV16Import').classList.toggle('dvV16Hidden',!!magicComplete());
+    $('dvV16Complete').scrollIntoView({block:'center',behavior:'smooth'});
+  }
   async function magicOptions(){
     if(!magic())return;
     let allowed=false;try{allowed=await magic().authorize(magicContext())}catch{}
@@ -64,7 +77,7 @@
     if(state==='camera-ready')$('dvV16StageHint').textContent='Karte ausrichten · Auto-Aufnahme bei stabiler Karte';
     if(['preview','analyzing'].includes(state))$('dvV16StageHint').textContent='Bild übernommen · Analyse läuft …';
     if(state==='result')$('dvV16StageHint').textContent='Analyse abgeschlossen · für die nächste Karte Live-Kamera starten.';
-    $('dvV16Dialog').dataset.cameraReady=String(state==='camera-ready');$('dvV16SaveNext').disabled=busy;$('dvV16Tcg').disabled=busy;$('dvV16Engine').disabled=busy;document.querySelectorAll('[data-v16-mode]').forEach(button=>button.disabled=busy);$('dvV16Reset').disabled=busy;
+    $('dvV16Dialog').dataset.cameraReady=String(state==='camera-ready');$('dvV16SaveNext').disabled=busy||($('dvV16Tcg').value==='magic'&&!batch.some(r=>r.selected&&canSave(r)));$('dvV16Tcg').disabled=busy;$('dvV16Engine').disabled=busy;document.querySelectorAll('[data-v16-mode]').forEach(button=>button.disabled=busy);$('dvV16Reset').disabled=busy;
     $('dvV16Camera').disabled=busy||cameraStarting;$('dvV16Capture').disabled=busy||state!=='camera-ready';$('dvV16Native').disabled=busy;$('dvV16Choose').disabled=busy;$('dvV16Retry').disabled=busy;
     if(message)$('dvV16Status').textContent=message;if(error)$('dvV16Status').innerHTML=`<span class="dvV16Danger">${esc(error.message)} · Du kannst sofort neu aufnehmen oder ein anderes Foto wählen.</span>`;
     if(state==='decoding')setStep('preview',8);if(state==='preview'){if(source)showSource(source);setStep('preview',18)}if(state==='analyzing')setStep('ocr',32);if(state==='result')setStep('result',100);if(state==='error')$('dvV16Bar').style.width='0%';
@@ -78,6 +91,7 @@
   function stopLive(){latestContour=null;cameraEpoch++;clearInterval(qualityTimer);qualityTimer=0;liveGate?.reset();root.DV_SCAN_V16_CAMERA?.stopVideoStream?.($('dvV16Video'))}
   async function startLive(){
     if(importing)return;hideReceipt();
+    if($('dvV16Tcg').value==='magic')magicSource='live';
     const camera=root.DV_SCAN_V16_CAMERA,video=$('dvV16Video');if(!camera?.start){applyState({state:'error',error:new Error('Kameramodul ist noch nicht geladen.')});return}
     stopLive();const epoch=cameraEpoch;video.classList.remove('dvV16Hidden');
     controller().transition('camera-starting',{message:'DUELVANTA Live-Kamera wird gestartet …'});$('dvV16Camera').textContent='KAMERA STARTET …';
@@ -136,7 +150,8 @@
     await root.DV_SCAN_V16_PROVIDER.verifyPhoto(file,proposal);
     stopLive();return analyzeSource(file,{providerObservation:proposal,providerReplay:true});
   }
-  async function processFile(file){
+  async function processFile(file,source='gallery'){
+    if(file&&$('dvV16Tcg').value==='magic')magicSource=source;
     if($('dvV16Tcg').value==='magic'&&file?.size>20*1024*1024){$('dvV16Status').textContent='Bitte ein Bild bis 20 MB auswählen.';return;}
     if(!file||controller().busy)return;stopLive();if(root.DV_V16_E2E)root.__DV_V16_E2E_FILE=file.name||'';
     try{return await analyzeSource(file)}catch(error){controller().transition('error',{error});return null}finally{$('dvV16CameraFile').value='';$('dvV16GalleryFile').value=''}
@@ -211,13 +226,13 @@
   }
   function renderResults(){const host=$('dvV16Results');if(!batch.length){host.innerHTML='<div class="dvV16Empty">Noch keine Karten gescannt.</div>';$('dvV16Summary').classList.add('dvV16Hidden');$('dvV16Import').classList.add('dvV16Hidden');return}const ready=batch.filter(row=>row.status==='ready'&&candidate(row)).length,review=batch.filter(row=>row.status!=='ready'&&candidate(row)).length,empty=batch.filter(row=>!candidate(row)).length;const prices=batch.filter(row=>!row.slab&&(row.status==='ready'||row.manualConfirmed)).map(candidate).filter(Boolean).filter(card=>card.marketEur!=null).map(card=>Number(card.marketEur)).filter(Number.isFinite);$('dvV16Summary').innerHTML=`<b>SCAN-ERGEBNISSE</b> · ${batch.length} Slots · ${ready} sicher · ${review} prüfen · ${empty} ohne Treffer${prices.length?` · Roh-Marktwert ${money.format(prices.reduce((a,b)=>a+b,0))}`:''}`;$('dvV16Summary').classList.remove('dvV16Hidden');host.innerHTML=batch.map((row,index)=>row.tcg==='magic'?magic().html(row,index,itemsNow()):resultHtml(row,index)).join('');$('dvV16Import').classList.remove('dvV16Hidden');updateSelection()}
   function updateSelection(){const count=batch.filter(row=>row.selected&&(row.status==='ready'||row.manualConfirmed)&&canSave(row)).length;$('dvV16SelectionCount').textContent=count?count+' '+(count===1?'Karte ausgewählt':'Karten ausgewählt'):'Ergebnis prüfen und passende Karte bestätigen.';$('dvV16ImportBtn').disabled=!count||importing;$('dvV16SaveNext').disabled=!count||importing}
-  async function saveAndNext(){if(await importSelected()){if(batch.length&&batch.every(r=>r.tcg==='magic'&&r.savedId&&(r.captureMode!=='binder'||r.placed))){await nextScan();return;}if(batch.length){$('dvV16Status').textContent='Gespeichert · weitere Ergebnisse zuerst prüfen oder bewusst leeren.';return}await nextScan();$('dvV16Complete').classList.remove('dvV16Hidden');$('dvV16Next').classList.add('dvV16Hidden')}}
+  async function saveAndNext(){if(await importSelected()){if(batch.some(r=>r.tcg==='magic'))return;if(batch.length){$('dvV16Status').textContent='Gespeichert · weitere Ergebnisse zuerst prüfen oder bewusst leeren.';return}await nextScan();$('dvV16Complete').classList.remove('dvV16Hidden');$('dvV16Next').classList.add('dvV16Hidden')}}
   function viewSaved(){
     if(savedRows.length){try{activeFolder=savedRows[0].graded?'__graded__':savedRows[0].folder||'';page=0;close();render();document.querySelector('.workspace')?.scrollIntoView({block:'start',behavior:'smooth'});return}catch{}}
     const host=$('dvV16Saved');host.innerHTML=savedRows.map(row=>{const c=row.card;return `<article class="dvV16Result ready"><img class="dvV16Thumb" src="${row.photo}" alt="Gespeicherte Karte"><div><div class="dvV16ResultTitle">${esc(c.name)}</div><p class="dvV16Meta">${esc([c.set,c.number,c.language,c.variant].filter(Boolean).join(' · '))}</p><span class="dvV16Badge ready">GESPEICHERT</span></div></article>`}).join('');host.classList.remove('dvV16Hidden');$('dvV16ViewSaved').setAttribute('aria-expanded','true');host.scrollIntoView({block:'nearest',behavior:'smooth'});
   }
   function hideReceipt(){$('dvV16Complete')?.classList.add('dvV16Hidden');$('dvV16Results')?.classList.remove('dvV16Hidden')}
-  async function nextScan(){if(importing||controller().busy)return;retry();await startLive();$('dvV16Video').parentElement.scrollIntoView({block:'start',behavior:'smooth'})}
+  async function nextScan(){if(importing||controller().busy)return;if($('dvV16Tcg').value==='magic'&&magicSource!=='live'){retry();openPicker(magicSource);return;}retry();await startLive();$('dvV16Video').parentElement.scrollIntoView({block:'start',behavior:'smooth'})}
   function resetBatch(){if(importing||batch.some(r=>r.busy)||batch.some(r=>r.tcg==='magic'&&!r.savedId)&&!confirm('Lokale Magic-Ergebnisse wirklich verwerfen?'))return;hideReceipt();for(const row of batch)if(row.imageURL)URL.revokeObjectURL(row.imageURL);batch=[];retry();renderResults();$('dvV16Status').textContent='Scan-Ergebnisse geleert.'}
   async function importSelected(){
     if(batch.some(row=>row.tcg==='magic'&&row.selected))return importMagic();
@@ -231,6 +246,7 @@
   async function importMagic(){
     if(importing||controller().busy||batch.some(r=>r.busy))return false;
     const selected=batch.filter(r=>r.selected&&canSave(r));
+    if(!selected.length){$('dvV16Status').textContent='Zuerst die Karte bestätigen und zum Speichern auswählen.';return false;}
     if(selected.some(r=>r.tcg!=='magic')){$('dvV16Status').textContent='Magic und andere Spiele getrennt auswählen und speichern.';return false;}
     importing=true;applyState({state:controller().state});let ok=0;
     const context=magicContext();
@@ -238,7 +254,7 @@
       try{if(typeof loadItems==='function')await loadItems();else if(root.loadItems)await root.loadItems();}catch{}
       $('dvV16Status').textContent=`${ok} Karten vollständig gespeichert. Gespeicherte Karten und offene Ergebnisse bleiben einzeln sichtbar.`;
       return ok===selected.length&&ok>0;
-    }finally{importing=false;applyState({state:controller().state});renderResults();}
+    }finally{importing=false;applyState({state:controller().state});renderResults();if(ok)magicReceipt(ok);}
   }
   function install(){
     if(installed)return true;if(!root.DV_SCAN_V16_RUNTIME||!build())return false;installed=true;
@@ -248,7 +264,7 @@
     Object.defineProperty(api,'batch',{enumerable:true,get:()=>batch});
     api.controller=runtime.createController({analyze:analyzeWithProvider,onState:applyState,onResult:result=>{try{document.dispatchEvent(new CustomEvent('dv:v16:analysis-complete',{detail:{result,benchmark:root.DV_SCAN_V16_BENCHMARK?.load?.().at?.(-1)||null}}))}catch{}}});
     root.DV_SCAN_V16=api;
-    const bind=runtime.bindOnce;bind($('dvV16Launch'),'click','launch',open);bind($('dvV16Close'),'click','close',close);bind($('dvV16Camera'),'click','camera',startLive);bind($('dvV16Capture'),'click','capture',captureLive);bind($('dvV16Native'),'click','native',()=>openPicker('camera'));bind($('dvV16Choose'),'click','gallery',()=>openPicker('gallery'));bind($('dvV16CameraFile'),'change','cameraFile',event=>processFile(event.target.files?.[0]));bind($('dvV16GalleryFile'),'change','galleryFile',event=>processFile(event.target.files?.[0]));bind($('dvV16Retry'),'click','retry',nextScan);bind($('dvV16Reset'),'click','reset',resetBatch);bind($('dvV16ImportBtn'),'click','import',importSelected);bind($('dvV16SaveNext'),'click','saveNext',saveAndNext);bind($('dvV16Next'),'click','next',nextScan);bind($('dvV16ViewSaved'),'click','viewSaved',viewSaved);
+    const bind=runtime.bindOnce;bind($('dvV16Launch'),'click','launch',open);bind($('dvV16Close'),'click','close',close);bind($('dvV16Camera'),'click','camera',startLive);bind($('dvV16Capture'),'click','capture',captureLive);bind($('dvV16Native'),'click','native',()=>openPicker('camera'));bind($('dvV16Choose'),'click','gallery',()=>openPicker('gallery'));bind($('dvV16CameraFile'),'change','cameraFile',event=>processFile(event.target.files?.[0],'camera'));bind($('dvV16GalleryFile'),'change','galleryFile',event=>processFile(event.target.files?.[0]));bind($('dvV16Retry'),'click','retry',nextScan);bind($('dvV16Reset'),'click','reset',resetBatch);bind($('dvV16ImportBtn'),'click','import',importSelected);bind($('dvV16SaveNext'),'click','saveNext',saveAndNext);bind($('dvV16Next'),'click','next',nextScan);bind($('dvV16ViewSaved'),'click','viewSaved',viewSaved);
     bind($('dvV16Kind'),'change','captureKind',()=>{if(slabMode()){$('dvV16Engine').value='openai';if(!['single','continuous'].includes(mode))setMode('single')}liveGate?.reset();latestContour=null;syncOverlay()});
     bind($('dvV16Engine'),'change','engineKind',()=>{if($('dvV16Engine').value!=='openai')$('dvV16Kind').value='raw';liveGate?.reset();syncOverlay()});
     bind($('dvV16Tcg'),'change','tcg',async event=>{try{if(event.target.value==='magic'){await magic().authorize(magicContext());magicEngine()}else root.DV_TCG_V1_CONSUMERS.requireGame(event.target.value,'scanner');try{selectedScanTcg=event.target.value}catch{}root.selectedScanTcg=event.target.value;try{localStorage.setItem('duelvanta_scan_tcg',event.target.value)}catch{}}catch(error){$('dvV16Status').textContent=error.message;await magicOptions()}});

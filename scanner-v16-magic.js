@@ -63,6 +63,7 @@
       ${row.captureMode==='binder'?'<p class="dvV16Meta">Bestehende Karte zum Aktualisieren im Einzelkartenmodus bearbeiten.</p>':''}
       <label class="dvV16Meta">Speicherentscheidung<select class="dvV16Choice" data-magic-save-action ${locked?'disabled':''}><option value="">Bewusst auswählen</option><option value="new" ${row.action==='new'?'selected':''}>Neuen Eintrag anlegen</option>${(row.captureMode==='binder'?[]:own).map(x=>`<option value="${esc(x.id)}" ${row.action===x.id?'selected':''}>Bestehenden Eintrag aktualisieren: ${esc([x.card_name,x.set_name,x.card_number,x.language].join(' · '))}</option>`).join('')}</select></label>
       <label class="dvV16Check"><input type="checkbox" data-v16-check="${index}" ${row.selected?'checked':''} ${canSave(row)?'':'disabled'}>Zum Speichern auswählen</label>
+      ${!locked&&!canSave(row)?`<p class="dvV16Meta" data-magic-next-step>${!row.confirmed?'Nächster Schritt: Set, Nummer und Sprache prüfen und KENNUNG BESTÄTIGEN.':!c?'Nächster Schritt: MAGIC-KARTE SUCHEN.':!row.printingConfirmed?'Nächster Schritt: DRUCKVARIANTE BESTÄTIGEN.':'Nächster Schritt: Unter Speicherentscheidung einen neuen oder bestehenden Eintrag wählen.'}</p>`:''}
       ${row.captureMode==='binder'&&!locked?'<button type="button" class="btn secondary" data-magic-action="destination">GEWÄHLTEN ZIELBINDER UND SEITE ZUORDNEN</button>':''}
       ${row.savedId&&row.captureMode==='binder'&&!row.placed?'<button type="button" class="btn secondary" data-magic-action="place">NUR PLATZZUORDNUNG ERNEUT VERSUCHEN</button>':''}
       <p class="dvV16Meta" role="status">${esc(row.message)}</p></div>
@@ -80,7 +81,7 @@
         row.folder=context.folder;row.page=context.page;row.message='Zielbinder und Seite zugeordnet; die ursprüngliche Bildposition bleibt '+row.slot+'.';
       }else if(kind==='confirm'){
         if(!['set_code','collector_number','language'].every(k=>row.checks[k]))throw Error('Set, originale Nummer und Sprache einzeln prüfen.');
-        row.confirmed=Object.freeze(root.DV_MAGIC_CAMERA.validate(row.values));row.message='Kennung bestätigt. Die Suchaktion verbraucht eine Anfrage; keine automatische Wiederholung.';
+        row.confirmed=Object.freeze(root.DV_MAGIC_CAMERA.validate(row.values));row.message='Kennung bestätigt. Jetzt MAGIC-KARTE SUCHEN antippen (eine Anfrage).';
       }else if(kind==='search'){
         if(!row.confirmed)throw Error('Kennung zuerst bestätigen.');
         row.best=null;row.printingConfirmed=false;row.selected=false;
