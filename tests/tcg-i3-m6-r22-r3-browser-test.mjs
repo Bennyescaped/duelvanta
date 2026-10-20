@@ -16,7 +16,7 @@ await page.route('**/*',async route=>{
  const url=route.request().url();
  if(url.startsWith(base))return route.continue();
  if(url.includes('supabase-js@2'))return route.fulfill({contentType:'text/javascript',body:`
- window.testMagic={admitted:true,placementReady:true,rows:[],calls:[],texts:[],ocr:[],failSave:0,failPlace:false};
+ window.testMagic={admitted:true,placementReady:true,rows:[],calls:[],texts:[],ocr:[],uploads:[],failSave:0,failPlace:false};
  window.supabase={createClient:()=>{const t=testMagic,user={id:'${A}'};return {
  auth:{getSession:async()=>({data:{session:{user,access_token:'SYNTHETIC'}}}),onAuthStateChange(){},signOut:async()=>{}},
  rpc:async(name,args)=>{t.calls.push({name,args});
@@ -29,10 +29,14 @@ await page.route('**/*',async route=>{
  if(name==='place_my_magic_scan_item_v1'){if(t.failPlace)return {error:{message:'synthetic placement failure'}};const x=t.rows.find(x=>x.id===args.p_item_id);if(t.rows.some(r=>r.id!==x.id&&r.folder_id===args.p_folder_id&&r.binder_page===args.p_page&&r.binder_slot===args.p_slot))return {error:{message:'occupied'}};Object.assign(x,{folder_id:args.p_folder_id,binder_page:args.p_page,binder_slot:args.p_slot});return {data:true};}
  return {data:null};},
  from:table=>{let op='select',payload,filters={};const q={select:()=>q,order:()=>q,limit:()=>q,eq:(k,v)=>(filters[k]=v,q),is:(k,v)=>(filters[k]=v,q),single:()=>q,update:p=>(op='update',payload=p,q),insert:p=>(op='insert',payload=p,q),then:(yes,no)=>Promise.resolve().then(()=>{
+ if(op==='update'&&table==='collection_items'&&Object.keys(payload).every(k=>['image_path','image_captured_at'].includes(k))){
+ if(filters.user_id!==user.id||filters.tcg!=='magic'||filters.image_path!==null||!filters.id)throw Error('Unprotected image update');
+ if(t.failImageLink)return {error:{message:'synthetic link failure'}};
+ const matches=t.rows.filter(x=>Object.entries(filters).every(([k,v])=>v===null?x[k]==null:x[k]===v));matches.forEach(x=>Object.assign(x,payload));return {data:matches.map(x=>({id:x.id}))};}
  if(op!=='select')throw Error('Forbidden direct mutation '+table);
  const rows=table==='collection_items'?t.rows:table==='collection_folders'?[{id:'${F}',user_id:user.id,name:'Synthetic Binder',binder_pages:2}]:[];
  return {data:rows.filter(x=>Object.entries(filters).every(([k,v])=>x[k]===v))};}).then(yes,no)};return q;},
- storage:{from:()=>({upload:async()=>{throw Error('Forbidden raw upload')},createSignedUrl:async()=>({data:{signedUrl:''}})})}
+ storage:{from:bucket=>({upload:async(path,blob,options)=>{if(bucket!=='collection-cards'||!path.startsWith(user.id+'/')||options.upsert!==false||blob.type!=='image/png')throw Error('Forbidden raw upload');t.uploads.push({path,size:blob.size});return t.failImageUpload?{error:{message:'synthetic upload failure'}}:{data:{path}};},createSignedUrl:async()=>({data:{signedUrl:''}})})}
  }}};`});
  if(url.includes('tesseract.min.js'))return route.fulfill({contentType:'text/javascript',body:`window.Tesseract={createWorker:async()=>({setParameters:async()=>{},terminate(){},recognize:async canvas=>{const p=canvas.getContext('2d').getImageData(Math.floor(canvas.width/2),Math.floor(canvas.height/2),1,1).data;const index=Math.round(p[0]/20)-1;testMagic.ocr.push({index,width:canvas.width,height:canvas.height});return {data:{text:testMagic.texts[index]||''}}}})};`});
  if(url.includes('fonts.googleapis'))return route.fulfill({contentType:'text/css',body:''});
@@ -70,12 +74,15 @@ async function resolveRow(n){await confirm(n);await page.waitForFunction(n=>!!DV
 const cases=[];
 try{
  await page.goto(base+'/collect.html');await page.waitForFunction(()=>window.__DV_V16_READY&&window.DV_COLLECT_READY);
+ const imagePng=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=63;c.height=88;c.getContext('2d').fillRect(0,0,63,88);return c.toDataURL('image/png').split(',')[1];});
+ const imageRequests=[];
+ await page.route('https://cards.scryfall.io/**',async r=>{imageRequests.push(r.request().url());if(await page.evaluate(()=>testMagic.failImageDownload))return r.fulfill({status:503,body:''});return r.fulfill({contentType:'image/png',body:Buffer.from(imagePng,'base64')});});
  await page.click('#scanCard');await page.selectOption('#dvV16Tcg','magic');
  assert.equal(await page.locator('#magicCameraLaunch').count(),0);assert.equal(await page.locator('#magicCameraDialog').count(),0);
  assert.equal(await page.evaluate(()=>DV_TCG_V1_CONSUMERS.games('scanner').some(x=>x.game_key==='magic')),false);
  await scan('single','',[textDSK]);await scan('single','',[textECL]);assert.equal(await count(),2);
  assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>r.values)),[{set_code:'DSK',collector_number:'0344',language:'EN'},{set_code:'ECL',collector_number:'0373',language:'EN'}]);
- assert.equal(provider.length,0);cases.push('KARTE: DSK 0344 EN + ECL 0373 EN, immutable independent raw, zero provider requests');
+ assert.equal(provider.length,0);assert.equal(imageRequests.length,0);cases.push('KARTE: DSK 0344 EN + ECL 0373 EN, immutable independent raw, zero provider requests');
  await page.click('#dvV16Reset');await scan('continuous','',[textDSK]);await scan('continuous','',[textECL]);assert.equal(await count(),2);
  await resolveRow(0);await resolveRow(1);assert.equal(provider.length,2);
  await page.evaluate(()=>{document.getElementById('dvV16ImportBtn').click();document.getElementById('dvV16ImportBtn').click()});
@@ -93,14 +100,14 @@ try{
  assert.equal(await page.evaluate(()=>testMagic.calls.filter(c=>c.name==='save_my_tcg_collection_item_v1').length),savedCalls+1);
  cases.push('SERIE partial failure: saved and uncertain rows never repeated; remaining selected row saved once on explicit next action');
  await page.click('#dvV16Reset');const ownImage=await scan('continuous','',[textDSK]);
- await page.route('https://cards.scryfall.io/**',r=>r.fulfill({contentType:'image/png',body:Buffer.from(ownImage,'base64')}));
  const existing=await page.evaluate(()=>{testMagic.rows[0].image_path='own/protected.jpg';testMagic.rows[0].quantity=7;return testMagic.rows[0].id;});
  await page.evaluate(()=>loadItems());await resolveRow(0);await row(0).locator('[data-magic-save-action]').selectOption(existing);
- await row(0).locator('[data-magic-printing] summary').click();await row(0).locator('[data-magic-action="image"]').click();await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].imageBlob&&!DV_SCAN_V16.batch[0].busy);
+ await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].imageBlob&&!DV_SCAN_V16.batch[0].busy);
+ assert.match(await row(0).locator('[data-magic-image-status]').textContent(),/vorhandenes Collection-Bild bleibt erhalten/);
  await row(0).locator('[data-magic-action="select"]').click();const ownBefore=await page.evaluate(()=>testMagic.rows.length);
  await page.click('#dvV16ImportBtn');await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].savedId);
  assert.equal(await page.evaluate(()=>testMagic.rows.length),ownBefore);assert.equal(await page.evaluate(()=>testMagic.rows[0].image_path),'own/protected.jpg');assert.equal(await page.evaluate(()=>testMagic.rows[0].quantity),7);
- cases.push('Explicit own-entry update retains quantity and protected image; R21 image download is conscious and printing-bound');
+ cases.push('Explicit own-entry update retains quantity and protected image; joint card/image action uses printing-bound R21 download');
  await page.click('#dvV16Reset');const png4=await scan('multi','2x2',[textDSK,textECL,'',textDSK]);assert.equal(await count(),4);
  assert.deepEqual(await page.evaluate(()=>DV_SCAN_V16.batch.map(r=>r.observation.raw)),[textDSK,textECL,'',textDSK]);
  await writeFile(resolve(out,'synthetic-2x2.png'),Buffer.from(png4,'base64'));
@@ -229,6 +236,27 @@ try{
  assert.equal(await page.locator('#dvV16Import').isVisible(),false);assert.equal(provider.length,beforeEdit);
  assert.equal(await row(0).locator('[data-magic-action="confirm-search"]').isEnabled(),true);
  cases.push('Editing after confirmation removes printing/selection/save eligibility without network; shared confirmation is required again');
+ // Actual R21 download/attach path, with synthetic image bytes only.
+ await page.click('#dvV16Reset');await scan('single','',['R 0998\nECL * EN']);
+ const imageBefore=imageRequests.length,queryBefore=provider.length;await confirm(0);
+ assert.equal(imageRequests.length,imageBefore+1);assert.equal(provider.length,queryBefore+1);
+ assert.match(await row(0).locator('[data-magic-image-status]').textContent(),/wird in deiner Collection gespeichert/);
+ assert.match(await row(0).locator('.dvV16Thumb').getAttribute('src'),/^blob:/);
+ await row(0).locator('[data-magic-action="save"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[0].savedId&&!DV_SCAN_V16.batch[0].busy);
+ assert.ok(await page.evaluate(()=>testMagic.rows.find(x=>x.id===DV_SCAN_V16.batch[0].savedId).image_path));
+ assert.match(await row(0).textContent(),/Mit Kartenbild gespeichert/);
+ await page.click('#dvV16Reset');await scan('single','',['R 0997\nECL * EN']);await page.evaluate(()=>testMagic.failImageDownload=true);await confirm(0);
+ assert.ok(await page.evaluate(()=>!!DV_SCAN_V16.batch[0].best&&!DV_SCAN_V16.batch[0].imageBlob));
+ assert.match(await row(0).locator('[data-magic-image-status]').textContent(),/konnte nicht geladen/);
+ const retryQueries=provider.length;await page.evaluate(()=>testMagic.failImageDownload=false);
+ await row(0).locator('[data-magic-action="image"]').click();await page.waitForFunction(()=>!!DV_SCAN_V16.batch[0].imageBlob&&!DV_SCAN_V16.batch[0].busy);
+ assert.equal(provider.length,retryQueries);
+ await page.evaluate(()=>testMagic.failImageUpload=true);
+ await row(0).locator('[data-magic-action="save"]').click();await page.waitForFunction(()=>DV_SCAN_V16.batch[0].savedId&&!DV_SCAN_V16.batch[0].busy);
+ assert.match(await page.textContent('#dvV16CompleteText'),/fehlt das Bild/);
+ assert.match(await row(0).textContent(),/Bild nicht angehängt/);
+ assert.equal(await row(0).locator('[data-magic-action="save"]').count(),0);
+ cases.push('Image flow: no image request before conscious combined action; one printing-bound image, real R21 upload/link; failed download retains candidate, image-only retry uses no catalog query; upload failure is explicit in row and receipt without duplicate save');
  assert.deepEqual(errors,[]);assert.deepEqual(forbidden,[]);
  const report={synthetic:true,real_user_verification:false,cases,provider_requests:provider.length,forbidden_requests:forbidden,browser_errors:errors,hardware_camera:'OPEN',physical_multi_binder:'OPEN'};
  await writeFile(resolve(out,'browser.json'),JSON.stringify(report,null,2));console.log('PASS R22-R3 actual COLLECT/V16 four-mode synthetic browser E2E',JSON.stringify(report));

@@ -18,7 +18,8 @@
   const magicComplete=()=>batch.length&&batch.every(r=>r.tcg==='magic'&&r.savedId&&(r.captureMode!=='binder'||r.placed));
   function magicReceipt(count){
     savedRows=batch.filter(r=>r.tcg==='magic'&&r.savedId).map(r=>({card:{...r.best},photo:r.imageURL||r.photo,folder:r.savedFolder,graded:false}));
-    $('dvV16CompleteText').textContent=`${count} ${count===1?'Karte':'Karten'} gespeichert.${magicComplete()?' Was möchtest du als Nächstes tun?':' Weitere Ergebnisse sind noch offen.'}`;
+    const missingImages=batch.filter(r=>r.savedId&&r.imageWarning).length;
+    $('dvV16CompleteText').textContent=`${count} ${count===1?'Karte':'Karten'} gespeichert.${missingImages?' Bei '+missingImages+' gespeicherten Karten fehlt das Bild; Hinweise am Ergebnis beachten.':''}${magicComplete()?' Was möchtest du als Nächstes tun?':' Weitere Ergebnisse sind noch offen.'}`;
     $('dvV16Complete').classList.remove('dvV16Hidden');
     $('dvV16Next').textContent=magicSource==='gallery'?'NÄCHSTES GALERIEFOTO':magicSource==='camera'?'NÄCHSTES iPHONE-FOTO':'NÄCHSTE KAMERA-AUFNAHME';
     $('dvV16Next').classList.toggle('dvV16Hidden',!magicComplete());
@@ -258,7 +259,8 @@
     const context=magicContext();
     try{for(const row of selected){if(await magic().save(row,context))ok++;else break;renderResults();}
       try{if(typeof loadItems==='function')await loadItems();else if(root.loadItems)await root.loadItems();}catch{}
-      $('dvV16Status').textContent=`${ok} Karten vollständig gespeichert. Gespeicherte Karten und offene Ergebnisse bleiben einzeln sichtbar.`;
+      const missingImages=selected.filter(r=>r.savedId&&r.imageWarning).length;
+      $('dvV16Status').textContent=`${ok} Karten gespeichert.${missingImages?' Bei '+missingImages+' Karten fehlt das Bild.':''} Gespeicherte Karten und offene Ergebnisse bleiben einzeln sichtbar.`;
       return ok===selected.length&&ok>0;
     }finally{importing=false;applyState({state:controller().state});renderResults();if(ok)magicReceipt(ok);}
   }

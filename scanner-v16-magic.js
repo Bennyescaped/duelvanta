@@ -42,7 +42,7 @@
   }
   function invalidate(row){
     if(row.savedId||row.saveAttempted)return;
-    row.action='';row.confirmed=null;row.printingConfirmed=false;row.best=null;row.selected=false;row.status='review';row.checks={};row.imageBlob=null;
+    row.action='';row.confirmed=null;row.printingConfirmed=false;row.best=null;row.selected=false;row.status='review';row.checks={};row.imageBlob=null;row.imageWarning='';
     if(row.imageURL)URL.revokeObjectURL(row.imageURL);row.imageURL='';row.message='Geänderte Kennung erneut bestätigen und bewusst suchen.';
   }
   const canSave=row=>!!(row.printingConfirmed&&row.best&&row.action&&!row.busy&&!row.savedId&&!row.saveAttempted);
@@ -61,6 +61,8 @@
     const locked=row.busy||row.savedId||row.saveAttempted,c=row.best;
     const own=items.filter(x=>x.tcg==='magic');
     const duplicates=c?own.filter(x=>x.card_name===c.name&&x.card_number===c.number&&x.language===c.language):[];
+    const preserved=own.find(x=>x.id===row.action)?.image_path;
+    const imageStatus=row.imageWarning|| (preserved?'Dein vorhandenes Collection-Bild bleibt erhalten.':row.imageBlob?(row.savedId?'Mit diesem Kartenbild gespeichert.':'Dieses Kartenbild wird in deiner Collection gespeichert.'):'Noch kein Collection-Bild geladen. Die Aufnahme dient nur der Erkennung.');
     return `<article class="dvV16Result ${canSave(row)?'ready':'review'}" data-magic-row="${index}">
       <img class="dvV16Thumb" src="${esc(row.imageURL||row.photo)}" alt="Aufnahme ${index+1}, Position ${row.slot}">
       <div class="dvV16MagicContent"><div class="dvV16ResultTitle">${esc(c?.name||'Magic · Kennung prüfen')}</div>
@@ -68,9 +70,9 @@
       <div class="dvV16Meta">Bildqualität ${Math.round(row.quality?.score||0)} % · lokale V16-Prüfung</div>
       <strong class="dvV16Badge">${row.savedId?(row.placed||row.captureMode!=='binder'?'GESPEICHERT':'GESPEICHERT · PLATZ OFFEN'):row.saveAttempted?'SPEICHERSTATUS UNKLAR':row.selected?'AUSGEWÄHLT':c?'KARTE GEFUNDEN':'ANGABEN PRÜFEN'}</strong>
       <div class="dvV16Settings">${[['set_code','Set'],['collector_number','Originale Nummer'],['language','Sprache']].map(([key,label])=>`<div class="full"><label>${label}${key==='language'?`<select data-magic-field="${key}" ${locked?'disabled':''}><option value="">Bitte wählen</option>${languages.map(l=>`<option ${row.values[key]===l?'selected':''}>${l}</option>`).join('')}</select>`:`<input data-magic-field="${key}" value="${esc(row.values[key])}" ${locked?'disabled':''}>`}</label></div>`).join('')}</div>
-      <div class="dvV16Actions"><button type="button" class="btn" data-magic-action="confirm-search" ${c?'hidden':''} ${locked||c?'disabled':''}>ANGABEN BESTÄTIGEN & KARTE SUCHEN</button></div>
-      <p class="dvV16Meta" data-magic-next-step>${c?'Gefundene Karte und Druckvariante prüfen.': 'Set, Nummer und Sprache oben prüfen. Dieser Klick bestätigt alle drei Angaben und startet eine Suche.'}</p>
-      ${c?`<div data-magic-printing><p class="dvV16Meta">${esc([c.set,c.number,c.language,c.variant,c.rarity].filter(Boolean).join(' · '))}</p><details><summary>Kartenbild laden (optional)</summary><button type="button" class="btn secondary" data-magic-action="image" ${locked||row.imageBlob||!c.image_url?'disabled':''}>BILD LADEN</button><p class="dvV16Meta">Kartendaten und optionales Kartenbild: Scryfall. Kein Rohfoto-Upload.</p></details></div>`:''}
+      <div class="dvV16Actions"><button type="button" class="btn" data-magic-action="confirm-search" ${c?'hidden':''} ${locked||c?'disabled':''}>BESTÄTIGEN & KARTE MIT BILD LADEN</button></div>
+      <p class="dvV16Meta" data-magic-next-step>${c?'Gefundene Karte und Druckvariante prüfen.': 'Set, Nummer und Sprache prüfen. Dieser Klick bestätigt alle drei Angaben, sucht einmal und lädt das passende Kartenbild von Scryfall.'}</p>
+      ${c?`<div data-magic-printing><p class="dvV16Meta">${esc([c.set,c.number,c.language,c.variant,c.rarity].filter(Boolean).join(' · '))}</p><p class="dvV16Meta" data-magic-image-status>${esc(imageStatus)}</p>${!row.imageBlob&&!preserved&&!locked?`<button type="button" class="btn secondary" data-magic-action="image" ${!c.image_url?'disabled':''}>NUR KARTENBILD ERNEUT LADEN</button>`:''}<p class="dvV16Meta">Kartenbild: Scryfall. Dein Aufnahmefoto wird nicht hochgeladen.</p></div>`:''}
       ${duplicates.length?'<p class="dvV16Meta" data-magic-duplicate>Bereits in deiner Collection vorhanden. '+(row.captureMode==='binder'?'Eine zusätzliche Kopie nur bewusst anlegen.':'Bewusst den vorhandenen Eintrag oder eine zusätzliche Kopie auswählen.')+'</p>':''}
       ${row.captureMode==='binder'?'<p class="dvV16Meta">Bestehende Karte zum Aktualisieren im Einzelkartenmodus bearbeiten.</p>':''}
       ${c&&duplicates.length?`<label class="dvV16Meta" data-magic-choice>Diese Karte ist bereits vorhanden<select class="dvV16Choice" data-magic-save-action ${locked?'disabled':''}><option value="">Bitte auswählen</option><option value="new" ${row.action==='new'?'selected':''}>Weitere Kopie hinzufügen</option>${(row.captureMode==='binder'?[]:duplicates).map(x=>`<option value="${esc(x.id)}" ${row.action===x.id?'selected':''}>Vorhandene Karte aktualisieren: ${esc([x.card_name,x.set_name,x.card_number,x.language].join(' · '))}</option>`).join('')}</select></label>`:''}
@@ -90,6 +92,7 @@
       if(kind==='confirm-search'){
         row.confirmed=Object.freeze(root.DV_MAGIC_CAMERA.validate(row.values));
         kind='search';
+        row.loadImageWithSearch=true;
       }
       if(kind==='select'){
         if(row.selected){row.selected=false;row.message='Auswahl aufgehoben.';return;}
@@ -106,7 +109,7 @@
       }else if(kind==='search'){
         if(!row.confirmed)throw Error('Kennung zuerst bestätigen.');
         row.best=null;row.printingConfirmed=false;row.selected=false;row.action='';
-        if(row.imageURL)URL.revokeObjectURL(row.imageURL);row.imageURL='';row.imageBlob=null;
+        if(row.imageURL)URL.revokeObjectURL(row.imageURL);row.imageURL='';row.imageBlob=null;row.imageWarning='';
         root.DV_TCG_V1_CONSUMERS.requireGame('magic','catalog');
         const {data:{session},error}=await context.db.auth.getSession();
         if(error||session?.user?.id!==context.user.id||!session.access_token)throw Error('Anmeldung nicht gültig.');
@@ -114,15 +117,20 @@
         const result=await response.json();await authorize(context);
         if(!response.ok||result.status!=='candidates'||!result.candidate)throw Error(response.status===429?'Tageskontingent oder Providerlimit erreicht. Lokale Ergebnisse bleiben erhalten.':'Kein eindeutiges unterstütztes Printing. Eingaben prüfen; keine automatische Wiederholung.');
         row.best=result.candidate;row.message='Karte gefunden. Druckvariante prüfen und anschließend speichern oder auswählen.';
+        if(row.loadImageWithSearch){
+          try{row.imageBlob=await root.DV_MAGIC_IMAGES.download(row.best);row.imageURL=URL.createObjectURL(row.imageBlob);}
+          catch{row.imageWarning='Kartenbild konnte nicht geladen werden. Ohne vorhandenes Bild wird nur die Karte gespeichert.';}
+        }
       }else if(kind==='printing'){
         if(!row.best||!row.confirmed)throw Error('Zuerst bewusst nach der bestätigten Kennung suchen.');
         row.printingConfirmed=true;row.status='ready';row.message='Druckvariante bestätigt. Speicherentscheidung und Auswahl bleiben erforderlich.';
       }else if(kind==='image'){
         if(!row.best||row.imageBlob)return;
         row.imageBlob=await root.DV_MAGIC_IMAGES.download(row.best);row.imageURL=URL.createObjectURL(row.imageBlob);
+        row.imageWarning='';
         row.message='Printing-Bild ausgewählt. Ein vorhandenes eigenes Bild bleibt geschützt.';
       }
-    }catch(e){row.message=e.message||'Aktion fehlgeschlagen. Keine automatische Wiederholung.';}finally{row.busy=false}
+    }catch(e){row.message=e.message||'Aktion fehlgeschlagen. Keine automatische Wiederholung.';}finally{row.loadImageWithSearch=false;row.busy=false}
   }
   async function place(row,context){
     const {data,error}=await context.db.rpc('place_my_magic_scan_item_v1',{p_item_id:row.savedId,p_folder_id:row.savedFolder,p_page:row.savedPage,p_slot:row.slot});
@@ -164,7 +172,9 @@
       const result=await db.rpc('save_my_tcg_collection_item_v1',{p_item_id:previous?.id||null,p_game_key:'magic',p_item:payload});
       if(result.error||!result.data)throw Error('Speicherantwort nicht erfolgreich. Bestand vor einem neuen Versuch prüfen; dieser Kandidat wird nicht erneut importiert.');
       row.savedId=result.data;row.savedFolder=folder;row.savedPage=page;row.message='Karte gespeichert.';
-      if(row.imageBlob){try{await root.DV_MAGIC_IMAGES.attach(db,user.id,row.savedId,row.imageBlob,previous?.image_path,payload)}catch{row.imageWarning=' Bild nicht angehängt; Karte nicht erneut importieren.';row.message+=row.imageWarning;}}
+      if(previous?.image_path){row.imageWarning='';row.message+=' Vorhandenes Bild erhalten.';}
+      else if(row.imageBlob){try{await root.DV_MAGIC_IMAGES.attach(db,user.id,row.savedId,row.imageBlob,previous?.image_path,payload);row.imageWarning='';row.message+=' Mit Kartenbild gespeichert.';}catch{row.imageWarning='Bild nicht angehängt; Karte nicht erneut importieren.';row.message+=' '+row.imageWarning;}}
+      else{row.imageWarning='Ohne Kartenbild gespeichert.';row.message+=' '+row.imageWarning;}
       if(row.captureMode==='binder')await place(row,context);
       return true;
     }catch(e){row.message=e.message;return false;}finally{row.busy=false}
