@@ -15,6 +15,7 @@
   function sync(){
     if(typeof currentMatch==='undefined'||!currentMatch||typeof user==='undefined'||!user){if(matchId)reset();return null;}
     const m=currentMatch;
+    if(m.tcg==='magic'){reset();return null;}
     if(![m.host_id,m.guest_id,m.moderator_id].includes(user.id)){reset();return null;}
     if(matchId!==m.id){reset();matchId=m.id;byId('bspCount').textContent='Zuschauerzahl wird geprüft …';byId('bspStatus').textContent='';}
     panel.hidden=false;

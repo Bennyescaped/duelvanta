@@ -25,7 +25,7 @@ async function publish(r,track){
 async function tick(){
   if(busy)return;busy=true;
   try{
-    if(typeof currentMatch==='undefined'||!currentMatch||typeof user==='undefined'||!user||
+    if(typeof currentMatch==='undefined'||!currentMatch||currentMatch.tcg==='magic'||typeof user==='undefined'||!user||
       ![currentMatch.host_id,currentMatch.guest_id].includes(user.id)||
       !['waiting','ready','live'].includes(currentMatch.status)||typeof stream==='undefined'||!stream?.active){
       await close();return;

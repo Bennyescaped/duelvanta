@@ -26,6 +26,8 @@ on:
       - 'tests/r11/**'
       - 'tests/r13/**'
       - 'tests/r22-r3-r2/**'
+      - 'tests/r23/**'
+      - 'database/target-upgrades/staging-magic-battle-r23-v1/**'
       - 'database/target-upgrades/staging-magic-scanner-r22-r3-v1/**'
       - 'database/target-upgrades/staging-m6-r5-v1/**'
       - 'database/target-upgrades/staging-m6-r4-v1/**'
@@ -1024,6 +1026,18 @@ jobs:
           set -euo pipefail
           mkdir -p test-results/tcg-i3-m6-r22-r3-r2
           node tests/r22-r3-r2/package-test.mjs --native 2>&1 | tee test-results/tcg-i3-m6-r22-r3-r2/native.log
+      - name: R23 Magic BATTLE Casual atomic History75 candidate and two-player browser
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/r23
+          node tests/r23/database-test.mjs --native 2>&1 | tee test-results/r23/native.log
+          node tests/r23/browser-test.mjs 2>&1 | tee test-results/r23/browser.log
+      - name: R23 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r23-magic-battle-casual-evidence
+          path: test-results/r23/
       - name: P3 Native PG17 archived browser payload replay
         run: |
           set -euo pipefail

@@ -1,0 +1,127 @@
+{
+  "security_inventory": {
+    "added": [
+      [
+        "catalog_constraint",
+        "public.battle_matches.battle_matches_magic_casual_check",
+        "0320476d7dc8d0edf38c17d0d13a8632"
+      ]
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "before": [
+          "catalog_constraint",
+          "public.battle_matches.battle_matches_tcg_check",
+          "08ba45d3e3a20cefe73b165f6e2579a6"
+        ],
+        "after": [
+          "catalog_constraint",
+          "public.battle_matches.battle_matches_tcg_check",
+          "fca42d06fbf69e90e17fbfa2d84477d7"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "battle_spectator_media_private.sync_epoch(p_match uuid)",
+          "a9f787060196efa87c92242af55c1c85"
+        ],
+        "after": [
+          "function",
+          "battle_spectator_media_private.sync_epoch(p_match uuid)",
+          "403c43d68f0df23f5a18eb52466eb1a0"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "battle_spectator_private.authorized(p_match uuid, p_uid uuid)",
+          "f1f9bcecb8ad33903dc8940fd39c265e"
+        ],
+        "after": [
+          "function",
+          "battle_spectator_private.authorized(p_match uuid, p_uid uuid)",
+          "206543f605f194d0dc716d60b676ee79"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.create_battle_match_v2(p_tcg text, p_visibility text, p_title text, p_language text, p_mode text)",
+          "057bd4dd6f48dc988f79390e15a2b224"
+        ],
+        "after": [
+          "function",
+          "public.create_battle_match_v2(p_tcg text, p_visibility text, p_title text, p_language text, p_mode text)",
+          "09868bd11fd5eecad73164be36db51a3"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.join_battle_match(p_match_id uuid, p_invite_code text)",
+          "b730103dbe45815627ad165f4ec89b5c"
+        ],
+        "after": [
+          "function",
+          "public.join_battle_match(p_match_id uuid, p_invite_code text)",
+          "144e5900cb8cd90415d7d24fc156a203"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.set_battle_ready(p_match_id uuid, p_ready boolean)",
+          "dffc3c21ef0036331688bc2e05fdf8ee"
+        ],
+        "after": [
+          "function",
+          "public.set_battle_ready(p_match_id uuid, p_ready boolean)",
+          "9ab9fc282ac7eb0c82b66d189804ce9e"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.set_battle_spectator_link(p_match_id uuid, p_enabled boolean)",
+          "94796778e4fbb2bde05128cdf235c781"
+        ],
+        "after": [
+          "function",
+          "public.set_battle_spectator_link(p_match_id uuid, p_enabled boolean)",
+          "290a7612f90f4114772fe37c5857924a"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.set_battle_spectator_media_consent(p_match_id uuid, p_granted boolean)",
+          "6cf26d1b1f5b0a5fb9746f449a20a6fc"
+        ],
+        "after": [
+          "function",
+          "public.set_battle_spectator_media_consent(p_match_id uuid, p_granted boolean)",
+          "1a694ab2b3ea5f4e1f204cebb4a43a5f"
+        ]
+      },
+      {
+        "before": [
+          "function",
+          "public.start_battle_match(p_match_id uuid)",
+          "b499ef48cc52cf72324a80c0e25457a6"
+        ],
+        "after": [
+          "function",
+          "public.start_battle_match(p_match_id uuid)",
+          "ff5af3394225ab51940ac6d61604c41c"
+        ]
+      }
+    ]
+  },
+  "legal_inventory": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  }
+}
