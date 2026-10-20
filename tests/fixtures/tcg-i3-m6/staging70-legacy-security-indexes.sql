@@ -1,0 +1,10 @@
+CREATE INDEX admin_audit_log_created_idx ON public.admin_audit_log USING btree (created_at DESC);
+CREATE INDEX battle_matches_guest_idx ON public.battle_matches USING btree (guest_id, created_at DESC);
+CREATE INDEX battle_matches_host_idx ON public.battle_matches USING btree (host_id, created_at DESC);
+CREATE INDEX battle_matches_lobby_idx ON public.battle_matches USING btree (status, visibility, created_at DESC);
+CREATE INDEX battle_matches_moderation_idx ON public.battle_matches USING btree (moderation_state, status, created_at DESC);
+CREATE INDEX battle_signals_match_created_idx ON public.battle_signals USING btree (match_id, created_at);
+CREATE INDEX battle_signals_sender_idx ON public.battle_signals USING btree (sender_id, created_at);
+CREATE UNIQUE INDEX beta_waitlist_founder_number_unique ON public.beta_waitlist USING btree (founder_number) WHERE (founder_number IS NOT NULL);
+CREATE UNIQUE INDEX collection_folders_user_name_uq ON public.collection_folders USING btree (user_id, lower(name));
+CREATE UNIQUE INDEX staff_applications_one_open ON public.staff_applications USING btree (applicant_id, requested_role) WHERE (status = ANY (ARRAY['pending'::text, 'question'::text]));

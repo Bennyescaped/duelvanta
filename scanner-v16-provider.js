@@ -1,27 +1,32 @@
 (()=>{
   'use strict';
   const root=globalThis,MODEL='gpt-5.4-mini';
+  const observations=new WeakMap();
   const text=value=>typeof value==='string'?value.slice(0,300):null;
   function printedCode(value,tcg){
     const source=String(value||'').toUpperCase().replace(/[—–−]/g,'-');
-    const matches=tcg==='pokemon'?[...source.matchAll(/\b(\d{1,3}\s*\/\s*\d{2,3})\b/g)].map(x=>x[1]):[...source.matchAll(/\b((?:(?:OP|ST|EB|PRB)\s*\d{1,2}|P)\s*-\s*\d{2,3})\b/g)].map(x=>x[1]);
+    const pattern=root.DV_TCG_V1_CONSUMERS.adapter(tcg).recognitionProfile.manual_pattern.replace(/^\^|\$$/g,'');
+    const matches=[...source.matchAll(new RegExp('\\b('+pattern+')\\b','g'))].map(x=>x[1]);
     const unique=[...new Set(matches.map(x=>x.replace(/\s/g,'')))];
     return unique.length===1?unique[0]:text(value);
   }
   function read(proposal,tcg){
+    root.DV_TCG_V1_CONSUMERS.requireGame(tcg,'scanner');
     if(!proposal||proposal.model!==MODEL)throw new Error('Unbekannte KI-Antwort.');
     const o=proposal.observed;
     if(proposal.selectedTcg!==tcg||!o||(!['unknown',tcg].includes(o.tcg)))throw new Error('KI-Antwort und ausgewähltes Kartenspiel stimmen nicht überein.');
     const corners=value=>Array.isArray(value)&&value.length===4?value.map(p=>({x:Number(p.x),y:Number(p.y)})):null,code=printedCode(o.printed_code,tcg),id=root.DV_SCAN_V16_RECOVERY.parse(code,tcg),cardCorners=corners(o.card_corners),holderCorners=corners(o.holder_corners);
     const conflict=proposal.status==='tcg_conflict';
     const language=root.DV_SCAN_V16_QUALITY.languageOf({language:o.language});
-    return{id:conflict?null:id,language,evidence:{provider:'openai',model:MODEL,
+    const result={id:conflict?null:id,language,evidence:{provider:'openai',model:MODEL,
       name:text(o.name),printedCode:code,language,set:text(o.set_name),cardCorners,holderCorners,
       printingId:null,rarity:text(o.rarity),variant:text(o.variant),finish:text(o.variant),
       identifierConflict:conflict,elapsedMs:Number.isFinite(proposal.elapsedMs)?proposal.elapsedMs:null,
       usage:proposal.usage||null,estimatedCostUsd:Number.isFinite(proposal.estimatedCostUsd)?proposal.estimatedCostUsd:null,
       status:conflict?'tcg_conflict':!id?'identifier_failure':proposal.status,
       reviewRequired:true,exactPrintingVerified:false}};
+    observations.set(result,root.DV_TCG_V1_CONSUMERS.adapter(tcg).normalizeObservation({version:'1',selected_game:tcg,observed_game:o.tcg,identifier:code,language,name:text(o.name),set:text(o.set_name),rarity:text(o.rarity),variant:text(o.variant),source:'recognition',confidence:null,uncertain:conflict||!id,metadata:{}}));
+    return result;
   }
   async function verifyPhoto(file,proposal){
     if(!file?.arrayBuffer||!/^([a-f0-9]{64})$/.test(proposal?.sha256||''))throw new Error('Originalfoto und KI-Messdaten werden benötigt.');
@@ -42,6 +47,7 @@
     return result;
   }
   async function recognize(source,tcg,database,kind='raw'){
+    root.DV_TCG_V1_CONSUMERS.requireGame(tcg,'scanner');
     const w=source.videoWidth||source.naturalWidth||source.width,h=source.videoHeight||source.naturalHeight||source.height;
     if(!w||!h)throw new Error('Bildquelle ist nicht bereit.');
     const scale=Math.min(1,1600/Math.max(w,h)),canvas=document.createElement('canvas');

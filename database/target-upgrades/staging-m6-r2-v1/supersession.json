@@ -1,0 +1,91 @@
+{
+  "target_project_ref": "xhmjxrcskfhbovhitdej",
+  "already_real_applied": [
+    {
+      "version": "20261011174228",
+      "name": "dv_staging_m6_01_account_data_export_collect_battle"
+    },
+    {
+      "version": "20261012103450",
+      "name": "dv_staging_m6_02_account_processing_markers"
+    },
+    {
+      "version": "20261012103529",
+      "name": "dv_staging_m6_03_account_closure_privacy"
+    },
+    {
+      "version": "20261012103551",
+      "name": "dv_staging_m6_04_scanner_processing_hold"
+    },
+    {
+      "version": "20261012103611",
+      "name": "dv_staging_m6_05_battle_player_processing_hold"
+    },
+    {
+      "version": "20261012103805",
+      "name": "dv_staging_m6_06_battle_signal_processing_hold"
+    },
+    {
+      "version": "20261012103831",
+      "name": "dv_staging_m6_07_battle_spectator_withdrawal"
+    },
+    {
+      "version": "20261012103909",
+      "name": "dv_staging_m6_08_battle_spectator_epoch_processing_hold"
+    },
+    {
+      "version": "20261012103928",
+      "name": "dv_staging_m6_09_staff_processing_hold"
+    },
+    {
+      "version": "20261012103959",
+      "name": "dv_staging_m6_10_publication_processing_hold"
+    },
+    {
+      "version": "20261012104040",
+      "name": "dv_staging_m6_11_battle_safety_sanctions"
+    },
+    {
+      "version": "20261012104114",
+      "name": "dv_staging_m6_12_account_deletion_withdrawal"
+    },
+    {
+      "version": "20261012104147",
+      "name": "dv_staging_m6_13_account_erasure_l1"
+    },
+    {
+      "version": "20261012104219",
+      "name": "dv_staging_m6_14_tcg_i2_canonical_integration"
+    },
+    {
+      "version": "20261012104249",
+      "name": "dv_staging_m6_15_tcg_i2_readiness_staging"
+    }
+  ],
+  "do_not_reapply": [
+    "dv_staging_m6_01_account_data_export_collect_battle",
+    "dv_staging_m6_02_account_processing_markers",
+    "dv_staging_m6_03_account_closure_privacy",
+    "dv_staging_m6_04_scanner_processing_hold",
+    "dv_staging_m6_05_battle_player_processing_hold",
+    "dv_staging_m6_06_battle_signal_processing_hold",
+    "dv_staging_m6_07_battle_spectator_withdrawal",
+    "dv_staging_m6_08_battle_spectator_epoch_processing_hold",
+    "dv_staging_m6_09_staff_processing_hold",
+    "dv_staging_m6_10_publication_processing_hold",
+    "dv_staging_m6_11_battle_safety_sanctions",
+    "dv_staging_m6_12_account_deletion_withdrawal",
+    "dv_staging_m6_13_account_erasure_l1",
+    "dv_staging_m6_14_tcg_i2_canonical_integration",
+    "dv_staging_m6_15_tcg_i2_readiness_staging"
+  ],
+  "superseded_not_applied": [
+    "dv_staging_m6_16_tcg_i3_magic_persistence",
+    "dv_staging_m6_17_tcg_i3_magic_on_demand"
+  ],
+  "status": "SUPERSEDED_DO_NOT_APPLY",
+  "replacement_package": "staging-m6-r2-v1",
+  "history_repair_required": false,
+  "history_deletion_forbidden": true,
+  "unit15_remains_registered": true
+}

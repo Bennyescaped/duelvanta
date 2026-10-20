@@ -8,13 +8,15 @@ import {chromium} from 'playwright';
 const root=new URL('../',import.meta.url),out=new URL('test-results/',root);
 const read=path=>readFile(new URL(path,root),'utf8');
 const hash=text=>createHash('sha1').update(`blob ${Buffer.byteLength(text)}\0`).update(text).digest('hex');
-for(const [path,sha] of Object.entries({'battle.js':'9cb2d4368cde388d8c89fc44d88d0e707b7de13f','battle-webrtc.js':'5d97ae8e195264c6c14c18a33c4cbc5545533c14','site-nav.js':'345b4aeb7bc18a0e72df6e257200004748d8b6be'}))assert.equal(hash(await read(path)),sha,'protected player/runtime file: '+path);
+for(const [path,sha] of Object.entries({'battle.js':'8a197aa85fda5328cc037f498efe962070c80148','battle-webrtc.js':'5d97ae8e195264c6c14c18a33c4cbc5545533c14','site-nav.js':'345b4aeb7bc18a0e72df6e257200004748d8b6be'}))assert.equal(hash(await read(path)),sha,'protected player/runtime file: '+path);
 const spectatorHTML=await read('battle-spectator.html');
 assert.ok(!/<(?:video|audio)\b|src="battle(?:-webrtc|-moderation|-ranked)?\.js"/.test(spectatorHTML));
 assert.ok(spectatorHTML.indexOf('site-nav.js')<spectatorHTML.indexOf('battle-spectator.js'));
+// R23 reviewed binding update: battle.js adds Magic labels; battle.html adds the third game tab and Casual-only option.
+// WebRTC, spectator integration and runtime guard remain unchanged.
 // Reviewed delta: pinned LiveKit 2.15.6 uses the published .umd.js asset, not nonexistent .umd.min.js.
-const playerHTML=await read('battle.html');// D1 adds only its withdrawal section and script; the protected remainder is unchanged.
-assert.equal(hash(playerHTML.replace(/<section id="spectatorWithdrawal"[\s\S]*?<\/section>/,'').replace('<script src="battle-spectator-withdrawal.js"></script>','')),'8fedc872e7430622fb2a3b064a92e0e0bab67b6c','player HTML environment and spectator integration changed unexpectedly');
+const playerHTML=await read('battle.html');// D1 withdrawal section excluded; the remainder is bound to the reviewed R23 UI.
+assert.equal(hash(playerHTML.replace(/<section id="spectatorWithdrawal"[\s\S]*?<\/section>/,'').replace('<script src="battle-spectator-withdrawal.js"></script>','')),'8c85d484f33bac0c09d5844a0a188c39a474c12d','player HTML environment and spectator integration changed unexpectedly');
 const M='30000000-0000-4000-8000-000000000001',N='30000000-0000-4000-8000-000000000002',P='30000000-0000-4000-8000-000000000003';
 const CODE='SP-'+'A'.repeat(64),HOST='10000000-0000-4000-8000-000000000001',GUEST='10000000-0000-4000-8000-000000000002';
 const fixture=`(()=>{
@@ -102,5 +104,5 @@ try{
  await p.click('#bspCreate');await until(p,()=>!document.getElementById('bspShare').hidden);await p.evaluate(guest=>{user.id=guest;testIntervals.find(x=>x.ms===5000).fn();},GUEST);assert.equal(await p.locator('#bspControls').isVisible(),false);assert.equal(await p.inputValue('#bspLink'),'');
  assert.deepEqual(await p.evaluate(()=>Object.keys(currentMatch).sort()),['guest_id','host_id','id','status','visibility']);await clean(p,'host-only link management is additive and clears secrets on role change');
  await writeFile(new URL('battle-spectator-browser.json',out),JSON.stringify({passed:evidence,rpcMode:'isolated; no real users or provider requests',mediaCalls:0},null,2));
- console.log('PASS:',evidence.length,'spectator browser scenarios; protected player files unchanged');
+ console.log('PASS:',evidence.length,'spectator browser scenarios; reviewed player/runtime bindings intact');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

@@ -20,7 +20,9 @@ try{
    if(u===base+'/api/compliance-message-dispatch?runtime_config=1')return route.fulfill({contentType:'text/javascript',body:'window.DV_SUPABASE={url:"https://xhmjxrcskfhbovhitdej.supabase.co",key:"fixture-only",environment:"preview"}'});
    if(u.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js'))return route.fulfill({contentType:'text/javascript',body:`window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'fixture-user'}}}}),onAuthStateChange:()=>({})},rpc:(name,args)=>fetch('/fixture-rpc',{method:'POST',body:JSON.stringify({name,args})}).then(r=>r.json()),from:table=>{const q={select:()=>q,eq:()=>q,order:()=>q,single:async()=>({data:{role:'player'}}),then:(a,b)=>fetch('/fixture?table='+table).then(r=>r.json()).then(a,b)};return q},storage:{from:()=>({createSignedUrl:async()=>({data:{}})})}})}`});
    if(u===base+'/fixture-rpc'){
-    rpcCalls++;const body=route.request().postDataJSON();assert.equal(body.name,'dv_collect_delete_empty_binder');assert.equal(body.args.p_folder_id,'empty');
+    const body=route.request().postDataJSON();
+    if(body.name==='get_magic_on_demand_collection_beta_v1')return route.fulfill({json:{data:{contract:'magic-on-demand-collect-beta/1',user_id:'fixture-user',magic_on_demand_collection_beta:false,checked_at:new Date().toISOString()},error:null}});
+    assert.equal(body.name,'dv_collect_delete_empty_binder');rpcCalls++;assert.equal(body.args.p_folder_id,'empty');
     if(mode==='pending')await new Promise(r=>pendingResolve=r);
     if(mode==='nonempty'){rows.push({id:'new-card',folder_id:'empty',card_name:'Concurrent fixture',quantity:1});return route.fulfill({json:{error:{message:'binder_not_empty'}}})}
     if(mode==='error')return route.fulfill({json:{error:{message:'server_failed'}}});

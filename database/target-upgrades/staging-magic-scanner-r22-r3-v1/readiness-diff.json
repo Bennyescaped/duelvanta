@@ -1,0 +1,23 @@
+{
+  "security_inventory": {
+    "added": [
+      [
+        "function",
+        "public.get_magic_scan_placement_ready_v1()",
+        "5f99c9e952861a6ebe80f03e15acd306"
+      ],
+      [
+        "function",
+        "public.place_my_magic_scan_item_v1(p_item_id uuid, p_folder_id uuid, p_page integer, p_slot smallint)",
+        "98e6967a75cb20b8ae9420a0e071e039"
+      ]
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "legal_inventory": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  }
+}

@@ -39,7 +39,7 @@ proto.dispatchEvent=function(event){
 };
 const storage=()=>{const map=new Map();return {getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,String(v)),removeItem:k=>map.delete(k)}};
 const timers=new Set();
-const sandbox={document,console,URL,URLSearchParams,Intl,Date,JSON,Math,Number,String,Array,Object,Promise,Map,Set,Blob,crypto:webcrypto,
+const sandbox={document,console,URL,URLSearchParams,Intl,Date,JSON,Math,Number,String,Array,Promise,Map,Set,Blob,crypto:webcrypto,
   MutationObserver:window.MutationObserver,Event:window.Event,HTMLElement:window.HTMLElement,
   location:{search:'?selftest=1',replace:()=>{throw Error('Unexpected navigation')}},localStorage:storage(),sessionStorage:storage(),
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);timers.add(t);return t},clearTimeout,
@@ -53,7 +53,8 @@ sandbox.window=sandbox;sandbox.globalThis=sandbox;
 const context=vm.createContext(sandbox);
 try{
   await run('tests/trade-ui-mock.js');
-  for(const node of document.querySelectorAll('script[src]')){
+  for(const node of document.querySelectorAll('script')){
+    if(!node.hasAttribute('src')){if(node.textContent.includes('DV_TCG_V1_CONSUMERS'))vm.runInContext(node.textContent,context,{filename:'tcg-i2-filter-inline'});continue;}
     const path=node.getAttribute('src').split('?')[0];
     if(path.startsWith('https:')||path.startsWith('/api/')||['i18n.js','site-nav.js','trade-release-gate.js'].includes(path))continue;
     await run(path);

@@ -27,6 +27,7 @@ await new Promise((resolveListen,reject)=>{server.once('error',reject);server.li
 const address=server.address();
 assert.equal(typeof address,'object');
 const base=`http://127.0.0.1:${address.port}`;
+const catalogFixtureBase='https://fixture.invalid/fixtures';
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const page=await context.newPage();
@@ -41,7 +42,7 @@ await page.route('https://api.tcgdex.net/**',async route=>{
   const path=url.pathname;let data=[];
   if(path==='/v2/de/sets')data=[...Array.from({length:25},(_,i)=>({id:'older'+i,cardCount:{official:100,total:100}})),{id:'fixture84',cardCount:{official:84,total:84}}];
   if(path==='/v2/de/sets/fixture84')data={cards:[{id:'fixture84-074',localId:'074'},{id:'wrong-174',localId:'174'}]};
-  if(path==='/v2/de/cards/fixture84-074')data={id:'fixture84-074',localId:'074',name:'Retourorden',rarity:'Uncommon',set:{name:'Synthetic regression set',cardCount:{official:84,total:84}},image:base+'/fixtures/pokemon'};
+  if(path==='/v2/de/cards/fixture84-074')data={id:'fixture84-074',localId:'074',name:'Retourorden',rarity:'Uncommon',set:{name:'Synthetic regression set',cardCount:{official:84,total:84}},image:catalogFixtureBase+'/pokemon'};
   if(path==='/v2/ja/sets')data=[{id:'wrong81',cardCount:{official:81,total:81}}];
   if(path==='/v2/ja/sets/wrong81')data={cards:[{id:'wrong81-074',localId:'074'}]};
   if(path==='/v2/ja/cards/wrong81-074')data={id:'wrong81-074',localId:'074',name:'リトライバッジ',set:{name:'Wrong Japanese printing',cardCount:{official:81,total:81}}};
@@ -49,12 +50,12 @@ await page.route('https://api.tcgdex.net/**',async route=>{
 });
 await page.route('https://optcgapi.com/**',async route=>{
   const url=route.request().url();catalogRequests.push(url);
-  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(url.includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Synthetic regression set',rarity:'SEC',card_image:base+'/fixtures/onepiece/high.webp'}]:[])});
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(url.includes('/sets/card/OP05-119/')?[{card_set_id:'OP05-119',card_image_id:'OP05-119',card_name:'Monkey D. Luffy',set_name:'Synthetic regression set',rarity:'SEC',card_image:catalogFixtureBase+'/onepiece/high.webp'}]:[])});
 });
 await page.route('https://api.frankfurter.dev/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({rate:.85})}));
-await page.route(base+'/fixtures/**',async route=>{
+await page.route(catalogFixtureBase+'/**',async route=>{
   const file=route.request().url().includes('pokemon')?'pokemon-074-084.svg':'onepiece-op05-119.svg';
-  await route.fulfill({status:200,contentType:'image/svg+xml',body:await readFile(resolve(root,'tests/fixtures',file))});
+  await route.fulfill({status:200,contentType:'image/svg+xml',headers:{'Access-Control-Allow-Origin':'*'},body:await readFile(resolve(root,'tests/fixtures',file))});
 });
 await page.route(base+'/api/scanner-v16-recognize',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({active:false,remaining:0})}));
 page.on('requestfailed',request=>console.error('Failed request:',request.url(),request.failure()?.errorText));
@@ -311,8 +312,8 @@ try{
 
   console.log('E2E: unreadable card number → explicit slab set/number → Sanji catalog candidates → manual parallel/label confirmation');
   await page.route('https://optcgapi.com/api/**/card/OP01-013/',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(route.request().url().includes('/sets/')?[
-    {card_set_id:'OP01-013',card_image_id:'OP01-013',card_name:'Sanji',card_image:base+'/fixtures/onepiece/high.webp'},
-    {card_set_id:'OP01-013',card_image_id:'OP01-013_p1',card_name:'Sanji (Parallel)',card_image:base+'/fixtures/onepiece/high.webp'}]:[])}));
+    {card_set_id:'OP01-013',card_image_id:'OP01-013',card_name:'Sanji',card_image:catalogFixtureBase+'/onepiece/high.webp'},
+    {card_set_id:'OP01-013',card_image_id:'OP01-013_p1',card_name:'Sanji (Parallel)',card_image:catalogFixtureBase+'/onepiece/high.webp'}]:[])}));
   await page.selectOption('#dvV16Tcg','one_piece');await page.selectOption('#dvV16Kind','slab');
   await upload('#dvV16GalleryFile','tests/fixtures/slab-sanji-label.svg');
   await waitForResult('Sanji','OP01-013');

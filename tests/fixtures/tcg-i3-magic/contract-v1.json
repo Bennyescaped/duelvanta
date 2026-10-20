@@ -1,0 +1,3151 @@
+{
+  "contract_version": "1",
+  "synthetic": true,
+  "baseline_commit": "f79e9a5e0c2d4c9ea5ffb679cd3a1203146c1ba6",
+  "before": {
+    "axes": {
+      "finish": [
+        "holo",
+        "reverse_holo"
+      ],
+      "artwork": [
+        "parallel",
+        "manga",
+        "wanted_poster"
+      ],
+      "treatment": [
+        "signed"
+      ],
+      "edition": [
+        "promo",
+        "reprint",
+        "tournament"
+      ]
+    },
+    "descriptors": [
+      {
+        "game_key": "pokemon",
+        "display_name": "Pokémon",
+        "status": "available",
+        "adapter_id": "pokemon_legacy_v1",
+        "adapter_version": "1",
+        "capabilities": {
+          "catalog": {
+            "status": "ready",
+            "profiles": [
+              "legacy_lookup"
+            ]
+          },
+          "collection": {
+            "status": "ready",
+            "profiles": [
+              "legacy_items"
+            ]
+          },
+          "binder": {
+            "status": "ready",
+            "profiles": [
+              "legacy_slots"
+            ]
+          },
+          "marketplace": {
+            "status": "ready",
+            "profiles": [
+              "legacy_snapshots"
+            ]
+          },
+          "scanner": {
+            "status": "ready",
+            "profiles": [
+              "raw_review",
+              "slab_review"
+            ]
+          },
+          "pricing": {
+            "status": "ready",
+            "profiles": [
+              "legacy_raw"
+            ]
+          },
+          "sealed": {
+            "status": "ready",
+            "profiles": [
+              "manual_listing"
+            ]
+          },
+          "grading": {
+            "status": "ready",
+            "profiles": [
+              "manual",
+              "label_review"
+            ]
+          },
+          "battle": {
+            "status": "ready",
+            "profiles": [
+              "webcam_casual",
+              "webcam_ranked"
+            ]
+          }
+        },
+        "supported_languages": {
+          "manual": [
+            {
+              "language": "DE",
+              "locale": "de"
+            },
+            {
+              "language": "EN",
+              "locale": "en"
+            },
+            {
+              "language": "JP",
+              "locale": "ja"
+            },
+            {
+              "language": "FR",
+              "locale": "fr"
+            },
+            {
+              "language": "IT",
+              "locale": "it"
+            },
+            {
+              "language": "ES",
+              "locale": "es"
+            },
+            {
+              "language": "KR",
+              "locale": "ko"
+            },
+            {
+              "language": "CN",
+              "locale": "zh-cn"
+            },
+            {
+              "language": "OTHER",
+              "locale": null
+            }
+          ],
+          "catalog": [
+            {
+              "language": "DE",
+              "locale": "de"
+            },
+            {
+              "language": "EN",
+              "locale": "en"
+            },
+            {
+              "language": "JP",
+              "locale": "ja"
+            },
+            {
+              "language": "KR",
+              "locale": "ko"
+            }
+          ],
+          "scanner": [
+            {
+              "language": "DE",
+              "locale": "de"
+            },
+            {
+              "language": "EN",
+              "locale": "en"
+            },
+            {
+              "language": "JP",
+              "locale": "ja"
+            },
+            {
+              "language": "KR",
+              "locale": "ko"
+            }
+          ],
+          "pricing": [
+            {
+              "language": "DE",
+              "locale": "de"
+            },
+            {
+              "language": "EN",
+              "locale": "en"
+            },
+            {
+              "language": "JP",
+              "locale": "ja"
+            },
+            {
+              "language": "KR",
+              "locale": "ko"
+            },
+            {
+              "language": "CN",
+              "locale": "zh-cn"
+            }
+          ]
+        },
+        "variant_capabilities": {
+          "finish": {
+            "status": "ready",
+            "codes": [
+              "holo",
+              "reverse_holo"
+            ]
+          },
+          "artwork": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "treatment": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "edition": {
+            "status": "ready",
+            "codes": [
+              "promo"
+            ]
+          }
+        },
+        "presentation": {
+          "label": "Pokémon",
+          "icon_path": null,
+          "badge": "pokemon"
+        },
+        "providers": [
+          {
+            "type": "catalog",
+            "provider_key": "tcgdex",
+            "provider_version": "1",
+            "game_key": "pokemon",
+            "priority": 0
+          }
+        ]
+      },
+      {
+        "game_key": "one_piece",
+        "display_name": "One Piece Card Game",
+        "status": "available",
+        "adapter_id": "one_piece_legacy_v1",
+        "adapter_version": "1",
+        "capabilities": {
+          "catalog": {
+            "status": "ready",
+            "profiles": [
+              "legacy_lookup"
+            ]
+          },
+          "collection": {
+            "status": "ready",
+            "profiles": [
+              "legacy_items"
+            ]
+          },
+          "binder": {
+            "status": "ready",
+            "profiles": [
+              "legacy_slots"
+            ]
+          },
+          "marketplace": {
+            "status": "ready",
+            "profiles": [
+              "legacy_snapshots"
+            ]
+          },
+          "scanner": {
+            "status": "ready",
+            "profiles": [
+              "raw_review",
+              "slab_review"
+            ]
+          },
+          "pricing": {
+            "status": "ready",
+            "profiles": [
+              "legacy_raw"
+            ]
+          },
+          "sealed": {
+            "status": "ready",
+            "profiles": [
+              "manual_listing"
+            ]
+          },
+          "grading": {
+            "status": "ready",
+            "profiles": [
+              "manual",
+              "label_review"
+            ]
+          },
+          "battle": {
+            "status": "ready",
+            "profiles": [
+              "webcam_casual",
+              "webcam_ranked"
+            ]
+          }
+        },
+        "supported_languages": {
+          "manual": [
+            {
+              "language": "DE",
+              "locale": "de"
+            },
+            {
+              "language": "EN",
+              "locale": "en"
+            },
+            {
+              "language": "JP",
+              "locale": "ja"
+            },
+            {
+              "language": "FR",
+              "locale": "fr"
+            },
+            {
+              "language": "IT",
+              "locale": "it"
+            },
+            {
+              "language": "ES",
+              "locale": "es"
+            },
+            {
+              "language": "KR",
+              "locale": "ko"
+            },
+            {
+              "language": "CN",
+              "locale": "zh-cn"
+            },
+            {
+              "language": "OTHER",
+              "locale": null
+            }
+          ],
+          "catalog": [
+            {
+              "language": "EN",
+              "locale": "en"
+            }
+          ],
+          "scanner": [
+            {
+              "language": "EN",
+              "locale": "en"
+            }
+          ],
+          "pricing": [
+            {
+              "language": "EN",
+              "locale": "en"
+            }
+          ]
+        },
+        "variant_capabilities": {
+          "finish": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "artwork": {
+            "status": "ready",
+            "codes": [
+              "parallel",
+              "manga",
+              "wanted_poster"
+            ]
+          },
+          "treatment": {
+            "status": "ready",
+            "codes": [
+              "signed"
+            ]
+          },
+          "edition": {
+            "status": "ready",
+            "codes": [
+              "promo",
+              "reprint",
+              "tournament"
+            ]
+          }
+        },
+        "presentation": {
+          "label": "One Piece Card Game",
+          "icon_path": null,
+          "badge": "one_piece"
+        },
+        "providers": [
+          {
+            "type": "catalog",
+            "provider_key": "optcg",
+            "provider_version": "1",
+            "game_key": "one_piece",
+            "priority": 0
+          }
+        ]
+      },
+      {
+        "game_key": "magic",
+        "display_name": "Magic: The Gathering",
+        "status": "planned",
+        "adapter_id": null,
+        "adapter_version": null,
+        "capabilities": {
+          "catalog": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "collection": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "binder": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "marketplace": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "scanner": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "pricing": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "sealed": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "grading": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "battle": {
+            "status": "unsupported",
+            "profiles": []
+          }
+        },
+        "supported_languages": {
+          "manual": [],
+          "catalog": [],
+          "scanner": [],
+          "pricing": []
+        },
+        "variant_capabilities": {
+          "finish": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "artwork": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "treatment": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "edition": {
+            "status": "unsupported",
+            "codes": []
+          }
+        },
+        "presentation": {
+          "label": "Magic: The Gathering",
+          "icon_path": null,
+          "badge": "neutral"
+        },
+        "providers": []
+      },
+      {
+        "game_key": "yugioh",
+        "display_name": "Yu-Gi-Oh!",
+        "status": "planned",
+        "adapter_id": null,
+        "adapter_version": null,
+        "capabilities": {
+          "catalog": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "collection": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "binder": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "marketplace": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "scanner": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "pricing": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "sealed": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "grading": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "battle": {
+            "status": "unsupported",
+            "profiles": []
+          }
+        },
+        "supported_languages": {
+          "manual": [],
+          "catalog": [],
+          "scanner": [],
+          "pricing": []
+        },
+        "variant_capabilities": {
+          "finish": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "artwork": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "treatment": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "edition": {
+            "status": "unsupported",
+            "codes": []
+          }
+        },
+        "presentation": {
+          "label": "Yu-Gi-Oh!",
+          "icon_path": null,
+          "badge": "neutral"
+        },
+        "providers": []
+      },
+      {
+        "game_key": "naruto",
+        "display_name": "Naruto",
+        "status": "planned",
+        "adapter_id": null,
+        "adapter_version": null,
+        "capabilities": {
+          "catalog": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "collection": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "binder": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "marketplace": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "scanner": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "pricing": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "sealed": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "grading": {
+            "status": "unsupported",
+            "profiles": []
+          },
+          "battle": {
+            "status": "unsupported",
+            "profiles": []
+          }
+        },
+        "supported_languages": {
+          "manual": [],
+          "catalog": [],
+          "scanner": [],
+          "pricing": []
+        },
+        "variant_capabilities": {
+          "finish": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "artwork": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "treatment": {
+            "status": "unsupported",
+            "codes": []
+          },
+          "edition": {
+            "status": "unsupported",
+            "codes": []
+          }
+        },
+        "presentation": {
+          "label": "Naruto",
+          "icon_path": null,
+          "badge": "neutral"
+        },
+        "providers": []
+      }
+    ],
+    "profiles": {
+      "pokemon": {
+        "version": "legacy-v16.12/quality-v16.3",
+        "number_profile": "numeric_fraction_1_999_over_10_999",
+        "manual_pattern": "^\\d{1,3}\\s*/\\s*\\d{2,3}$",
+        "card_ratio": 0.7159090909090909,
+        "ocr_regions": [
+          [
+            0,
+            0.84,
+            0.67,
+            1,
+            1.1,
+            6
+          ],
+          [
+            0,
+            0.88,
+            1,
+            1,
+            1,
+            11
+          ],
+          [
+            0,
+            0.58,
+            1,
+            1,
+            1.3,
+            6
+          ]
+        ],
+        "visual_regions": [
+          [
+            0.07,
+            0.1,
+            0.93,
+            0.7,
+            0.46
+          ],
+          [
+            0.1,
+            0.16,
+            0.9,
+            0.62,
+            0.34
+          ],
+          [
+            0.04,
+            0.04,
+            0.96,
+            0.96,
+            0.2
+          ]
+        ],
+        "ranking": {
+          "exact_bonus": 11,
+          "visual_bands": [
+            [
+              82,
+              15
+            ],
+            [
+              70,
+              9
+            ],
+            [
+              60,
+              4
+            ]
+          ],
+          "quality_bonus": 3,
+          "quality_penalty": -5
+        },
+        "review": {
+          "quality_min": 36,
+          "reflection_visual_min": 86,
+          "glare_max": 14,
+          "visual_min": 55,
+          "variant_clear": [
+            75,
+            7
+          ],
+          "variant_reflection": [
+            86,
+            12
+          ],
+          "language_clear": [
+            78,
+            8
+          ],
+          "ready_confidence": 84,
+          "ready_quality": 42,
+          "provider_review_required": true
+        },
+        "coverage": "legacy_limited"
+      },
+      "one_piece": {
+        "version": "legacy-v16.12/quality-v16.3",
+        "number_profile": "OP_ST_EB_PRB_P",
+        "manual_pattern": "^(?:(?:OP|ST|EB|PRB)\\s*\\d{1,2}\\s*-\\s*\\d{2,3}|P\\s*-\\s*\\d{2,3})$",
+        "card_ratio": 0.7159090909090909,
+        "ocr_regions": [
+          [
+            0,
+            0.48,
+            1,
+            1,
+            1.3,
+            6
+          ],
+          [
+            0,
+            0.74,
+            1,
+            1,
+            1.1,
+            6
+          ],
+          [
+            0,
+            0.88,
+            1,
+            1,
+            1,
+            11
+          ]
+        ],
+        "visual_regions": [
+          [
+            0.05,
+            0.08,
+            0.95,
+            0.74,
+            0.48
+          ],
+          [
+            0.08,
+            0.16,
+            0.92,
+            0.66,
+            0.32
+          ],
+          [
+            0.04,
+            0.04,
+            0.96,
+            0.96,
+            0.2
+          ]
+        ],
+        "ranking": {
+          "exact_bonus": 16,
+          "visual_bands": [
+            [
+              84,
+              22
+            ],
+            [
+              74,
+              15
+            ],
+            [
+              64,
+              8
+            ],
+            [
+              48,
+              0
+            ],
+            [
+              0,
+              -8
+            ]
+          ],
+          "quality_bonus": 3,
+          "quality_penalty": -5
+        },
+        "review": {
+          "quality_min": 36,
+          "reflection_visual_min": 86,
+          "glare_max": 14,
+          "visual_min": 55,
+          "variant_clear": [
+            78,
+            9
+          ],
+          "variant_reflection": [
+            88,
+            14
+          ],
+          "language_clear": null,
+          "ready_confidence": 84,
+          "ready_quality": 42,
+          "provider_review_required": true
+        },
+        "coverage": "legacy_limited"
+      }
+    },
+    "variants": {
+      "pokemon": [
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Special Illustration Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "special_illustration",
+          "game_code": "pokemon:special_illustration",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Illustration Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "illustration",
+          "game_code": "pokemon:illustration",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Shiny Ultra Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "shiny_ultra",
+          "game_code": "pokemon:shiny_ultra",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Shiny Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "shiny",
+          "game_code": "pokemon:shiny",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Hyper Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "hyper",
+          "game_code": "pokemon:hyper",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Secret Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "secret",
+          "game_code": "pokemon:secret",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Rainbow",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "rainbow",
+          "game_code": "pokemon:rainbow",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Reverse Holo",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "reverse_holo",
+          "game_code": "pokemon:reverse_holo",
+          "finish": "reverse_holo",
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Holo",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "holo",
+          "game_code": "pokemon:holo",
+          "finish": "holo",
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Promo",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "promo",
+          "game_code": "pokemon:promo",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": "promo"
+        },
+        {
+          "status": "unknown",
+          "original": {
+            "variant": "Uncommon",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "unknown",
+          "original": {
+            "variant": "",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "unknown",
+          "original": {
+            "variant": "unknown",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        }
+      ],
+      "one_piece": [
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Manga",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "manga",
+          "game_code": "one_piece:manga",
+          "finish": null,
+          "artwork": "manga",
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Treasure Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "treasure",
+          "game_code": "one_piece:treasure",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Signed",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "signed",
+          "game_code": "one_piece:signed",
+          "finish": null,
+          "artwork": null,
+          "treatment": "signed",
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Tournament Winner",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "tournament",
+          "game_code": "one_piece:tournament",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": "tournament"
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Parallel Alt Art",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "parallel",
+          "game_code": "one_piece:parallel",
+          "finish": null,
+          "artwork": "parallel",
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Special Rare",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "special",
+          "game_code": "one_piece:special",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Promo",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "promo",
+          "game_code": "one_piece:promo",
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": "promo"
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Reprint",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": "reprint"
+        },
+        {
+          "status": "valid",
+          "original": {
+            "variant": "Wanted Poster",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": "wanted_poster",
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "unknown",
+          "original": {
+            "variant": "",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        },
+        {
+          "status": "unknown",
+          "original": {
+            "variant": "unknown",
+            "rarity": "",
+            "name": "",
+            "set": ""
+          },
+          "legacy_family": "standard",
+          "game_code": null,
+          "finish": null,
+          "artwork": null,
+          "treatment": null,
+          "edition": null
+        }
+      ]
+    },
+    "providers": {
+      "tcgdex": {
+        "provider_key": "tcgdex",
+        "provider_version": "1",
+        "game_key": "pokemon",
+        "operations": {
+          "search": "record_translation_only",
+          "getSet": "unsupported",
+          "getCard": "record_translation_only",
+          "listVariants": "record_translation_only"
+        }
+      },
+      "optcg": {
+        "provider_key": "optcg",
+        "provider_version": "1",
+        "game_key": "one_piece",
+        "operations": {
+          "search": "record_translation_only",
+          "getSet": "unsupported",
+          "getCard": "record_translation_only",
+          "listVariants": "record_translation_only"
+        }
+      }
+    }
+  },
+  "input": {
+    "variant": "Foil Showcase legacy text is not evidence",
+    "rarity": "mythic",
+    "name": "Synthetic Printing",
+    "set": "Synthetic Set"
+  },
+  "evidence": {
+    "contract": "MagicVariantEvidence",
+    "version": "1",
+    "game_key": "magic",
+    "provider_key": "scryfall",
+    "provider_version": "1",
+    "printing_context": {
+      "id": "30000000-0000-4000-8000-000000000006",
+      "set_id": "30000000-0000-4000-8000-000000000002",
+      "oracle_id": "30000000-0000-4000-8000-000000000003",
+      "lang": "en",
+      "layout": "normal",
+      "collector_number": "0001s★",
+      "released_at": "2025-01-01",
+      "variation": false,
+      "reprint": false
+    },
+    "chosen_finish": "foil",
+    "available_finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "frame": "2015",
+    "border_color": "black",
+    "full_art": false,
+    "frame_effects": [],
+    "promo_types": [],
+    "illustration_ids": [
+      "30000000-0000-4000-8000-000000000004"
+    ],
+    "variation_of": null,
+    "reference_kind": "same_set_standard",
+    "reference_printing": {
+      "printing_context": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "set_id": "30000000-0000-4000-8000-000000000002",
+        "oracle_id": "30000000-0000-4000-8000-000000000003",
+        "lang": "en",
+        "layout": "normal",
+        "collector_number": "0001",
+        "released_at": "2020-01-01",
+        "variation": false,
+        "reprint": false
+      },
+      "frame": "2015",
+      "border_color": "black",
+      "full_art": false,
+      "frame_effects": [],
+      "promo_types": [],
+      "illustration_ids": [
+        "30000000-0000-4000-8000-000000000004"
+      ],
+      "variation_of": null
+    }
+  },
+  "cases": {
+    "V03": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "nonfoil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "nonfoil",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V04": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V05": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "etched",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "etched",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V06": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": null,
+        "available_finishes": [
+          "nonfoil",
+          "foil"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": null,
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V07": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": null,
+        "available_finishes": [
+          "nonfoil"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": null,
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V08": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": null,
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V09": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000006",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001s★",
+            "released_at": "2025-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V10": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "borderless",
+        "full_art": true,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "borderless",
+        "game_code": "magic:borderless",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "borderless",
+        "edition": null
+      }
+    },
+    "V11": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": true,
+        "frame_effects": [
+          "extendedart"
+        ],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "extended_art",
+        "game_code": "magic:extended_art",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "extended_art",
+        "edition": null
+      }
+    },
+    "V12": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [
+          "showcase"
+        ],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "showcase",
+        "game_code": "magic:showcase",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "showcase",
+        "edition": null
+      }
+    },
+    "V13": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000007",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": true
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "1993",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "earlier_modern_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "retro_frame",
+        "game_code": "magic:retro_frame",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "retro_frame",
+        "edition": null
+      }
+    },
+    "V14": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": true
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "1993",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": null,
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V15": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [
+          "prerelease",
+          "datestamped"
+        ],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "prerelease_stamp",
+        "game_code": "magic:prerelease_stamp",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "prerelease_stamp",
+        "edition": null
+      }
+    },
+    "V16": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [
+          "datestamped"
+        ],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V17": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [
+          "new_unmodeled_flag"
+        ],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V18": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [
+          "showcase",
+          "extendedart"
+        ],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V19": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": true,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V20": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": null,
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [
+          "etched"
+        ],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": null,
+        "artwork": "normal",
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V29": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": null,
+        "artwork": null,
+        "treatment": null,
+        "edition": null
+      }
+    },
+    "V33": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "transform",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004",
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "transform",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004",
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V34": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": true,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": null,
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V35": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "foil",
+        "artwork": "normal",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V36": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000005"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": "30000000-0000-4000-8000-000000000003",
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "valid",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "normal",
+        "game_code": "magic:normal",
+        "finish": "foil",
+        "artwork": "alternate_art",
+        "treatment": "normal",
+        "edition": null
+      }
+    },
+    "V37": {
+      "input": {
+        "variant": "Foil Showcase legacy text is not evidence",
+        "rarity": "mythic",
+        "name": "Synthetic Printing",
+        "set": "Synthetic Set"
+      },
+      "evidence": {
+        "contract": "MagicVariantEvidence",
+        "version": "1",
+        "game_key": "magic",
+        "provider_key": "scryfall",
+        "provider_version": "1",
+        "printing_context": {
+          "id": "30000000-0000-4000-8000-000000000006",
+          "set_id": "30000000-0000-4000-8000-000000000002",
+          "oracle_id": "30000000-0000-4000-8000-000000000003",
+          "lang": "en",
+          "layout": "normal",
+          "collector_number": "0001s★",
+          "released_at": "2025-01-01",
+          "variation": false,
+          "reprint": false
+        },
+        "chosen_finish": "foil",
+        "available_finishes": [
+          "nonfoil",
+          "foil",
+          "etched"
+        ],
+        "frame": "2015",
+        "border_color": "black",
+        "full_art": false,
+        "frame_effects": [],
+        "promo_types": [],
+        "illustration_ids": [
+          "30000000-0000-4000-8000-000000000004"
+        ],
+        "variation_of": null,
+        "reference_kind": "same_set_standard",
+        "reference_printing": {
+          "printing_context": {
+            "id": "30000000-0000-4000-8000-000000000001",
+            "set_id": "30000000-0000-4000-8000-000000000002",
+            "oracle_id": null,
+            "lang": "en",
+            "layout": "normal",
+            "collector_number": "0001",
+            "released_at": "2020-01-01",
+            "variation": false,
+            "reprint": false
+          },
+          "frame": "2015",
+          "border_color": "black",
+          "full_art": false,
+          "frame_effects": [],
+          "promo_types": [],
+          "illustration_ids": [
+            "30000000-0000-4000-8000-000000000004"
+          ],
+          "variation_of": null
+        }
+      },
+      "expected": {
+        "status": "unknown",
+        "original": {
+          "variant": "Foil Showcase legacy text is not evidence",
+          "rarity": "mythic",
+          "name": "Synthetic Printing",
+          "set": "Synthetic Set"
+        },
+        "legacy_family": "unknown",
+        "game_code": null,
+        "finish": "foil",
+        "artwork": null,
+        "treatment": "normal",
+        "edition": null
+      }
+    }
+  },
+  "raw": {
+    "object": "card",
+    "id": "30000000-0000-4000-8000-000000000006",
+    "oracle_id": "30000000-0000-4000-8000-000000000003",
+    "set_id": "30000000-0000-4000-8000-000000000002",
+    "set": "zzm",
+    "set_name": "Synthetic Set",
+    "name": "Synthetic Printing",
+    "lang": "en",
+    "layout": "normal",
+    "collector_number": "0001s★",
+    "released_at": "2025-01-01",
+    "variation": false,
+    "reprint": false,
+    "digital": false,
+    "oversized": false,
+    "games": [
+      "paper"
+    ],
+    "rarity": "mythic",
+    "finishes": [
+      "nonfoil",
+      "foil",
+      "etched"
+    ],
+    "frame": "2015",
+    "border_color": "black",
+    "full_art": false,
+    "frame_effects": [],
+    "promo_types": [],
+    "illustration_id": "30000000-0000-4000-8000-000000000004",
+    "image_status": "highres_scan",
+    "image_uris": {
+      "normal": "https://example.invalid/magic-front.png"
+    },
+    "prices": {
+      "usd": "999.99",
+      "eur": "888.88"
+    },
+    "unconsumed": {
+      "label": "raw only"
+    }
+  },
+  "context": {
+    "game_key": "magic",
+    "locale": "en",
+    "collector": {
+      "text": "0001s★",
+      "source": "manual"
+    },
+    "source_path": "api/cards/30000000-0000-4000-8000-000000000006",
+    "retrieved_at": null
+  },
+  "set": {
+    "object": "set",
+    "id": "30000000-0000-4000-8000-000000000002",
+    "code": "zzm",
+    "name": "Synthetic Set",
+    "digital": false,
+    "parent_set_code": "zzp"
+  },
+  "set_context": {
+    "game_key": "magic",
+    "locale": null,
+    "collector": {
+      "text": "",
+      "source": "manual"
+    },
+    "source_path": "api/sets/30000000-0000-4000-8000-000000000002",
+    "retrieved_at": null
+  }
+}

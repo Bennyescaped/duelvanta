@@ -31,7 +31,7 @@
     if(!cards.length){if(host.textContent?.includes('Noch keine V16-Ergebnisse'))root.DV_SCAN_V16_RESILIENCE?.resetSession?.();return}
     const rows=state?.results||[];
     cards.forEach((card,i)=>{
-      const r=root.DV_SCAN_V16?.batch?.[i]||rows[i];if(!r)return;
+      const r=root.DV_SCAN_V16?.batch?.[i]||rows[i];if(!r||r.tcg==='magic')return;
       let old=card.querySelector('.dvV16CaptureAdvice');const html=panelHtml(r),stamp=signature(html);
       if(!html){old?.remove();return}
       if(!old){(card.querySelector('.dvV16DetailsBody')||card).insertAdjacentHTML('beforeend',html);old=card.querySelector('.dvV16CaptureAdvice')}

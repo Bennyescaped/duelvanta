@@ -1,0 +1,16 @@
+{
+  "contract": "staging-m6-r4/1",
+  "supersedes": [],
+  "already_applied_r3": [
+    {
+      "version": "20261013113151",
+      "name": "dv_staging_m6r3_01_m4_readiness_reconcile"
+    },
+    {
+      "version": "20261013113259",
+      "name": "dv_staging_m6r3_02_tcg_i3_magic_on_demand"
+    }
+  ],
+  "policy": "R3 units are immutable prerequisites; never replay them on real staging.",
+  "real_apply_authorized": false
+}

@@ -109,11 +109,11 @@ must(loader,'scanner-v16-tcg.js?v=16.24.0','TCG-specific V16.2 module not loaded
 must(loader,'scanner-v16-core.js?v=16.24.0','V16.2 core not loaded');
 must(loader,'scanner-v16-quality.js?v=16.24.0','V16.3 evidence quality layer not loaded');
 must(loader,'scanner-v16-resilience.js?v=16.24.0','V16.5 resilience layer not loaded');
-must(loader,'scanner-v16-explain.js?v=16.24.0','V16.4 explainability layer not loaded');
-must(loader,'scanner-v16-guidance.js?v=16.24.0','V16.5 guidance UI not loaded');
+must(loader,'scanner-v16-explain.js?v=22.3.0','V16.4 explainability layer not loaded');
+must(loader,'scanner-v16-guidance.js?v=22.3.0','V16.5 guidance UI not loaded');
 must(loader,'scanner-v16-benchmark.js?v=16.24.0','V16.5 benchmark not loaded');
 must(loader,'scanner-v16-benchmark-session.js?v=16.24.0','V16.9 guided benchmark session not loaded');
-must(loader,'scanner-v16-runtime.js?v=16.24.0','V16.9 state machine not loaded');
+must(loader,'scanner-v16-runtime.js?v=22.3.0','V16.9 state machine not loaded');
 must(loader,'scanner-v16-camera.js?v=16.24.0','V16.9 live camera service not loaded');
 must(loader,'scanner-v16-native-camera.js?v=16.24.0','V16.9 native fallback not loaded');
 for(const module of ['scanner-v16-geometry.js?v=16.24.0','scanner-v16-vision.js?v=16.24.0','scanner-v16-freeform-ui.js?v=16.24.0'])must(loader,module,'V16.1 module not loaded');
